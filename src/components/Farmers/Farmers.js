@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 
-const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Crop', 'Fruit', 'Documents', 'Premium', 'Events', 'Mkt SMS', 'Ledger'];
+const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents', 'Events', 'Mkt SMS'];
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
