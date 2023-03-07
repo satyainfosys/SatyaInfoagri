@@ -144,3 +144,17 @@ export const selectedProductsAction = (payload) => {
     payload
   };
 };
+
+export const farmerDetailsAction = (payload) => {
+  return {
+    type: 'FARMERDETAILS',
+    payload
+  };
+};
+
+export const farmerDetailsErrorAction = (payload) => {
+  return {
+    type: 'FARMERDETAILSERROR',
+    payload
+  };
+};

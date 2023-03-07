@@ -20,6 +20,8 @@ import userDetailsErrorReducer from './userDetailsErrorReducer'
 import productDetailsReducer from './productDetailsReducer'
 import productDetailsErrorReducer from './productDetailsErrorReducer'
 import selectedProductsReducer from './selectedProductsReducer'
+import farmerDetailsReducer from './farmerDetailsReducer'
+import farmerDetailsErrorReducer from './farmerDetailsErrorReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -42,7 +44,9 @@ const rootReducer = combineReducers({
   userDetailsErrorReducer,
   productDetailsReducer,
   productDetailsErrorReducer,
-  selectedProductsReducer
+  selectedProductsReducer,
+  farmerDetailsReducer,
+  farmerDetailsErrorReducer
 });
 
 export default rootReducer;

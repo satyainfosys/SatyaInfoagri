@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
+import { useDispatch, useSelector } from 'react-redux';
+import { farmerDetailsAction, farmerDetailsErrorAction } from 'actions';
 
 const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents', 'Events', 'Mkt SMS'];
 
@@ -19,11 +21,13 @@ const listColumnArray = [
 
 export const Farmers = () => {
 
+    const dispatch = useDispatch();
     const [listData, setListData] = useState([]);
     const [perPage, setPerPage] = useState(15);
     const [isLoading, setIsLoading] = useState(false);
+    const [formHasError, setFormError] = useState(false);
 
-    const fetchFarmersList = async (page, size = perPage) => {
+    const fetchFarmerList = async (page, size = perPage) => {
         let token = localStorage.getItem('Token');
 
         const listFilter = {
@@ -45,7 +49,7 @@ export const Farmers = () => {
     };
 
     useEffect(() => {
-        fetchFarmersList(1);
+        fetchFarmerList(1);
         $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Family"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Bank"]').attr('disabled', true);
@@ -56,11 +60,32 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
     }, []);
 
+    $.fn.extend({
+        trackChanges: function () {
+            $(":input", this).change(function () {
+                $(this.form).data("changed", true);
+            });
+        }
+        ,
+        isChanged: function () {
+            return this.data("changed");
+        }
+    });
+
+    const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
+    var farmerData = farmerDetailsReducer.farmerDetails;
+
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
     })
+
+    const clearFarmerReducers = () => {
+        dispatch(farmerDetailsErrorAction(undefined));
+        dispatch(farmerDetailsAction(undefined));
+        $("#AddFarmerDetailsForm").data("changed", false);
+    }
 
     const newDetails = () => {
         $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
@@ -72,12 +97,12 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
-        $('#btnSave').attr('disabled', false);        
+        $('#btnSave').attr('disabled', false);
+        $("#AddFarmerDetailsForm").data("changed", false);
+        clearFarmerReducers();
     }
 
     $('[data-rr-ui-event-key*="Farmers"]').click(function () {
-        $('#btnExit').attr('isExit', 'false');
-        
 
         $("#btnNew").show();
         $("#btnSave").hide();
@@ -89,9 +114,165 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
-        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);  
+        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
+        clearFarmerReducers();
     })
 
+    const farmerValidation = () => {
+
+        const firstNameErr = {};
+        const lastNameErr = {};
+        const addressErr = {};
+
+        let isValid = true;
+
+        if (!farmerData.firstName) {
+            firstNameErr.empty = "Enter first name";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!farmerData.lastName) {
+            lastNameErr.empty = "Enter last name";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!farmerData.address) {
+            addressErr.empty = "Enter address";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                firstNameErr,
+                lastNameErr,
+                addressErr
+            }
+            dispatch(farmerDetailsErrorAction(errorObject))
+        }
+    }
+
+    const updateFarmerCallback = (isAddFarmer = false) => {
+        $("#AddFarmersDetailForm").data("changed", false);
+        $('#AddFarmersDetailForm').get(0).reset();
+
+        dispatch(farmerDetailsErrorAction(undefined));
+
+        if (!isAddFarmer) {
+            toast.success("Farmer details updated successfully!", {
+                theme: 'colored'
+            });
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        fetchFarmerList(1);
+    }
+
+    const uploadDocuments = async (uploadDocument, encryptedId, documentType, isUpdate, isRemoved) => {
+        var formData = new FormData();
+        formData.append("UploadDocument", uploadDocument);
+        formData.append("EncryptedId", encryptedId)
+        formData.append("DocumentType", documentType)
+        formData.append("IsUpdate", isUpdate)
+        formData.append("IsRemoved", isRemoved)
+        await axios.post(process.env.REACT_APP_API_URL + '/upload-document', formData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status == 200) {
+                    if (!isUpdate) {
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                        updateFarmerCallback(true);
+                        $('[data-rr-ui-event-key*="Farmers"]').click();
+                    }
+                    else {
+                        updateFarmerCallback();
+                    }
+                } else {
+                    toast.error(res.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                }
+            })
+    }
+
+    const addFarmerDetails = () => {        
+        if (farmerValidation()) {            
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: "",
+                farmerFirstName: farmerData.firstName,
+                farmerMiddleName: farmerData.middleName ? farmerData.middleName : "",
+                farmerLastName: farmerData.lastName,
+                farmerAddress: farmerData.address,
+                farmerEducation: farmerData.educationalStatus ? farmerData.educationalStatus : "",
+                farmerIDType: "",
+                farmerIdNo: "",
+                farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
+                farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
+                farmerGender: farmerData.Gender == null || farmerData.Gender == "Male" ? "M" : "F",
+                farmerMaritalStatus: farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "",
+                farmerFatherName: farmerData.fatherName ? farmerData.fatherName : "",
+                farmerTotalLand: farmerData.totalLand ? parseInt(farmerData.totalLand) : 0,
+                farmerUser: "",
+                farmerPassword: "",
+                encryptedFigCode: "",
+                encryptedCollCentreCode: "",
+                encryptedDistributionCentreCode: "",
+                encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
+                encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
+                encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",
+                encryptedTehsilCode: farmerData.encryptedTehsilCode ? farmerData.encryptedTehsilCode : "",
+                encryptedBlockCode: farmerData.encryptedBlockCode ? farmerData.encryptedBlockCode : "",
+                encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
+                encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
+                activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
+                addUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser']
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-farmer', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+
+                    if (res.data.status == 200) {
+                        if (farmerData.farmerPic) {
+                            uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", false);
+                        } else {
+                            setIsLoading(false);
+                            toast.success(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+
+                            updateFarmerCallback(true);
+                            $('[data-rr-ui-event-key*="Farmers"]').click();
+                        }
+
+                    } else {
+                        setIsLoading(false);
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
     return (
         <>
             <TabPage
@@ -100,6 +281,7 @@ export const Farmers = () => {
                 tabArray={tabArray}
                 module="Farmers"
                 newDetails={newDetails}
+                saveDetails={addFarmerDetails}
             />
         </>
     )
