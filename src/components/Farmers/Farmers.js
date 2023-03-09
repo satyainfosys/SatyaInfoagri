@@ -3,6 +3,8 @@ import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { farmerDetailsAction, farmerDetailsErrorAction } from 'actions';
+import { Spinner, Modal, Button } from 'react-bootstrap';
+import { toast } from 'react-toastify';
 
 const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents', 'Events', 'Mkt SMS'];
 
@@ -26,6 +28,7 @@ export const Farmers = () => {
     const [perPage, setPerPage] = useState(15);
     const [isLoading, setIsLoading] = useState(false);
     const [formHasError, setFormError] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
 
     const fetchFarmerList = async (page, size = perPage) => {
         let token = localStorage.getItem('Token');
@@ -115,11 +118,11 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
+        // $('#AddFarmerDetailsForm').get(0).reset();
         clearFarmerReducers();
     })
 
     const farmerValidation = () => {
-
         const firstNameErr = {};
         const lastNameErr = {};
         const addressErr = {};
@@ -152,6 +155,7 @@ export const Farmers = () => {
             }
             dispatch(farmerDetailsErrorAction(errorObject))
         }
+        return isValid;
     }
 
     const updateFarmerCallback = (isAddFarmer = false) => {
@@ -204,16 +208,16 @@ export const Farmers = () => {
             })
     }
 
-    const addFarmerDetails = () => {        
-        if (farmerValidation()) {            
+    const addFarmerDetails = () => {
+        if (farmerValidation()) {
             const requestData = {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                encryptedCompanyCode: "",
+                encryptedCompanyCode: farmerData.encryptedCompanyCode,
                 farmerFirstName: farmerData.firstName,
                 farmerMiddleName: farmerData.middleName ? farmerData.middleName : "",
                 farmerLastName: farmerData.lastName,
                 farmerAddress: farmerData.address,
-                farmerEducation: farmerData.educationalStatus ? farmerData.educationalStatus : "",
+                farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "ILLITERATE" ? "ILLITERATE" : farmerData.educationalStatus == "Doctrate" ? "DOCTRATE" : "",
                 farmerIDType: "",
                 farmerIdNo: "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
@@ -221,7 +225,7 @@ export const Farmers = () => {
                 farmerGender: farmerData.Gender == null || farmerData.Gender == "Male" ? "M" : "F",
                 farmerMaritalStatus: farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "",
                 farmerFatherName: farmerData.fatherName ? farmerData.fatherName : "",
-                farmerTotalLand: farmerData.totalLand ? parseInt(farmerData.totalLand) : 0,
+                farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
                 farmerUser: "",
                 farmerPassword: "",
                 encryptedFigCode: "",
@@ -235,10 +239,11 @@ export const Farmers = () => {
                 encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
                 encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
                 addUser: localStorage.getItem("LoginUserName")
             }
 
-            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser']
+            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation"]
             for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
                 requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
             }
@@ -275,6 +280,35 @@ export const Farmers = () => {
     }
     return (
         <>
+            {isLoading ? (
+                <Spinner
+                    className="position-absolute start-50 loader-color"
+                    animation="border"
+                />
+            ) : null}
+
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Do you want to save changes?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={!userData.encryptedSecurityUserId ? addUserDetails : updateUserDetails}>Save</Button>
+                        <Button variant="danger" onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}

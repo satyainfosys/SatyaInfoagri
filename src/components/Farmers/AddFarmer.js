@@ -12,6 +12,7 @@ const AddFarmer = () => {
 
     const resetFarmerData = () => {
         dispatch(farmerDetailsAction({
+            "encryptedCompanyCode": "",
             "firstName": "",
             "middleName": "",
             "lastName": "",
@@ -70,10 +71,17 @@ const AddFarmer = () => {
     const [formHasError, setFormError] = useState(false);
     const [countryList, setCountryList] = useState([]);
     const [stateList, setStateList] = useState([]);
+    const [districtList, setDistrictList] = useState([]);
+    const [tehsilList, setTehsilList] = useState([])
+    const [blockList, setBlockList] = useState([]);
+    const [postOfficeList, setPostOfficeList] = useState([]);
+    const [villageList, setVillageList] = useState([]);
+    const [companyList, setCompanyList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         getCountries();
+        getCompany();
     }, []);
 
     const getCountries = async () => {
@@ -90,17 +98,19 @@ const AddFarmer = () => {
                             });
                         });
                     setCountryList(countryData);
+                } else {
+                    setCountryList([]);
                 }
             });
     }
 
     const getStates = async (EncryptedCountryCode) => {
-        const userData = {
+        const stateRequest = {
             EncryptedCountryCode: EncryptedCountryCode
         }
 
         axios
-            .post(process.env.REACT_APP_API_URL + '/state-list', userData)
+            .post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
             .then(res => {
 
                 let stateData = [];
@@ -114,9 +124,170 @@ const AddFarmer = () => {
                             });
                         });
                     }
+                    setStateList(stateData);
+                } else {
+                    setStateList([]);
                 }
-                setStateList(stateData);
+
             });
+    }
+
+    const getDistrict = async (EncryptedStateCode) => {
+        const districtRequest = {
+            EncryptedCountryCode: farmerData.encryptedCountryCode,
+            EncryptedStateCode: EncryptedStateCode
+        }
+        axios
+            .post(process.env.REACT_APP_API_URL + '/district-list', districtRequest)
+            .then(res => {
+
+                let districtData = [];
+
+                if (res.data.status == 200) {
+                    if (res.data && res.data.data.length > 0) {
+                        res.data.data.forEach(district => {
+                            districtData.push({
+                                key: district.districtName,
+                                value: district.encryptedDistrictCode
+                            });
+                        });
+                    }
+                    setDistrictList(districtData);
+                } else {
+                    setDistrictList([]);
+                }
+
+            });
+    }
+
+    const getTehsil = async (EncryptedDistrictCode) => {
+        const teshilRequest = {
+            EncryptedCountryCode: farmerData.encryptedCountryCode,
+            EncryptedStateCode: farmerData.encryptedStateCode,
+            EncryptedDistrictCode: EncryptedDistrictCode
+        }
+        axios
+            .post(process.env.REACT_APP_API_URL + '/tehsil-list', teshilRequest)
+            .then(res => {
+
+                let tehsilData = [];
+
+                if (res.data.status == 200) {
+                    if (res.data && res.data.data.length > 0) {
+                        res.data.data.forEach(tehsil => {
+                            tehsilData.push({
+                                key: tehsil.tehsilName,
+                                value: tehsil.encryptedTehsilCode
+                            });
+                        });
+                    }
+                }
+                setTehsilList(tehsilData);
+            });
+    }
+
+    const getBlock = async (EncryptedTehsilCode) => {
+        const blockRequest = {
+            EncryptedCountryCode: farmerData.encryptedCountryCode,
+            EncryptedStateCode: farmerData.encryptedStateCode,
+            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
+            EncryptedTehsilCode: EncryptedTehsilCode
+        }
+
+        axios
+            .post(process.env.REACT_APP_API_URL + '/block-list', blockRequest)
+            .then(res => {
+
+                let blockData = [];
+
+                if (res.data.status == 200) {
+                    if (res.data && res.data.data.length > 0) {
+                        res.data.data.forEach(block => {
+                            blockData.push({
+                                key: block.blockName,
+                                value: block.encryptedBlockCode
+                            });
+                        });
+                    }
+                    setBlockList(blockData);
+                }
+            });
+    }
+
+    const getPostOffice = async (EncryptedBlockCode) => {
+        const postOfficeRequest = {
+            EncryptedCountryCode: farmerData.encryptedCountryCode,
+            EncryptedStateCode: farmerData.encryptedStateCode,
+            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
+            EncryptedTehsilCode: farmerData.encryptedTehsilCode,
+            EncryptedBlockCode: EncryptedBlockCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/post-office-list', postOfficeRequest)
+        let postOfficeData = [];
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(postOffice => {
+                    postOfficeData.push({
+                        key: postOffice.postOfficeName,
+                        value: postOffice.encryptedPostOfficeCode
+                    });
+                });
+            }
+            setPostOfficeList(postOfficeData);
+        }
+    }
+
+    const getVillage = async (EncryptedPostOfficeCode) => {
+        let villageData = [];
+        const villageRequest = {
+            EncryptedCountryCode: farmerData.encryptedCountryCode,
+            EncryptedStateCode: farmerData.encryptedStateCode,
+            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
+            EncryptedTehsilCode: farmerData.encryptedTehsilCode,
+            EncryptedBlockCode: farmerData.encryptedBlockCode,
+            EncryptedPostOfficeCode: EncryptedPostOfficeCode
+        }
+
+        let villageResponse = await axios.post(process.env.REACT_APP_API_URL + '/village-list', villageRequest);
+
+        if (villageResponse.data.status == 200) {
+            if (villageResponse.data && villageResponse.data.data.length > 0) {
+                villageResponse.data.data.forEach(village => {
+                    villageData.push({
+                        key: village.villageName,
+                        value: village.encryptedVillageCode
+                    })
+                })
+            }
+            setVillageList(villageData);
+        }
+
+    }
+
+    const getCompany = async () => {
+        let companyData = [];
+        const companyRequest = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        }
+
+        let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (companyResponse.data.status == 200) {
+            if (companyResponse.data && companyResponse.data.data.length > 0) {
+                companyResponse.data.data.forEach(company => {
+                    companyData.push({
+                        key: company.companyName,
+                        value: company.encryptedCompanyCode
+                    })
+                })
+            }
+            setCompanyList(companyData)
+        }
+
     }
 
     const handleFieldChange = e => {
@@ -126,10 +297,47 @@ const AddFarmer = () => {
         }));
 
         if (e.target.name == "encryptedCountryCode") {
-            if (e.target.value == '')
+            if (e.target.value == '') {
                 setStateList([]);
+                setDistrictList([]);
+            }
             else
                 getStates(e.target.value);
+        }
+
+        if (e.target.name == "encryptedStateCode") {
+            if (e.target.value == '')
+                setDistrictList([]);
+            else
+                getDistrict(e.target.value);
+        }
+
+        if (e.target.name == "encryptedDistrictCode") {
+            if (e.target.value == '')
+                setTehsilList([]);
+            else
+                getTehsil(e.target.value)
+        }
+
+        if (e.target.name == "encryptedTehsilCode") {
+            if (e.target.value == '')
+                setBlockList([]);
+            else
+                getBlock(e.target.value);
+        }
+
+        if (e.target.name == "encryptedBlockCode") {
+            if (e.target.value == '')
+                setPostOfficeList([]);
+            else
+                getPostOffice(e.target.value);
+        }
+
+        if (e.target.name == "encryptedPostOfficeCode") {
+            if (e.target.value == '')
+                setVillageList([]);
+            else
+                getVillage(e.target.value);
         }
 
         if (e.target.name == 'farmerPic') {
@@ -154,6 +362,23 @@ const AddFarmer = () => {
             {farmerData &&
 
                 <Form noValidate validated={formHasError} className="details-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
+                    <Row className="g-3 mb-3">
+                        <FalconComponentCard>
+                            <FalconComponentCard.Body language="jsx">
+                                <Row>
+                                    <Col sm={6} lg={4}>
+                                        <Form.Label>Company</Form.Label>
+                                        <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange}>
+                                            <option value=''>Select company</option>
+                                            {companyList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                                </Row>
+                            </FalconComponentCard.Body>
+                        </FalconComponentCard>
+                    </Row>
                     <Row className="g-3 mb-3">
                         <Col sm={4} lg={3}>
                             <FalconComponentCard>
@@ -267,7 +492,6 @@ const AddFarmer = () => {
                                                         <option value="Approved">Approved</option>
                                                         <option value="Draft">Draft</option>
                                                         <option value="Send for Verification">Send for Verification</option>
-                                                        <option value="Approved">Approved</option>
                                                         <option value="Suspended">Suspended</option>
                                                     </Form.Select>
                                                 </Col>
@@ -341,7 +565,7 @@ const AddFarmer = () => {
                                                     <option value='Inter'>Inter</option>
                                                     <option value='Graduate'>Graduate</option>
                                                     <option value='Post Graduate'>Post Graduate</option>
-                                                    <option value='ILLETRATE'>ILLETRATE</option>
+                                                    <option value='Illiterate'>Illiterate</option>
                                                     <option value='Doctrate'>Doctrate</option>
                                                 </Form.Select>
                                             </Col>
@@ -429,6 +653,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtDistrictName" name="encryptedDistrictCode" onChange={handleFieldChange}>
                                                             <option value=''>Select district</option>
+                                                            {districtList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>
@@ -440,6 +667,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtTehsilName" name="encryptedTehsilCode" onChange={handleFieldChange} >
                                                             <option value=''>Select tehsil</option>
+                                                            {tehsilList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>
@@ -451,6 +681,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtBlockName" name="encryptedBlockCode" onChange={handleFieldChange}>
                                                             <option value=''>Select block</option>
+                                                            {blockList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>
@@ -462,6 +695,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" onChange={handleFieldChange}>
                                                             <option value=''>Select PostOffice</option>
+                                                            {postOfficeList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>
@@ -473,6 +709,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtVillageName" name="encryptedVillageCode" onChange={handleFieldChange}>
                                                             <option value=''>Select Village</option>
+                                                            {villageList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>
