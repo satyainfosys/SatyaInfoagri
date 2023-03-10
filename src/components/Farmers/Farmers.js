@@ -76,7 +76,16 @@ export const Farmers = () => {
     });
 
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
-    var farmerData = farmerDetailsReducer.farmerDetails;
+    const farmerData = farmerDetailsReducer.farmerDetails;
+
+    const farmerFamilyDetailsListReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsListReducer)
+    const farmerFamilyDetailsListData = farmerFamilyDetailsListReducer.farmerFamilyDetailsList;
+
+    const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
+    const commonContactDetailList = commonContactDetailListReducer.commonContactDetailsList;
+
+    const bankDetailsListReducer = useSelector((state) => state.rootReducer.bankDetailsListReducer)
+    const bankDetailList = bankDetailsListReducer.bankDetailsList;
 
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
@@ -240,13 +249,53 @@ export const Farmers = () => {
                 encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
-                addUser: localStorage.getItem("LoginUserName")
+                addUser: localStorage.getItem("LoginUserName"),
+                familyDetails: farmerFamilyDetailsListData,
+                commonContactDetails: commonContactDetailList,
+                bankDetails: bankDetailList
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation"]
             for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
                 requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
             }
+
+            const familyDetailsKeys = ['familyMemberName', 'addUser']
+            var index = 0;
+            for (var obj in requestData.familyDetails) {
+                var familyDetailObj = requestData.familyDetails[obj];
+
+                for (const key of Object.keys(familyDetailObj).filter((key) => familyDetailsKeys.includes(key))) {
+                    familyDetailObj[key] = familyDetailObj[key] ? familyDetailObj[key].toUpperCase() : '';
+                }
+                requestData.familyDetails[index] = familyDetailObj;
+                index++;
+            }
+
+            const contactKeys = ['contactPerson', 'addUser']
+            var index = 0;
+            for (var obj in requestData.commonContactDetails) {
+                var contactDetailObj = requestData.commonContactDetails[obj];
+
+                for (const key of Object.keys(contactDetailObj).filter((key) => contactKeys.includes(key))) {
+                    contactDetailObj[key] = contactDetailObj[key] ? contactDetailObj[key].toUpperCase() : '';
+                }
+                requestData.commonContactDetails[index] = contactDetailObj;
+                index++;
+            }
+
+            const bankKeys = ['bankName', 'bankAddress', 'branchName', 'bankIfscCode', 'addUser']
+            var index = 0;
+            for (var obj in requestData.bankDetails) {
+                var bankDetailObj = requestData.bankDetails[obj];
+
+                for (const key of Object.keys(bankDetailObj).filter((key) => bankKeys.includes(key))) {
+                    bankDetailObj[key] = bankDetailObj[key] ? bankDetailObj[key].toUpperCase() : '';
+                }
+                requestData.bankDetails[index] = bankDetailObj;
+                index++;
+            }
+
 
             setIsLoading(true);
             axios.post(process.env.REACT_APP_API_URL + '/add-farmer', requestData, {

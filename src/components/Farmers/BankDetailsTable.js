@@ -1,14 +1,15 @@
-import React from 'react';
-import { Button, Table, Form, Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button, Table, Form, } from 'react-bootstrap';
+import { useSelector, useDispatch } from 'react-redux';
+import { bankDetailsAction, bankDetailsListAction } from 'actions';
 
 export const BankDetailsTable = () => {
+  const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([]);
-  const [data, setdata] = useState([]);
   const columnsArray = [
     'Bank Name',
     'Bank Address',
+    'Branch Name',
     'Account Number',
     'Account Type',
     'IFSC Code',
@@ -16,28 +17,112 @@ export const BankDetailsTable = () => {
     'Action'
   ];
 
-  const handleAddRow = () => {
-    const item = {
+  const [bankNameErr, setBankNameErr] = useState({});
+  const [accountNoErr, setAccountNoErr] = useState({});
+  const [accountTypeErr, setAccountTypeErr] = useState({});
+  const [bankIfscCodeErr, setBankIfscCodeErr] = useState({});
+
+  const resetBankDetailData = () => {
+    dispatch(bankDetailsAction({
       bankName: '',
       bankAddress: '',
-      accountNumber: '',
+      branchName: '',
+      accountNo: '',
       accountType: '',
-      ifscCode: '',
+      bankIfscCode: '',
       activeStatus: ''
-    };
-    setRowData([...rowData, item]);
-  };
-  const changeHandle = e => {
-    setdata({ ...data, [e.target.name]: e.target.value });
+    }))
   };
 
+  const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
+  var bankDetailData = bankDetailsReducer.bankDetails;
+
+  const bankDetailsListReducer = useSelector((state) => state.rootReducer.bankDetailsListReducer)
+
+  const validateBankDetailsForm = () => {
+    const bankNameErr = {};
+    const accountNoErr = {};
+    const accountTypeErr = {};
+    const bankIfscCodeErr = {};
+
+    let isValid = true;
+
+    if (!bankDetailData.bankName) {
+      bankNameErr.empty = "Enter bank name";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if (!bankDetailData.accountNo) {
+      accountNoErr.empty = "Enter account number";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if (!bankDetailData.accountType) {
+      accountTypeErr.empty = "Select account type";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if (!bankDetailData.bankIfscCode) {
+      bankIfscCodeErr.empty = "Enter IFSC code";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if (!isValid) {
+      setBankNameErr(bankNameErr);
+      setAccountNoErr(accountNoErr);
+      setAccountTypeErr(accountTypeErr);
+      setBankIfscCodeErr(bankIfscCodeErr);
+    }
+
+    return isValid;
+  }
+
+  const changeHandle = e => {
+    dispatch(bankDetailsAction({
+      ...bankDetailData,
+      [e.target.name]: e.target.value
+    }));
+  };
+
+  const clearStates = () => {
+    setFormError(false);
+    setBankNameErr({});
+    setAccountNoErr({});
+    setAccountTypeErr({});
+    setBankIfscCodeErr({});
+    dispatch(bankDetailsAction(undefined));
+  }
+
+  const addBankDetailsInList = () => {
+    if (validateBankDetailsForm()) {
+      const bankData = {
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        bankName: bankDetailData.bankName,
+        bankAddress: bankDetailData.bankAddress ? bankDetailData.bankAddress : "",
+        branchName: bankDetailData.branchName ? bankDetailData.branchName : "",
+        accountNo: bankDetailData.accountNo,
+        accountType: bankDetailData.accountType == "Saving" ? "S" : "C",
+        bankIfscCode: bankDetailData.bankIfscCode,
+        activeStatus: bankDetailData.activeStatus == null || bankDetailData.activeStatus == "Active" ? "A" : "S",
+        addUser: localStorage.getItem("LoginUserName")
+      }
+
+      dispatch(bankDetailsListAction(bankData));
+      resetBankDetailData();
+      clearStates();
+    }
+  }
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddBankNameTable"
           className="mb-2"
-          onClick={handleAddRow}
+          onClick={addBankDetailsInList}
         >
           Add Bank Details
         </Button>
@@ -67,60 +152,90 @@ export const BankDetailsTable = () => {
                   type="text"
                   id="txtBankName"
                   name="bankName"
-                  value={rowData.bankName}
+                  value={bankDetailData.bankName}
                   onChange={changeHandle}
                   placeholder="Bank Name"
                   className="form-control"
+                  maxLength={40}
+                  required
                 />
+                {Object.keys(bankNameErr).map((key) => {
+                  return <span className="error-message">{bankNameErr[key]}</span>
+                })}
               </td>
               <td>
                 <Form.Control
                   type="text"
                   id="txtBankAddress"
                   name="bankAddress"
-                  value={rowData.bankAddress}
+                  value={bankDetailData.bankAddress}
                   onChange={changeHandle}
                   placeholder="Bank Address"
                   className="form-control"
+                  maxLength={60}
                 />
               </td>
-
               <td>
                 <Form.Control
-                  type="number"
-                  min={0}
+                  type="text"
+                  id="txtBranchName"
+                  name="branchName"
+                  value={bankDetailData.branchName}
+                  onChange={changeHandle}
+                  placeholder="Branch name"
+                  className="form-control"
+                  maxLength={45}
+                />
+              </td>
+              <td>
+                <Form.Control
+                  type="text"
                   id="numAccountNumber"
-                  name="accountNumber"
-                  value={rowData.accountNumber}
+                  name="accountNo"
+                  value={bankDetailData.accountNo}
                   onChange={changeHandle}
                   placeholder="Account Number"
                   className="form-control"
+                  maxLength={40}
+                  required
                 />
+                {Object.keys(accountNoErr).map((key) => {
+                  return <span className="error-message">{accountNoErr[key]}</span>
+                })}
               </td>
               <td>
                 <Form.Select
                   type="text"
                   id="txtAccountType"
                   name="accountType"
-                  value={rowData.accountType}
+                  value={bankDetailData.accountType}
                   onChange={changeHandle}
                   className="form-control"
                 >
-                  <option>Select</option>
-                  <option>Saving</option>
+                  <option value=''>Select account type</option>
+                  <option value='Saving'>Saving</option>
+                  <option value='Current'>Current</option>
                 </Form.Select>
+                {Object.keys(accountTypeErr).map((key) => {
+                  return <span className="error-message">{accountTypeErr[key]}</span>
+                })}
               </td>
 
               <td>
                 <Form.Control
-                  type="number"
-                  id="numIfscCode"
-                  name="ifscCode"
-                  value={rowData.ifscCode}
+                  type="text"
+                  id="txtBankIfscCode"
+                  name="bankIfscCode"
+                  value={bankDetailData.bankIfscCode}
                   onChange={changeHandle}
                   placeholder="IFSC Code"
                   className="form-control"
+                  maxLength={20}
+                  required
                 />
+                {Object.keys(bankIfscCodeErr).map((key) => {
+                  return <span className="error-message">{bankIfscCodeErr[key]}</span>
+                })}
               </td>
 
               <td>
@@ -128,14 +243,13 @@ export const BankDetailsTable = () => {
                   id="txtStatus"
                   name="activeStatus"
                   className="form-control"
-                  value={rowData.activeStatus}
+                  value={bankDetailData.activeStatus}
                   onChange={changeHandle}
                 >
-                  <option>Active</option>
-                  <option>Suspended</option>
+                  <option value='Active'>Active</option>
+                  <option value='Suspended'>Suspended</option>
                 </Form.Select>
               </td>
-              
               <td>
                 <i className="fa fa-pencil me-1" />
                 <i className="fa fa-trash " />
@@ -143,17 +257,23 @@ export const BankDetailsTable = () => {
             </tr>
           </tbody>
           <thead>
-            {rowData.map((item, idx) => (
-              <tr key={idx}>
-                <td key={idx}>{data.bankname}</td>
-                <td key={idx}>{data.bankaddress}</td>
-                <td key={idx}>{data.accountnumber}</td>
-                <td key={idx}>{data.accounttype}</td>
-                <td key={idx}>{data.ifsccode}</td>
-                <td key={idx}>{data.activeStatus}</td>
-                <td key={idx}> </td>
-              </tr>
-            ))}
+            {bankDetailsListReducer.bankDetailsList.length > 0 ?
+              bankDetailsListReducer.bankDetailsList.map((data, idx) => (
+                data &&
+                <tr key={idx}>
+                  <td key={idx}>{data.bankName}</td>
+                  <td key={idx}>{data.bankAddress ? data.bankAddress : ""}</td>
+                  <td key={idx}>{data.branchName ? data.branchName : ""}</td>
+                  <td key={idx}>{data.accountNo}</td>
+                  <td key={idx}>{data.accountType == 'S' ? "Saving" : "Current"}</td>
+                  <td key={idx}>{data.bankIfscCode}</td>
+                  <td key={idx}>{data.activeStatus == "A" ? "Active" : "Suspended"}</td>
+                  <td>
+                    <i className="fa fa-pencil me-2" />
+                    <i className="fa fa-trash" />
+                  </td>
+                </tr>
+              )) : null}
           </thead>
         </Table>
       </Form>

@@ -158,3 +158,31 @@ export const farmerDetailsErrorAction = (payload) => {
     payload
   };
 };
+
+export const farmerFamilyDetailsAction = (payload) => {
+  return {
+    type: 'FARMERFAMILYDETAILS',
+    payload
+  };
+};
+
+export const farmerFamilyDetailsListAction = (payload) => {
+  return {
+    type: 'FARMERFAMILYDETAILSLIST',
+    payload
+  };
+};
+
+export const bankDetailsAction = (payload) => {
+  return {
+    type: 'BANKDETAILS',
+    payload
+  };
+};
+
+export const bankDetailsListAction = (payload) => {
+  return {
+    type: 'BANKDETAILSLIST',
+    payload
+  };
+};

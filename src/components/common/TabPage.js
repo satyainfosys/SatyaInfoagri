@@ -36,6 +36,7 @@ import FarmersIrrigrationTable from 'components/Farmers/FarmersIrrigrationTable'
 import BankDetailsTable from 'components/Farmers/BankDetailsTable';
 import FarmersCardTable from 'components/Farmers/FarmersCardTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
+import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
 
 
 const TabPage = ({
@@ -200,8 +201,8 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab != 'Transaction Details'
-                  ? 'border p-1 tab-page-tab'
-                  : ''
+                    ? 'border p-1 tab-page-tab'
+                    : ''
               }
             >
               {index == 0 && listData && (
@@ -321,10 +322,16 @@ const TabPage = ({
               )}
               {index == 2 && module == 'Farmers' && (
                 <>
-                 
+
                   <FalconComponentCard id="FamilyMemberTableDetails">
                     <FalconComponentCard.Body language="jsx">
                       <FamilyTable />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <FalconComponentCard id="ContactDetailsTable">
+                    <FalconComponentCard.Body language="jsx">
+                      <FarmerContactInformationTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>
@@ -336,11 +343,12 @@ const TabPage = ({
                       <BankDetailsTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
                   <FalconComponentCard id="FarmerCardDetailsTable">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersCardTable />
                     </FalconComponentCard.Body>
-                  </FalconComponentCard>      
+                  </FalconComponentCard>
                 </>
               )}
 
@@ -351,6 +359,7 @@ const TabPage = ({
                       <FarmersLandTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
                   <FalconComponentCard id="FarmersIrrigrationDetailsTable">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersIrrigrationTable />
@@ -404,7 +413,7 @@ const TabPage = ({
                   </FalconComponentCard>
                 </>
               )}
-              
+
             </Tab>
           );
         })}

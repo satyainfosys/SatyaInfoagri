@@ -22,6 +22,10 @@ import productDetailsErrorReducer from './productDetailsErrorReducer'
 import selectedProductsReducer from './selectedProductsReducer'
 import farmerDetailsReducer from './farmerDetailsReducer'
 import farmerDetailsErrorReducer from './farmerDetailsErrorReducer'
+import farmerFamilyDetailsReducer from './farmerFamilyDetailsReducer'
+import farmerFamilyDetailsListReducer from './farmerFamilyDetailsListReducer'
+import bankDetailsReducer from './bankDetailsReducer'
+import bankDetailsListReducer from './bankDetailsListReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -46,7 +50,11 @@ const rootReducer = combineReducers({
   productDetailsErrorReducer,
   selectedProductsReducer,
   farmerDetailsReducer,
-  farmerDetailsErrorReducer
+  farmerDetailsErrorReducer,
+  farmerFamilyDetailsReducer,
+  farmerFamilyDetailsListReducer,
+  bankDetailsReducer,
+  bankDetailsListReducer
 });
 
 export default rootReducer;

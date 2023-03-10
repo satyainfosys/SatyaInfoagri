@@ -46,13 +46,6 @@ const AddFarmer = () => {
             "encryptedCollectionCentreCode": "",
             "distributionCentre": "",
             "encryptedDistributionCentreCode": "",
-            "stdCode": "",
-            "landlineNo": "",
-            "ppNo": "",
-            "mobileNo1": "",
-            "mobileNo2": "",
-            "pinCode": "",
-            "farmerPic": "",
             "status": "Active"
         }))
     }
@@ -786,73 +779,6 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Control id="txtDistributionCentre" name="distributionCentre" className="mb-1" placeholder="Distribution Centre" onChange={handleFieldChange} />
-                                                    </Col>
-                                                </Form.Group>
-                                            </Row>
-                                        </Col>
-                                    </Row>
-                                </FalconComponentCard.Body>
-                            </FalconComponentCard>
-                        </Col>
-
-                        <Col sm={6} lg={4}>
-                            <FalconComponentCard>
-                                <FalconComponentCard.Header title="Contact Information" light={false} />
-                                <FalconComponentCard.Body language="jsx">
-                                    <Row>
-                                        <Col className="me-3 ms-3">
-                                            <Row className="mb-3">
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        STD Code
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtStdCode" name="stdCode" onChange={handleFieldChange} value={farmerData.stdCode} className="mb-1" placeholder="STD Code" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Landline No
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtLandlineNo" name="landlineNo" onChange={handleFieldChange} value={farmerData.landlineNo} className="mb-1" placeholder="Landline No" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        PP No
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtPPNo" name="ppNo" onChange={handleFieldChange} value={farmerData.ppNo} className="mb-1" placeholder="PP No" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Mobile No 1
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtMobileNo1" name="mobileNo1" onChange={handleFieldChange} value={farmerData.mobileNo1} className="mb-1" placeholder="Mobile No" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Mobile No 2
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtMobileNo2" name="mobileNo2" onChange={handleFieldChange} value={farmerData.mobileNo2} className="mb-1" placeholder="Mobile No" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Pin Code
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtPinCode" name="pinCode" onChange={handleFieldChange} value={farmerData.pinCode} className="mb-1" placeholder="Pin Code" />
                                                     </Col>
                                                 </Form.Group>
                                             </Row>
