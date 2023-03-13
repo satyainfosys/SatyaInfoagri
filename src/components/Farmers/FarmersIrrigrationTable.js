@@ -102,7 +102,7 @@ export const FarmersIrrigrationTable = () => {
               </td>
             </tr>
           </tbody>
-          <thead>
+          {/* <thead>
             {rowData.map((item, idx) => (
               <tr key={idx}>
                 <td key={idx}>{data.irrigrationDetails}</td>
@@ -111,7 +111,7 @@ export const FarmersIrrigrationTable = () => {
                 
               </tr>
             ))}
-          </thead>
+          </thead> */}
         </Table>
       </Form>
     </>

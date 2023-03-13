@@ -1,11 +1,15 @@
-import React from 'react';
-import { Button, Table, Form, Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button, Table, Form } from 'react-bootstrap';
+import { useSelector, useDispatch } from 'react-redux';
+import { farmerMachineryDetailsAction } from '../../actions/index';
 
 export const FarmersMachinaryDetailsTable = () => {
+  const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([]);
-  const [data, setdata] = useState([]);
+  const [rowData, setRowData] = useState([{
+    id: 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+  },]);
   const columnsArray = [
     'Equipment Category',
     'Equipment Type',
@@ -14,26 +18,26 @@ export const FarmersMachinaryDetailsTable = () => {
     '	Action'
   ];
 
-  const handleAddRow = () => {
-    const item = {
-      equipmentCategory: '',
-      equipmentType: '',
-      quantity: '',
-      activeStatus: ''
-    };
-    setRowData([...rowData, item]);
+  const handleAddRow = () => {  
+    setRowData([...rowData, { id: rowData.length + 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")},]);
   };
-  const changeHandle = e => {
-    setdata({ ...data, [e.target.name]: e.target.value });
-  };
+
+  const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
+  var farmerMachineryDetailsData = farmerMachineryDetailsReducer.farmerMachineryDetails;
+
+  const handleFieldChange = (e, idx) => {
+    const { name, value } = e.target;
+    farmerMachineryDetailsData = [...rowData];
+    farmerMachineryDetailsData[idx][name] = value;
+    dispatch(farmerMachineryDetailsAction({
+      ...rowData
+    }))
+  }
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddFarmersMachinaryTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
+        <Button id="btnAddFarmersMachinaryTable" className="mb-2" onClick={handleAddRow}>
           Add Machinary Details
         </Button>
       </div>
@@ -56,78 +60,70 @@ export const FarmersMachinaryDetailsTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
-            <tr>
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtEquipment"
-                  name="equipmentCategory"
-                  className="form-control"
-                  value={rowData.equipmentCategory}
-                  onChange={changeHandle}
-                >
-                  <option>Select</option>
-                  <option>Select one</option>
-                </Form.Select>
-              </td>
-
-              <td>
-                <Form.Control
-                  type="text"
-                  className="form-control"
-                  id="txtequipmentType"
-                  name="equipmentType"                  
-                  value={rowData.equipmentType}
-                  onChange={changeHandle}
-                  placeholder="Equipment Type"
-                />
-              </td>
-
-              <td>
-                <Form.Control
-                  type="number"
-                  min={0}
-                  id="txtQuantity"
-                  name="quantity"
-                  value={rowData.quantity}
-                  onChange={changeHandle}
-                  placeholder="Quantity"
-                />
-              </td>
-
-              <td>
-                <Form.Select
-                  id="txtStatus"
-                  name="activeStatus"
-                  className="form-control"
-                  value={rowData.activeStatus}
-                  onChange={changeHandle}
-                >
-                  <option>Active</option>
-                  <option value="Suspended">Suspended</option>
-                </Form.Select>
-              </td>
-              <td>
-                <i className="fa fa-pencil me-2" />
-                <i className="fa fa-trash" />
-              </td>
-            </tr>
-          </tbody>
-          <thead>
-            {rowData.map((item, idx) => (
+            {rowData.map((farmerMachineryDetailsData, idx) => (
               <tr key={idx}>
-                <td key={idx}>{data.equipmentCategory}</td>
-                <td key={idx}>{data.equipmentType}</td>
-                <td key={idx}>{data.quantity}</td>
-                <td key={idx}>{data.activeStatus}</td>
-                <td key={idx}> </td>
+                <td key={idx}>
+                  <Form.Select
+                    type="text"
+                    id="txtEquipment"
+                    name="machineryCategory"
+                    className="form-control"
+                    onChange={(e) => handleFieldChange(e, idx)}
+                    value={farmerMachineryDetailsData.machineryCategory}
+                  >
+                    <option value=''>Select</option>
+                    <option value="Owned">Owned</option>
+                    <option value="Hired">Hired</option>
+                  </Form.Select>
+                </td>
+
+                <td key={idx}>
+                  <Form.Control
+                    type="text"
+                    id="txtequipmentType"
+                    name="machineryType"
+                    value={farmerMachineryDetailsData.machineryType}
+                    placeholder="Equipment Type"
+                    className="form-control"
+                    onChange={(e) => handleFieldChange(e, idx)}
+                  />
+                </td>
+
+                <td key={idx}>
+                  <Form.Control
+                    type="number"
+                    min={0}
+                    id="txtQuantity"
+                    name="machineryQty"
+                    value={farmerMachineryDetailsData.machineryQty}
+                    placeholder="Quantity"
+                    onChange={(e) => handleFieldChange(e, idx)}
+                  />
+                </td>
+
+                <td key={idx}>
+                  <Form.Select
+                    id="txtStatus"
+                    name="activeStatus"
+                    className="form-control"
+                    onChange={(e) => handleFieldChange(e, idx)}
+                    value={farmerMachineryDetailsData.activeStatus}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Suspended">Suspended</option>
+                  </Form.Select>
+                </td>
+                <td>
+                  <i className="fa fa-pencil me-2" />
+                  <i className="fa fa-trash" />
+                </td>
               </tr>
             ))}
-          </thead>
+          </tbody>
         </Table>
       </Form>
     </>
-  );
-};
+  )
+}
 
-export default FarmersMachinaryDetailsTable;
+export default FarmersMachinaryDetailsTable

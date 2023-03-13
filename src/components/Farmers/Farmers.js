@@ -87,6 +87,9 @@ export const Farmers = () => {
     const bankDetailsListReducer = useSelector((state) => state.rootReducer.bankDetailsListReducer)
     const bankDetailList = bankDetailsListReducer.bankDetailsList;
 
+    const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
+    const farmerMachineryDetailsList = farmerMachineryDetailsReducer.farmerMachineryDetails;
+
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
         $("#btnSave").show();
@@ -252,7 +255,8 @@ export const Farmers = () => {
                 addUser: localStorage.getItem("LoginUserName"),
                 familyDetails: farmerFamilyDetailsListData,
                 commonContactDetails: commonContactDetailList,
-                bankDetails: bankDetailList
+                bankDetails: bankDetailList,
+                farmerMachineryDetails: farmerMachineryDetailsList
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation"]
@@ -296,6 +300,17 @@ export const Farmers = () => {
                 index++;
             }
 
+            const machineryKeys = ['machineryType', 'addUser']
+            var index = 0;
+            for (var obj in requestData.farmerMachineryDetails) {
+                var farmerMachineryDetailsObj = requestData.farmerMachineryDetails[obj];
+
+                for (const key of Object.keys(farmerMachineryDetailsObj).filter((key) => machineryKeys.includes(key))) {
+                    farmerMachineryDetailsObj[key] = farmerMachineryDetailsObj[key] ? farmerMachineryDetailsObj[key].toUpperCase() : '';
+                }
+                requestData.farmerMachineryDetails[index] = farmerMachineryDetailsObj;
+                index++;
+            }
 
             setIsLoading(true);
             axios.post(process.env.REACT_APP_API_URL + '/add-farmer', requestData, {

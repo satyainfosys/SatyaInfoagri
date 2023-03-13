@@ -23,7 +23,7 @@ export const BankDetailsTable = () => {
   const [bankIfscCodeErr, setBankIfscCodeErr] = useState({});
 
   const resetBankDetailData = () => {
-    dispatch(bankDetailsAction({
+    bankDetailData = {
       bankName: '',
       bankAddress: '',
       branchName: '',
@@ -31,7 +31,7 @@ export const BankDetailsTable = () => {
       accountType: '',
       bankIfscCode: '',
       activeStatus: ''
-    }))
+    }
   };
 
   const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
@@ -146,6 +146,9 @@ export const BankDetailsTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
+
+          {bankDetailData &&
+
             <tr>
               <td>
                 <Form.Control
@@ -254,7 +257,7 @@ export const BankDetailsTable = () => {
                 <i className="fa fa-pencil me-1" />
                 <i className="fa fa-trash " />
               </td>
-            </tr>
+            </tr>}
           </tbody>
           <thead>
             {bankDetailsListReducer.bankDetailsList.length > 0 ?

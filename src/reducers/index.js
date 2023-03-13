@@ -26,6 +26,10 @@ import farmerFamilyDetailsReducer from './farmerFamilyDetailsReducer'
 import farmerFamilyDetailsListReducer from './farmerFamilyDetailsListReducer'
 import bankDetailsReducer from './bankDetailsReducer'
 import bankDetailsListReducer from './bankDetailsListReducer'
+import farmerCardDetailsReducer from './farmerCardDetailsReducer'
+import farmerLiveStockCattleDetailsReducer from './farmerLiveStockCattleDetailsReducer'
+import farmerLiveStockCattleDetailsListReducer from './farmerLiveStockCattleDetailsListReducer'
+import farmerMachineryDetailsReducer from './farmerMachineryDetailsReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -54,7 +58,11 @@ const rootReducer = combineReducers({
   farmerFamilyDetailsReducer,
   farmerFamilyDetailsListReducer,
   bankDetailsReducer,
-  bankDetailsListReducer
+  bankDetailsListReducer,
+  farmerCardDetailsReducer,
+  farmerLiveStockCattleDetailsReducer,
+  farmerLiveStockCattleDetailsListReducer,
+  farmerMachineryDetailsReducer
 });
 
 export default rootReducer;

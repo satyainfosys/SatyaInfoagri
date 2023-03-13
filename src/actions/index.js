@@ -186,3 +186,31 @@ export const bankDetailsListAction = (payload) => {
     payload
   };
 };
+
+export const farmerCardDetailsAction = (payload) => {
+  return {
+    type: 'FARMERCARDDETAILS',
+    payload
+  };
+};
+
+export const farmerLiveStockCattleDetailsAction = (payload) => {
+  return {
+    type: 'FARMERLIVESTOCKCATTLEDETAILS',
+    payload
+  };
+};
+
+export const farmerLiveStockCattleDetailsListAction = (payload) => {
+  return {
+    type: 'FARMERLIVESTOCKCATTLEDETAILSLIST',
+    payload
+  };
+};
+
+export const farmerMachineryDetailsAction = (payload) => {
+  return {
+    type: 'FARMERMACHINERYDETAILS',
+    payload
+  };
+};
