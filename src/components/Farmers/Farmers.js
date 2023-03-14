@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { farmerDetailsAction, farmerDetailsErrorAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
@@ -78,17 +78,23 @@ export const Farmers = () => {
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
     const farmerData = farmerDetailsReducer.farmerDetails;
 
-    const farmerFamilyDetailsListReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsListReducer)
-    const farmerFamilyDetailsListData = farmerFamilyDetailsListReducer.farmerFamilyDetailsList;
+    const farmerFamilyDetailsReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsReducer)
+    const farmerFamilyDetailsList = farmerFamilyDetailsReducer.farmerFamilyDetails;
 
-    const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
-    const commonContactDetailList = commonContactDetailListReducer.commonContactDetailsList;
+    const commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
+    const commonContactDetailList = commonContactDetailsReducer.commonContactDetails;
 
-    const bankDetailsListReducer = useSelector((state) => state.rootReducer.bankDetailsListReducer)
-    const bankDetailList = bankDetailsListReducer.bankDetailsList;
+    const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
+    const bankDetailList = bankDetailsReducer.bankDetails;
+
+    const farmerLiveStockCattleDetailsReducer = useSelector((state) => state.rootReducer.farmerLiveStockCattleDetailsReducer)
+    const farmerLiveStockCattleList = farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails;
 
     const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
     const farmerMachineryDetailsList = farmerMachineryDetailsReducer.farmerMachineryDetails;
+
+    const farmerCardDetailsReducer = useSelector((state) => state.rootReducer.farmerCardDetailsReducer)
+    const farmerCardDetailsList = farmerCardDetailsReducer.farmerCardDetails;
 
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
@@ -99,6 +105,12 @@ export const Farmers = () => {
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         dispatch(farmerDetailsAction(undefined));
+        dispatch(farmerFamilyDetailsAction(undefined));
+        dispatch(commonContactDetailsAction(undefined));
+        dispatch(bankDetailsAction(undefined));
+        dispatch(farmerCardDetailsAction(undefined));
+        dispatch(farmerLiveStockCattleDetailsAction(undefined));
+        dispatch(farmerMachineryDetailsAction(undefined));
         $("#AddFarmerDetailsForm").data("changed", false);
     }
 
@@ -174,6 +186,9 @@ export const Farmers = () => {
         $("#AddFarmersDetailForm").data("changed", false);
         $('#AddFarmersDetailForm').get(0).reset();
 
+        $("#AddDocumentDetailsForm").data("changed", false);
+        $('#AddDocumentDetailsForm').get(0).reset();
+
         dispatch(farmerDetailsErrorAction(undefined));
 
         if (!isAddFarmer) {
@@ -230,8 +245,8 @@ export const Farmers = () => {
                 farmerLastName: farmerData.lastName,
                 farmerAddress: farmerData.address,
                 farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "ILLITERATE" ? "ILLITERATE" : farmerData.educationalStatus == "Doctrate" ? "DOCTRATE" : "",
-                farmerIDType: "",
-                farmerIdNo: "",
+                farmerIDType: farmerData.farmerIDType == "Voter ID" ? "VID" : farmerData.farmerIDType == "Driving License" ? "DL" : farmerData.farmerIDType == "PAN Card" ? "PAN" : farmerData.farmerIDType == "Ration Card" ? "RTC" : farmerData.farmerIDType == "Other" ? "OTH" : "",
+                farmerIdNo: farmerData.farmerIdNo ? farmerData.farmerIdNo : "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
                 farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
                 farmerGender: farmerData.Gender == null || farmerData.Gender == "Male" ? "M" : "F",
@@ -253,13 +268,15 @@ export const Farmers = () => {
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
                 addUser: localStorage.getItem("LoginUserName"),
-                familyDetails: farmerFamilyDetailsListData,
+                familyDetails: farmerFamilyDetailsList,
                 commonContactDetails: commonContactDetailList,
                 bankDetails: bankDetailList,
-                farmerMachineryDetails: farmerMachineryDetailsList
+                farmerMachineryDetails: farmerMachineryDetailsList,
+                farmerLiveStockCattleDetails: farmerLiveStockCattleList,
+                farmerKisanCardDetails: farmerCardDetailsList
             }
 
-            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation"]
+            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation", "farmerIdNo"]
             for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
                 requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
             }
@@ -321,6 +338,10 @@ export const Farmers = () => {
                     if (res.data.status == 200) {
                         if (farmerData.farmerPic) {
                             uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", false);
+                        }
+
+                        if (farmerData.farmerForm) {
+                            uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", false);
                         } else {
                             setIsLoading(false);
                             toast.success(res.data.message, {

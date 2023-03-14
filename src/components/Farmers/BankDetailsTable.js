@@ -6,6 +6,10 @@ import { bankDetailsAction, bankDetailsListAction } from 'actions';
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
+  const [rowData, setRowData] = useState([{
+    id: 1, bankName: '', bankAddress: '', branchName: '', accountNo: '', accountType: '', bankIfscCode: '', activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+  },]);
   const columnsArray = [
     'Bank Name',
     'Bank Address',
@@ -22,22 +26,15 @@ export const BankDetailsTable = () => {
   const [accountTypeErr, setAccountTypeErr] = useState({});
   const [bankIfscCodeErr, setBankIfscCodeErr] = useState({});
 
-  const resetBankDetailData = () => {
-    bankDetailData = {
-      bankName: '',
-      bankAddress: '',
-      branchName: '',
-      accountNo: '',
-      accountType: '',
-      bankIfscCode: '',
-      activeStatus: ''
-    }
+  const handleAddRow = () => {
+    setRowData([...rowData, {
+      id: rowData.length + 1, bankAddress: '', branchName: '', accountNo: '', accountType: '', bankIfscCode: '', activeStatus: '',
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    },]);
   };
 
   const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
   var bankDetailData = bankDetailsReducer.bankDetails;
-
-  const bankDetailsListReducer = useSelector((state) => state.rootReducer.bankDetailsListReducer)
 
   const validateBankDetailsForm = () => {
     const bankNameErr = {};
@@ -81,48 +78,23 @@ export const BankDetailsTable = () => {
     return isValid;
   }
 
-  const changeHandle = e => {
-    dispatch(bankDetailsAction({
-      ...bankDetailData,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const clearStates = () => {
-    setFormError(false);
-    setBankNameErr({});
-    setAccountNoErr({});
-    setAccountTypeErr({});
-    setBankIfscCodeErr({});
-    dispatch(bankDetailsAction(undefined));
+  const handleFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var bankDetails = [...rowData];
+    bankDetails[index][name] = value;
+    bankDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(bankDetailsAction(bankDetails))
   }
 
-  const addBankDetailsInList = () => {
-    if (validateBankDetailsForm()) {
-      const bankData = {
-        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-        bankName: bankDetailData.bankName,
-        bankAddress: bankDetailData.bankAddress ? bankDetailData.bankAddress : "",
-        branchName: bankDetailData.branchName ? bankDetailData.branchName : "",
-        accountNo: bankDetailData.accountNo,
-        accountType: bankDetailData.accountType == "Saving" ? "S" : "C",
-        bankIfscCode: bankDetailData.bankIfscCode,
-        activeStatus: bankDetailData.activeStatus == null || bankDetailData.activeStatus == "Active" ? "A" : "S",
-        addUser: localStorage.getItem("LoginUserName")
-      }
-
-      dispatch(bankDetailsListAction(bankData));
-      resetBankDetailData();
-      clearStates();
-    }
-  }
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddBankNameTable"
           className="mb-2"
-          onClick={addBankDetailsInList}
+          onClick={handleAddRow}
         >
           Add Bank Details
         </Button>
@@ -146,120 +118,118 @@ export const BankDetailsTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
+            {rowData.map((bankDetailData, index) => (
+              <tr key={index}>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtBankName"
+                    name="bankName"
+                    value={bankDetailData.bankName}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Bank Name"
+                    className="form-control"
+                    maxLength={40}
+                    required
+                  />
+                  {Object.keys(bankNameErr).map((key) => {
+                    return <span className="error-message">{bankNameErr[key]}</span>
+                  })}
+                </td>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtBankAddress"
+                    name="bankAddress"
+                    value={bankDetailData.bankAddress}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Bank Address"
+                    className="form-control"
+                    maxLength={60}
+                  />
+                </td>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtBranchName"
+                    name="branchName"
+                    value={bankDetailData.branchName}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Branch name"
+                    className="form-control"
+                    maxLength={45}
+                  />
+                </td>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="numAccountNumber"
+                    name="accountNo"
+                    value={bankDetailData.accountNo}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Account Number"
+                    className="form-control"
+                    maxLength={40}
+                    required
+                  />
+                  {Object.keys(accountNoErr).map((key) => {
+                    return <span className="error-message">{accountNoErr[key]}</span>
+                  })}
+                </td>
+                <td key={index}>
+                  <Form.Select
+                    type="text"
+                    id="txtAccountType"
+                    name="accountType"
+                    value={bankDetailData.accountType}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    className="form-control"
+                  >
+                    <option value=''>Select account type</option>
+                    <option value='Saving'>Saving</option>
+                    <option value='Current'>Current</option>
+                  </Form.Select>
+                  {Object.keys(accountTypeErr).map((key) => {
+                    return <span className="error-message">{accountTypeErr[key]}</span>
+                  })}
+                </td>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtBankIfscCode"
+                    name="bankIfscCode"
+                    value={bankDetailData.bankIfscCode}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="IFSC Code"
+                    className="form-control"
+                    maxLength={20}
+                    required
+                  />
+                  {Object.keys(bankIfscCodeErr).map((key) => {
+                    return <span className="error-message">{bankIfscCodeErr[key]}</span>
+                  })}
+                </td>
+                <td key={index}>
+                  <Form.Select
+                    id="txtStatus"
+                    name="activeStatus"
+                    className="form-control"
+                    value={bankDetailData.activeStatus}
+                    onChange={(e) => handleFieldChange(e, index)}
+                  >
+                    <option value='Active'>Active</option>
+                    <option value='Suspended'>Suspended</option>
+                  </Form.Select>
+                </td>
+                <td>
+                  <i className="fa fa-pencil me-1" />
+                  <i className="fa fa-trash " />
+                </td>
+              </tr>
+            ))}
 
-          {bankDetailData &&
-
-            <tr>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtBankName"
-                  name="bankName"
-                  value={bankDetailData.bankName}
-                  onChange={changeHandle}
-                  placeholder="Bank Name"
-                  className="form-control"
-                  maxLength={40}
-                  required
-                />
-                {Object.keys(bankNameErr).map((key) => {
-                  return <span className="error-message">{bankNameErr[key]}</span>
-                })}
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtBankAddress"
-                  name="bankAddress"
-                  value={bankDetailData.bankAddress}
-                  onChange={changeHandle}
-                  placeholder="Bank Address"
-                  className="form-control"
-                  maxLength={60}
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtBranchName"
-                  name="branchName"
-                  value={bankDetailData.branchName}
-                  onChange={changeHandle}
-                  placeholder="Branch name"
-                  className="form-control"
-                  maxLength={45}
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="numAccountNumber"
-                  name="accountNo"
-                  value={bankDetailData.accountNo}
-                  onChange={changeHandle}
-                  placeholder="Account Number"
-                  className="form-control"
-                  maxLength={40}
-                  required
-                />
-                {Object.keys(accountNoErr).map((key) => {
-                  return <span className="error-message">{accountNoErr[key]}</span>
-                })}
-              </td>
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtAccountType"
-                  name="accountType"
-                  value={bankDetailData.accountType}
-                  onChange={changeHandle}
-                  className="form-control"
-                >
-                  <option value=''>Select account type</option>
-                  <option value='Saving'>Saving</option>
-                  <option value='Current'>Current</option>
-                </Form.Select>
-                {Object.keys(accountTypeErr).map((key) => {
-                  return <span className="error-message">{accountTypeErr[key]}</span>
-                })}
-              </td>
-
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtBankIfscCode"
-                  name="bankIfscCode"
-                  value={bankDetailData.bankIfscCode}
-                  onChange={changeHandle}
-                  placeholder="IFSC Code"
-                  className="form-control"
-                  maxLength={20}
-                  required
-                />
-                {Object.keys(bankIfscCodeErr).map((key) => {
-                  return <span className="error-message">{bankIfscCodeErr[key]}</span>
-                })}
-              </td>
-
-              <td>
-                <Form.Select
-                  id="txtStatus"
-                  name="activeStatus"
-                  className="form-control"
-                  value={bankDetailData.activeStatus}
-                  onChange={changeHandle}
-                >
-                  <option value='Active'>Active</option>
-                  <option value='Suspended'>Suspended</option>
-                </Form.Select>
-              </td>
-              <td>
-                <i className="fa fa-pencil me-1" />
-                <i className="fa fa-trash " />
-              </td>
-            </tr>}
           </tbody>
-          <thead>
+          {/* <thead>
             {bankDetailsListReducer.bankDetailsList.length > 0 ?
               bankDetailsListReducer.bankDetailsList.map((data, idx) => (
                 data &&
@@ -277,7 +247,7 @@ export const BankDetailsTable = () => {
                   </td>
                 </tr>
               )) : null}
-          </thead>
+          </thead> */}
         </Table>
       </Form>
     </>

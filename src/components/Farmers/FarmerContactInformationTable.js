@@ -1,12 +1,14 @@
-import React from 'react';
-import { Button, Table, Form, Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
+import React, { useState }  from 'react';
+import { Button, Table, Form } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { commonContactDetailsAction, commonContactDetailsListAction } from 'actions';
+import { commonContactDetailsAction } from 'actions';
 
 export const FarmerContactInformationTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
+  const [rowData, setRowData] = useState([{
+    id: 1, contactPerson: '', contactType: '', contactDetails: '', originatedFrom: 'FR', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+  },]);
   const columnsArray = [
     'Contact Person',
     'Contact Type',
@@ -18,97 +20,66 @@ export const FarmerContactInformationTable = () => {
   const [contactTypeErr, setContactTypeErr] = useState({});
   const [contactDetailsErr, setContactDetailsErr] = useState({});
 
-  const resetFarmerContactDetailData = () => {
-    commonContactDetailData = {
-      contactPerson: '',
-      contactType: '',
-      contactDetails: '',
-      originatedFrom: 'FR'
-    };
+  const handleAddRow = () => {
+    setRowData([...rowData, {
+      id: rowData.length + 1, contactPerson: '', contactType: '', contactDetails: '', originatedFrom: 'FR', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    },]);
   };
 
   const commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
   var commonContactDetailData = commonContactDetailsReducer.commonContactDetails;
 
-  const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
 
-  if (!commonContactDetailsReducer.commonContactDetails ||
-    commonContactDetailsReducer.commonContactDetails.length <= 0) {
-    resetFarmerContactDetailData();
+  // const validateCommonContactDetailForm = () => {
+  //   const contactNameErr = {};
+  //   const contactTypeErr = {};
+  //   const contactDetailsErr = {};
+
+  //   let isValid = true;
+
+  //   if (!commonContactDetailData.contactPerson) {
+  //     contactNameErr.nameEmpty = "Enter contact person name";
+  //     isValid = false;
+  //     setFormError(true);
+  //   }
+
+  //   if (!commonContactDetailData.contactType) {
+  //     contactTypeErr.contactTypeEmpty = "Select contact type";
+  //     isValid = false;
+  //     setFormError(true);
+  //   }
+
+  //   if (!commonContactDetailData.contactDetails) {
+  //     contactDetailsErr.contactDetailsEmpty = "Enter contact detail";
+  //     isValid = false;
+  //     setFormError(true);
+  //   }
+
+  //   if (!isValid) {
+  //     setContactNameErr(contactNameErr);
+  //     setContactTypeErr(contactTypeErr);
+  //     setContactDetailsErr(contactDetailsErr);
+  //   }
+  //   return isValid;
+  // }
+
+  const handleFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var commonContactDetails = [...rowData];
+    commonContactDetails[index][name] = value;
+    commonContactDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(commonContactDetailsAction(commonContactDetails))
   }
 
-  const validateCommonContactDetailForm = () => {
-    const contactNameErr = {};
-    const contactTypeErr = {};
-    const contactDetailsErr = {};
-
-    let isValid = true;
-
-    if (!commonContactDetailData.contactPerson) {
-      contactNameErr.nameEmpty = "Enter contact person name";
-      isValid = false;
-      setFormError(true);
-    }
-
-    if (!commonContactDetailData.contactType) {
-      contactTypeErr.contactTypeEmpty = "Select contact type";
-      isValid = false;
-      setFormError(true);
-    }
-
-    if (!commonContactDetailData.contactDetails) {
-      contactDetailsErr.contactDetailsEmpty = "Enter contact detail";
-      isValid = false;
-      setFormError(true);
-    }
-
-    if (!isValid) {
-      setContactNameErr(contactNameErr);
-      setContactTypeErr(contactTypeErr);
-      setContactDetailsErr(contactDetailsErr);
-    }
-    return isValid;
-  }
-
-  const changeHandle = e => {
-    dispatch(commonContactDetailsAction({
-      ...commonContactDetailData,
-      [e.target.name]: e.target.value
-    }));
-  };
-
-  const clearStates = () => {
-    setFormError(false);
-    setContactNameErr({});
-    setContactTypeErr({});
-    setContactDetailsErr({});
-    dispatch(commonContactDetailsAction(undefined))
-  }
-
-  const addCommonContactDetailInList = () => {
-    if (validateCommonContactDetailForm()) {
-      const contactData = {
-        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-        contactPerson: commonContactDetailData.contactPerson,
-        contactType: commonContactDetailData.contactType,
-        contactDetails: commonContactDetailData.contactDetails,
-        flag: commonContactDetailData.flag == null || commonContactDetailData.flag == "0" ? "0" : "1",
-        originatedFrom: "FR",
-        addUser: localStorage.getItem("LoginUserName"),
-      }
-
-      dispatch(commonContactDetailsListAction(contactData));
-      resetFarmerContactDetailData();
-      clearStates();
-    }
-  }
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddBankNameTable"
           className="mb-2"
-          onClick={addCommonContactDetailInList}
+          onClick={handleAddRow}
         >
           Add Bank Details
         </Button>
@@ -132,73 +103,77 @@ export const FarmerContactInformationTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
-            <tr>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtContactPerson"
-                  name="contactPerson"
-                  maxLength={45}
-                  value={commonContactDetailData.contactPerson}
-                  onChange={changeHandle}
-                  placeholder="Contact person name"
-                  className="form-control"
-                  required
-                />
-                {Object.keys(contactNameErr).map((key) => {
-                  return <span className="error-message">{contactNameErr[key]}</span>
-                })}
-              </td>
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtContactType"
-                  name="contactType"
-                  value={commonContactDetailData.contactType}
-                  onChange={changeHandle}
-                  className="form-control"
-                  required
-                >
-                  <option value=''>Select contact type</option>
-                  <option value="OFE">Office Email Id</option>
-                  <option value="OFM">Office Mobile No</option>
-                  <option value="OFL">Office Land Line No</option>
-                  <option value="OFX">Office Ext No</option>
-                  <option value="OFF">Office Fax No</option>
-                  <option value="PPP">PP No</option>
-                  <option value="PMN">Personal Mobile No</option>
-                  <option value="PRL">Personal Land Line No</option>
-                  <option value="PRS">Spouse Mob No</option>
-                  <option value="PRE">Personal Mail</option>
-                </Form.Select>
-                {Object.keys(contactTypeErr).map((key) => {
-                  return <span className="error-message">{contactTypeErr[key]}</span>
-                })}
-              </td>
+            {rowData.map((commonContactDetailData, index) => (
+              <tr key={index}>
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtContactPerson"
+                    name="contactPerson"
+                    maxLength={45}
+                    value={commonContactDetailData.contactPerson}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Contact person name"
+                    className="form-control"
+                    required
+                  />
+                  {Object.keys(contactNameErr).map((key) => {
+                    return <span className="error-message">{contactNameErr[key]}</span>
+                  })}
+                </td>
 
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtContactDetails"
-                  name="contactDetails"
-                  maxLength={30}
-                  value={commonContactDetailData.contactDetails}
-                  onChange={changeHandle}
-                  placeholder="Contact details"
-                  className="form-control"
-                  required
-                />
-                {Object.keys(contactDetailsErr).map((key) => {
-                  return <span className="error-message">{contactDetailsErr[key]}</span>
-                })}
-              </td>
-              <td>
-                <i className="fa fa-pencil me-1" />
-                <i className="fa fa-trash " />
-              </td>
-            </tr>
+                <td key={index}>
+                  <Form.Select
+                    type="text"
+                    id="txtContactType"
+                    name="contactType"
+                    value={commonContactDetailData.contactType}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    className="form-control"
+                    required
+                  >
+                    <option value=''>Select contact type</option>
+                    <option value="OFE">Office Email Id</option>
+                    <option value="OFM">Office Mobile No</option>
+                    <option value="OFL">Office Land Line No</option>
+                    <option value="OFX">Office Ext No</option>
+                    <option value="OFF">Office Fax No</option>
+                    <option value="PPP">PP No</option>
+                    <option value="PMN">Personal Mobile No</option>
+                    <option value="PRL">Personal Land Line No</option>
+                    <option value="PRS">Spouse Mob No</option>
+                    <option value="PRE">Personal Mail</option>
+                  </Form.Select>
+                  {Object.keys(contactTypeErr).map((key) => {
+                    return <span className="error-message">{contactTypeErr[key]}</span>
+                  })}
+                </td>
+
+                <td key={index}>
+                  <Form.Control
+                    type="text"
+                    id="txtContactDetails"
+                    name="contactDetails"
+                    maxLength={30}
+                    value={commonContactDetailData.contactDetails}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Contact details"
+                    className="form-control"
+                    required
+                  />
+                  {Object.keys(contactDetailsErr).map((key) => {
+                    return <span className="error-message">{contactDetailsErr[key]}</span>
+                  })}
+                </td>
+                <td>
+                  <i className="fa fa-pencil me-1" />
+                  <i className="fa fa-trash " />
+                </td>
+              </tr>
+            ))}
           </tbody>
-          <thead>
+
+          {/* <thead>
             {commonContactDetailListReducer.commonContactDetailsList.length > 0 ?
               commonContactDetailListReducer.commonContactDetailsList.map((data, idx) => (
                 data &&
@@ -220,7 +195,7 @@ export const FarmerContactInformationTable = () => {
                   </td>
                 </tr>
               )) : null}
-          </thead>
+          </thead> */}
         </Table>
       </Form>
     </>

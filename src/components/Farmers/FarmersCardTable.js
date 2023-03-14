@@ -1,24 +1,35 @@
-import React from 'react';
-import { Button, Table, Form, Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Button, Table, Form } from 'react-bootstrap';
+import { farmerCardDetailsAction } from 'actions';
+import { useSelector, useDispatch } from 'react-redux';
 
 export const FarmersCardTable = () => {
+  const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([{}]);
-  const [data, setdata] = useState([]);
+  const [rowData, setRowData] = useState([{
+    id: 1, cardDescription: '', farmerKisanCardNo: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+  },]);
   const columnsArray = ['Card Name', 'Card Number', 'Active Status', '	Action'];
 
   const handleAddRow = () => {
-    const item = {
-      cardName: '',
-      cardNumber: '',
-      activeStatus: ''
-    };
-    setRowData([...rowData, item]);
+    setRowData([...rowData, {
+      id: rowData.length + 1, cardDescription: '', farmerKisanCardNo: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    },]);
   };
-  const changeHandle = e => {
-    setdata({ ...data, [e.target.name]: e.target.value });      
-  };
+
+  const farmerCardDetailsReducer = useSelector((state) => state.rootReducer.farmerCardDetailsReducer)
+  var farmerCardDetailData = farmerCardDetailsReducer.farmerCardDetails;
+
+  const handleFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var farmerCardDetails = [...rowData];
+    farmerCardDetails[index][name] = value;
+    farmerCardDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(farmerCardDetailsAction(farmerCardDetails))
+  }
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
@@ -49,44 +60,46 @@ export const FarmersCardTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
-            
-              <tr >
-                <td >
+            {rowData.map((farmerCardDetailData, index) => (
+              <tr key={index}>
+                <td key={index}>
                   <Form.Select
                     type="text"
                     id="txtCardName"
-                    name="cardName"
+                    name="cardDescription"
                     className="form-control"
-                    value={rowData.cardName}
-                  onChange={changeHandle}
+                    value={farmerCardDetailData.cardDescription}
+                    onChange={(e) => handleFieldChange(e, index)}
                   >
-                    <option >Select</option>
-                    <option >ICC</option>
+                    <option value='' >Select</option>
+                    <option value='KISAN CREDIT CARD'>KISAN CREDIT CARD</option>
+                    <option value='ICICI CREDIT CARD'>ICICI CREDIT CARD</option>
+                    <option value='SBI CREDIT CARD'>SBI CREDIT CARD</option>
                   </Form.Select>
                 </td>
 
-                <td >
+                <td key={index}>
                   <Form.Control
                     type="text"
-                    id="numFarmersCardNumber"
-                    name="cardNumber"
-                    value={rowData.cardNumber}
-                  onChange={changeHandle}
+                    id="txtFarmersCardNumber"
+                    name="farmerKisanCardNo"
+                    value={farmerCardDetailData.farmerKisanCardNo}
                     placeholder="Card Name"
-                    min={0}
+                    maxLength={45}
                     className="form-control"
+                    onChange={(e) => handleFieldChange(e, index)}
                   />
                 </td>
 
-                <td >
+                <td key={index}>
                   <Form.Select
                     id="txtStatus"
-                    name="status"
+                    name="activeStatus"
                     className="form-control"
-                    value={rowData.activeStatus}
-                  onChange={changeHandle}
+                    value={farmerCardDetailData.activeStatus}
+                    onChange={(e) => handleFieldChange(e, index)}
                   >
-                    <option >Active</option>
+                    <option value="Active">Active</option>
                     <option value="Suspended">Suspended</option>
                   </Form.Select>
                 </td>
@@ -95,21 +108,9 @@ export const FarmersCardTable = () => {
                   <i className="fa fa-trash" />
                 </td>
               </tr>
-            
+            )
+            )}
           </tbody>
-          <thead>
-      
-            
-          {rowData.map((item, idx) => (
-             <tr key={idx}>
-             <td  key={idx}>{data.cardName}</td>
-            <td  key={idx}>{data.cardNumber}</td>
-            <td  key={idx}>{data.activeStatus}</td>
-            
-             </tr>
-            ))}
-
-        </thead>
         </Table>
       </Form>
     </>

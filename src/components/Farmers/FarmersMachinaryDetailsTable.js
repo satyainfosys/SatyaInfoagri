@@ -15,11 +15,11 @@ export const FarmersMachinaryDetailsTable = () => {
     'Equipment Type',
     'Quantity',
     'Active Status',
-    '	Action'
+    'Action'
   ];
 
-  const handleAddRow = () => {  
-    setRowData([...rowData, { id: rowData.length + 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")},]);
+  const handleAddRow = () => {
+    setRowData([...rowData, { id: rowData.length + 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName") },]);
   };
 
   const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
@@ -27,18 +27,18 @@ export const FarmersMachinaryDetailsTable = () => {
 
   const handleFieldChange = (e, idx) => {
     const { name, value } = e.target;
-    farmerMachineryDetailsData = [...rowData];
-    farmerMachineryDetailsData[idx][name] = value;
-    dispatch(farmerMachineryDetailsAction({
-      ...rowData
-    }))
+    var farmerMachineryDetails = [...rowData];
+    farmerMachineryDetails[idx][name] = value;
+    farmerMachineryDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(farmerMachineryDetailsAction(farmerMachineryDetails))
   }
-
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button id="btnAddFarmersMachinaryTable" className="mb-2" onClick={handleAddRow}>
-          Add Machinary Details
+          Add Machinery Details
         </Button>
       </div>
 
@@ -72,8 +72,8 @@ export const FarmersMachinaryDetailsTable = () => {
                     value={farmerMachineryDetailsData.machineryCategory}
                   >
                     <option value=''>Select</option>
-                    <option value="Owned">Owned</option>
-                    <option value="Hired">Hired</option>
+                    <option value="HIRED">HIRED</option>
+                    <option value="OWNED">OWNED</option>
                   </Form.Select>
                 </td>
 
