@@ -360,13 +360,23 @@ const AddFarmer = () => {
                             <FalconComponentCard.Body language="jsx">
                                 <Row>
                                     <Col sm={6} lg={4}>
-                                        <Form.Label>Company</Form.Label>
-                                        <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange}>
-                                            <option value=''>Select company</option>
-                                            {companyList.map((option, index) => (
-                                                <option key={index} value={option.value}>{option.key}</option>
-                                            ))}
-                                        </Form.Select>
+                                        <Form.Label>Company</Form.Label>{companyList.length > 1 ?
+                                            <>
+                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange}>
+                                                    <option value=''>Select company</option>
+                                                    {companyList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </> :
+                                            <>
+                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange} disabled>                                                    
+                                                    {companyList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </>}
+
                                     </Col>
                                 </Row>
                             </FalconComponentCard.Body>
@@ -385,7 +395,7 @@ const AddFarmer = () => {
                                                         Farmer Code
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" />
+                                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" value={farmerData.farmerCode} disabled />
                                                     </Col>
                                                 </Form.Group>
 

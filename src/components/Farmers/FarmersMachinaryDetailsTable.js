@@ -78,7 +78,7 @@ export const FarmersMachinaryDetailsTable = () => {
                 </td>
 
                 <td key={idx}>
-                  <Form.Control
+                  <Form.Select
                     type="text"
                     id="txtequipmentType"
                     name="machineryType"
@@ -86,7 +86,22 @@ export const FarmersMachinaryDetailsTable = () => {
                     placeholder="Equipment Type"
                     className="form-control"
                     onChange={(e) => handleFieldChange(e, idx)}
-                  />
+                  >
+                    <option value=''>Select</option>
+                    <option value='Tractor'>Tractor</option>
+                    <option value='Leveller'>Leveller</option>
+                    <option value='Biogas'>Biogas</option>
+                    <option value='Vermi Compost'>Vermi Compost</option>
+                    <option value='Polyhouse'>Polyhouse</option>
+                    <option value='NetHouse'>NetHouse</option>
+                    <option value='Solar Light'>Solar Light</option>
+                    <option value='Spray Pump'>Spray Pump</option>
+                    <option value='Vegetable Crates'>Vegetable Crates</option>
+                    <option value='Tillerweeder'>Tillerweeder</option>
+                    <option value='Irregation Pump'>Irregation Pump</option>
+                    <option value='Weeder'>Weeder</option>
+                    <option value='Tiller'>Tiller</option>
+                  </Form.Select>
                 </td>
 
                 <td key={idx}>

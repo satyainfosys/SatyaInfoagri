@@ -214,3 +214,10 @@ export const farmerMachineryDetailsAction = (payload) => {
     payload
   };
 };
+
+export const farmerIrrigationDetailsAction = (payload) => {
+  return {
+    type: 'FARMERIRRIGATIONDETAILS',
+    payload
+  };
+};

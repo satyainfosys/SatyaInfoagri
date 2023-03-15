@@ -96,6 +96,9 @@ export const Farmers = () => {
     const farmerCardDetailsReducer = useSelector((state) => state.rootReducer.farmerCardDetailsReducer)
     const farmerCardDetailsList = farmerCardDetailsReducer.farmerCardDetails;
 
+    const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
+    const farmerIrrigationDetailsList = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
+
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
         $("#btnSave").show();
@@ -244,7 +247,7 @@ export const Farmers = () => {
                 farmerMiddleName: farmerData.middleName ? farmerData.middleName : "",
                 farmerLastName: farmerData.lastName,
                 farmerAddress: farmerData.address,
-                farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "ILLITERATE" ? "ILLITERATE" : farmerData.educationalStatus == "Doctrate" ? "DOCTRATE" : "",
+                farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "",
                 farmerIDType: farmerData.farmerIDType == "Voter ID" ? "VID" : farmerData.farmerIDType == "Driving License" ? "DL" : farmerData.farmerIDType == "PAN Card" ? "PAN" : farmerData.farmerIDType == "Ration Card" ? "RTC" : farmerData.farmerIDType == "Other" ? "OTH" : "",
                 farmerIdNo: farmerData.farmerIdNo ? farmerData.farmerIdNo : "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
@@ -273,7 +276,8 @@ export const Farmers = () => {
                 bankDetails: bankDetailList,
                 farmerMachineryDetails: farmerMachineryDetailsList,
                 farmerLiveStockCattleDetails: farmerLiveStockCattleList,
-                farmerKisanCardDetails: farmerCardDetailsList
+                farmerKisanCardDetails: farmerCardDetailsList,
+                farmerIrrigationDetails: farmerIrrigationDetailsList
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation", "farmerIdNo"]
@@ -326,6 +330,18 @@ export const Farmers = () => {
                     farmerMachineryDetailsObj[key] = farmerMachineryDetailsObj[key] ? farmerMachineryDetailsObj[key].toUpperCase() : '';
                 }
                 requestData.farmerMachineryDetails[index] = farmerMachineryDetailsObj;
+                index++;
+            }
+
+            const irrigationKeys = ['addUser']
+            var index = 0;
+            for (var obj in requestData.farmerIrrigationDetails) {
+                var farmerIrrigationDetailsObj = requestData.farmerIrrigationDetails[obj];
+
+                for (const key of Object.keys(farmerIrrigationDetailsObj).filter((key) => irrigationKeys.includes(key))) {
+                    farmerIrrigationDetailsObj[key] = farmerIrrigationDetailsObj[key] ? farmerIrrigationDetailsObj[key].toUpperCase() : '';
+                }
+                requestData.farmerIrrigationDetails[index] = farmerIrrigationDetailsObj;
                 index++;
             }
 
