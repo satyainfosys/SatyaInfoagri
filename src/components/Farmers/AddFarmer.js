@@ -283,6 +283,39 @@ const AddFarmer = () => {
 
     }
 
+    if (farmerData.companyName && !$('#txtCompany').val()) {
+        $('#txtCompany option:contains(' + farmerData.companyName + ')').prop('selected', true);
+    }
+
+    if (farmerData.encryptedCountryCode) {
+        const setSelectCountryStates = () => {
+            $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
+            getStates(farmerData.encryptedCountryCode);
+            $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
+        }
+
+        if (farmerData.country &&
+            (!$('#txtCountryName').val() ||
+                !$('#txtStateName').val())) {
+            setSelectCountryStates();
+        }
+    }
+
+    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode) {
+        getDistrict(farmerData.encryptedStateCode);
+        $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
+    }
+
+    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode && farmerData.encryptedDistrictCode) {
+        getTehsil(farmerData.encryptedDistrictCode);
+        { farmerData.encryptedTehsilCode && $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true) }
+    }
+
+    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode && farmerData.encryptedDistrictCode && farmerData.encryptedTehsilCode) {
+        getBlock(farmerData.encryptedTehsilCode);
+        $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
+    }
+
     const handleFieldChange = e => {
         dispatch(farmerDetailsAction({
             ...farmerData,
@@ -370,7 +403,7 @@ const AddFarmer = () => {
                                                 </Form.Select>
                                             </> :
                                             <>
-                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange} disabled>                                                    
+                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange} disabled>
                                                     {companyList.map((option, index) => (
                                                         <option key={index} value={option.value}>{option.key}</option>
                                                     ))}
@@ -626,7 +659,7 @@ const AddFarmer = () => {
                                                         Country Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtCountryName" name="encryptedCountryCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
                                                             <option value=''>Select country</option>
                                                             {countryList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -640,7 +673,7 @@ const AddFarmer = () => {
                                                         State Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtStateName" name="encryptedStateCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
                                                             <option value=''>Select state</option>
                                                             {stateList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -654,7 +687,7 @@ const AddFarmer = () => {
                                                         District Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtDistrictName" name="encryptedDistrictCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
                                                             <option value=''>Select district</option>
                                                             {districtList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -668,7 +701,7 @@ const AddFarmer = () => {
                                                         Tehsil Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtTehsilName" name="encryptedTehsilCode" onChange={handleFieldChange} >
+                                                        <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
                                                             <option value=''>Select tehsil</option>
                                                             {tehsilList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -682,7 +715,7 @@ const AddFarmer = () => {
                                                         Block Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtBlockName" name="encryptedBlockCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
                                                             <option value=''>Select block</option>
                                                             {blockList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -696,7 +729,7 @@ const AddFarmer = () => {
                                                         PostOffice Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
                                                             <option value=''>Select PostOffice</option>
                                                             {postOfficeList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -710,7 +743,7 @@ const AddFarmer = () => {
                                                         Village Name
                                                     </Form.Label>
                                                     <Col sm={8}>
-                                                        <Form.Select id="txtVillageName" name="encryptedVillageCode" onChange={handleFieldChange}>
+                                                        <Form.Select id="txtVillageName" name="encryptedVillageCode" defaultValue={farmerData.villageCode} onChange={handleFieldChange}>
                                                             <option value=''>Select Village</option>
                                                             {villageList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>

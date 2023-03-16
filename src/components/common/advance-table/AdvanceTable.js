@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
+import { farmerDetailsAction } from '../../../actions/index';
 import $ from 'jquery'
 
 const AdvanceTable = ({
@@ -50,6 +51,12 @@ const AdvanceTable = ({
       $("#AddProductDetailsForm").trackChanges();
       $('#btnSave').attr('disabled', true);
       localStorage.setItem('EncryptedResponseModuleCode', rowData.encryptedModuleCode);
+    }
+    else if (rowData.hasOwnProperty('encryptedFarmerCode')) {      
+      localStorage.setItem("EncryptedFarmerCode", rowData.encryptedFarmerCode);
+      $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
+      getFarmerDetail(rowData.encryptedFarmerCode);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));
@@ -167,11 +174,26 @@ const AdvanceTable = ({
   }
 
   const getClientDetail = (clientName) => {
-    if(clientUserData)
-    {
+    if (clientUserData) {
       const clientDetail = clientUserData.find(x => x.customerName == clientName);
       $('#txtCountry').val(clientDetail.country);
       $('#txtState').val(clientDetail.state);
+    }
+  }
+
+  const getFarmerDetail = async (encryptedFarmerCode) => {
+    const request = {
+      EncryptedFarmerCode: encryptedFarmerCode
+    }
+
+    let farmerResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-master-detail', request, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (farmerResponse.data.status == 200) {
+      if (farmerResponse.data.data) {
+        dispatch(farmerDetailsAction(farmerResponse.data.data));
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import { farmerFamilyDetailsAction, farmerFamilyDetailsListAction } from 'actions';
+import { farmerFamilyDetailsAction } from 'actions';
 import React, { useState } from 'react';
 import { Button, Table, Form } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';

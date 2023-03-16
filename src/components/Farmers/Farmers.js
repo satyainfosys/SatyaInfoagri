@@ -145,9 +145,38 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
-        // $('#AddFarmerDetailsForm').get(0).reset();
         clearFarmerReducers();
     })
+
+    $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").hide();
+        $('[data-rr-ui-event-key*="Family"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Bank"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
+        getFarmerFamilyDetail();
+    })
+
+    const getFarmerFamilyDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+
+        let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (familyResponse.data.status == 200) {
+            if (familyResponse.data.data) {
+                dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
+            }
+        }
+    }
 
     const farmerValidation = () => {
         const firstNameErr = {};
