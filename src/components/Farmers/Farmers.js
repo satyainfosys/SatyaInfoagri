@@ -14,7 +14,7 @@ const listColumnArray = [
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Father Name' },
     { accessor: 'village', Header: 'Village' },
-    { accessor: 'districtCode', Header: 'District Code' },
+    { accessor: 'district', Header: 'District Code' },
     { accessor: 'figCode', Header: 'FIG Code' },
     { accessor: 'mobile', Header: 'Mobile' },
     { accessor: 'user', Header: 'User' },
@@ -29,13 +29,15 @@ export const Farmers = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [formHasError, setFormError] = useState(false);
     const [modalShow, setModalShow] = useState(false);
+    const [companyList, setCompanyList] = useState([]);
 
-    const fetchFarmerList = async (page, size = perPage) => {
+    const fetchFarmerList = async (page, size = perPage, encryptedCompanyCode) => {
         let token = localStorage.getItem('Token');
 
         const listFilter = {
             pageNumber: page,
-            pageSize: size
+            pageSize: size,
+            encryptedCompanyCode: encryptedCompanyCode
         };
 
         setIsLoading(true);
@@ -47,12 +49,13 @@ export const Farmers = () => {
                 setIsLoading(false);
                 if (res.data.status == 200) {
                     setListData(res.data.data);
+                } else {
+                    setListData([])
                 }
             });
     };
 
     useEffect(() => {
-        fetchFarmerList(1);
         $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Family"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Bank"]').attr('disabled', true);
@@ -61,6 +64,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
+        getCompany();
     }, []);
 
     $.fn.extend({
@@ -99,12 +103,6 @@ export const Farmers = () => {
     const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
     const farmerIrrigationDetailsList = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
 
-    $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-    })
-
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         dispatch(farmerDetailsAction(undefined));
@@ -118,18 +116,25 @@ export const Farmers = () => {
     }
 
     const newDetails = () => {
-        $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
-        $('[data-rr-ui-event-key*="Family"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Bank"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
-        $('#btnSave').attr('disabled', false);
-        $("#AddFarmerDetailsForm").data("changed", false);
-        clearFarmerReducers();
+        if (localStorage.getItem("EncryptedCompanyCode")) {
+            $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
+            $('[data-rr-ui-event-key*="Family"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Bank"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
+            $('#btnSave').attr('disabled', false);
+            $("#AddFarmerDetailsForm").data("changed", false);
+            clearFarmerReducers();
+        } else {           
+           toast.error("Please select company first", {
+            theme: 'colored',
+            autoClose: 5000
+        });
+        }
     }
 
     $('[data-rr-ui-event-key*="Farmers"]').click(function () {
@@ -146,6 +151,8 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
         clearFarmerReducers();
+        localStorage.removeItem("EncryptedCompanyCode");
+        localStorage.removeItem("EncryptedFarmerCode");
     })
 
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
@@ -408,6 +415,48 @@ export const Farmers = () => {
                 })
         }
     }
+
+    const discardChanges = () => {
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else
+            $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
+
+        setModalShow(false);
+    }
+
+    const getCompany = async () => {
+        let companyData = [];
+        const companyRequest = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        }
+
+        let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (companyResponse.data.status == 200) {
+            if (companyResponse.data && companyResponse.data.data.length > 0) {
+                companyResponse.data.data.forEach(company => {
+                    companyData.push({
+                        key: company.companyName,
+                        value: company.encryptedCompanyCode
+                    })
+                })
+            }
+            setCompanyList(companyData)
+        }
+
+    }
+
+    if (farmerData.companyName && !$('#txtCompany').val()) {
+        $('#txtCompany option:contains(' + farmerData.companyName + ')').prop('selected', true);
+    }
+
+    const handleFieldChange = e => {
+        localStorage.setItem("EncryptedCompanyCode", e.target.value);
+        fetchFarmerList(1, perPage, e.target.value);
+    }
     return (
         <>
             {isLoading ? (
@@ -433,7 +482,7 @@ export const Farmers = () => {
                         <h4>Do you want to save changes?</h4>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" onClick={!userData.encryptedSecurityUserId ? addUserDetails : updateUserDetails}>Save</Button>
+                        <Button variant="success" onClick={addFarmerDetails}>Save</Button>
                         <Button variant="danger" onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -446,6 +495,8 @@ export const Farmers = () => {
                 module="Farmers"
                 newDetails={newDetails}
                 saveDetails={addFarmerDetails}
+                companyList={companyList}
+                supportingMethod1={handleFieldChange}
             />
         </>
     )

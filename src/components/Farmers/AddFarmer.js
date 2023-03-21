@@ -69,12 +69,10 @@ const AddFarmer = () => {
     const [blockList, setBlockList] = useState([]);
     const [postOfficeList, setPostOfficeList] = useState([]);
     const [villageList, setVillageList] = useState([]);
-    const [companyList, setCompanyList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         getCountries();
-        getCompany();
     }, []);
 
     const getCountries = async () => {
@@ -259,34 +257,6 @@ const AddFarmer = () => {
 
     }
 
-    const getCompany = async () => {
-        let companyData = [];
-        const companyRequest = {
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
-        }
-
-        let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        });
-
-        if (companyResponse.data.status == 200) {
-            if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
-                    companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode
-                    })
-                })
-            }
-            setCompanyList(companyData)
-        }
-
-    }
-
-    if (farmerData.companyName && !$('#txtCompany').val()) {
-        $('#txtCompany option:contains(' + farmerData.companyName + ')').prop('selected', true);
-    }
-
     if (farmerData.encryptedCountryCode) {
         const setSelectCountryStates = () => {
             $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
@@ -372,7 +342,6 @@ const AddFarmer = () => {
                 farmerPic: e.target.files[0],
                 farmerPicURL: URL.createObjectURL(e.target.files[0])
             }));
-            $("#imgCompanyLogo").show();
         }
     };
 
@@ -388,33 +357,6 @@ const AddFarmer = () => {
             {farmerData &&
 
                 <Form noValidate validated={formHasError} className="details-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
-                    <Row className="g-3 mb-3">
-                        <FalconComponentCard>
-                            <FalconComponentCard.Body language="jsx">
-                                <Row>
-                                    <Col sm={6} lg={4}>
-                                        <Form.Label>Company</Form.Label>{companyList.length > 1 ?
-                                            <>
-                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange}>
-                                                    <option value=''>Select company</option>
-                                                    {companyList.map((option, index) => (
-                                                        <option key={index} value={option.value}>{option.key}</option>
-                                                    ))}
-                                                </Form.Select>
-                                            </> :
-                                            <>
-                                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={handleFieldChange} disabled>
-                                                    {companyList.map((option, index) => (
-                                                        <option key={index} value={option.value}>{option.key}</option>
-                                                    ))}
-                                                </Form.Select>
-                                            </>}
-
-                                    </Col>
-                                </Row>
-                            </FalconComponentCard.Body>
-                        </FalconComponentCard>
-                    </Row>
                     <Row className="g-3 mb-3">
                         <Col sm={4} lg={3}>
                             <FalconComponentCard>

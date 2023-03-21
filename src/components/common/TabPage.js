@@ -1,5 +1,5 @@
-import React, { useEffect } from 'react';
-import { Tabs, Tab, Button, Modal } from 'react-bootstrap';
+import React, { useEffect, useState } from 'react';
+import { Tabs, Row, Col, Form, Tab, Button, Modal } from 'react-bootstrap';
 import TabPageMainMenu from 'components/navbar/top/TabPageMainMenu';
 
 //Datatable Modules
@@ -47,7 +47,9 @@ const TabPage = ({
   saveDetails,
   newDetails,
   cancelClick,
-  exitModule
+  exitModule,
+  companyList,
+  supportingMethod1
 }) => {
   $.fn.extend({
     trackChanges: function () {
@@ -69,9 +71,9 @@ const TabPage = ({
     $('#btnSave').hide();
     $('#btnSave').attr('disabled', true);
     $('#btnCancel').hide();
-
     $('.tab-page-list-card').removeClass('card');
     localStorage.removeItem('EncryptedResponseClientCode');
+    localStorage.removeItem("EncryptedCompanyCode");
   }, []);
 
   const discardChanges = () => {
@@ -98,7 +100,7 @@ const TabPage = ({
         pagination
         perPage={10}
       >
-      
+
         <FalconComponentCard id='TableSearchPanelCard' className="no-pad mb-1">
             <FalconComponentCard.Body>
             <Row className="flex-end-center  mt-1 mb-1">
@@ -207,6 +209,34 @@ const TabPage = ({
             >
               {index == 0 && listData && (
                 <>
+                  {module === "Farmers" &&
+                    <FalconComponentCard className="mb-2 no-pb">
+                      <FalconComponentCard.Body language="jsx">
+                        <Row>
+                          <Col sm={6} lg={4}>
+                            {companyList.length > 1 ?
+                              <>
+                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
+                                  <option value=''>Select company</option>
+                                  {companyList.map((option, index) => (
+                                    <option key={index} value={option.value}>{option.key}</option>
+                                  ))}
+                                </Form.Select>
+                              </> :
+                              <>
+                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1} disabled>
+                                  {companyList.map((option, index) => (
+                                    <option key={index} value={option.value}>{option.key}</option>
+                                  ))}
+                                </Form.Select>
+                              </>}
+
+                          </Col>
+                        </Row>
+                      </FalconComponentCard.Body>
+                    </FalconComponentCard>
+                  }
+
                   <FalconComponentCard className="tab-page-list-card">
                     <FalconComponentCard.Body
                       code={searchableTableCode}
