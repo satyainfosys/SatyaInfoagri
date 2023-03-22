@@ -1,19 +1,24 @@
 const initialState = {
-    farmerLiveStockCattleDetails: []
-  };
-  
-  const farmerLiveStockCattleDetailsReducer = (state = initialState, action) => {
-    switch (action.type) {
-      case 'FARMERLIVESTOCKCATTLEDETAILS':
-        return{
+  farmerLiveStockCattleDetails: []
+};
+
+const farmerLiveStockCattleDetailsReducer = (state = initialState, action) => {
+  switch (action.type) {
+    case 'FARMERLIVESTOCKCATTLEDETAILS':
+      if (!action.payload) {
+        return initialState
+      }
+      else {
+        return {
           ...state,
-          farmerLiveStockCattleDetails : action.payload
+          farmerLiveStockCattleDetails: action.payload
         }
-      default:
-        return state;
-    }
-  };
-  
-  
-  
-  export default farmerLiveStockCattleDetailsReducer;
+      }
+    default:
+      return state;
+  }
+};
+
+
+
+export default farmerLiveStockCattleDetailsReducer;

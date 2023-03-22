@@ -103,23 +103,19 @@ const AddFarmer = () => {
         axios
             .post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
             .then(res => {
-
-                let stateData = [];
-
                 if (res.data.status == 200) {
-                    if (res.data && res.data.data.length > 0) {
+                    let stateData = [];
+                    if (res.data && res.data.data.length > 0)
                         res.data.data.forEach(state => {
                             stateData.push({
                                 key: state.stateName,
                                 value: state.encryptedStateCode
                             });
                         });
-                    }
                     setStateList(stateData);
                 } else {
                     setStateList([]);
                 }
-
             });
     }
 
@@ -132,22 +128,19 @@ const AddFarmer = () => {
             .post(process.env.REACT_APP_API_URL + '/district-list', districtRequest)
             .then(res => {
 
-                let districtData = [];
-
                 if (res.data.status == 200) {
-                    if (res.data && res.data.data.length > 0) {
+                    let districtData = [];
+                    if (res.data && res.data.data.length > 0)
                         res.data.data.forEach(district => {
                             districtData.push({
                                 key: district.districtName,
                                 value: district.encryptedDistrictCode
                             });
                         });
-                    }
                     setDistrictList(districtData);
                 } else {
-                    setDistrictList([]);
+                    setDistrictList([])
                 }
-
             });
     }
 
@@ -160,10 +153,8 @@ const AddFarmer = () => {
         axios
             .post(process.env.REACT_APP_API_URL + '/tehsil-list', teshilRequest)
             .then(res => {
-
-                let tehsilData = [];
-
                 if (res.data.status == 200) {
+                    let tehsilData = [];
                     if (res.data && res.data.data.length > 0) {
                         res.data.data.forEach(tehsil => {
                             tehsilData.push({
@@ -172,8 +163,10 @@ const AddFarmer = () => {
                             });
                         });
                     }
+                    setTehsilList(tehsilData);
+                } else {
+                    setTehsilList([]);
                 }
-                setTehsilList(tehsilData);
             });
     }
 
@@ -188,10 +181,8 @@ const AddFarmer = () => {
         axios
             .post(process.env.REACT_APP_API_URL + '/block-list', blockRequest)
             .then(res => {
-
-                let blockData = [];
-
                 if (res.data.status == 200) {
+                    let blockData = [];
                     if (res.data && res.data.data.length > 0) {
                         res.data.data.forEach(block => {
                             blockData.push({
@@ -231,7 +222,6 @@ const AddFarmer = () => {
     }
 
     const getVillage = async (EncryptedPostOfficeCode) => {
-        let villageData = [];
         const villageRequest = {
             EncryptedCountryCode: farmerData.encryptedCountryCode,
             EncryptedStateCode: farmerData.encryptedStateCode,
@@ -242,7 +232,7 @@ const AddFarmer = () => {
         }
 
         let villageResponse = await axios.post(process.env.REACT_APP_API_URL + '/village-list', villageRequest);
-
+        let villageData = [];
         if (villageResponse.data.status == 200) {
             if (villageResponse.data && villageResponse.data.data.length > 0) {
                 villageResponse.data.data.forEach(village => {
@@ -257,36 +247,36 @@ const AddFarmer = () => {
 
     }
 
-    if (farmerData.encryptedCountryCode) {
-        const setSelectCountryStates = () => {
-            $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
-            getStates(farmerData.encryptedCountryCode);
-            $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
-        }
+    // if (farmerData.encryptedCountryCode) {
+    //     const setSelectCountryStates = () => {
+    //         $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
+    //         getStates(farmerData.encryptedCountryCode);
+    //         $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
+    //     }
 
-        if (farmerData.country &&
-            (!$('#txtCountryName').val() ||
-                !$('#txtStateName').val())) {
-            setSelectCountryStates();
-        }
-    }
+    //     if (farmerData.country &&
+    //         (!$('#txtCountryName').val() ||
+    //             !$('#txtStateName').val())) {
+    //         setSelectCountryStates();
+    //     }
+    // }
 
-    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode) {
-        getDistrict(farmerData.encryptedStateCode);
-        $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
-    }
+    // if (farmerData.encryptedDistrictCode) {
+    //     getDistrict(farmerData.encryptedStateCode);
+    //     $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
+    // }
 
-    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode && farmerData.encryptedDistrictCode) {
-        getTehsil(farmerData.encryptedDistrictCode);
-        { farmerData.encryptedTehsilCode && $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true) }
-    }
+    // if (farmerData.encryptedTehsilCode) {
+    //     getTehsil(farmerData.encryptedDistrictCode);
+    //     { farmerData.encryptedTehsilCode && $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true) }
+    // }
 
-    if (farmerData.encryptedCountryCode && farmerData.encryptedStateCode && farmerData.encryptedDistrictCode && farmerData.encryptedTehsilCode) {
-        getBlock(farmerData.encryptedTehsilCode);
-        $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
-    }
+    // if (farmerData.encryptedBlockCode) {
+    //     getBlock(farmerData.encryptedTehsilCode);
+    //     $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
+    // }
 
-    const handleFieldChange = e => {
+    const handleFieldChange = (e) => {
         dispatch(farmerDetailsAction({
             ...farmerData,
             [e.target.name]: e.target.value

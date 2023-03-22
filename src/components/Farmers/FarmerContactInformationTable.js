@@ -1,4 +1,4 @@
-import React, { useState }  from 'react';
+import React, { useState } from 'react';
 import { Button, Table, Form } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { commonContactDetailsAction } from 'actions';
@@ -81,7 +81,7 @@ export const FarmerContactInformationTable = () => {
           className="mb-2"
           onClick={handleAddRow}
         >
-          Add Bank Details
+          Add Contact Details
         </Button>
       </div>
 

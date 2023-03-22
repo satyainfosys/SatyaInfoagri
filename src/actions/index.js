@@ -166,13 +166,6 @@ export const farmerFamilyDetailsAction = (payload) => {
   };
 };
 
-export const farmerFamilyDetailsListAction = (payload) => {
-  return {
-    type: 'FARMERFAMILYDETAILSLIST',
-    payload
-  };
-};
-
 export const bankDetailsAction = (payload) => {
   return {
     type: 'BANKDETAILS',
@@ -197,13 +190,6 @@ export const farmerCardDetailsAction = (payload) => {
 export const farmerLiveStockCattleDetailsAction = (payload) => {
   return {
     type: 'FARMERLIVESTOCKCATTLEDETAILS',
-    payload
-  };
-};
-
-export const farmerLiveStockCattleDetailsListAction = (payload) => {
-  return {
-    type: 'FARMERLIVESTOCKCATTLEDETAILSLIST',
     payload
   };
 };

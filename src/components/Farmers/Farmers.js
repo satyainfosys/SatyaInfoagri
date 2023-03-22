@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { bankDetailsAction, commonContactDetailsAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
@@ -67,18 +67,6 @@ export const Farmers = () => {
         getCompany();
     }, []);
 
-    $.fn.extend({
-        trackChanges: function () {
-            $(":input", this).change(function () {
-                $(this.form).data("changed", true);
-            });
-        }
-        ,
-        isChanged: function () {
-            return this.data("changed");
-        }
-    });
-
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
     const farmerData = farmerDetailsReducer.farmerDetails;
 
@@ -103,6 +91,20 @@ export const Farmers = () => {
     const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
     const farmerIrrigationDetailsList = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
 
+    $.fn.extend({
+        trackChanges: function () {
+            $(":input", this).change(function () {
+                $(this.form).data("changed", true);
+            });
+        }
+        ,
+        isChanged: function () {
+            return this.data("changed");
+        }
+    });
+
+    $("#AddFarmersDetailForm").trackChanges();
+
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         dispatch(farmerDetailsAction(undefined));
@@ -112,6 +114,7 @@ export const Farmers = () => {
         dispatch(farmerCardDetailsAction(undefined));
         dispatch(farmerLiveStockCattleDetailsAction(undefined));
         dispatch(farmerMachineryDetailsAction(undefined));
+        dispatch(farmerIrrigationDetailsAction(undefined));
         $("#AddFarmerDetailsForm").data("changed", false);
     }
 
@@ -129,16 +132,15 @@ export const Farmers = () => {
             $('#btnSave').attr('disabled', false);
             $("#AddFarmerDetailsForm").data("changed", false);
             clearFarmerReducers();
-        } else {           
-           toast.error("Please select company first", {
-            theme: 'colored',
-            autoClose: 5000
-        });
+        } else {
+            toast.error("Please select company first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
         }
     }
 
     $('[data-rr-ui-event-key*="Farmers"]').click(function () {
-
         $("#btnNew").show();
         $("#btnSave").hide();
         $("#btnCancel").hide();
@@ -151,7 +153,6 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
         clearFarmerReducers();
-        localStorage.removeItem("EncryptedCompanyCode");
         localStorage.removeItem("EncryptedFarmerCode");
     })
 
@@ -166,24 +167,24 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
-        getFarmerFamilyDetail();
+        // getFarmerFamilyDetail();
     })
 
-    const getFarmerFamilyDetail = async () => {
-        const request = {
-            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
-        }
+    // const getFarmerFamilyDetail = async () => {
+    //     const request = {
+    //         EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+    //     }
 
-        let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
+    //     let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
+    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    //     })
 
-        if (familyResponse.data.status == 200) {
-            if (familyResponse.data.data) {
-                dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
-            }
-        }
-    }
+    //     if (familyResponse.data.status == 200) {
+    //         if (familyResponse.data.data) {
+    //             dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
+    //         }
+    //     }
+    // }
 
     const farmerValidation = () => {
         const firstNameErr = {};
@@ -278,7 +279,7 @@ export const Farmers = () => {
         if (farmerValidation()) {
             const requestData = {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                encryptedCompanyCode: farmerData.encryptedCompanyCode,
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
                 farmerFirstName: farmerData.firstName,
                 farmerMiddleName: farmerData.middleName ? farmerData.middleName : "",
                 farmerLastName: farmerData.lastName,
@@ -386,7 +387,6 @@ export const Farmers = () => {
                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
             })
                 .then(res => {
-
                     if (res.data.status == 200) {
                         if (farmerData.farmerPic) {
                             uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", false);
@@ -445,17 +445,25 @@ export const Farmers = () => {
                 })
             }
             setCompanyList(companyData)
+        } else {
+            setCompanyList([])
         }
 
-    }
-
-    if (farmerData.companyName && !$('#txtCompany').val()) {
-        $('#txtCompany option:contains(' + farmerData.companyName + ')').prop('selected', true);
     }
 
     const handleFieldChange = e => {
         localStorage.setItem("EncryptedCompanyCode", e.target.value);
         fetchFarmerList(1, perPage, e.target.value);
+    }
+
+    const exitModule = () => {
+        $('#btnExit').attr('isExit', 'true');
+        if (($("#AddFarmersDetailForm").isChanged())) {
+            setModalShow(true);
+        }
+        else {
+            window.location.href = '/dashboard';
+        }
     }
     return (
         <>
@@ -495,6 +503,7 @@ export const Farmers = () => {
                 module="Farmers"
                 newDetails={newDetails}
                 saveDetails={addFarmerDetails}
+                exitModule={exitModule}
                 companyList={companyList}
                 supportingMethod1={handleFieldChange}
             />

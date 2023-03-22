@@ -23,12 +23,10 @@ import selectedProductsReducer from './selectedProductsReducer'
 import farmerDetailsReducer from './farmerDetailsReducer'
 import farmerDetailsErrorReducer from './farmerDetailsErrorReducer'
 import farmerFamilyDetailsReducer from './farmerFamilyDetailsReducer'
-import farmerFamilyDetailsListReducer from './farmerFamilyDetailsListReducer'
 import bankDetailsReducer from './bankDetailsReducer'
 import bankDetailsListReducer from './bankDetailsListReducer'
 import farmerCardDetailsReducer from './farmerCardDetailsReducer'
 import farmerLiveStockCattleDetailsReducer from './farmerLiveStockCattleDetailsReducer'
-import farmerLiveStockCattleDetailsListReducer from './farmerLiveStockCattleDetailsListReducer'
 import farmerMachineryDetailsReducer from './farmerMachineryDetailsReducer'
 import farmerIrrigationDetailsReducer from './farmerIrrigationDetailsReducer'
 
@@ -57,12 +55,10 @@ const rootReducer = combineReducers({
   farmerDetailsReducer,
   farmerDetailsErrorReducer,
   farmerFamilyDetailsReducer,
-  farmerFamilyDetailsListReducer,
   bankDetailsReducer,
   bankDetailsListReducer,
   farmerCardDetailsReducer,
   farmerLiveStockCattleDetailsReducer,
-  farmerLiveStockCattleDetailsListReducer,
   farmerMachineryDetailsReducer,
   farmerIrrigationDetailsReducer
 });
