@@ -31,23 +31,23 @@ export const FamilyTable = () => {
   var familyDetailData = farmerFamilyDetailsReducer.farmerFamilyDetails;
 
 
-  const validateFarmerFamilyDetailsForm = () => {
-    const familyMemberNameErr = {};
+  // const validateFarmerFamilyDetailsForm = () => {
+  //   const familyMemberNameErr = {};
 
-    let isValid = true;
+  //   let isValid = true;
 
-    if (!familyDetailData.familyMemberName) {
-      familyMemberNameErr.empty = "Enter name";
-      isValid = false;
-      setFormError(true);
-    }
+  //   if (!familyDetailData.familyMemberName) {
+  //     familyMemberNameErr.empty = "Enter name";
+  //     isValid = false;
+  //     setFormError(true);
+  //   }
 
-    if (!isValid) {
-      setFamilyMemberNameErr(familyMemberNameErr);
-    }
+  //   if (!isValid) {
+  //     setFamilyMemberNameErr(familyMemberNameErr);
+  //   }
 
-    return isValid;
-  }
+  //   return isValid;
+  // }
 
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;

@@ -247,35 +247,6 @@ const AddFarmer = () => {
 
     }
 
-    // if (farmerData.encryptedCountryCode) {
-    //     const setSelectCountryStates = () => {
-    //         $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
-    //         getStates(farmerData.encryptedCountryCode);
-    //         $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
-    //     }
-
-    //     if (farmerData.country &&
-    //         (!$('#txtCountryName').val() ||
-    //             !$('#txtStateName').val())) {
-    //         setSelectCountryStates();
-    //     }
-    // }
-
-    // if (farmerData.encryptedDistrictCode) {
-    //     getDistrict(farmerData.encryptedStateCode);
-    //     $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
-    // }
-
-    // if (farmerData.encryptedTehsilCode) {
-    //     getTehsil(farmerData.encryptedDistrictCode);
-    //     { farmerData.encryptedTehsilCode && $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true) }
-    // }
-
-    // if (farmerData.encryptedBlockCode) {
-    //     getBlock(farmerData.encryptedTehsilCode);
-    //     $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
-    // }
-
     const handleFieldChange = (e) => {
         dispatch(farmerDetailsAction({
             ...farmerData,

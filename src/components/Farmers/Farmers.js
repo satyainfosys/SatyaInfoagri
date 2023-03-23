@@ -167,24 +167,33 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
-        // getFarmerFamilyDetail();
     })
 
-    // const getFarmerFamilyDetail = async () => {
-    //     const request = {
-    //         EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
-    //     }
+    $('[data-rr-ui-event-key*="Family"]').click(function () {
+        getFarmerFamilyDetail();
+        getFarmerContactDetail();
+    })
 
-    //     let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
-    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    //     })
+    const getFarmerFamilyDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
 
-    //     if (familyResponse.data.status == 200) {
-    //         if (familyResponse.data.data) {
-    //             dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
-    //         }
-    //     }
-    // }
+        let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (familyResponse.data.status == 200) {
+            if (familyResponse.data.data) {
+                dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
+            }
+        } else {
+            toast.error(res.data.message, {
+                theme: 'colored',
+                autoClose: 10000
+            });
+        }
+    }
 
     const farmerValidation = () => {
         const firstNameErr = {};
@@ -464,6 +473,30 @@ export const Farmers = () => {
         else {
             window.location.href = '/dashboard';
         }
+    }
+
+    const getFarmerContactDetail = async () => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedConnectingCode: localStorage.getItem("EncryptedFarmerCode"),
+            OriginatedFrom: "FR"
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(commonContactDetailsAction(response.data.data));
+            }
+        } else {
+            toast.error(res.data.message, {
+                theme: 'colored',
+                autoClose: 10000
+            });
+        }
+
     }
     return (
         <>
