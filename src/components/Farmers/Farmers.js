@@ -174,6 +174,14 @@ export const Farmers = () => {
         getFarmerContactDetail();
     })
 
+    $('[data-rr-ui-event-key*="Bank"]').click(function () {
+        getFarmerKisanCardDetail();
+    })
+
+    $('[data-rr-ui-event-key*="Land"]').click(function () {
+        getFarmerIrrigationDetail();
+    })
+
     const getFarmerFamilyDetail = async () => {
         const request = {
             EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
@@ -187,11 +195,6 @@ export const Farmers = () => {
             if (familyResponse.data.data) {
                 dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
             }
-        } else {
-            toast.error(res.data.message, {
-                theme: 'colored',
-                autoClose: 10000
-            });
         }
     }
 
@@ -248,7 +251,7 @@ export const Farmers = () => {
 
         $('#btnSave').attr('disabled', true)
 
-        fetchFarmerList(1);
+        fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
     }
 
     const uploadDocuments = async (uploadDocument, encryptedId, documentType, isUpdate, isRemoved) => {
@@ -490,14 +493,41 @@ export const Farmers = () => {
             if (response.data.data && response.data.data.length > 0) {
                 dispatch(commonContactDetailsAction(response.data.data));
             }
-        } else {
-            toast.error(res.data.message, {
-                theme: 'colored',
-                autoClose: 10000
-            });
+        }
+    }
+
+    const getFarmerKisanCardDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
         }
 
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-kisan-card-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(farmerCardDetailsAction(response.data.data));
+            }
+        }
     }
+
+    const getFarmerIrrigationDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-irrigation-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(farmerCardDetailsAction(response.data.data));
+            }
+        }
+    }
+
     return (
         <>
             {isLoading ? (
