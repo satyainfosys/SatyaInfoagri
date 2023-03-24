@@ -30,6 +30,7 @@ export const Farmers = () => {
     const [formHasError, setFormError] = useState(false);
     const [modalShow, setModalShow] = useState(false);
     const [companyList, setCompanyList] = useState([]);
+    const [familyAPI, setFamilyAPI] = useState(true);
 
     const fetchFarmerList = async (page, size = perPage, encryptedCompanyCode) => {
         let token = localStorage.getItem('Token');
@@ -159,7 +160,7 @@ export const Farmers = () => {
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
         $("#btnNew").hide();
         $("#btnSave").show();
-        $("#btnCancel").hide();
+        $("#btnCancel").show();
         $('[data-rr-ui-event-key*="Family"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Bank"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
@@ -169,34 +170,46 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
     })
 
-    $('[data-rr-ui-event-key*="Family"]').click(function () {
-        getFarmerFamilyDetail();
-        getFarmerContactDetail();
-    })
+    // $('[data-rr-ui-event-key*="Family"]').click(function () {      
+    //     if (familyAPI) {
+    //         getFarmerFamilyDetail;
+    //         getFarmerContactDetail;
+    //     }
+    // })
+
+    $(document).on('click', '[data-rr-ui-event-key*="Family"]', function () {
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+        if (familyAPI) {
+            getFarmerFamilyDetail();
+            getFarmerContactDetail();
+        }
+    });
 
     $('[data-rr-ui-event-key*="Bank"]').click(function () {
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
         getFarmerKisanCardDetail();
+        getBankDetail();
     })
 
     $('[data-rr-ui-event-key*="Land"]').click(function () {
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
         getFarmerIrrigationDetail();
     })
 
-    const getFarmerFamilyDetail = async () => {
-        const request = {
-            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
-        }
+    $('[data-rr-ui-event-key*="Cattle"]').click(function () {
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+        getFarmerLiveStockCattleList();
+        getFarmerMachineryList();
 
-        let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
-
-        if (familyResponse.data.status == 200) {
-            if (familyResponse.data.data) {
-                dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
-            }
-        }
-    }
+    })
 
     const farmerValidation = () => {
         const firstNameErr = {};
@@ -478,6 +491,23 @@ export const Farmers = () => {
         }
     }
 
+    const getFarmerFamilyDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+
+        let familyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-family-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (familyResponse.data.status == 200) {
+            if (familyResponse.data.data) {
+                dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
+            }
+            setFamilyAPI(false);
+        }
+    }
+
     const getFarmerContactDetail = async () => {
         const request = {
             EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -526,6 +556,54 @@ export const Farmers = () => {
                 dispatch(farmerCardDetailsAction(response.data.data));
             }
         }
+    }
+
+    const getBankDetail = async () => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(bankDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    const getFarmerLiveStockCattleList = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-live-stock-cattle-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(farmerCardDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    const getFarmerMachineryList = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-machinery-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(farmerMachineryDetailsAction(response.data.data));
+            }
+        }
+
     }
 
     return (

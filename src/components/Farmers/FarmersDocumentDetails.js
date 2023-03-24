@@ -51,6 +51,11 @@ export const FarmersDocumentDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Original Farmer From</Form.Label>
+                {
+                  farmerData && farmerData.farmerFormURL ? (
+                    <img src={farmerData.farmerFormURL} className="w-25" alt='Farmer'></img>
+                  ) : null
+                }
                 <Form.Control
                   type="File"
                   id="fileOriginalFarmerFrom"
@@ -61,7 +66,7 @@ export const FarmersDocumentDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>Id Proof Type</Form.Label>
-                <Form.Select id="txtIdProofType" name="farmerIDType" onChange={handleFieldChange}>
+                <Form.Select id="txtIdProofType" name="farmerIDType" onChange={handleFieldChange} value={farmerData.farmerIDType}>
                   <option value=''>Select</option>
                   <option value='Voter ID'>Voter ID</option>
                   <option value='Driving License'>Driving License</option>
@@ -77,6 +82,7 @@ export const FarmersDocumentDetails = () => {
                   name="farmerIdNo"
                   placeholder="ID Proof No"
                   onChange={handleFieldChange}
+                  value={farmerData.farmerIdNo}
                 />
               </Row>
             </Col>
