@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Col, Form, Row, InputGroup } from 'react-bootstrap';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { farmerDetailsAction } from 'actions';
@@ -306,6 +306,17 @@ const AddFarmer = () => {
         }
     };
 
+    const removeProfilePic = () => {
+        $('#profilepic').val(null);
+        dispatch(farmerDetailsAction({
+            ...farmerData,
+            farmerPic: "",
+            farmerPicURL: "",
+            removeProfilePhoto: true
+        }))
+        $('#btnSave').attr('disabled', false);
+    }
+
     return (
         <>
             {isLoading ? (
@@ -477,7 +488,17 @@ const AddFarmer = () => {
                                                         <img src={farmerData.farmerPicURL} alt='Farmer'></img>
                                                     ) : null
                                                 }
-                                                <Form.Control type="file" id='logoFile' name='farmerPic' onChange={handleFieldChange} />
+                                                <InputGroup className="mb-1">
+                                                    <Form.Control type="file" id='profilepic' name='farmerPic' onChange={handleFieldChange} />
+                                                    {farmerData && farmerData.farmerPicURL ? (
+                                                        <InputGroup.Text>
+                                                            <i className="fa fa-trash"
+                                                                onClick={() => { removeProfilePic() }}
+                                                            />
+                                                        </InputGroup.Text>
+                                                    ) : null
+                                                    }
+                                                </InputGroup>
                                             </Row>
                                         </Col>
                                     </Row>

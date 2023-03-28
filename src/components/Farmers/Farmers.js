@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -170,22 +170,21 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
     })
 
-    // $('[data-rr-ui-event-key*="Family"]').click(function () {      
-    //     if (familyAPI) {
-    //         getFarmerFamilyDetail;
-    //         getFarmerContactDetail;
-    //     }
-    // })
+    $('[data-rr-ui-event-key*="Family"]').click(function () {
+        getFarmerFamilyDetail();
+        getFarmerContactDetail();
+    })
 
-    $(document).on('click', '[data-rr-ui-event-key*="Family"]', function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-        if (familyAPI) {
-            getFarmerFamilyDetail();
-            getFarmerContactDetail();
-        }
-    });
+    // $(document).on('click', '[data-rr-ui-event-key*="Family"]', function () {
+    //     debugger
+    //     $("#btnNew").hide();
+    //     $("#btnSave").show();
+    //     $("#btnCancel").show();
+    //     if (!familyAPICalled) {
+    //         getFarmerFamilyDetail();
+    //         getFarmerContactDetail();
+    //     }
+    // });
 
     $('[data-rr-ui-event-key*="Bank"]').click(function () {
         $("#btnNew").hide();
@@ -300,6 +299,43 @@ export const Farmers = () => {
             })
     }
 
+    const deleteDocument = async (encryptedId, isRemoved, documentType) => {
+        var deleteRequest = {
+            EncryptedId: encryptedId,
+            DocumentType: documentType,
+            IsRemoved: isRemoved
+        }
+
+        await axios.post(process.env.REACT_APP_API_URL + '/delete-document', deleteRequest, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status == 200) {
+                    if (documentType == "ProfilePhoto") {
+                        dispatch(farmerDetailsAction({
+                            ...farmerData,
+                            removeProfilePhoto: false
+                        }))
+                    }
+
+                    if (documentType == "FarmerForm") {
+                        dispatch(farmerDetailsAction({
+                            ...farmerData,
+                            removeFarmerOriginalForm: false
+                        }))
+                    }
+
+                    updateFarmerCallback();
+                } else {
+                    toast.error(res.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                }
+            })
+    }
+
     const addFarmerDetails = () => {
         if (farmerValidation()) {
             const requestData = {
@@ -314,7 +350,7 @@ export const Farmers = () => {
                 farmerIdNo: farmerData.farmerIdNo ? farmerData.farmerIdNo : "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
                 farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
-                farmerGender: farmerData.Gender == null || farmerData.Gender == "Male" ? "M" : "F",
+                farmerGender: farmerData.farmerGender == "Male" ? "M" : farmerData.farmerGender == "Female" ? "F" : farmerData.farmerGender == "Others" ? "O" : "",
                 farmerMaritalStatus: farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "",
                 farmerFatherName: farmerData.fatherName ? farmerData.fatherName : "",
                 farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
@@ -504,7 +540,6 @@ export const Farmers = () => {
             if (familyResponse.data.data) {
                 dispatch(farmerFamilyDetailsAction(familyResponse.data.data));
             }
-            setFamilyAPI(false);
         }
     }
 
@@ -606,6 +641,102 @@ export const Farmers = () => {
 
     }
 
+    const updateFarmerDetails = async () => {
+        if (farmerValidation()) {
+            const updateFarmerData = {
+                encryptedFarmerCode: farmerData.encryptedFarmerCode,
+                encryptedClientCode: farmerData.encryptedClientCode,
+                encryptedCompanyCode: farmerData.encryptedCompanyCode,
+                farmerFirstName: farmerData.firstName,
+                farmerMiddleName: farmerData.middleName,
+                farmerLastName: farmerData.lastName,
+                farmerAddress: farmerData.address,
+                farmerIDType: farmerData.farmerIDType == "Voter ID" ? "VID" : farmerData.farmerIDType == "Driving License" ? "DL" : farmerData.farmerIDType == "PAN Card" ? "PAN" : farmerData.farmerIDType == "Ration Card" ? "RTC" : farmerData.farmerIDType == "Other" ? "OTH" : "",
+                farmerIdNo: farmerData.farmerIdNo,
+                farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "",
+                farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
+                farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
+                farmerGender: farmerData.farmerGender == "Male" ? "M" : farmerData.farmerGender == "Female" ? "F" : farmerData.farmerGender == "Others" ? "O" : "",
+                farmerMaritalStatus: farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "",
+                farmerFatherName: farmerData.fatherName ? farmerData.fatherName : "",
+                farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
+                farmerUser: "",
+                farmerPassword: "",
+                encryptedFigCode: "",
+                encryptedCollCentreCode: "",
+                encryptedDistributionCentreCode: "",
+                encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
+                encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
+                encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",
+                encryptedTehsilCode: farmerData.encryptedTehsilCode ? farmerData.encryptedTehsilCode : "",
+                encryptedBlockCode: farmerData.encryptedBlockCode ? farmerData.encryptedBlockCode : "",
+                encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
+                encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
+                activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            var updateRequired = $("#AddFarmersDetailForm").isChanged() || farmerData.removeFarmerOriginalForm == true || farmerData.removeProfilePhoto == true;
+
+            if (!updateRequired) {
+                toast.warning("Nothing to change!", {
+                    theme: 'colored'
+                });
+
+                return;
+            }
+
+            const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'modifyUser', "farmerEducation", "farmerIdNo"]
+            for (const key of Object.keys(updateFarmerData).filter((key) => keys.includes(key))) {
+                updateFarmerData[key] = updateFarmerData[key] ? updateFarmerData[key].toUpperCase() : '';
+            }
+
+            if ($("#AddFarmersDetailForm").isChanged()) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-farmer', updateFarmerData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status != 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                        } else if (res.data.status == 200) {
+                            if (farmerData.farmerPic.type) {
+                                uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", true);
+                            }
+
+                            if (farmerData.farmerForm && farmerData.farmerForm.type) {
+                                uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", true);
+                            }
+
+                            if (farmerData.removeProfilePhoto) {
+                                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
+                            }
+
+                            if (farmerData.removeFarmerOriginalForm) {
+                                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
+                            }
+                        }
+                        else {
+                            updateFarmerCallback();
+                        }
+                    })
+            }
+
+            if (farmerData.removeFarmerOriginalForm) {
+                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
+            }
+
+            if (farmerData.removeProfilePhoto) {
+                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
+            }
+        }
+    }
+
     return (
         <>
             {isLoading ? (
@@ -643,7 +774,7 @@ export const Farmers = () => {
                 tabArray={tabArray}
                 module="Farmers"
                 newDetails={newDetails}
-                saveDetails={addFarmerDetails}
+                saveDetails={!farmerData.encryptedFarmerCode ? addFarmerDetails : updateFarmerDetails}
                 exitModule={exitModule}
                 companyList={companyList}
                 supportingMethod1={handleFieldChange}

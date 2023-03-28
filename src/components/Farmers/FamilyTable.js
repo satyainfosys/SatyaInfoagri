@@ -1,15 +1,36 @@
 import { farmerFamilyDetailsAction } from 'actions';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button, Table, Form } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 
 export const FamilyTable = () => {
-  const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([{
     id: 1, familyMemberName: '', memberAge: 0, memberSex: '', farmerMemberRelation: '', memberEducation: '', activeStatus: '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
   },]);
+  const [familyAPICalled1, setFamilyAPICalled1] = useState(false);
+  const [familyMemberNameErr, setFamilyMemberNameErr] = useState({});
+
+  const dispatch = useDispatch();
+  const emptyRow = {
+    id: rowData.length + 1,
+    familyMemberName: '',
+    memberAge: 0,
+    memberSex: '',
+    farmerMemberRelation: '',
+    memberEducation: '',
+    activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+  };
+
+  let farmerFamilyDetailsReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsReducer)
+  let familyDetailData = farmerFamilyDetailsReducer.farmerFamilyDetails;
+
+  useEffect(() => {
+    setRowData(farmerFamilyDetailsReducer.farmerFamilyDetails.length > 0 ? familyDetailData : [emptyRow]);
+  }, [farmerFamilyDetailsReducer, familyDetailData, emptyRow]);
+
   const columnsArray = [
     'Name',
     'Age',
@@ -18,18 +39,24 @@ export const FamilyTable = () => {
     'Education',
     'Action'
   ];
-  const [familyMemberNameErr, setFamilyMemberNameErr] = useState({});
 
   const handleAddRow = () => {
-    setRowData([...rowData, {
-      id: rowData.length + 1, familyMemberName: '', memberAge: 0, memberSex: '', farmerMemberRelation: '', memberEducation: '',
-      activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
-    },]);
+    // setRowData([...rowData, emptyRow]);
+    const newId = rowData.length + 1;
+    const newRow = {
+      id: newId,
+      familyMemberName: '',
+      memberAge: 0,
+      memberSex: '',
+      farmerMemberRelation: '',
+      memberEducation: '',
+      activeStatus: '',
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      addUser: localStorage.getItem("LoginUserName")
+    };
+    let newArray = familyDetailData.push(newRow);
+    dispatch(farmerFamilyDetailsAction(familyDetailData));
   };
-
-  const farmerFamilyDetailsReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsReducer)
-  var familyDetailData = farmerFamilyDetailsReducer.farmerFamilyDetails;
-
 
   // const validateFarmerFamilyDetailsForm = () => {
   //   const familyMemberNameErr = {};

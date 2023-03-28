@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Table, Form, } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { bankDetailsAction, bankDetailsListAction } from 'actions';
+import { bankDetailsAction } from 'actions';
 
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();

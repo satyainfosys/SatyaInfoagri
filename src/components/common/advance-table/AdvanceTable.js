@@ -57,6 +57,8 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
       getFarmerDetail(rowData.encryptedFarmerCode);
+      $("#AddFarmersDetailForm").trackChanges();
+      $('#btnSave').attr('disabled', true);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));

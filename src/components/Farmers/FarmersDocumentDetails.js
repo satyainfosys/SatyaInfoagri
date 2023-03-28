@@ -1,6 +1,6 @@
 import { farmerDetailsAction } from 'actions';
 import React, { useState } from 'react';
-import { Row, Col, Form } from 'react-bootstrap';
+import { Row, Col, Form, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 
 export const FarmersDocumentDetails = () => {
@@ -37,6 +37,17 @@ export const FarmersDocumentDetails = () => {
     }
   };
 
+  const removeFarmerForm = () => {
+    $('#fileOriginalFarmerFrom').val(null);
+    dispatch(farmerDetailsAction({
+      ...farmerData,
+      farmerForm: "",
+      farmerFormURL: "",
+      removeFarmerOriginalForm: true
+    }))
+    $('#btnSave').attr('disabled', false);
+  }
+
   return (
     <>
       {isLoading ? (
@@ -55,14 +66,18 @@ export const FarmersDocumentDetails = () => {
                   farmerData && farmerData.farmerFormURL ? (
                     <img src={farmerData.farmerFormURL} className="w-25" alt='Farmer'></img>
                   ) : null
-                }
-                <Form.Control
-                  type="File"
-                  id="fileOriginalFarmerFrom"
-                  name="farmerForm"
-                  placeholder="Choose File"
-                  onChange={handleFieldChange}
-                />
+                }                
+                <InputGroup className="mb-1">
+                  <Form.Control type="file" id='fileOriginalFarmerFrom' name='farmerForm' onChange={handleFieldChange} />
+                  {farmerData && farmerData.farmerFormURL ? (
+                    <InputGroup.Text>
+                      <i className="fa fa-trash"
+                        onClick={() => { removeFarmerForm() }}
+                      />
+                    </InputGroup.Text>
+                  ) : null
+                  }
+                </InputGroup>
               </Row>
               <Row className="mb-3">
                 <Form.Label>Id Proof Type</Form.Label>
