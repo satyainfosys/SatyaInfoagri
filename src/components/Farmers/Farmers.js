@@ -66,6 +66,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
         getCompany();
+        localStorage.removeItem("DeleteFarmerFamilyCodes");
     }, []);
 
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
@@ -91,6 +92,9 @@ export const Farmers = () => {
 
     const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
     const farmerIrrigationDetailsList = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
+
+    const farmerFamilyDetailChangedReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailChangedReducer)
+    let farmerFamilyDetailChanged = farmerFamilyDetailChangedReducer.farmerFamilyDetailChanged;
 
     $.fn.extend({
         trackChanges: function () {
@@ -171,6 +175,7 @@ export const Farmers = () => {
     })
 
     $('[data-rr-ui-event-key*="Family"]').click(function () {
+        $('#btnSave').attr('disabled', false);
         getFarmerFamilyDetail();
         getFarmerContactDetail();
     })
@@ -254,6 +259,8 @@ export const Farmers = () => {
         $('#AddDocumentDetailsForm').get(0).reset();
 
         dispatch(farmerDetailsErrorAction(undefined));
+        localStorage.removeItem("DeleteFarmerFamilyCodes");
+        localStorage.removeItem("DeleteCommonContactDetailsIds");
 
         if (!isAddFarmer) {
             toast.success("Farmer details updated successfully!", {
@@ -676,16 +683,16 @@ export const Farmers = () => {
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }
+            // debugger
+            // var updateRequired = $("#AddFarmersDetailForm").isChanged() || farmerData.removeFarmerOriginalForm == true || farmerData.removeProfilePhoto == true || farmerFamilyDetailChanged.familyDetailsChanged
 
-            var updateRequired = $("#AddFarmersDetailForm").isChanged() || farmerData.removeFarmerOriginalForm == true || farmerData.removeProfilePhoto == true;
+            // if (!updateRequired) {
+            //     toast.warning("Nothing to change!", {
+            //         theme: 'colored'
+            //     });
 
-            if (!updateRequired) {
-                toast.warning("Nothing to change!", {
-                    theme: 'colored'
-                });
-
-                return;
-            }
+            //     return;
+            // }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'modifyUser', "farmerEducation", "farmerIdNo"]
             for (const key of Object.keys(updateFarmerData).filter((key) => keys.includes(key))) {
@@ -721,7 +728,7 @@ export const Farmers = () => {
                                 deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
                             }
                         }
-                        else {
+                        else if (!farmerFamilyDetailChanged.familyDetailsChanged) {
                             updateFarmerCallback();
                         }
                     })
@@ -734,7 +741,184 @@ export const Farmers = () => {
             if (farmerData.removeProfilePhoto) {
                 deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
             }
+
+            var deleteFarmerFamilyCodes = localStorage.getItem("DeleteFarmerFamilyCodes");
+            var deleteFarmerContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
+
+            var loopBreaked = false;
+            var farmerFamilyDetailIndex = 1;
+            var farmerContactDetailIndex = 1;
+
+            for (let i = 0; i < farmerFamilyDetailsList.length; i++) {
+                const farmerFamilyDetails = farmerFamilyDetailsList[i];
+                if (!loopBreaked) {
+                    const keys = ['familyMemberName', 'modifyUser', 'addUser']
+                    for (const key of Object.keys(farmerFamilyDetails).filter((key) => keys.includes(key))) {
+                        farmerFamilyDetails[key] = farmerFamilyDetails[key] ? farmerFamilyDetails[key].toUpperCase() : '';
+                    }
+
+                    if (farmerFamilyDetails.encryptedFarmerFamilyCode) {
+                        setIsLoading(true);
+                        const updateFarmerFamilyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-family-detail', farmerFamilyDetails, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateFarmerFamilyDetailResponse.data.status != 200) {
+                            toast.error(updateFarmerFamilyDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !farmerData.farmerPic.type && !farmerData.farmerForm.type && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId) {
+                            updateFarmerCallback();
+                        } else {
+                            farmerFamilyDetailIndex++;
+                        }
+                    }
+                    else if (!farmerFamilyDetails.encryptedFarmerFamilyCode) {
+                        setIsLoading(true);
+                        const addFarmerFamilyDetailResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-family-member', farmerFamilyDetails, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addFarmerFamilyDetailResponse.data.status != 200) {
+                            toast.error(addFarmerFamilyDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !farmerData.farmerPic.type && !farmerData.farmerForm.type && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId) {
+                            updateFarmerCallback();
+                        }
+                        else {
+                            farmerFamilyDetailIndex++
+                        }
+                    }
+                }
+            }
+
+            var deleteFarmerFamilyMemberList = deleteFarmerFamilyCodes ? deleteFarmerFamilyCodes.split(',') : null;
+
+            if (deleteFarmerFamilyMemberList) {
+                var deleteFamerFamilyMemberIndex = 1;
+
+                deleteFarmerFamilyMemberList.forEach(async deleteFarmerFamilyCode => {
+                    if (!loopBreaked) {
+
+                        const data = { encryptedFarmerFamilycode: deleteFarmerFamilyCode }
+                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        const deleteFarmerFamilyResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-family-detail', { headers, data });
+                        if (deleteFarmerFamilyResponse.data.status != 200) {
+                            toast.error(deleteContactResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId) {
+                            updateFarmerCallback();
+                        }
+                        else {
+                            deleteFamerFamilyMemberIndex++;
+                        }
+                    }
+                });
+            }
+
+            if (!loopBreaked) {
+                for (let i = 0; i < commonContactDetailList.length; i++) {
+                    const farmerContactDetails = commonContactDetailList[i];
+                    const keys = ['contactPerson', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(farmerContactDetails).filter((key) => keys.includes(key))) {
+                        farmerContactDetails[key] = farmerContactDetails[key] ? farmerContactDetails[key].toUpperCase() : '';
+                    }
+
+                    if (farmerContactDetails.encryptedCommonContactDetailsId) {
+                        setIsLoading(true);
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', farmerContactDetails, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateContactDetailResponse.data.status != 200) {
+                            toast.error(updateContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !farmerData.farmerPic.type && !farmerData.farmerForm.type && !deleteFarmerContactDetailsId) {
+                            updateFarmerCallback();
+                        }
+                        else {
+                            farmerContactDetailIndex++;
+                        }
+                    }
+                    else if (!farmerContactDetails.encryptedCommonContactDetailsId) {
+                        setIsLoading(true);
+                        const addFarmerContactDetailsResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', farmerContactDetails, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addFarmerContactDetailsResponse.data.status != 200) {
+                            toast.error(addFarmerContactDetailsResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !farmerData.farmerPic.type && !farmerData.farmerForm.type && !deleteFarmerContactDetailsId) {
+                            updateFarmerCallback();
+                        } else {
+                            farmerContactDetailIndex++
+                        }
+                    }
+                }
+            }
+
+            var deleteFarmerContactDetailsList = deleteFarmerContactDetailsId ? deleteFarmerContactDetailsId.split(',') : null;
+            if (deleteFarmerContactDetailsList) {
+                var deleteFarmerContactDetailIndex = 1;
+
+                deleteFarmerContactDetailsList.forEach(async deleteFarmerContactDetailId => {
+                    if (!loopBreaked) {
+                        const data = { encryptedCommonContactDetailsId: deleteFarmerContactDetailId }
+                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
+                        if (deleteCommContactDetailResponse.data.status != 200) {
+                            toast.error(deleteCommContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked) {
+                            updateFarmerCallback();
+                        }
+                        else {
+                            deleteFarmerContactDetailIndex++;
+                        }
+
+                    }
+                })
+            }
         }
+    };
+
+    const cancelClick = () => {
+        $('#btnExit').attr('isExit', 'false');
+        // if ($("#AddFarmersDetailForm").isChanged() ||
+        //     clientContactDetailChanged.contactDetailsChanged ||
+        //     transactionDetailChanged.transactionDetailChanged
+        // ) {
+        //     setModalShow(true);
+        // }
+
+        $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
+
     }
 
     return (
@@ -777,6 +961,7 @@ export const Farmers = () => {
                 saveDetails={!farmerData.encryptedFarmerCode ? addFarmerDetails : updateFarmerDetails}
                 exitModule={exitModule}
                 companyList={companyList}
+                cancelClick={cancelClick}
                 supportingMethod1={handleFieldChange}
             />
         </>

@@ -52,7 +52,7 @@ const AdvanceTable = ({
       $('#btnSave').attr('disabled', true);
       localStorage.setItem('EncryptedResponseModuleCode', rowData.encryptedModuleCode);
     }
-    else if (rowData.hasOwnProperty('encryptedFarmerCode')) {      
+    else if (rowData.hasOwnProperty('encryptedFarmerCode')) {
       localStorage.setItem("EncryptedFarmerCode", rowData.encryptedFarmerCode);
       $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
@@ -145,6 +145,7 @@ const AdvanceTable = ({
 
   const getCommonContactDetailsList = async (encryptedCompanyCode) => {
     const request = {
+      EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
       EncryptedCompanyCode: encryptedCompanyCode,
       OriginatedFrom: "CM"
     }
