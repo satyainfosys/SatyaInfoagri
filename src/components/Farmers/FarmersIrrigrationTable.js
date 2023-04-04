@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import { Button, Table, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { farmerIrrigationDetailsAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
 
 export const FarmersIrrigrationTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([{
-    id: 1, irrigationOwner: '', irrigationType: '', irrigationSource: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    id: 1,
+    irrigationOwner: '',
+    irrigationType: '',
+    irrigationSource: '',
+    activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
   },]);
   const columnsArray = [
     'Irrigration Detail',
@@ -16,15 +24,51 @@ export const FarmersIrrigrationTable = () => {
     'Active Status',
     'Action'
   ];
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
 
-  const handleAddRow = () => {
-    setRowData([...rowData, {
-      id: rowData.length + 1, irrigationOwner: '', irrigationType: '', irrigationSource: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
-    },]);
-  };
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
+    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    irrigationOwner: '',
+    irrigationType: '',
+    irrigationSource: '',
+    activeStatus: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }
 
   const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
   var farmerIrrigationDetailData = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
+
+  useEffect(() => {
+    setRowDataValue(farmerIrrigationDetailsReducer, farmerIrrigationDetailData, emptyRow);
+  }, [farmerIrrigationDetailData, farmerIrrigationDetailsReducer]);
+
+  const setRowDataValue = (farmerIrrigationDetailsReducer, farmerIrrigationDetailData, emptyRow) => {
+    setRowData(farmerIrrigationDetailsReducer.farmerIrrigationDetails.length > 0 ? farmerIrrigationDetailData : [emptyRow]);
+  };
+
+  const handleAddRow = () => {
+    const newId = rowData.length + 1;
+    const newRow = {
+      id: newId,
+      encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : "",
+      encryptedFarmerIrrigationCode: farmerIrrigationDetailData.encryptedFarmerIrrigationCode ? farmerIrrigationDetailData.encryptedFarmerIrrigationCode : '',
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+      irrigationOwner: '',
+      irrigationType: '',
+      irrigationSource: '',
+      activeStatus: '',
+      addUser: localStorage.getItem("LoginUserName"),
+      modifyUser: localStorage.getItem("LoginUserName")
+    }
+    let newArray = farmerIrrigationDetailData.push(newRow);
+    dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetailData));
+  };
 
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;
@@ -34,10 +78,63 @@ export const FarmersIrrigrationTable = () => {
       return rowData[key];
     })
     dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetails))
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+  }
+
+  const ModalPreview = (encryptedFarmerIrrigationCode) => {
+    setModalShow(true);
+    setParamsData({ encryptedFarmerIrrigationCode });
+  }
+
+  const deleteFarmerIrrigationDetails = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = farmerIrrigationDetailsReducer.farmerIrrigationDetails.findIndex(x => x.encryptedFarmerIrrigationCode == paramsData.encryptedFarmerIrrigationCode);
+    farmerIrrigationDetailsReducer.farmerIrrigationDetails.splice(objectIndex, 1)
+
+    var deleteFarmerIrrigationCode = localStorage.getItem("DeleteFarmerIrrigationCodes");
+
+    var deleteFarmerIrrigationDetail = deleteFarmerIrrigationCode ? deleteFarmerIrrigationCode + "," + paramsData.encryptedFarmerIrrigationCode : paramsData.encryptedFarmerIrrigationCode;
+
+    localStorage.setItem("DeleteFarmerIrrigationCodes", deleteFarmerIrrigationDetail);
+
+    toast.success("Irrigation details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetailData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setModalShow(false);
   }
 
   return (
     <>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this irrigation detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteFarmerIrrigationDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddFarmerIrrigrationTable"
@@ -146,8 +243,7 @@ export const FarmersIrrigrationTable = () => {
                   </Form.Select>
                 </td>
                 <td>
-                  <i className="fa fa-pencil me-2" />
-                  <i className="fa fa-trash" />
+                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
                 </td>
               </tr>
             ))}

@@ -9,7 +9,7 @@ export const FamilyTable = () => {
   const [rowData, setRowData] = useState([{
     id: 1, familyMemberName: '', memberAge: 0, memberSex: '', farmerMemberRelation: '', memberEducation: '', activeStatus: '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LooginUserName")
+    modifyUser: localStorage.getItem("LoginUserName")
   },]);
   const [familyAPICalled1, setFamilyAPICalled1] = useState(false);
   const [familyMemberNameErr, setFamilyMemberNameErr] = useState({});
@@ -29,7 +29,7 @@ export const FamilyTable = () => {
     activeStatus: '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
     addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LooginUserName")
+    modifyUser: localStorage.getItem("LoginUserName")
   };
 
   let farmerFamilyDetailsReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsReducer)

@@ -1,14 +1,16 @@
-import React, { useState } from 'react';
-import { Button, Table, Form, } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { bankDetailsAction } from 'actions';
+import { toast } from 'react-toastify';
 
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([{
     id: 1, bankName: '', bankAddress: '', branchName: '', accountNo: '', accountType: '', bankIfscCode: '', activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
   },]);
   const columnsArray = [
     'Bank Name',
@@ -20,6 +22,32 @@ export const BankDetailsTable = () => {
     'Active Status',
     'Action'
   ];
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    bankName: '',
+    bankAddress: '',
+    branchName: '',
+    accountNo: '',
+    accountType: '',
+    bankIfscCode: '',
+    activeStatus: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }
+
+  const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
+  var bankDetailData = bankDetailsReducer.bankDetails;
+
+  useEffect(() => {
+    setRowDataValue(bankDetailsReducer, bankDetailData, emptyRow);
+  }, [bankDetailData, bankDetailsReducer]);
+
+  const setRowDataValue = (bankDetailsReducer, bankDetailData, emptyRow) => {
+    setRowData(bankDetailsReducer.bankDetails.length > 0 ? bankDetailData : [emptyRow]);
+  };
 
   const [bankNameErr, setBankNameErr] = useState({});
   const [accountNoErr, setAccountNoErr] = useState({});
@@ -27,14 +55,24 @@ export const BankDetailsTable = () => {
   const [bankIfscCodeErr, setBankIfscCodeErr] = useState({});
 
   const handleAddRow = () => {
-    setRowData([...rowData, {
-      id: rowData.length + 1, bankAddress: '', branchName: '', accountNo: '', accountType: '', bankIfscCode: '', activeStatus: '',
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
-    },]);
+    const newId = rowData.length + 1;
+    const newRow = {
+      id: newId,
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedBankCode: bankDetailData.encryptedBankCode ? bankDetailData.encryptedBankCode : '',
+      bankName: '',
+      bankAddress: '',
+      branchName: '',
+      accountNo: '',
+      accountType: '',
+      bankIfscCode: '',
+      activeStatus: '',
+      addUser: localStorage.getItem("LoginUserName"),
+      modifyUser: localStorage.getItem("LoginUserName")
+    }
+    let newArray = bankDetailData.push(newRow);
+    dispatch(bankDetailsAction(bankDetailData));
   };
-
-  const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
-  var bankDetailData = bankDetailsReducer.bankDetails;
 
   const validateBankDetailsForm = () => {
     const bankNameErr = {};
@@ -86,10 +124,63 @@ export const BankDetailsTable = () => {
       return rowData[key];
     })
     dispatch(bankDetailsAction(bankDetails))
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+  }
+
+  const ModalPreview = (encryptedBankCode, accountNoToBeDelete) => {
+    setModalShow(true);
+    setParamsData({ encryptedBankCode, accountNoToBeDelete });
+  }
+
+  const deleteBankDetails = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = bankDetailsReducer.bankDetails.findIndex(x => x.accountNo == paramsData.accountNoToBeDelete);
+    bankDetailsReducer.bankDetails.splice(objectIndex, 1);
+
+    var deleteBankDetailCode = localStorage.getItem("DeleteBankDetailCodes");
+
+    var deleteBankDetailCodes = deleteBankDetailCode ? deleteBankDetailCode + "," + paramsData.encryptedBankCode : paramsData.encryptedBankCode;
+
+    localStorage.setItem("DeleteBankDetailCodes", deleteBankDetailCodes);
+
+    toast.success("Bank details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(bankDetailsAction(bankDetailData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setModalShow(false);
   }
 
   return (
     <>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this bank detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteBankDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddBankNameTable"
@@ -222,32 +313,11 @@ export const BankDetailsTable = () => {
                   </Form.Select>
                 </td>
                 <td>
-                  <i className="fa fa-pencil me-1" />
-                  <i className="fa fa-trash " />
+                  <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedBankCode, bankDetailData.accountNo) }} />
                 </td>
               </tr>
             ))}
-
           </tbody>
-          {/* <thead>
-            {bankDetailsListReducer.bankDetailsList.length > 0 ?
-              bankDetailsListReducer.bankDetailsList.map((data, idx) => (
-                data &&
-                <tr key={idx}>
-                  <td key={idx}>{data.bankName}</td>
-                  <td key={idx}>{data.bankAddress ? data.bankAddress : ""}</td>
-                  <td key={idx}>{data.branchName ? data.branchName : ""}</td>
-                  <td key={idx}>{data.accountNo}</td>
-                  <td key={idx}>{data.accountType == 'S' ? "Saving" : "Current"}</td>
-                  <td key={idx}>{data.bankIfscCode}</td>
-                  <td key={idx}>{data.activeStatus == "A" ? "Active" : "Suspended"}</td>
-                  <td>
-                    <i className="fa fa-pencil me-2" />
-                    <i className="fa fa-trash" />
-                  </td>
-                </tr>
-              )) : null}
-          </thead> */}
         </Table>
       </Form>
     </>

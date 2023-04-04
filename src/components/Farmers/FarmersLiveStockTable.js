@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
-import { Button, Table, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerLiveStockCattleDetailsAction } from '../../actions/index';
+import { toast } from 'react-toastify';
 
 export const FarmersLiveStockTable = () => {
 
@@ -9,8 +10,17 @@ export const FarmersLiveStockTable = () => {
   const [formHasError, setFormError] = useState(false);
   const [cattleTypeErr, setCattleTypeErr] = useState({});
   const [rowData, setRowData] = useState([{
-    id: 1, cattleType: '', noOfCattle: 0, production: 0, rate: 0, cattleAge: 0, milkType: '', activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    id: 1,
+    cattleType: '',
+    noOfCattle: 0,
+    production: 0,
+    rate: 0,
+    cattleAge: 0,
+    milkType: '',
+    activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
   },]);
   const columnsArray = [
     'Cattle Type',
@@ -23,15 +33,42 @@ export const FarmersLiveStockTable = () => {
     'Action'
   ];
 
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
+    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    cattleType: '',
+    noOfCattle: 0,
+    production: 0,
+    rate: 0,
+    cattleAge: 0,
+    milkType: '',
+    activeStatus: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }
+
+  const farmerLiveStockCattleDetailsReducer = useSelector((state) => state.rootReducer.farmerLiveStockCattleDetailsReducer)
+  var farmerLiveStockCattleData = farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails;
+
+  useEffect(() => {
+    setRowDataValue(farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData, emptyRow);
+  }, [farmerLiveStockCattleData, farmerLiveStockCattleDetailsReducer]);
+
+  const setRowDataValue = (farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData, emptyRow) => {
+    setRowData(farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.length > 0 ? farmerLiveStockCattleData : [emptyRow]);
+  };
+
   const handleAddRow = () => {
     setRowData([...rowData, {
       id: rowData.length + 1, cattleType: '', noOfCattle: 0, production: 0, rate: 0, cattleAge: 0, milkType: '', activeStatus: '',
       encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
     },]);
   };
-
-  const farmerLiveStockCattleDetailsReducer = useSelector((state) => state.rootReducer.farmerLiveStockCattleDetailsReducer)
-  var farmerLiveStockCattleData = farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails;
 
   const validateFarmersLiveStockCattleDetailForm = () => {
     const cattleTypeErr = {};
