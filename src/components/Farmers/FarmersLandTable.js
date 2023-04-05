@@ -1,11 +1,27 @@
-import React from 'react';
-import { Button, Table, Form, Col, Row } from 'react-bootstrap';
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form } from 'react-bootstrap';
+import { useSelector, useDispatch } from 'react-redux';
+import { farmerLandDetailsAction } from 'actions';
 
 export const FarmersLandTable = () => {
+  const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([]);
-  const [data, setdata] = useState([]);
+  const [rowData, setRowData] = useState([{
+    id: 1,
+    longitude: '',
+    latitude: '',
+    khasraNo: '',
+    landMark: '',
+    ownerShip: '',
+    usages: '',
+    orgInorg: '',
+    cultivatedLand: '',
+    activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }]);
+
   const columnsArray = [
     'Longitude',
     'Latitude',
@@ -19,23 +35,58 @@ export const FarmersLandTable = () => {
     'Action'
   ];
 
-  const handleAddRow = () => {
-    const item = {
-      longitude: '',
-      latitude: '',
-      khasraNo: '',
-      landMark: '',
-      ownerShip: '',
-      usages: '',
-      orgInorg: '',
-      cultivatedLand: '',
-      activeStatus: ''
-    };
-    setRowData([...rowData, item]);
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
+    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',
+    longitude: '',
+    latitude: '',
+    khasraNo: '',
+    landMark: '',
+    ownerShip: '',
+    usages: '',
+    orgInorg: '',
+    cultivatedLand: '',
+    activeStatus: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }
+
+  const farmerLandDetailsReducer = useSelector((state) => state.rootReducer.farmerLandDetailsReducer)
+  let farmerLandDetailsData = farmerLandDetailsReducer.farmerLandDetails
+
+  useEffect(() => {
+    setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData, emptyRow);
+  }, [farmerLandDetailsData, farmerLandDetailsReducer]);
+
+  const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData, emptyRow) => {
+    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : [emptyRow]);
   };
+
+  const handleAddRow = () => {
+    farmerLandDetailsData.push(emptyRow);
+    dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+  };
+
   const changeHandle = e => {
     setdata({ ...data, [e.target.name]: e.target.value });
   };
+
+  const handleFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var farmerLandDetails = [...rowData];
+    farmerLandDetails[index][name] = value;
+    farmerLandDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(farmerLandDetailsAction(farmerLandDetails))
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+  }
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
@@ -66,143 +117,130 @@ export const FarmersLandTable = () => {
             </tr>
           </thead>
           <tbody id="tbody" className="details-form">
-            <tr>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="textLongitude"
-                  name="longitude"
-                  value={rowData.longitude}
-                  onChange={changeHandle}
-                  placeholder="Longitude"
-                  className="form-control"
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="textLatitude"
-                  name="latitude"
-                  value={rowData.latitude}
-                  onChange={changeHandle}
-                  placeholder="Latitude"
-                  className="form-control"
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="number"
-                  id="numKhasraNo"
-                  name="khasraNo"
-                  min={0}
-                  value={rowData.khasraNo}
-                  onChange={changeHandle}
-                  placeholder="Khasra No"
-                  className="form-control"
-                />
-              </td>
-              <td>
-                <Form.Control
-                  type="text"
-                  id="txtLandMark"
-                  name="landMark"
-                  min={0}
-                  value={rowData.landMark}
-                  onChange={changeHandle}
-                  placeholder="Land Mark"
-                  className="form-control"
-                />
-              </td>
+            {rowData.map((farmerLandDetailsData, index) => (
+              <tr>
+                <td>
+                  <Form.Control
+                    type="text"
+                    id="textLongitude"
+                    name="longitude"
+                    value={farmerLandDetailsData.longitude}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Longitude"
+                    className="form-control"
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="text"
+                    id="textLatitude"
+                    name="latitude"
+                    value={farmerLandDetailsData.latitude}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Latitude"
+                    className="form-control"
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="text"
+                    id="txtKhasraNo"
+                    name="khasraNo"
+                    value={farmerLandDetailsData.khasraNo}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Khasra No"
+                    className="form-control"
+                  />
+                </td>
+                <td>
+                  <Form.Control
+                    type="text"
+                    id="txtLandMark"
+                    name="landMark"
+                    value={farmerLandDetailsData.landMark}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Land Mark"
+                    className="form-control"
+                  />
+                </td>
 
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtOwnerShip"
-                  name="ownerShip"
-                  className="form-control"
-                  value={rowData.ownerShip}
-                  onChange={changeHandle}
-                >
-                  <option>Select</option>
-                  <option>Birla</option>
-                </Form.Select>
-              </td>
+                <td>
+                  <Form.Select
+                    type="text"
+                    id="txtOwnerShip"
+                    name="ownerShip"
+                    className="form-control"
+                    value={farmerLandDetailsData.ownerShip}
+                    onChange={(e) => handleFieldChange(e, index)}
+                  >
+                    <option value=''>Select</option>
+                    <option value='Owned'>Owned</option>
+                    <option value='Leased'>Leased</option>
+                  </Form.Select>
+                </td>
 
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtUsages"
-                  name="usages"
-                  className="form-control"
-                  value={rowData.usages}
-                  onChange={changeHandle}
-                >
-                  <option>Select</option>
-                  <option>4</option>
-                </Form.Select>
-              </td>
+                <td>
+                  <Form.Select
+                    type="text"
+                    id="txtUsages"
+                    name="usages"
+                    className="form-control"
+                    value={farmerLandDetailsData.usages}
+                    onChange={(e) => handleFieldChange(e, index)}
+                  >
+                    <option value=''>Select</option>
+                    <option value='Irrigated'>Irrigated</option>
+                    <option value='Unirrigated'>Unirrigated</option>
+                  </Form.Select>
+                </td>
 
-              <td>
-                <Form.Select
-                  type="text"
-                  id="txtOrgInorg"
-                  name="orgInorg"
-                  value={rowData.orgInorg}
-                  onChange={changeHandle}
-                  className="form-control"
-                >
-                  <option>Select</option>
-                  <option>india</option>
-                </Form.Select>
-              </td>
+                <td>
+                  <Form.Select
+                    type="text"
+                    id="txtOrgInorg"
+                    name="orgInorg"
+                    value={farmerLandDetailsData.orgInorg}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    className="form-control"
+                  >
+                    <option value=''>Select</option>
+                    <option value="Organic">Organic</option>
+                    <option value="Inorganic">Inorganic</option>
+                  </Form.Select>
+                </td>
 
-              <td>
-                <Form.Control
-                  type="text"
-                  min={0}
-                  id="txtCultivatedLand"
-                  name="cultivatedLand"
-                  value={rowData.cultivatedLand}
-                  onChange={changeHandle}
-                  placeholder="Cultivated Land"
-                />
-              </td>
+                <td>
+                  <Form.Control
+                    type="text"                    
+                    id="txtCultivatedLand"
+                    name="cultivatedLand"
+                    value={farmerLandDetailsData.cultivatedLand}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    placeholder="Cultivated Land"
+                  />
+                </td>
 
-              <td>
-                <Form.Select
-                  id="txtStatus"
-                  name="activeStatus"
-                  className="form-control"
-                  value={rowData.activeStatus}
-                  onChange={changeHandle}
-                >
-                  <option>Active</option>
-                  <option value="Suspended">Suspended</option>
-                </Form.Select>
-              </td>
+                <td>
+                  <Form.Select
+                    id="txtStatus"
+                    name="activeStatus"
+                    className="form-control"
+                    value={farmerLandDetailsData.activeStatus}
+                    onChange={(e) => handleFieldChange(e, index)}
+                  >
+                    <option value="Active">Active</option>
+                    <option value="Suspended">Suspended</option>
+                  </Form.Select>
+                </td>
 
-              <td>
-                <i className="fa fa-pencil me-2" />
-                <i className="fa fa-trash" />
-              </td>
-            </tr>
-          </tbody>
-          <thead>
-            {rowData.map((item, idx) => (
-              <tr key={idx}>
-                <td key={idx}>{data.longitude}</td>
-                <td key={idx}>{data.latitude}</td>
-                <td key={idx}>{data.khasraNo}</td>
-                <td key={idx}>{data.landMark}</td>
-                <td key={idx}>{data.ownerShip}</td>
-                <td key={idx}>{data.usages}</td>
-                <td key={idx}>{data.orgInorg}</td>
-                <td key={idx}>{data.cultivatedLand}</td>
-                <td key={idx}>{data.activeStatus}</td>
-                <td key={idx}> </td>
+                <td>
+                  <i className="fa fa-trash" />
+                </td>
               </tr>
-            ))}
-          </thead>
+            ))
+            }
+
+          </tbody>
         </Table>
       </Form>
     </>

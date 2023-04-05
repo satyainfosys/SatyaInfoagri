@@ -9,6 +9,7 @@ import Moment from "moment";
 const AddFarmer = () => {
 
     const dispatch = useDispatch();
+    let [figMasterLists] = useState([])
 
     const resetFarmerData = () => {
         dispatch(farmerDetailsAction({
@@ -61,6 +62,9 @@ const AddFarmer = () => {
     const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
     const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
+    const figMasterDetailReducer = useSelector((state) => state.rootReducer.figMasterDetailReducer)
+    figMasterLists = figMasterDetailReducer.figMasterList
+
     const [formHasError, setFormError] = useState(false);
     const [countryList, setCountryList] = useState([]);
     const [stateList, setStateList] = useState([]);
@@ -69,10 +73,11 @@ const AddFarmer = () => {
     const [blockList, setBlockList] = useState([]);
     const [postOfficeList, setPostOfficeList] = useState([]);
     const [villageList, setVillageList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);    
 
     useEffect(() => {
         getCountries();
+        // fetchFigMasterList();
     }, []);
 
     const getCountries = async () => {
@@ -709,6 +714,9 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange}>
                                                             <option value=''>Select FIG</option>
+                                                            {/* {figMasterLists.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))} */}
                                                         </Form.Select>
                                                     </Col>
                                                 </Form.Group>

@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
-import { Button, Table, Form } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerMachineryDetailsAction } from '../../actions/index';
+import { toast } from 'react-toastify';
 
 export const FarmersMachinaryDetailsTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([{
-    id: 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
+    id: 1,
+    machineryCategory: '',
+    machineryType: '',
+    machineryQty: '',
+    activeStatus: '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
   },]);
   const columnsArray = [
     'Equipment Category',
@@ -18,12 +25,37 @@ export const FarmersMachinaryDetailsTable = () => {
     'Action'
   ];
 
-  const handleAddRow = () => {
-    setRowData([...rowData, { id: rowData.length + 1, machineryCategory: '', machineryType: '', machineryQty: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName") },]);
-  };
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
+    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',
+    machineryCategory: '',
+    machineryType: '',
+    machineryQty: '',
+    activeStatus: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
+  }
 
   const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
   var farmerMachineryDetailsData = farmerMachineryDetailsReducer.farmerMachineryDetails;
+
+  useEffect(() => {
+    setRowDataValue(farmerMachineryDetailsReducer, farmerMachineryDetailsData, emptyRow);
+  }, [farmerMachineryDetailsData, farmerMachineryDetailsReducer]);
+
+  const setRowDataValue = (farmerMachineryDetailsReducer, farmerMachineryDetailsData, emptyRow) => {
+    setRowData(farmerMachineryDetailsReducer.farmerMachineryDetails.length > 0 ? farmerMachineryDetailsData : [emptyRow]);
+  };
+
+  const handleAddRow = () => {
+    farmerMachineryDetailsData.push(emptyRow);
+    dispatch(farmerMachineryDetailsAction(farmerMachineryDetailsData));
+  };
 
   const handleFieldChange = (e, idx) => {
     const { name, value } = e.target;
@@ -33,9 +65,63 @@ export const FarmersMachinaryDetailsTable = () => {
       return rowData[key];
     })
     dispatch(farmerMachineryDetailsAction(farmerMachineryDetails))
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   }
+
+  const ModalPreview = (encryptedFarmerMachineryCode) => {
+    setModalShow(true);
+    setParamsData({ encryptedFarmerMachineryCode });
+  }
+
+  const deleteFarmerMachineryDetails = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = farmerMachineryDetailsReducer.farmerMachineryDetails.findIndex(x => x.encryptedFarmerMachineryCode == paramsData.encryptedFarmerMachineryCode);
+    farmerMachineryDetailsReducer.farmerMachineryDetails.splice(objectIndex, 1)
+
+    var deleteFarmerMachineryDetailCode = localStorage.getItem("DeleteFarmerMachineryDetailCodes");
+
+    var deleteFarmerMachineryDetails = deleteFarmerMachineryDetailCode ? deleteFarmerMachineryDetailCode + "," + paramsData.encryptedFarmerMachineryCode : paramsData.encryptedFarmerMachineryCode;
+
+    localStorage.setItem("DeleteFarmerMachineryDetailCodes", deleteFarmerMachineryDetails);
+
+    toast.success("Equipment details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(farmerMachineryDetailsAction(farmerMachineryDetailsData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setModalShow(false);
+  }
+
   return (
     <>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this livestock cattle detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteFarmerMachineryDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button id="btnAddFarmersMachinaryTable" className="mb-2" onClick={handleAddRow}>
           Add Machinery Details
@@ -128,9 +214,8 @@ export const FarmersMachinaryDetailsTable = () => {
                     <option value="Suspended">Suspended</option>
                   </Form.Select>
                 </td>
-                <td>
-                  <i className="fa fa-pencil me-2" />
-                  <i className="fa fa-trash" />
+                <td>                  
+                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
                 </td>
               </tr>
             ))}

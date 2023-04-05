@@ -64,10 +64,25 @@ export const FarmersLiveStockTable = () => {
   };
 
   const handleAddRow = () => {
-    setRowData([...rowData, {
-      id: rowData.length + 1, cattleType: '', noOfCattle: 0, production: 0, rate: 0, cattleAge: 0, milkType: '', activeStatus: '',
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName")
-    },]);
+    const newId = rowData.length + 1;
+    const newRow = {
+      id: newId,
+      encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
+      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedFarmerCattleCode: farmerLiveStockCattleData.encryptedFarmerCattleCode ? farmerLiveStockCattleData.encryptedFarmerCattleCode : '',
+      cattleType: '',
+      noOfCattle: 0,
+      production: 0,
+      rate: 0,
+      cattleAge: 0,
+      milkType: '',
+      activeStatus: '',
+      addUser: localStorage.getItem("LoginUserName"),
+      modifyUser: localStorage.getItem("LoginUserName")
+    }
+    let newArray = farmerLiveStockCattleData.push(newRow);
+    dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
   };
 
   const validateFarmersLiveStockCattleDetailForm = () => {
@@ -96,10 +111,63 @@ export const FarmersLiveStockTable = () => {
       return rowData[key];
     })
     dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleDetails))
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   };
+
+  const ModalPreview = (encryptedFarmerCattleCode) => {
+    setModalShow(true);
+    setParamsData({ encryptedFarmerCattleCode });
+  }
+
+  const deleteFarmerCattleLiveStockDetails = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.findIndex(x => x.encryptedFarmerCattleCode == paramsData.encryptedFarmerCattleCode);
+    farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.splice(objectIndex, 1)
+
+    var deleteFarmerLiveStockDetailCode = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
+
+    var deleteFarmerCattleLiveStockDetail = deleteFarmerLiveStockDetailCode ? deleteFarmerLiveStockDetailCode + "," + paramsData.encryptedFarmerCattleCode : paramsData.encryptedFarmerCattleCode;
+
+    localStorage.setItem("DeleteFarmerLiveStockCattleDetailIds", deleteFarmerCattleLiveStockDetail);
+
+    toast.success("Cattle details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setModalShow(false);
+  }
 
   return (
     <>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this livestock cattle detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteFarmerCattleLiveStockDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddFarmersLiveStockTable"
@@ -232,8 +300,7 @@ export const FarmersLiveStockTable = () => {
                 </td>
 
                 <td>
-                  <i className="fa fa-pencil pe-1" />
-                  <i className="fa fa-trash" />
+                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
                 </td>
               </tr>
             ))}

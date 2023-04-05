@@ -207,3 +207,17 @@ export const farmerIrrigationDetailsAction = (payload) => {
     payload
   };
 };
+
+export const farmerLandDetailsAction = (payload) => {
+  return {
+    type: 'FARMERLANDDETAILS',
+    payload
+  };
+};
+
+export const figMasterListAction = (payload) => {
+  return {
+    type: 'FIGMASTERLIST',
+    payload
+  };
+};
