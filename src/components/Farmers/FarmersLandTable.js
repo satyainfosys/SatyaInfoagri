@@ -72,10 +72,6 @@ export const FarmersLandTable = () => {
     dispatch(farmerLandDetailsAction(farmerLandDetailsData))
   };
 
-  const changeHandle = e => {
-    setdata({ ...data, [e.target.name]: e.target.value });
-  };
-
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;
     var farmerLandDetails = [...rowData];
@@ -87,6 +83,37 @@ export const FarmersLandTable = () => {
     if ($("#btnSave").attr('disabled'))
       $("#btnSave").attr('disabled', false);
   }
+
+  const ModalPreview = (encryptedFarmerLandCode) => {
+    setModalShow(true);
+    setParamsData({ encryptedFarmerLandCode });
+  }
+
+  const deleteFarmerLandDetails = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = farmerLandDetailsReducer.farmerLandDetails.findIndex(x => x.encryptedFarmerLandCode == paramsData.encryptedFarmerLandCode);
+    farmerLandDetailsReducer.farmerLandDetails.splice(objectIndex, 1)
+
+    var deleteFarmerLandCode = localStorage.getItem("DeleteFarmerLandCodes");
+
+    var deleteFarmerLandDetail = deleteFarmerLandCode ? deleteFarmerLandCode + "," + paramsData.encryptedFarmerLandCode : paramsData.encryptedFarmerLandCode;
+
+    localStorage.setItem("DeleteFarmerLandCodes", deleteFarmerLandDetail);
+
+    toast.success("Land details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(farmerLandDetailsAction(farmerLandDetailsData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setModalShow(false);
+  }
+
   return (
     <>
       <div style={{ display: 'flex', justifyContent: 'end' }}>
@@ -211,7 +238,7 @@ export const FarmersLandTable = () => {
 
                 <td>
                   <Form.Control
-                    type="text"                    
+                    type="text"
                     id="txtCultivatedLand"
                     name="cultivatedLand"
                     value={farmerLandDetailsData.cultivatedLand}
@@ -234,7 +261,7 @@ export const FarmersLandTable = () => {
                 </td>
 
                 <td>
-                  <i className="fa fa-trash" />
+                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
                 </td>
               </tr>
             ))

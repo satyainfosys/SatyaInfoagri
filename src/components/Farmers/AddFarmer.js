@@ -9,7 +9,6 @@ import Moment from "moment";
 const AddFarmer = () => {
 
     const dispatch = useDispatch();
-    let [figMasterLists] = useState([])
 
     const resetFarmerData = () => {
         dispatch(farmerDetailsAction({
@@ -62,8 +61,8 @@ const AddFarmer = () => {
     const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
     const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
-    const figMasterDetailReducer = useSelector((state) => state.rootReducer.figMasterDetailReducer)
-    figMasterLists = figMasterDetailReducer.figMasterList
+    const distributionCentreListReducer = useSelector((state) => state.rootReducer.distributionCentreListReducer)
+    const distributionList = distributionCentreListReducer.distributionCentreList
 
     const [formHasError, setFormError] = useState(false);
     const [countryList, setCountryList] = useState([]);
@@ -73,11 +72,12 @@ const AddFarmer = () => {
     const [blockList, setBlockList] = useState([]);
     const [postOfficeList, setPostOfficeList] = useState([]);
     const [villageList, setVillageList] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);    
+    const [isLoading, setIsLoading] = useState(false);
+    const [collectionCentreList, setCollectionCentreList] = useState([]);
+    const [figMasterList, setFigMasterList] = useState([]);
 
     useEffect(() => {
         getCountries();
-        // fetchFigMasterList();
     }, []);
 
     const getCountries = async () => {
@@ -252,6 +252,52 @@ const AddFarmer = () => {
 
     }
 
+    const getCollectionCentre = async (EncryptedDistributionCentreCode) => {
+        const requestData = {
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            EncryptedDistributionCode: EncryptedDistributionCentreCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        let collectionCentreData = [];
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(collectionCentre => {
+                    collectionCentreData.push({
+                        key: collectionCentre.collectionCentreName,
+                        value: collectionCentre.encryptedCollectionCentreCode
+                    })
+                })
+            }
+            setCollectionCentreList(collectionCentreData);
+        }
+    }
+
+    const getFigMaster = async (encryptedCompanyCode) => {
+        const request = {
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            EncryptedCollectionCentreCode: encryptedCompanyCode
+        }
+
+        let figMasterResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-fig-master-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        let figMasterData = [];
+        if (figMasterResponse.data.status == 200) {
+            if (figMasterResponse.data && figMasterResponse.data.data.length > 0) {
+                figMasterResponse.data.data.forEach(figMaster => {
+                    figMasterData.push({
+                        key: figMaster.figName,
+                        value: figMaster.encryptedFigCode
+                    })
+                })
+            }
+            setFigMasterList(figMasterData)
+        }
+    }
+
     const handleFieldChange = (e) => {
         dispatch(farmerDetailsAction({
             ...farmerData,
@@ -309,6 +355,22 @@ const AddFarmer = () => {
                 farmerPicURL: URL.createObjectURL(e.target.files[0])
             }));
         }
+
+        if (e.target.name == 'encryptedDistributionCentreCode') {
+            if (e.target.value == '') {
+                setCollectionCentreList([]);
+            }
+            else {
+                getCollectionCentre(e.target.value)
+            }
+        }
+
+        if (e.target.name == 'encryptedCollectionCentreCode') {
+            if (e.target.value == '')
+                setFigMasterList([])
+            else
+                getFigMaster(e.target.value)
+        }
     };
 
     const removeProfilePic = () => {
@@ -353,7 +415,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                     <Form.Label column sm={4}>
-                                                        First Name
+                                                        First Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Control id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
@@ -374,7 +436,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                     <Form.Label column sm={4}>
-                                                        Last Name
+                                                        Last Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Control id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
@@ -398,7 +460,7 @@ const AddFarmer = () => {
                                         <Col className="me-3 ms-3">
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Farmer DOB
+                                                    Farmer DOB<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
@@ -407,7 +469,7 @@ const AddFarmer = () => {
 
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Farmer Gender
+                                                    Farmer Gender<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Select id="txtGender" name="farmerGender" onChange={handleFieldChange} value={farmerData.farmerGender}>
@@ -420,7 +482,7 @@ const AddFarmer = () => {
 
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Father Name
+                                                    Father Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
@@ -440,12 +502,12 @@ const AddFarmer = () => {
                                         <Col className="me-3 ms-3">
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Approval Status
+                                                    Approval Status<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Select id="txtApprovalStatus" name="approvalStatus" onChange={handleFieldChange} value={farmerData.approvalStatus}>
-                                                        <option value="Approved">Approved</option>
                                                         <option value="Draft">Draft</option>
+                                                        <option value="Approved">Approved</option>
                                                         <option value="Send for Verification">Send for Verification</option>
                                                         <option value="Suspended">Suspended</option>
                                                     </Form.Select>
@@ -454,7 +516,7 @@ const AddFarmer = () => {
 
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Active Status
+                                                    Active Status<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={farmerData.status}>
@@ -466,7 +528,7 @@ const AddFarmer = () => {
 
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
-                                                    Address
+                                                    Address<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control as="textarea" id='txtAddress' maxLength={50} name='address' onChange={handleFieldChange} value={farmerData.address} />
@@ -540,7 +602,7 @@ const AddFarmer = () => {
                                     <Col sm={6} lg={4}>
                                         <Form.Group as={Row} className="mb-2">
                                             <Form.Label column sm={4}>
-                                                Marital Status
+                                                Marital Status<span className="text-danger">*</span>
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Select id="txtMaritalStatus" name="maritalStatus" onChange={handleFieldChange} value={farmerData.maritalStatus}>
@@ -556,7 +618,7 @@ const AddFarmer = () => {
                                     <Col sm={6} lg={4}>
                                         <Form.Group as={Row} className="mb-2">
                                             <Form.Label column sm={4}>
-                                                Social Category
+                                                Social Category<span className="text-danger">*</span>
                                             </Form.Label>
                                             <Col sm={8}>
                                                 <Form.Select id="txtSocialCategory" name="socialCategory" onChange={handleFieldChange} value={farmerData.socialCategory}>
@@ -585,7 +647,7 @@ const AddFarmer = () => {
                                             <Row className="mb-3">
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        Country Name
+                                                        Country Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
@@ -599,7 +661,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        State Name
+                                                        State Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
@@ -613,7 +675,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        District Name
+                                                        District Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
@@ -627,7 +689,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        Tehsil Name
+                                                        Tehsil Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
@@ -641,7 +703,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        Block Name
+                                                        Block Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
@@ -655,7 +717,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        PostOffice Name
+                                                        PostOffice Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
@@ -669,7 +731,7 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        Village Name
+                                                        Village Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtVillageName" name="encryptedVillageCode" defaultValue={farmerData.villageCode} onChange={handleFieldChange}>
@@ -687,7 +749,7 @@ const AddFarmer = () => {
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={6} lg={4}>
+                        <Col sm={6} lg={5}>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Operational Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
@@ -700,10 +762,51 @@ const AddFarmer = () => {
                                                         Total Land
                                                     </Form.Label>
                                                     <Col sm={4}>
-                                                        <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" />
+                                                        <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
                                                     </Col>
                                                     <Col sm={4}>
-                                                        <Form.Control id="txtHectare" name="" className="mb-1" placeholder="Hectare" />
+                                                        <Form.Control id="txtHectare" name="" className="mb-1" placeholder="Hectare" value="HECTARE" disabled />
+                                                    </Col>
+                                                </Form.Group>
+
+                                                <Form.Group as={Row} className="mb-2">
+                                                    <Form.Label column sm={4}>
+                                                        FPC/FPO
+                                                    </Form.Label>
+                                                    <Col sm={8}>
+                                                        <Form.Control id="txtFPCFPO" name="FPC/FPO" className="mb-1" value={localStorage.getItem("CompanyName")} placeholder="FPC/FPO" disabled />
+                                                    </Col>
+                                                </Form.Group>
+
+                                                <Form.Group as={Row} className="mb-2">
+                                                    <Form.Label column sm={4}>
+                                                        Distribution Centre<span className="text-danger">*</span>
+                                                    </Form.Label>
+                                                    <Col sm={8}>
+                                                        <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange}>
+                                                            <option value=''>Select Distribution Centre</option>
+                                                            {distributionList &&
+                                                                distributionList.map((option, index) => (
+                                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                                ))
+                                                            }
+                                                        </Form.Select>
+                                                    </Col>
+                                                </Form.Group>
+
+                                                <Form.Group as={Row} className="mb-2">
+                                                    <Form.Label column sm={4}>
+                                                        Collection Centre<span className="text-danger">*</span>
+                                                    </Form.Label>
+                                                    <Col sm={8}>
+                                                        <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange}>
+                                                            <option value=''>Select Collection Centre</option>
+                                                            {collectionCentreList &&
+                                                                collectionCentreList.map((option, index) => (
+                                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                                ))
+                                                            }
+                                                        </Form.Select>
                                                     </Col>
                                                 </Form.Group>
 
@@ -714,46 +817,13 @@ const AddFarmer = () => {
                                                     <Col sm={8}>
                                                         <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange}>
                                                             <option value=''>Select FIG</option>
-                                                            {/* {figMasterLists.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))} */}
+                                                            {figMasterList &&
+
+                                                                figMasterList.map((option, index) => (
+                                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                                ))
+                                                            }
                                                         </Form.Select>
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        FPO
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtFPO" name="FPO" className="mb-1" placeholder="FPO" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        FPC
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtFPC" name="FPC" className="mb-1" placeholder="FPC" />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Collection Centre
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtCollectionCentre" name="collectionCentre" className="mb-1" placeholder="Collection Centre" onChange={handleFieldChange} />
-                                                    </Col>
-                                                </Form.Group>
-
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Distribution Centre
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtDistributionCentre" name="distributionCentre" className="mb-1" placeholder="Distribution Centre" onChange={handleFieldChange} />
                                                     </Col>
                                                 </Form.Group>
                                             </Row>

@@ -221,3 +221,10 @@ export const figMasterListAction = (payload) => {
     payload
   };
 };
+
+export const distributionCentreListAction = (payload) => {
+  return {
+    type: 'DISTRIBUTIONCENTRELIST',
+    payload
+  };
+};

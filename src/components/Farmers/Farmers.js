@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { bankDetailsAction, commonContactDetailsAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
@@ -511,10 +511,12 @@ export const Farmers = () => {
                 companyResponse.data.data.forEach(company => {
                     companyData.push({
                         key: company.companyName,
-                        value: company.encryptedCompanyCode
+                        value: company.encryptedCompanyCode,
+                        label: company.companyName
                     })
                 })
             }
+            console.log(companyData);
             setCompanyList(companyData)
         } else {
             setCompanyList([])
@@ -524,40 +526,44 @@ export const Farmers = () => {
 
     const handleFieldChange = e => {
         localStorage.setItem("EncryptedCompanyCode", e.target.value);
+        const selectedOption = e.target.options[e.target.selectedIndex];
+        const selectedKey = selectedOption.dataset.key || selectedOption.label;
+        localStorage.setItem("CompanyName", selectedKey)
         fetchFarmerList(1, perPage, e.target.value);
-        fetchFigMasterList(e.target.value);
+        fetchDistributionCentreList(e.target.value);
     }
 
-    const fetchFigMasterList = async () => {
+    const fetchDistributionCentreList = async (encryptedCompanyCode) => {
         const request = {
-            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+            EncryptedCompanyCode: encryptedCompanyCode
         }
 
-        let figMasterResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-fig-master-list', request, {
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
-        let figMasterData = [];
-        if (figMasterResponse.data.status == 200) {
-            if (figMasterResponse.data && figMasterResponse.data.data.length > 0) {
-                figMasterResponse.data.data.forEach(figMaster => {
-                    figMasterData.push({
-                        key: figMaster.figName,
-                        value: figMaster.encryptedFigCode
+        let distributionCentreListData = [];
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(distributionCentre => {
+                    distributionCentreListData.push({
+                        key: distributionCentre.distributionName,
+                        value: distributionCentre.encryptedDistributionCentreCode
                     })
                 })
             }
-            dispatch(figMasterListAction(figMasterData))
+            dispatch(distributionCentreListAction(distributionCentreListData));
         }
     }
 
     const exitModule = () => {
         $('#btnExit').attr('isExit', 'true');
-        if (($("#AddFarmersDetailForm").isChanged())) {
-            setModalShow(true);
-        }
-        else {
-            window.location.href = '/dashboard';
-        }
+        // if (($("#AddFarmersDetailForm").isChanged())) {
+        //     setModalShow(true);
+        // }
+        // else {
+        //     window.location.href = '/dashboard';
+        // }
+        window.location.href = '/dashboard';
     }
 
     const getFarmerFamilyDetail = async () => {
