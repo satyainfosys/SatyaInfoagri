@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form } from 'react-bootstrap';
+import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerLandDetailsAction } from 'actions';
+import { toast } from 'react-toastify';
 
 export const FarmersLandTable = () => {
   const dispatch = useDispatch();
@@ -13,9 +14,10 @@ export const FarmersLandTable = () => {
     khasraNo: '',
     landMark: '',
     ownerShip: '',
-    usages: '',
-    orgInorg: '',
-    cultivatedLand: '',
+    usage: '',
+    croppingType: '',
+    landArea: '',
+    cultivatedLandUnit: '',
     activeStatus: '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
     addUser: localStorage.getItem("LoginUserName"),
@@ -28,9 +30,10 @@ export const FarmersLandTable = () => {
     'Khasra No',
     'Land Mark',
     'Ownership',
-    'Usages',
+    'Usage',
     'Org/Inorg',
     'Cultivated Land',
+    'Land Unit',
     'Active Status',
     'Action'
   ];
@@ -48,9 +51,10 @@ export const FarmersLandTable = () => {
     khasraNo: '',
     landMark: '',
     ownerShip: '',
-    usages: '',
-    orgInorg: '',
-    cultivatedLand: '',
+    usage: '',
+    croppingType: '',
+    landArea: '',
+    cultivatedLandUnit: '',
     activeStatus: '',
     addUser: localStorage.getItem("LoginUserName"),
     modifyUser: localStorage.getItem("LoginUserName")
@@ -116,6 +120,27 @@ export const FarmersLandTable = () => {
 
   return (
     <>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this family member?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteFarmerLandDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddFarmersLandTable"
@@ -209,10 +234,10 @@ export const FarmersLandTable = () => {
                 <td>
                   <Form.Select
                     type="text"
-                    id="txtUsages"
-                    name="usages"
+                    id="txtUsage"
+                    name="usage"
                     className="form-control"
-                    value={farmerLandDetailsData.usages}
+                    value={farmerLandDetailsData.usage}
                     onChange={(e) => handleFieldChange(e, index)}
                   >
                     <option value=''>Select</option>
@@ -224,9 +249,9 @@ export const FarmersLandTable = () => {
                 <td>
                   <Form.Select
                     type="text"
-                    id="txtOrgInorg"
-                    name="orgInorg"
-                    value={farmerLandDetailsData.orgInorg}
+                    id="txtCroppingType"
+                    name="croppingType"
+                    value={farmerLandDetailsData.croppingType}
                     onChange={(e) => handleFieldChange(e, index)}
                     className="form-control"
                   >
@@ -238,13 +263,28 @@ export const FarmersLandTable = () => {
 
                 <td>
                   <Form.Control
-                    type="text"
-                    id="txtCultivatedLand"
-                    name="cultivatedLand"
-                    value={farmerLandDetailsData.cultivatedLand}
+                    type="num"
+                    id="txtLandArea"
+                    name="landArea"
+                    value={farmerLandDetailsData.landArea}
                     onChange={(e) => handleFieldChange(e, index)}
                     placeholder="Cultivated Land"
                   />
+                </td>
+                <td>
+                  <Form.Select
+                    type="text"
+                    id="txtCultivatedLandUnit"
+                    name="cultivatedLandUnit"
+                    value={farmerLandDetailsData.cultivatedLandUnit}
+                    onChange={(e) => handleFieldChange(e, index)}
+                    className="form-control"
+                  >
+                    <option value=''>Select</option>
+                    <option value="Hectare">Hectare</option>
+                    <option value="Bhiga">Bhiga</option>
+                    <option value="Kila">Kila</option>
+                  </Form.Select>
                 </td>
 
                 <td>

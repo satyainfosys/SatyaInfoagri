@@ -464,6 +464,9 @@ const AddFarmer = () => {
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
+                                                    {Object.keys(farmerError.farmerDobErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerDobErr[key]}</span>
+                                                    })}
                                                 </Col>
                                             </Form.Group>
 
@@ -477,6 +480,9 @@ const AddFarmer = () => {
                                                         <option value="Male">Male</option>
                                                         <option value="Female">Female</option>
                                                     </Form.Select>
+                                                    {Object.keys(farmerError.farmerGenderErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerGenderErr[key]}</span>
+                                                    })}
                                                 </Col>
                                             </Form.Group>
 
@@ -486,6 +492,9 @@ const AddFarmer = () => {
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
+                                                    {Object.keys(farmerError.farmerFatherNameErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerFatherNameErr[key]}</span>
+                                                    })}
                                                 </Col>
                                             </Form.Group>
                                         </Col>
@@ -611,6 +620,9 @@ const AddFarmer = () => {
                                                     <option value="Unmarried">Unmarried</option>
                                                     <option value="Divorced">Divorced</option>
                                                 </Form.Select>
+                                                {Object.keys(farmerError.maritalStatusErr).map((key) => {
+                                                    return <span className="error-message">{farmerError.maritalStatusErr[key]}</span>
+                                                })}
                                             </Col>
                                         </Form.Group>
                                     </Col>
@@ -628,6 +640,9 @@ const AddFarmer = () => {
                                                     <option value='OBC'>OBC</option>
                                                     <option value='General'>General</option>
                                                 </Form.Select>
+                                                {Object.keys(farmerError.socailCategoryErr).map((key) => {
+                                                    return <span className="error-message">{farmerError.socailCategoryErr[key]}</span>
+                                                })}
                                             </Col>
                                         </Form.Group>
                                     </Col>
@@ -656,6 +671,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.countyrErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.countyrErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -670,6 +688,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.stateErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.stateErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -684,6 +705,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.districtErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.districtErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -698,6 +722,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.tehsilErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.tehsilErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -712,6 +739,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.blockErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.blockErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -726,6 +756,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.postOfficeErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.postOfficeErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -740,6 +773,9 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.villageErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.villageErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
                                             </Row>
@@ -791,6 +827,9 @@ const AddFarmer = () => {
                                                                 ))
                                                             }
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.ditributionErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.ditributionErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 
@@ -807,6 +846,9 @@ const AddFarmer = () => {
                                                                 ))
                                                             }
                                                         </Form.Select>
+                                                        {Object.keys(farmerError.collectionErr).map((key) => {
+                                                            return <span className="error-message">{farmerError.collectionErr[key]}</span>
+                                                        })}
                                                     </Col>
                                                 </Form.Group>
 

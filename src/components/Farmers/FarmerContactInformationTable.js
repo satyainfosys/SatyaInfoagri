@@ -37,6 +37,9 @@ export const FarmerContactInformationTable = () => {
   let commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
   let commonContactDetailData = commonContactDetailsReducer.commonContactDetails;
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
     setRowDataValue(commonContactDetailsReducer, commonContactDetailData, emptyRow);
   }, [commonContactDetailData, commonContactDetailsReducer]);
@@ -176,7 +179,14 @@ export const FarmerContactInformationTable = () => {
           Add Contact Details
         </Button>
       </div>
-
+      {
+        farmerError.contactErr && farmerError.contactErr.contactEmpty &&
+        (
+          <div className='mb-2'>
+            <span className="error-message">{farmerError.contactErr.contactEmpty}</span>
+          </div>
+        )
+      }
       <Form
         noValidate
         validated={formHasError}

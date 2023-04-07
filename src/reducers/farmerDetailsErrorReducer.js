@@ -2,21 +2,35 @@ const initialState = {
   farmerDetailsError: {
     firstNameErr: {},
     lastNameErr: {},
-    addressErr: {},    
+    addressErr: {},
+    farmerDobErr: {},
+    farmerGenderErr:{},
+    farmerFatherNameErr:{},
+    maritalStatusErr:{},
+    socailCategoryErr:{},
+    countyrErr:{},
+    stateErr:{}    ,
+    districtErr:{},
+    tehsilErr:{},
+    blockErr:{},
+    postOfficeErr:{},
+    villageErr:{},
+    ditributionErr:{},
+    collectionErr:{},
+    contactErr:{}
   }
 };
 
 const farmerDetailsErrorReducer = (state = initialState, action) => {
   switch (action.type) {
     case 'FARMERDETAILSERROR':
-      if(!action.payload)
-      {
+      if (!action.payload) {
         return initialState
       }
-      else{
-        return{
+      else {
+        return {
           ...state,
-          farmerDetailsError : action.payload        
+          farmerDetailsError: action.payload
         }
       }
     default:
