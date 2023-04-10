@@ -17,7 +17,9 @@ const initialState = {
     villageErr:{},
     ditributionErr:{},
     collectionErr:{},
-    contactErr:{}
+    contactErr:{},
+    familyErr:{},
+    cardDetailErr:{}
   }
 };
 

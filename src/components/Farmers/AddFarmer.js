@@ -22,7 +22,6 @@ const AddFarmer = () => {
             "approvalStatus": "",
             "address": "",
             "educationalStatus": "",
-            "companyTinNo": "",
             "maritalStatus": "",
             "socialCategory": "",
             "countryName": "",
@@ -109,6 +108,7 @@ const AddFarmer = () => {
             .post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
             .then(res => {
                 if (res.data.status == 200) {
+                    $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
                     let stateData = [];
                     if (res.data && res.data.data.length > 0)
                         res.data.data.forEach(state => {
@@ -348,13 +348,13 @@ const AddFarmer = () => {
                 getVillage(e.target.value);
         }
 
-        if (e.target.name == 'farmerPic') {
-            dispatch(farmerDetailsAction({
-                ...farmerData,
-                farmerPic: e.target.files[0],
-                farmerPicURL: URL.createObjectURL(e.target.files[0])
-            }));
-        }
+        // if (e.target.name == 'farmerPic') {
+        //     dispatch(farmerDetailsAction({
+        //         ...farmerData,
+        //         farmerPic: e.target.files[0],
+        //         farmerPicURL: URL.createObjectURL(e.target.files[0])
+        //     }));
+        // }
 
         if (e.target.name == 'encryptedDistributionCentreCode') {
             if (e.target.value == '') {
@@ -373,16 +373,21 @@ const AddFarmer = () => {
         }
     };
 
-    const removeProfilePic = () => {
-        $('#profilepic').val(null);
-        dispatch(farmerDetailsAction({
-            ...farmerData,
-            farmerPic: "",
-            farmerPicURL: "",
-            removeProfilePhoto: true
-        }))
-        $('#btnSave').attr('disabled', false);
-    }
+    // if (farmerData.encryptedCountryCode && $('#txtCountryName').val()) {
+    //     $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
+    //     getStates(farmerData.encryptedCountryCode);
+    //   }
+
+    // const removeProfilePic = () => {
+    //     $('#profilepic').val(null);
+    //     dispatch(farmerDetailsAction({
+    //         ...farmerData,
+    //         farmerPic: "",
+    //         farmerPicURL: "",
+    //         removeProfilePhoto: true
+    //     }))
+    //     $('#btnSave').attr('disabled', false);
+    // }
 
     return (
         <>
@@ -747,11 +752,11 @@ const AddFarmer = () => {
 
                                                 <Form.Group as={Row} className="mb-2">
                                                     <Form.Label column sm={4}>
-                                                        PostOffice Name<span className="text-danger">*</span>
+                                                        Post Office Name<span className="text-danger">*</span>
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select PostOffice</option>
+                                                            <option value=''>Select Post Office</option>
                                                             {postOfficeList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}

@@ -373,12 +373,6 @@ const TabPage = ({
                       <BankDetailsTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
-
-                  <FalconComponentCard id="FarmerCardDetailsTable">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersCardTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
                 </>
               )}
 
@@ -419,26 +413,6 @@ const TabPage = ({
                   <FalconComponentCard id="FarmersDocumentDetailsFrom">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersDocumentDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
-                </>
-              )}
-
-              {index == 7 && module == 'Farmers' && (
-                <>
-                  <FalconComponentCard id="FarmersEventDetailsFrom">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersEventDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
-                </>
-              )}
-
-              {index == 8 && module == 'Farmers' && (
-                <>
-                  <FalconComponentCard id="FarmersMktSmsDetailsFrom">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersMktSmsDetails />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>

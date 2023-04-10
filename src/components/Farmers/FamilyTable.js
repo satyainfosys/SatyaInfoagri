@@ -6,20 +6,14 @@ import { toast } from 'react-toastify';
 
 export const FamilyTable = () => {
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([{
-    id: 1, familyMemberName: '', memberAge: 0, memberSex: '', farmerMemberRelation: '', memberEducation: '', activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LoginUserName")
-  },]);
-  const [familyAPICalled1, setFamilyAPICalled1] = useState(false);
-  const [familyMemberNameErr, setFamilyMemberNameErr] = useState({});
+  const [rowData, setRowData] = useState([]);
   const [modalShow, setModalShow] = useState(false);
   const [paramsData, setParamsData] = useState({});
 
   const dispatch = useDispatch();
   const emptyRow = {
     id: rowData.length + 1,
-    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '', 
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
     encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
     familyMemberName: '',
     memberAge: 0,
@@ -35,12 +29,15 @@ export const FamilyTable = () => {
   let farmerFamilyDetailsReducer = useSelector((state) => state.rootReducer.farmerFamilyDetailsReducer)
   let familyDetailData = farmerFamilyDetailsReducer.farmerFamilyDetails;
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
-    setRowDataValue(farmerFamilyDetailsReducer, familyDetailData, emptyRow);
+    setRowDataValue(farmerFamilyDetailsReducer, familyDetailData);
   }, [familyDetailData, farmerFamilyDetailsReducer]);
 
-  const setRowDataValue = (farmerFamilyDetailsReducer, familyDetailData, emptyRow) => {
-    setRowData(farmerFamilyDetailsReducer.farmerFamilyDetails.length > 0 ? familyDetailData : [emptyRow]);
+  const setRowDataValue = (farmerFamilyDetailsReducer, familyDetailData) => {
+    setRowData(farmerFamilyDetailsReducer.farmerFamilyDetails.length > 0 ? familyDetailData : []);
   };
 
   const columnsArray = [
@@ -52,44 +49,27 @@ export const FamilyTable = () => {
     'Action'
   ];
 
-  const handleAddRow = () => {
-    const newId = rowData.length + 1;
-    const newRow = {
-      id: newId,
-      encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : "",
-      encryptedFarmerFamilyCode: familyDetailData.encryptedFarmerFamilyCode ? familyDetailData.encryptedFarmerFamilyCode : "",
-      familyMemberName: '',
-      memberAge: 0,
-      memberSex: '',
-      farmerMemberRelation: '',
-      memberEducation: '',
-      activeStatus: '',
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-      addUser: localStorage.getItem("LoginUserName"),
-      modifyUser: localStorage.getItem("LoginUserName")
-    };
-    let newArray = familyDetailData.push(newRow);
-    dispatch(farmerFamilyDetailsAction(familyDetailData));
+  const validateFarmerFamilyDetailsForm = () => {
+    let isValid = true;
+
+    if (familyDetailData && familyDetailData.length > 0) {
+      familyDetailData.forEach((row, index) => {
+        if (!row.familyMemberName || row.memberAge == 0 || !row.memberSex || !row.farmerMemberRelation || !row.memberEducation) {
+          isValid = false;
+          setFormError(true);
+        }
+      });
+    }
+    return isValid;
+  }
+
+  const handleAddRow = async () => {
+    let formValid = validateFarmerFamilyDetailsForm()
+    if (formValid) {
+      familyDetailData.push(emptyRow);
+      dispatch(farmerFamilyDetailsAction(familyDetailData));
+    }
   };
-
-  // const validateFarmerFamilyDetailsForm = () => {
-  //   const familyMemberNameErr = {};
-
-  //   let isValid = true;
-
-  //   if (!familyDetailData.familyMemberName) {
-  //     familyMemberNameErr.empty = "Enter name";
-  //     isValid = false;
-  //     setFormError(true);
-  //   }
-
-  //   if (!isValid) {
-  //     setFamilyMemberNameErr(familyMemberNameErr);
-  //   }
-
-  //   return isValid;
-  // }
 
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;
@@ -99,10 +79,6 @@ export const FamilyTable = () => {
       return rowData[key];
     })
     dispatch(farmerFamilyDetailsAction(farmerFamilyDetails))
-    // const familyDetailsChanged = {
-    //   farmerDetailsChanged: true
-    // }
-    // dispatch(farmerFamilyDetailChangedAction(familyDetailsChanged))
 
     if ($("#btnSave").attr('disabled'))
       $("#btnSave").attr('disabled', false);
@@ -138,7 +114,6 @@ export const FamilyTable = () => {
     setModalShow(false);
   }
 
-
   return (
     <>
       {modalShow && paramsData &&
@@ -172,6 +147,14 @@ export const FamilyTable = () => {
           Add Family Details
         </Button>
       </div>
+      {
+        farmerError.familyErr && farmerError.contactErr.invalidFamilyDetail &&
+        (
+          <div className='mb-2'>
+            <span className="error-message">{farmerError.contactErr.invalidFamilyDetail}</span>
+          </div>
+        )
+      }
 
       <Form
         noValidate
@@ -179,108 +162,115 @@ export const FamilyTable = () => {
         className="details-form"
         id="AddFarmersFamilyTableDetailsForm"
       >
-        <Table striped responsive id="TableList" className="no-pb">
-          <thead>
-            <tr>
-              {columnsArray.map((column, index) => (
-                <th className="text-left" key={index}>
-                  {column}
-                </th>
+        {
+          familyDetailData && familyDetailData.length > 0 &&
+          <Table striped responsive id="TableList" className="no-pb">
+            <thead>
+              {rowData && <tr>
+                {columnsArray.map((column, index) => (
+                  <th className="text-left" key={index}>
+                    {column}
+                  </th>
+                ))}
+                <th />
+              </tr>}
+            </thead>
+            <tbody id="tbody" className="details-form">
+              {rowData.map((familyDetailData, index) => (
+                <tr key={index}>
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="txtFamilyMemberName"
+                      name="familyMemberName"
+                      value={familyDetailData.familyMemberName}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Name"
+                      className="form-control"
+                      maxLength={30}
+                      required
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="number"
+                      id="numAge"
+                      name="memberAge"
+                      value={familyDetailData.memberAge}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Age"
+                      className="form-control"
+                      required
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtSex"
+                      name="memberSex"
+                      onChange={(e) => handleFieldChange(e, index)}
+                      value={familyDetailData.memberSex}
+                      className="form-control"
+                      required
+                    >
+                      <option value=''>Select</option>
+                      <option value='Male'>Male</option>
+                      <option value='Female'>Female</option>
+                      <option value='Others'>Others</option>
+                    </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtRelation"
+                      name="farmerMemberRelation"
+                      className="form-control"
+                      onChange={(e) => handleFieldChange(e, index)}
+                      value={familyDetailData.farmerMemberRelation}
+                      required
+                    >
+                      <option value=''>Select relation</option>
+                      <option value='Father'>Father</option>
+                      <option value='Mother'>Mother</option>
+                      <option value='Brother'>Brother</option>
+                      <option value='Sister'>Sister</option>
+                      <option value='Wife'>Wife</option>
+                      <option value='Son'>Son</option>
+                      <option value='Daughter'>Daughter</option>
+                    </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtEducation"
+                      name="memberEducation"
+                      className="form-control"
+                      onChange={(e) => handleFieldChange(e, index)}
+                      value={familyDetailData.memberEducation}
+                      required
+                    >
+                      <option value=''>Select education</option>
+                      <option value="Primary School">Primary School</option>
+                      <option value="High School">High School</option>
+                      <option value="Inter">Inter</option>
+                      <option value="Graduate">Graduate</option>
+                      <option value="Post Graduate">Post Graduate</option>
+                      <option value="Illiterate">Illiterate</option>
+                      <option value="Doctrate">Doctrate</option>
+                    </Form.Select>
+                  </td>
+                  <td>
+                    <i className="fa fa-trash" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName) }} />
+                  </td>
+                </tr>
               ))}
-              <th />
-            </tr>
-          </thead>
-          <tbody id="tbody" className="details-form">
-            {rowData.map((familyDetailData, index) => (
-              <tr key={index}>
-                <td key={index}>
-                  <Form.Control
-                    type="text"
-                    id="txtFamilyMemberName"
-                    name="familyMemberName"
-                    value={familyDetailData.familyMemberName}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="Name"
-                    className="form-control"
-                    maxLength={30}
-                    required
-                  />
-                  {Object.keys(familyMemberNameErr).map((key) => {
-                    return <span className="error-message">{familyMemberNameErr[key]}</span>
-                  })}
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="number"
-                    min={0}
-                    id="numAge"
-                    name="memberAge"
-                    value={familyDetailData.memberAge}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="Age"
-                    className="form-control"
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtSex"
-                    name="memberSex"
-                    onChange={(e) => handleFieldChange(e, index)}
-                    value={familyDetailData.memberSex}
-                    className="form-control"
-                  >
-                    <option value=''>Select</option>
-                    <option value='Male'>Male</option>
-                    <option value='Female'>Female</option>
-                    <option value='Others'>Others</option>
-                  </Form.Select>
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtRelation"
-                    name="farmerMemberRelation"
-                    className="form-control"
-                    onChange={(e) => handleFieldChange(e, index)}
-                    value={familyDetailData.farmerMemberRelation}
-                  >
-                    <option value=''>Select relation</option>
-                    <option value='Father'>Father</option>
-                    <option value='Mother'>Mother</option>
-                  </Form.Select>
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtEducation"
-                    name="memberEducation"
-                    className="form-control"
-                    onChange={(e) => handleFieldChange(e, index)}
-                    value={familyDetailData.memberEducation}
-                  >
-                    <option value=''>Select education</option>
-                    <option value="Primary School">Primary School</option>
-                    <option value="High School">High School</option>
-                    <option value="Inter">Inter</option>
-                    <option value="Graduate">Graduate</option>
-                    <option value="Post Graduate">Post Graduate</option>
-                    <option value="Illiterate">Illiterate</option>
-                    <option value="Doctrate">Doctrate</option>
-                  </Form.Select>
-                </td>
-                <td>
-                  {/* <i className="fa fa-pencil me-2" /> */}
-                  <i className="fa fa-trash" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName) }} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
+            </tbody>
+          </Table>
+        }
       </Form>
     </>
   );

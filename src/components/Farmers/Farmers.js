@@ -6,18 +6,15 @@ import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAc
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 
-const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents', 'Events', 'Mkt SMS'];
+const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents'];
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
-    { accessor: 'cardNo', Header: 'Card No' },
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Father Name' },
     { accessor: 'village', Header: 'Village' },
-    { accessor: 'district', Header: 'District Code' },
-    { accessor: 'figCode', Header: 'FIG Code' },
-    { accessor: 'mobile', Header: 'Mobile' },
-    { accessor: 'user', Header: 'User' },
+    { accessor: 'districtName', Header: 'District' },
+    { accessor: 'figName', Header: 'FIG' },
     { accessor: 'approvalStatus', Header: 'Approval Status' }
 ];
 
@@ -30,8 +27,6 @@ export const Farmers = () => {
     const [formHasError, setFormError] = useState(false);
     const [modalShow, setModalShow] = useState(false);
     const [companyList, setCompanyList] = useState([]);
-    const [familyAPI, setFamilyAPI] = useState(true);
-    const [figMasterList, setFigMasterList] = useState([])
 
     const fetchFarmerList = async (page, size = perPage, encryptedCompanyCode) => {
         let token = localStorage.getItem('Token');
@@ -188,17 +183,6 @@ export const Farmers = () => {
         getFarmerContactDetail();
     })
 
-    // $(document).on('click', '[data-rr-ui-event-key*="Family"]', function () {
-    //     debugger
-    //     $("#btnNew").hide();
-    //     $("#btnSave").show();
-    //     $("#btnCancel").show();
-    //     if (!familyAPICalled) {
-    //         getFarmerFamilyDetail();
-    //         getFarmerContactDetail();
-    //     }
-    // });
-
     $('[data-rr-ui-event-key*="Bank"]').click(function () {
         $("#btnNew").hide();
         $("#btnSave").show();
@@ -243,6 +227,7 @@ export const Farmers = () => {
         const ditributionErr = {};
         const collectionErr = {};
         const contactErr = {};
+        const familyErr = {};
 
         let isValid = true;
         let isFarmerValid = true;
@@ -376,7 +361,7 @@ export const Farmers = () => {
 
             contactErr.contactEmpty = "At least one contact detail required";
             setTimeout(() => {
-                toast.error(contactErr.empty, {
+                toast.error(contactErr.contactEmpty, {
                     theme: 'colored'
                 });
             }, 500);
@@ -392,6 +377,22 @@ export const Farmers = () => {
                 }, 500)
             }
             setFormError(true);
+        }
+
+        if (farmerFamilyDetailsList && farmerFamilyDetailsList.length > 1) {
+            farmerFamilyDetailsList.forEach((row, index) => {
+                if (row.familyMemberName === '' || row.memberAge < 0 || row.memberSex === '', row.farmerMemberRelation === '', row.memberEducation === '') {
+                    familyErr.invalidFamilyDetail = 'All fields are required';
+                }
+            });
+        }
+
+        if (farmerCardDetailsList && farmerCardDetailsList.length > 1) {
+            farmerCardDetailsList.forEach((row, index) => {
+                if (!row.cardDescription || !row.memberSex) {
+                    cardDetailErr.invalidCardDetail = 'All fields are required';
+                }
+            });
         }
 
         if (!isValid) {
@@ -413,11 +414,49 @@ export const Farmers = () => {
                 villageErr,
                 ditributionErr,
                 collectionErr,
-                contactErr
+                contactErr,
+                familyErr,
+                cardDetailErr
             }
             dispatch(farmerDetailsErrorAction(errorObject))
         }
         return isValid;
+    }
+
+    const discardChanges = () => {
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else
+            $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
+
+        setModalShow(false);
+    }
+
+    const getCompany = async () => {
+        let companyData = [];
+        const companyRequest = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        }
+
+        let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (companyResponse.data.status == 200) {
+            if (companyResponse.data && companyResponse.data.data.length > 0) {
+                companyResponse.data.data.forEach(company => {
+                    companyData.push({
+                        key: company.companyName,
+                        value: company.encryptedCompanyCode,
+                        label: company.companyName
+                    })
+                })
+            }
+            setCompanyList(companyData)
+        } else {
+            setCompanyList([])
+        }
+
     }
 
     const updateFarmerCallback = (isAddFarmer = false) => {
@@ -528,8 +567,6 @@ export const Farmers = () => {
                 farmerLastName: farmerData.lastName,
                 farmerAddress: farmerData.address,
                 farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "",
-                farmerIDType: farmerData.farmerIDType == "Voter ID" ? "VID" : farmerData.farmerIDType == "Driving License" ? "DL" : farmerData.farmerIDType == "PAN Card" ? "PAN" : farmerData.farmerIDType == "Ration Card" ? "RTC" : farmerData.farmerIDType == "Other" ? "OTH" : "",
-                farmerIdNo: farmerData.farmerIdNo ? farmerData.farmerIdNo : "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
                 farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
                 farmerGender: farmerData.farmerGender == "Male" ? "M" : farmerData.farmerGender == "Female" ? "F" : farmerData.farmerGender == "Others" ? "O" : "",
@@ -538,9 +575,9 @@ export const Farmers = () => {
                 farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
                 farmerUser: "",
                 farmerPassword: "",
-                encryptedFigCode: "",
-                encryptedCollCentreCode: "",
-                encryptedDistributionCentreCode: "",
+                encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
+                encryptedCollCentreCode: farmerData.encryptedCollCentreCode ? farmerData.encryptedCollCentreCode : "",
+                encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
                 encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
                 encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
                 encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",
@@ -631,22 +668,29 @@ export const Farmers = () => {
             })
                 .then(res => {
                     if (res.data.status == 200) {
-                        if (farmerData.farmerPic) {
-                            uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", false);
-                        }
+                        // if (farmerData.farmerPic) {
+                        //     uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", false);
+                        // }
 
-                        if (farmerData.farmerForm) {
-                            uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", false);
-                        } else {
-                            setIsLoading(false);
-                            toast.success(res.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
+                        // if (farmerData.farmerForm) {
+                        //     uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", false);
+                        // } else {
+                        //     setIsLoading(false);
+                        //     toast.success(res.data.message, {
+                        //         theme: 'colored',
+                        //         autoClose: 10000
+                        //     });
 
-                            updateFarmerCallback(true);
-                            $('[data-rr-ui-event-key*="Farmers"]').click();
-                        }
+                        //     updateFarmerCallback(true);
+                        //     $('[data-rr-ui-event-key*="Farmers"]').click();
+                        // }
+                        setIsLoading(false);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateFarmerCallback(true);
+                        $('[data-rr-ui-event-key*="Farmers"]').click();
 
                     } else {
                         setIsLoading(false);
@@ -657,42 +701,6 @@ export const Farmers = () => {
                     }
                 })
         }
-    }
-
-    const discardChanges = () => {
-        if ($('#btnExit').attr('isExit') == 'true')
-            window.location.href = '/dashboard';
-        else
-            $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
-
-        setModalShow(false);
-    }
-
-    const getCompany = async () => {
-        let companyData = [];
-        const companyRequest = {
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
-        }
-
-        let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        });
-
-        if (companyResponse.data.status == 200) {
-            if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
-                    companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
-                    })
-                })
-            }
-            setCompanyList(companyData)
-        } else {
-            setCompanyList([])
-        }
-
     }
 
     const handleFieldChange = e => {
@@ -706,6 +714,7 @@ export const Farmers = () => {
 
     const fetchDistributionCentreList = async (encryptedCompanyCode) => {
         const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
             EncryptedCompanyCode: encryptedCompanyCode
         }
 
@@ -876,8 +885,6 @@ export const Farmers = () => {
                 farmerMiddleName: farmerData.middleName,
                 farmerLastName: farmerData.lastName,
                 farmerAddress: farmerData.address,
-                farmerIDType: farmerData.farmerIDType == "Voter ID" ? "VID" : farmerData.farmerIDType == "Driving License" ? "DL" : farmerData.farmerIDType == "PAN Card" ? "PAN" : farmerData.farmerIDType == "Ration Card" ? "RTC" : farmerData.farmerIDType == "Other" ? "OTH" : "",
-                farmerIdNo: farmerData.farmerIdNo,
                 farmerEducation: farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "",
                 farmerSocialCategory: farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "",
                 farmerDOB: farmerData.farmerDOB ? farmerData.farmerDOB : new Date(),
@@ -887,9 +894,9 @@ export const Farmers = () => {
                 farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
                 farmerUser: "",
                 farmerPassword: "",
-                encryptedFigCode: "",
-                encryptedCollCentreCode: "",
-                encryptedDistributionCentreCode: "",
+                encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
+                encryptedCollCentreCode: farmerData.encryptedCollCentreCode ? farmerData.encryptedCollCentreCode : "",
+                encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
                 encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
                 encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
                 encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",

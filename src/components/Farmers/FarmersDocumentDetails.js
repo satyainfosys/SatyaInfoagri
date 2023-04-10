@@ -23,30 +23,30 @@ export const FarmersDocumentDetails = () => {
   }
 
   const handleFieldChange = (e) => {
-    dispatch(farmerDetailsAction({
-      ...farmerData,
-      [e.target.name]: e.target.value
-    }));
+    // dispatch(farmerDetailsAction({
+    //   ...farmerData,
+    //   [e.target.name]: e.target.value
+    // }));
 
-    if (e.target.name == "farmerForm") {
-      dispatch(farmerDetailsAction({
-        ...farmerData,
-        farmerForm: e.target.files[0],
-        farmerFormURL: URL.createObjectURL(e.target.files[0])
-      }))
-    }
+    // if (e.target.name == "farmerForm") {
+    //   dispatch(farmerDetailsAction({
+    //     ...farmerData,
+    //     farmerForm: e.target.files[0],
+    //     farmerFormURL: URL.createObjectURL(e.target.files[0])
+    //   }))
+    // }
   };
 
-  const removeFarmerForm = () => {
-    $('#fileOriginalFarmerFrom').val(null);
-    dispatch(farmerDetailsAction({
-      ...farmerData,
-      farmerForm: "",
-      farmerFormURL: "",
-      removeFarmerOriginalForm: true
-    }))
-    $('#btnSave').attr('disabled', false);
-  }
+  // const removeFarmerForm = () => {
+  //   $('#fileOriginalFarmerFrom').val(null);
+  //   dispatch(farmerDetailsAction({
+  //     ...farmerData,
+  //     farmerForm: "",
+  //     farmerFormURL: "",
+  //     removeFarmerOriginalForm: true
+  //   }))
+  //   $('#btnSave').attr('disabled', false);
+  // }
 
   return (
     <>

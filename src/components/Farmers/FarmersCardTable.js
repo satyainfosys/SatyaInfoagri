@@ -7,10 +7,7 @@ import { toast } from 'react-toastify';
 export const FarmersCardTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([{
-    id: 1, cardDescription: '', farmerKisanCardNo: '', activeStatus: '', encryptedClientCode: localStorage.getItem("EncryptedClientCode"), addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LoginUserName")
-  },]);
+  const [rowData, setRowData] = useState([]);
   const columnsArray = ['Card Name', 'Card Number', 'Active Status', '	Action'];
   const [modalShow, setModalShow] = useState(false);
   const [paramsData, setParamsData] = useState({});
@@ -29,30 +26,36 @@ export const FarmersCardTable = () => {
   const farmerCardDetailsReducer = useSelector((state) => state.rootReducer.farmerCardDetailsReducer)
   var farmerCardDetailData = farmerCardDetailsReducer.farmerCardDetails;
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
-    setRowDataValue(farmerCardDetailsReducer, farmerCardDetailData, emptyRow);
+    setRowDataValue(farmerCardDetailsReducer, farmerCardDetailData);
   }, [farmerCardDetailData, farmerCardDetailsReducer]);
 
-  const setRowDataValue = (farmerCardDetailsReducer, farmerCardDetailData, emptyRow) => {
-    setRowData(farmerCardDetailsReducer.farmerCardDetails.length > 0 ? farmerCardDetailData : [emptyRow]);
+  const setRowDataValue = (farmerCardDetailsReducer, farmerCardDetailData) => {
+    setRowData(farmerCardDetailsReducer.farmerCardDetails.length > 0 ? farmerCardDetailData : []);
   };
 
-  const handleAddRow = () => {
-    const newId = rowData.length + 1;
-    const newRow = {
-      id: newId,
-      encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : "",
-      encryptedFarmerKisanCardId: farmerCardDetailData.encryptedFarmerKisanCardId ? farmerCardDetailData.encryptedFarmerKisanCardId : '',
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-      cardDescription: '',
-      farmerKisanCardNo: '',
-      activeStatus: '',
-      addUser: localStorage.getItem("LoginUserName"),
-      modifyUser: localStorage.getItem("LoginUserName")
+  const validateCardDetailsForm = () => {
+    let isValid = true;
+
+    if (farmerCardDetailData && farmerCardDetailData.length > 0) {
+      farmerCardDetailData.forEach((row, index) => {
+        if (!row.cardDescription || !row.farmerKisanCardNo) {
+          isValid = false;
+          setFormError(true);
+        }
+      });
     }
-    let newArray = farmerCardDetailData.push(newRow);
-    dispatch(farmerCardDetailsAction(farmerCardDetailData));
+    return isValid;
+  }
+
+  const handleAddRow = () => {
+    if (validateCardDetailsForm()) {
+      farmerCardDetailData.push(emptyRow);
+      dispatch(farmerCardDetailsAction(farmerCardDetailData));
+    }
   };
 
   const handleFieldChange = (e, index) => {
@@ -129,6 +132,14 @@ export const FarmersCardTable = () => {
           Add Card Details
         </Button>
       </div>
+      {
+        farmerError.cardDetailErr && farmerError.cardDetailErr.invalidCardDetail &&
+        (
+          <div className='mb-2'>
+            <span className="error-message">{farmerError.cardDetailErr.invalidCardDetail}</span>
+          </div>
+        )
+      }
 
       <Form
         noValidate
@@ -136,69 +147,75 @@ export const FarmersCardTable = () => {
         className="details-form"
         id="AddFarmersCardTableDetailsForm"
       >
-        <Table striped responsive id="TableList" className="no-pb">
-          <thead>
-            <tr>
-              {columnsArray.map((column, index) => (
-                <th className="text-left" key={index}>
-                  {column}
-                </th>
-              ))}
-              <th />
-            </tr>
-          </thead>
-          <tbody id="tbody" className="details-form">
-            {rowData.map((farmerCardDetailData, index) => (
-              <tr key={index}>
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtCardName"
-                    name="cardDescription"
-                    className="form-control"
-                    value={farmerCardDetailData.cardDescription}
-                    onChange={(e) => handleFieldChange(e, index)}
-                  >
-                    <option value='' >Select</option>
-                    <option value='KISAN CREDIT CARD'>KISAN CREDIT CARD</option>
-                    <option value='ICICI CREDIT CARD'>ICICI CREDIT CARD</option>
-                    <option value='SBI CREDIT CARD'>SBI CREDIT CARD</option>
-                  </Form.Select>
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="text"
-                    id="txtFarmersCardNumber"
-                    name="farmerKisanCardNo"
-                    value={farmerCardDetailData.farmerKisanCardNo}
-                    placeholder="Card Name"
-                    maxLength={45}
-                    className="form-control"
-                    onChange={(e) => handleFieldChange(e, index)}
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    id="txtStatus"
-                    name="activeStatus"
-                    className="form-control"
-                    value={farmerCardDetailData.activeStatus}
-                    onChange={(e) => handleFieldChange(e, index)}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
-                  </Form.Select>
-                </td>
-                <td>
-                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerCardDetailData.encryptedFarmerKisanCardId, farmerCardDetailData.farmerKisanCardNo) }} />
-                </td>
+        {
+          farmerCardDetailData && farmerCardDetailData.length > 0 &&
+          <Table striped responsive id="TableList" className="no-pb">
+            <thead>
+              <tr>
+                {columnsArray.map((column, index) => (
+                  <th className="text-left" key={index}>
+                    {column}
+                  </th>
+                ))}
+                <th />
               </tr>
-            )
-            )}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody id="tbody" className="details-form">
+              {rowData.map((farmerCardDetailData, index) => (
+                <tr key={index}>
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtCardName"
+                      name="cardDescription"
+                      className="form-control"
+                      value={farmerCardDetailData.cardDescription}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      required
+                    >
+                      <option value='' >Select</option>
+                      <option value='KISAN CREDIT CARD'>KISAN CREDIT CARD</option>
+                      <option value='ICICI CREDIT CARD'>ICICI CREDIT CARD</option>
+                      <option value='SBI CREDIT CARD'>SBI CREDIT CARD</option>
+                    </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="txtFarmersCardNumber"
+                      name="farmerKisanCardNo"
+                      value={farmerCardDetailData.farmerKisanCardNo}
+                      placeholder="Card Name"
+                      maxLength={45}
+                      className="form-control"
+                      onChange={(e) => handleFieldChange(e, index)}
+                      required
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      id="txtStatus"
+                      name="activeStatus"
+                      className="form-control"
+                      value={farmerCardDetailData.activeStatus}
+                      onChange={(e) => handleFieldChange(e, index)}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Suspended">Suspended</option>
+                    </Form.Select>
+                  </td>
+                  <td>
+                    <i className="fa fa-trash" onClick={() => { ModalPreview(farmerCardDetailData.encryptedFarmerKisanCardId, farmerCardDetailData.farmerKisanCardNo) }} />
+                  </td>
+                </tr>
+              )
+              )}
+            </tbody>
+          </Table>
+        }
+
       </Form>
     </>
   );
