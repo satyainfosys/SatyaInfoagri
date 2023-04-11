@@ -487,6 +487,8 @@ export const Farmers = () => {
         $('#btnSave').attr('disabled', true)
 
         fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="Farmers"]').click();
     }
 
     const uploadDocuments = async (uploadDocument, encryptedId, documentType, isUpdate, isRemoved) => {
@@ -508,7 +510,6 @@ export const Farmers = () => {
                             autoClose: 10000
                         });
                         updateFarmerCallback(true);
-                        $('[data-rr-ui-event-key*="Farmers"]').click();
                     }
                     else {
                         updateFarmerCallback();
@@ -692,7 +693,6 @@ export const Farmers = () => {
                             autoClose: 10000
                         })
                         updateFarmerCallback(true);
-                        $('[data-rr-ui-event-key*="Farmers"]').click();
 
                     } else {
                         setIsLoading(false);

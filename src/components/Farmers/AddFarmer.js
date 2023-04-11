@@ -49,13 +49,32 @@ const AddFarmer = () => {
         }))
     }
 
+    const setSelectGEOInformation = () => {
+        $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
+        getStates(farmerData.encryptedCountryCode);
+        $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
+        getDistrict(farmerData.encryptedStateCode);
+        $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
+        getTehsil(farmerData.encryptedDistrictCode);
+        $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true)
+        getBlock(farmerData.encryptedTehsilCode);
+        $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
+        getPostOffice(farmerData.encryptedBlockCode);
+        $('#txtPostOfficeName option:contains(' + farmerData.postOffice + ')').prop('selected', true)
+        getVillage(farmerData.encryptedPostOfficeCode);
+        $('#txtVillageName option:contains(' + farmerData.village + ')').prop('selected', true)
+    }
+
+    const setOperationInformation = () => {
+        $('#txtDistributionCentre option:contains(' + farmerData.distributionCentre + ')').prop('selected', true)
+        getCollectionCentre(farmerData.encryptedDistibutionCentreCode);
+        $('#txtCollectionCentre option:contains(' + farmerData.collectionCentre + ')').prop('selected', true)
+        getFigMaster(farmerData.encryptedCollectionCentreCode);
+        $('#txtFIGName option:contains(' + farmerData.figName + ')').prop('selected', true)
+    }
+
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
     var farmerData = farmerDetailsReducer.farmerDetails;
-
-    if (!farmerDetailsReducer.farmerDetails ||
-        farmerDetailsReducer.farmerDetails.length <= 0) {
-        resetFarmerData();
-    }
 
     const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
     const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
@@ -108,7 +127,6 @@ const AddFarmer = () => {
             .post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
             .then(res => {
                 if (res.data.status == 200) {
-                    $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
                     let stateData = [];
                     if (res.data && res.data.data.length > 0)
                         res.data.data.forEach(state => {
@@ -275,10 +293,10 @@ const AddFarmer = () => {
         }
     }
 
-    const getFigMaster = async (encryptedCompanyCode) => {
+    const getFigMaster = async (encryptedCollectionCentreCode) => {
         const request = {
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            EncryptedCollectionCentreCode: encryptedCompanyCode
+            EncryptedCollectionCentreCode: encryptedCollectionCentreCode
         }
 
         let figMasterResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-fig-master-list', request, {
@@ -295,6 +313,29 @@ const AddFarmer = () => {
                 })
             }
             setFigMasterList(figMasterData)
+        }
+    }
+
+    if (!farmerDetailsReducer.farmerDetails ||
+        farmerDetailsReducer.farmerDetails.length <= 0) {
+        resetFarmerData();
+    }
+    else if (farmerData.country &&
+        (!$('#txtCountryName').val() ||
+          !$('#txtStateName').val() || 
+          !$('#txtDistrictName').val() ||
+          !$('#txtTehsilName').val() ||
+          !$('#txtBlockName').val() ||
+          !$('#txtPostOfficeName').val() ||
+          !$('#txtVillageName').val()
+        )) {
+        setSelectGEOInformation();
+
+        if(!$('#txtDistributionCentre').val() ||
+        !$('#txtCollectionCentre').val() ||
+        !$('#txtFIGName').val())
+        {
+            setOperationInformation();
         }
     }
 
