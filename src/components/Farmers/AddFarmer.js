@@ -315,9 +315,9 @@ const AddFarmer = () => {
             setFigMasterList(figMasterData)
         }
     }
-
+    
     if (!farmerDetailsReducer.farmerDetails ||
-        farmerDetailsReducer.farmerDetails.length <= 0) {
+        Object.keys(farmerDetailsReducer.farmerDetails).length <= 0) {
         resetFarmerData();
     }
     else if (farmerData.country &&
@@ -328,7 +328,8 @@ const AddFarmer = () => {
           !$('#txtBlockName').val() ||
           !$('#txtPostOfficeName').val() ||
           !$('#txtVillageName').val()
-        )) {
+        )) 
+    {
         setSelectGEOInformation();
 
         if(!$('#txtDistributionCentre').val() ||
@@ -584,7 +585,7 @@ const AddFarmer = () => {
                                                     Address<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control as="textarea" id='txtAddress' maxLength={50} name='address' onChange={handleFieldChange} value={farmerData.address} />
+                                                    <Form.Control as="textarea" placeholder="Address" id='txtAddress' maxLength={50} name='address' onChange={handleFieldChange} value={farmerData.address} />
                                                     {Object.keys(farmerError.addressErr).map((key) => {
                                                         return <span className="error-message">{farmerError.addressErr[key]}</span>
                                                     })}
@@ -861,7 +862,7 @@ const AddFarmer = () => {
                                                     Distribution Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange}>
+                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedCollectionCentreCode}>
                                                         <option value=''>Select Distribution Centre</option>
                                                         {distributionList &&
                                                             distributionList.map((option, index) => (
@@ -880,7 +881,7 @@ const AddFarmer = () => {
                                                     Collection Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange}>
+                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedDistributionCentreCode}>
                                                         <option value=''>Select Collection Centre</option>
                                                         {collectionCentreList &&
                                                             collectionCentreList.map((option, index) => (
@@ -899,7 +900,7 @@ const AddFarmer = () => {
                                                     FIG Name
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange}>
+                                                    <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedFigCode}>
                                                         <option value=''>Select FIG</option>
                                                         {figMasterList &&
 

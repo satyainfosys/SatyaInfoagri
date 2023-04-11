@@ -59,8 +59,6 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
-        $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
-        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
         getCompany();
         localStorage.removeItem("DeleteFarmerFamilyCodes");
         localStorage.removeItem("DeleteCommonContactDetailsIds");
@@ -135,8 +133,6 @@ export const Farmers = () => {
             $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
-            $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
-            $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
             $('#btnSave').attr('disabled', false);
             $("#AddFarmerDetailsForm").data("changed", false);
             clearFarmerReducers();
@@ -158,9 +154,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
-        $('[data-rr-ui-event-key*="Events"]').attr('disabled', true);
-        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', true);
-        clearFarmerReducers();
+        //clearFarmerReducers();
         localStorage.removeItem("EncryptedFarmerCode");
     })
 
@@ -173,8 +167,6 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Events"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Mkt SMS"]').attr('disabled', false);
     })
 
     $('[data-rr-ui-event-key*="Family"]').click(function () {
