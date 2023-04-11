@@ -99,19 +99,19 @@ export const Farmers = () => {
     const farmerLandDetailsReducer = useSelector((state) => state.rootReducer.farmerLandDetailsReducer)
     const farmerLandDetailsList = farmerLandDetailsReducer.farmerLandDetails;
 
-    $.fn.extend({
-        trackChanges: function () {
-            $(":input", this).change(function () {
-                $(this.form).data("changed", true);
-            });
-        }
-        ,
-        isChanged: function () {
-            return this.data("changed");
-        }
-    });
+    // $.fn.extend({
+    //     trackChanges: function () {
+    //         $(":input", this).change(function () {
+    //             $(this.form).data("changed", true);
+    //         });
+    //     }
+    //     ,
+    //     isChanged: function () {
+    //         return this.data("changed");
+    //     }
+    // });
 
-    $("#AddFarmersDetailForm").trackChanges();
+    // $("#AddFarmersDetailForm").trackChanges();
 
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
@@ -228,6 +228,7 @@ export const Farmers = () => {
         const collectionErr = {};
         const contactErr = {};
         const familyErr = {};
+        const cardDetailErr = {};
 
         let isValid = true;
         let isFarmerValid = true;
@@ -344,7 +345,7 @@ export const Farmers = () => {
             setFormError(true);
         }
 
-        if (!farmerData.encryptedCollCentreCode) {
+        if (!farmerData.encryptedCollectionCentreCode) {
             collectionErr.empty = "Select collection centre"
             isValid = false;
             isFarmerValid = false;
@@ -357,27 +358,28 @@ export const Farmers = () => {
             }
         }
 
-        if (commonContactDetailList.length < 1) {
+        //To-do: Will open this validation once first two tabs are completed
+        // if (commonContactDetailList.length < 1) {
 
-            contactErr.contactEmpty = "At least one contact detail required";
-            setTimeout(() => {
-                toast.error(contactErr.contactEmpty, {
-                    theme: 'colored'
-                });
-            }, 500);
-            isValid = false;
+        //     contactErr.contactEmpty = "At least one contact detail required";
+        //     setTimeout(() => {
+        //         toast.error(contactErr.contactEmpty, {
+        //             theme: 'colored'
+        //         });
+        //     }, 500);
+        //     isValid = false;
 
-            if (isFarmerValid) {
-                if (!$('[data-rr-ui-event-key*="Add Farmer"]').hasClass('active')) {
-                    $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
-                }
+        //     if (isFarmerValid) {
+        //         if (!$('[data-rr-ui-event-key*="Add Farmer"]').hasClass('active')) {
+        //             $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
+        //         }
 
-                setTimeout(() => {
-                    document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
-                }, 500)
-            }
-            setFormError(true);
-        }
+        //         setTimeout(() => {
+        //             document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
+        //         }, 500)
+        //     }
+        //     setFormError(true);
+        // }
 
         if (farmerFamilyDetailsList && farmerFamilyDetailsList.length > 1) {
             farmerFamilyDetailsList.forEach((row, index) => {
@@ -576,7 +578,7 @@ export const Farmers = () => {
                 farmerUser: "",
                 farmerPassword: "",
                 encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
-                encryptedCollCentreCode: farmerData.encryptedCollCentreCode ? farmerData.encryptedCollCentreCode : "",
+                encryptedCollCentreCode: farmerData.encryptedCollectionCentreCode ? farmerData.encryptedCollectionCentreCode : "",
                 encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
                 encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
                 encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
@@ -895,7 +897,7 @@ export const Farmers = () => {
                 farmerUser: "",
                 farmerPassword: "",
                 encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
-                encryptedCollCentreCode: farmerData.encryptedCollCentreCode ? farmerData.encryptedCollCentreCode : "",
+                encryptedCollCentreCode: farmerData.encryptedCollectionCentreCode ? farmerData.encryptedCollectionCentreCode : "",
                 encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
                 encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
                 encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
@@ -924,7 +926,7 @@ export const Farmers = () => {
                 updateFarmerData[key] = updateFarmerData[key] ? updateFarmerData[key].toUpperCase() : '';
             }
 
-            if ($("#AddFarmersDetailForm").isChanged()) {
+            // if ($("#AddFarmersDetailForm").isChanged()) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-farmer', updateFarmerData, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -937,24 +939,34 @@ export const Farmers = () => {
                                 autoClose: 10000
                             });
                         } else if (res.data.status == 200) {
-                            if (farmerData.farmerPic.type) {
+                            var existUpdate = true;
+                            if (farmerData.farmerPic && farmerData.farmerPic.type) {
+                                existUpdate = false;
                                 uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", true);
                             }
 
                             if (farmerData.farmerForm && farmerData.farmerForm.type) {
+                                existUpdate = false;
                                 uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", true);
                             }
 
                             if (farmerData.removeProfilePhoto) {
+                                existUpdate = false;
                                 deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
                             }
 
                             if (farmerData.removeFarmerOriginalForm) {
+                                existUpdate = false;
                                 deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
+                            }
+
+                            if(existUpdate)
+                            {
+                                updateFarmerCallback();
                             }
                         }
                     })
-            }
+            // }
 
             if (farmerData.removeFarmerOriginalForm) {
                 deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
