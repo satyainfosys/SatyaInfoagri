@@ -72,6 +72,8 @@ const TabPage = ({
     $('#btnSave').attr('disabled', true);
     $('#btnCancel').hide();
     $('.tab-page-list-card').removeClass('card');
+    $('.add-farmer-card').removeClass('card');
+    $('.add-farmer-card-body').removeClass('bg-light');
     localStorage.removeItem('EncryptedResponseClientCode');
     localStorage.removeItem("EncryptedCompanyCode");
   }, []);
@@ -84,8 +86,8 @@ const TabPage = ({
     setModalShow(false);
   };
 
-  const data = `const columns = ${JSON.stringify(listColumnArray)};
-  
+  const data = `const columns = 
+  ${JSON.stringify(listColumnArray)};
   const data = ${JSON.stringify(listData)};`;
 
   const searchableTableCode = `${data}
@@ -210,18 +212,18 @@ const TabPage = ({
               {index == 0 && listData && (
                 <>
                   {module === "Farmers" &&
-                    <FalconComponentCard className="mb-2 no-pb">
-                      <FalconComponentCard.Body language="jsx">
+                    <FalconComponentCard className="mb-1">
+                      <FalconComponentCard.Body language="jsx" className="no-padding mt-1 mb-1 ms-1">
                         <Row>
                           <Col sm={6} lg={4}>
-                            {companyList.length > 1 ?
+                             {companyList.length > 1 ?
                               <>
-                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
+                                {<Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
                                   <option value=''>Select company</option>
                                   {companyList.map((option, index) => (
                                     <option key={index} value={option.value}>{option.key}</option>
                                   ))}
-                                </Form.Select>
+                                </Form.Select>}
                               </> :
                               <>
                                 <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1} disabled>
@@ -343,8 +345,8 @@ const TabPage = ({
               )}
               {index == 1 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard>
-                    <FalconComponentCard.Body language="jsx">
+                  <FalconComponentCard className="add-farmer-card">
+                    <FalconComponentCard.Body language="jsx" className="add-farmer-card-body">
                       <AddFarmer />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>

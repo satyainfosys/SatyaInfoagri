@@ -441,69 +441,67 @@ const AddFarmer = () => {
 
             {farmerData &&
 
-                <Form noValidate validated={formHasError} className="details-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
-                    <Row className="g-3 mb-3">
-                        <Col sm={4} lg={3}>
+                <Form noValidate validated={formHasError} className="details-form micro-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
+                    <Row className="g-3">
+                        <Col sm={4} lg={3} className="no-pd-card">
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Farmer Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
-                                            <Row className="mb-3">
-                                                <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                    <Form.Label column sm={4}>
-                                                        Farmer Code
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" value={farmerData.farmerCode} disabled />
-                                                    </Col>
-                                                </Form.Group>
+                                        <Col className="ms-2">
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Farmer Code
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" value={farmerData.farmerCode} disabled />
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                    <Form.Label column sm={4}>
-                                                        First Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
-                                                        {Object.keys(farmerError.firstNameErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.firstNameErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    First Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
+                                                    {Object.keys(farmerError.firstNameErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.firstNameErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                    <Form.Label column sm={4}>
-                                                        Middle Name
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtMiddleName" name="middleName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Middle Name
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtMiddleName" name="middleName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                    <Form.Label column sm={4}>
-                                                        Last Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
-                                                        {Object.keys(farmerError.lastNameErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.lastNameErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
-                                            </Row>
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Last Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
+                                                    {Object.keys(farmerError.lastNameErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.lastNameErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={4} lg={3}>
+                        <Col sm={4} lg={3} className="no-pd-card">
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
+                                        <Col className="ms-2">
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Farmer DOB<span className="text-danger">*</span>
@@ -549,12 +547,12 @@ const AddFarmer = () => {
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={4} lg={3}>
+                        <Col sm={4} lg={3} className='no-pd-card'>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Status" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
+                                        <Col className="ms-2">
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Approval Status<span className="text-danger">*</span>
@@ -598,13 +596,13 @@ const AddFarmer = () => {
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={4} lg={3}>
+                        <Col sm={4} lg={3} className='no-pd-card'>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Photo" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
-                                            <Row className="mb-3">
+                                        <Col className="ms-2 no-padding">
+                                            <>
                                                 {
                                                     farmerData && farmerData.farmerPicURL ? (
                                                         <img src={farmerData.farmerPicURL} alt='Farmer'></img>
@@ -621,7 +619,7 @@ const AddFarmer = () => {
                                                     ) : null
                                                     }
                                                 </InputGroup>
-                                            </Row>
+                                            </>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
@@ -629,7 +627,8 @@ const AddFarmer = () => {
                         </Col>
                     </Row>
 
-                    <Row className="g-3 mb-3">
+                    <Row className="g-3">
+                        <Col sm={4} lg={12}>
                         <FalconComponentCard>
                             <FalconComponentCard.Header title="Other Information" light={false} />
                             <FalconComponentCard.Body language="jsx">
@@ -696,225 +695,221 @@ const AddFarmer = () => {
                                 </Row>
                             </FalconComponentCard.Body>
                         </FalconComponentCard>
+                        </Col>
                     </Row>
 
-                    <Row className="g-3 mb-3">
-                        <Col sm={6} lg={4}>
+                    <Row className="g-3">
+                        <Col sm={6} lg={4} className='no-pd-card'>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="GEO Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
-                                            <Row className="mb-3">
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Country Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select Country</option>
-                                                            {countryList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.countyrErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.countyrErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                        <Col className="ms-2">
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Country Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select Country</option>
+                                                        {countryList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.countyrErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.countyrErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        State Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select State</option>
-                                                            {stateList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.stateErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.stateErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    State Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select State</option>
+                                                        {stateList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.stateErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.stateErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        District Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select District</option>
-                                                            {districtList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.districtErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.districtErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    District Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select District</option>
+                                                        {districtList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.districtErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.districtErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Tehsil Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
-                                                            <option value=''>Select Tehsil</option>
-                                                            {tehsilList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.tehsilErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.tehsilErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Tehsil Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
+                                                        <option value=''>Select Tehsil</option>
+                                                        {tehsilList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.tehsilErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.tehsilErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Block Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select Block</option>
-                                                            {blockList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.blockErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.blockErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Block Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select Block</option>
+                                                        {blockList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.blockErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.blockErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Post Office Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select Post Office</option>
-                                                            {postOfficeList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.postOfficeErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.postOfficeErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Post Office Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select Post Office</option>
+                                                        {postOfficeList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.postOfficeErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.postOfficeErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Village Name<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtVillageName" name="encryptedVillageCode" defaultValue={farmerData.villageCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select Village</option>
-                                                            {villageList.map((option, index) => (
-                                                                <option key={index} value={option.value}>{option.key}</option>
-                                                            ))}
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.villageErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.villageErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
-                                            </Row>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Village Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtVillageName" name="encryptedVillageCode" defaultValue={farmerData.villageCode} onChange={handleFieldChange}>
+                                                        <option value=''>Select Village</option>
+                                                        {villageList.map((option, index) => (
+                                                            <option key={index} value={option.value}>{option.key}</option>
+                                                        ))}
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.villageErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.villageErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={6} lg={5}>
+                        <Col sm={6} lg={5} className='no-pd-card'>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Operational Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
-                                        <Col className="me-3 ms-3">
-                                            <Row className="mb-3">
+                                        <Col className="ms-2">
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Total Land
+                                                </Form.Label>
+                                                <Col sm={4}>
+                                                    <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
+                                                </Col>
+                                                <Col sm={4}>
+                                                    <Form.Control id="txtHectare" name="" className="mb-1" placeholder="Hectare" value="HECTARE" disabled />
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                    <Form.Label column sm={4}>
-                                                        Total Land
-                                                    </Form.Label>
-                                                    <Col sm={4}>
-                                                        <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
-                                                    </Col>
-                                                    <Col sm={4}>
-                                                        <Form.Control id="txtHectare" name="" className="mb-1" placeholder="Hectare" value="HECTARE" disabled />
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    FPC/FPO
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtFPCFPO" name="FPC/FPO" className="mb-1" value={localStorage.getItem("CompanyName")} placeholder="FPC/FPO" disabled />
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        FPC/FPO
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Control id="txtFPCFPO" name="FPC/FPO" className="mb-1" value={localStorage.getItem("CompanyName")} placeholder="FPC/FPO" disabled />
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Distribution Centre<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange}>
+                                                        <option value=''>Select Distribution Centre</option>
+                                                        {distributionList &&
+                                                            distributionList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))
+                                                        }
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.ditributionErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.ditributionErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Distribution Centre<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange}>
-                                                            <option value=''>Select Distribution Centre</option>
-                                                            {distributionList &&
-                                                                distributionList.map((option, index) => (
-                                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                                ))
-                                                            }
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.ditributionErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.ditributionErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Collection Centre<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange}>
+                                                        <option value=''>Select Collection Centre</option>
+                                                        {collectionCentreList &&
+                                                            collectionCentreList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))
+                                                        }
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.collectionErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.collectionErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        Collection Centre<span className="text-danger">*</span>
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange}>
-                                                            <option value=''>Select Collection Centre</option>
-                                                            {collectionCentreList &&
-                                                                collectionCentreList.map((option, index) => (
-                                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                                ))
-                                                            }
-                                                        </Form.Select>
-                                                        {Object.keys(farmerError.collectionErr).map((key) => {
-                                                            return <span className="error-message">{farmerError.collectionErr[key]}</span>
-                                                        })}
-                                                    </Col>
-                                                </Form.Group>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    FIG Name
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange}>
+                                                        <option value=''>Select FIG</option>
+                                                        {figMasterList &&
 
-                                                <Form.Group as={Row} className="mb-2">
-                                                    <Form.Label column sm={4}>
-                                                        FIG Name
-                                                    </Form.Label>
-                                                    <Col sm={8}>
-                                                        <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange}>
-                                                            <option value=''>Select FIG</option>
-                                                            {figMasterList &&
-
-                                                                figMasterList.map((option, index) => (
-                                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                                ))
-                                                            }
-                                                        </Form.Select>
-                                                    </Col>
-                                                </Form.Group>
-                                            </Row>
+                                                            figMasterList.map((option, index) => (
+                                                                <option key={index} value={option.value}>{option.key}</option>
+                                                            ))
+                                                        }
+                                                    </Form.Select>
+                                                </Col>
+                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>

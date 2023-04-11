@@ -50,25 +50,11 @@ const FalconComponentCardHeader = ({
               <h5 className="mb-0 hover-actions-trigger" id={camelize(title)}>
                 {isRTL ? (
                   <>
-                    <HashLink
-                      to={`${location.pathname}#${camelize(title)}`}
-                      className="hover-actions ps-2"
-                      style={{ top: 0, left: '-25px' }}
-                    >
-                      #
-                    </HashLink>
                     {title}
                   </>
                 ) : (
                   <>
                     {title}
-                    <HashLink
-                      to={`${location.pathname}#${camelize(title)}`}
-                      className="hover-actions ps-2"
-                      style={{ top: 0, right: '-25px' }}
-                    >
-                      #
-                    </HashLink>
                   </>
                 )}
               </h5>

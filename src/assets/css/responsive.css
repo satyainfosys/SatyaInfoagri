@@ -78,8 +78,8 @@
     }
 
     .list-card {
-        min-height: 403px;
-        max-height: 403px;
+        min-height: 320px;
+        max-height: 320px;
         overflow-y: scroll;
     }
 
@@ -92,6 +92,20 @@
         max-height: 190px;
         overflow-y: scroll;
     }
+
+    h5 {
+        font-size: 0.9rem !important;
+    }
+    
+    .micro-form label{
+        padding-left: 0px !important;
+        padding-right: 0px !important;
+        font-size: 10px !important;
+    }
+
+    .micro-form .form-control, .micro-form input::placeholder, .micro-form .form-select, .micro-form .error-message{
+        font-size: 10px !important;
+    }
 }
 
 @media (min-width:1400px) {
@@ -101,8 +115,8 @@
     }
 
     .list-card {
-        min-height: 470px;
-        max-height: 470px;
+        min-height: 390px;
+        max-height: 390px;
         overflow-y: scroll;
     }
 
@@ -132,8 +146,8 @@
     }
 
     .list-card {
-        min-height: 605px;
-        max-height: 605px;
+        min-height: 525px;
+        max-height: 525px;
         overflow-y: scroll;
     }
 

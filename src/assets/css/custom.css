@@ -115,6 +115,14 @@
     margin-bottom: 0px !important;
 }
 
+.no-padding {
+    padding: 0px 0px 0px 0px !important;
+}
+
 .w-40{
     width: 40%;
 }
+
+/* .no-pd-card{
+    padding: 5px !important;
+} */
