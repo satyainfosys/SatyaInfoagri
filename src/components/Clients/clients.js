@@ -284,28 +284,29 @@ export const Client = () => {
       }
     }
 
-    if (contactDetailData.length < 1) {
-      contactDetailErr.contactEmpty = "At least one contact detail required";
-      setTimeout(() => {
-        toast.error(contactDetailErr.contactEmpty, {
-          theme: 'colored'
-        });
-      }, 500);
-      isValid = false;
+    //To-do: will open this validation once first two tabs are completed
+    // if (contactDetailData.length < 1) {
+    //   contactDetailErr.contactEmpty = "At least one contact detail required";
+    //   setTimeout(() => {
+    //     toast.error(contactDetailErr.contactEmpty, {
+    //       theme: 'colored'
+    //     });
+    //   }, 500);
+    //   isValid = false;
 
-      if (isClientValid) {
-        if (!$('[data-rr-ui-event-key*="Customer Details"]').hasClass('active')) {
-          $('[data-rr-ui-event-key*="Customer Details"]').trigger('click');
-        }
+    //   if (isClientValid) {
+    //     if (!$('[data-rr-ui-event-key*="Customer Details"]').hasClass('active')) {
+    //       $('[data-rr-ui-event-key*="Customer Details"]').trigger('click');
+    //     }
 
-        setTimeout(() => {
-          document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
-        }, 500)
-      }
+    //     setTimeout(() => {
+    //       document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
+    //     }, 500)
+    //   }
 
-      setFormError(true);
-      $("#TransactionDetailsListCard").show();
-    }
+    //   setFormError(true);
+    //   $("#TransactionDetailsListCard").show();
+    // }
 
     if (transactionDetailData.length < 1) {
       transactionDetailErr.transactionEmpty = "At least one transaction detail required";
