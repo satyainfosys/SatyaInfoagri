@@ -671,7 +671,7 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select country</option>
+                                                            <option value=''>Select Country</option>
                                                             {countryList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
@@ -688,7 +688,7 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select state</option>
+                                                            <option value=''>Select State</option>
                                                             {stateList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
@@ -705,7 +705,7 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select district</option>
+                                                            <option value=''>Select District</option>
                                                             {districtList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
@@ -722,7 +722,7 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
-                                                            <option value=''>Select tehsil</option>
+                                                            <option value=''>Select Tehsil</option>
                                                             {tehsilList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
@@ -739,7 +739,7 @@ const AddFarmer = () => {
                                                     </Form.Label>
                                                     <Col sm={8}>
                                                         <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
-                                                            <option value=''>Select block</option>
+                                                            <option value=''>Select Block</option>
                                                             {blockList.map((option, index) => (
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))}
