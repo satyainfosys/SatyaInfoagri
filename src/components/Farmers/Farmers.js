@@ -373,21 +373,26 @@ export const Farmers = () => {
         //     setFormError(true);
         // }
 
-        if (farmerFamilyDetailsList && farmerFamilyDetailsList.length > 1) {
-            farmerFamilyDetailsList.forEach((row, index) => {
-                if (row.familyMemberName === '' || row.memberAge < 0 || row.memberSex === '', row.farmerMemberRelation === '', row.memberEducation === '') {
-                    familyErr.invalidFamilyDetail = 'All fields are required';
-                }
-            });
-        }
+        // if (farmerFamilyDetailsList && farmerFamilyDetailsList.length > 0) {
+        //     farmerFamilyDetailsList.forEach((row, index) => {
+        //         if (!row.familyMemberName ||
+        //             !row.memberAge || row.memberAge == 0 ||
+        //             !row.memberSex ||
+        //             !row.farmerMemberRelation ||
+        //             !row.memberEducation) {
+        //             familyErr.invalidFamilyDetail = 'All fields are required';
+        //             isValid = false;
+        //         }
+        //     });
+        // }
 
-        if (farmerCardDetailsList && farmerCardDetailsList.length > 1) {
-            farmerCardDetailsList.forEach((row, index) => {
-                if (!row.cardDescription || !row.memberSex) {
-                    cardDetailErr.invalidCardDetail = 'All fields are required';
-                }
-            });
-        }
+        // if (farmerCardDetailsList && farmerCardDetailsList.length > 1) {
+        //     farmerCardDetailsList.forEach((row, index) => {
+        //         if (!row.cardDescription || !row.memberSex) {
+        //             cardDetailErr.invalidCardDetail = 'All fields are required';
+        //         }
+        //     });
+        // }
 
         if (!isValid) {
             var errorObject = {

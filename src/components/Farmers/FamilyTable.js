@@ -54,7 +54,11 @@ export const FamilyTable = () => {
 
     if (familyDetailData && familyDetailData.length > 0) {
       familyDetailData.forEach((row, index) => {
-        if (!row.familyMemberName || row.memberAge == 0 || !row.memberSex || !row.farmerMemberRelation || !row.memberEducation) {
+        if (!row.familyMemberName ||
+           !row.memberAge || row.memberAge == 0 ||
+           !row.memberSex ||
+           !row.farmerMemberRelation ||
+           !row.memberEducation) {
           isValid = false;
           setFormError(true);
         }
@@ -147,18 +151,18 @@ export const FamilyTable = () => {
           Add Family Details
         </Button>
       </div>
-      {
-        farmerError.familyErr && farmerError.contactErr.invalidFamilyDetail &&
+      {/* {
+        farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail &&
         (
           <div className='mb-2'>
-            <span className="error-message">{farmerError.contactErr.invalidFamilyDetail}</span>
+            <span className="error-message">{farmerError.familyErr.invalidFamilyDetail}</span>
           </div>
         )
-      }
+      } */}
 
       <Form
         noValidate
-        validated={formHasError}
+        validated={formHasError || (farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail)}
         className="details-form"
         id="AddFarmersFamilyTableDetailsForm"
       >
