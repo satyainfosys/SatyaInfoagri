@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Col, Form, Row, InputGroup } from 'react-bootstrap';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { useDispatch, useSelector } from 'react-redux';
@@ -13,6 +13,7 @@ const AddFarmer = () => {
     const resetFarmerData = () => {
         dispatch(farmerDetailsAction({
             "encryptedCompanyCode": "",
+            "farmerCode": "",
             "firstName": "",
             "middleName": "",
             "lastName": "",
@@ -67,7 +68,7 @@ const AddFarmer = () => {
 
     const setOperationInformation = () => {
         $('#txtDistributionCentre option:contains(' + farmerData.distributionCentre + ')').prop('selected', true)
-        getCollectionCentre(farmerData.encryptedDistibutionCentreCode);
+        getCollectionCentre(farmerData.encryptedDistributionCentreCode);
         $('#txtCollectionCentre option:contains(' + farmerData.collectionCentre + ')').prop('selected', true)
         getFigMaster(farmerData.encryptedCollectionCentreCode);
         $('#txtFIGName option:contains(' + farmerData.figName + ')').prop('selected', true)
@@ -315,79 +316,114 @@ const AddFarmer = () => {
             setFigMasterList(figMasterData)
         }
     }
-    
+
     if (!farmerDetailsReducer.farmerDetails ||
         Object.keys(farmerDetailsReducer.farmerDetails).length <= 0) {
         resetFarmerData();
     }
     else if (farmerData.country &&
         (!$('#txtCountryName').val() ||
-          !$('#txtStateName').val() || 
-          !$('#txtDistrictName').val() ||
-          !$('#txtTehsilName').val() ||
-          !$('#txtBlockName').val() ||
-          !$('#txtPostOfficeName').val() ||
-          !$('#txtVillageName').val()
-        )) 
-    {
+            !$('#txtStateName').val() ||
+            !$('#txtDistrictName').val() ||
+            !$('#txtTehsilName').val() ||
+            !$('#txtBlockName').val() ||
+            !$('#txtPostOfficeName').val() ||
+            !$('#txtVillageName').val()
+        )) {
         setSelectGEOInformation();
 
-        if(!$('#txtDistributionCentre').val() ||
-        !$('#txtCollectionCentre').val() ||
-        !$('#txtFIGName').val())
-        {
+        if (!$('#txtDistributionCentre').val() ||
+            !$('#txtCollectionCentre').val() ||
+            !$('#txtFIGName').val()) {
             setOperationInformation();
         }
     }
 
     const handleFieldChange = (e) => {
-        dispatch(farmerDetailsAction({
-            ...farmerData,
-            [e.target.name]: e.target.value
-        }));
-
         if (e.target.name == "encryptedCountryCode") {
-            if (e.target.value == '') {
-                setStateList([]);
-                setDistrictList([]);
-            }
-            else
-                getStates(e.target.value);
-        }
 
-        if (e.target.name == "encryptedStateCode") {
-            if (e.target.value == '')
-                setDistrictList([]);
-            else
-                getDistrict(e.target.value);
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedCountryCode: e.target.value,
+                encryptedStateCode: null,
+                encryptedDistrictCode: null,
+                encryptedTehsilCode: null,
+                encryptedBlockCode: null,
+                encryptedPostOfficeCode: null,
+                encryptedVillageCode: null
+            }))
+            setStateList([]);
+            setDistrictList([]);
+            setTehsilList([]);
+            setBlockList([]);
+            setPostOfficeList([]);
+            setVillageList([]);
+            e.target.value && getStates(e.target.value);
         }
-
-        if (e.target.name == "encryptedDistrictCode") {
-            if (e.target.value == '')
-                setTehsilList([]);
-            else
-                getTehsil(e.target.value)
+        else if (e.target.name == "encryptedStateCode") {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedStateCode: e.target.value,
+                encryptedDistrictCode: null,
+                encryptedTehsilCode: null,
+                encryptedBlockCode: null,
+                encryptedPostOfficeCode: null,
+                encryptedVillageCode: null
+            }))
+            setDistrictList([]);
+            setTehsilList([]);
+            setBlockList([]);
+            setPostOfficeList([]);
+            setVillageList([]);
+            e.target.value && getDistrict(e.target.value);
         }
-
-        if (e.target.name == "encryptedTehsilCode") {
-            if (e.target.value == '')
-                setBlockList([]);
-            else
-                getBlock(e.target.value);
+        else if (e.target.name == "encryptedDistrictCode") {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedDistrictCode: e.target.value,
+                encryptedTehsilCode: null,
+                encryptedBlockCode: null,
+                encryptedPostOfficeCode: null,
+                encryptedVillageCode: null
+            }))
+            setTehsilList([]);
+            setBlockList([]);
+            setPostOfficeList([]);
+            setVillageList([]);
+            e.target.value && getTehsil(e.target.value)
         }
-
-        if (e.target.name == "encryptedBlockCode") {
-            if (e.target.value == '')
-                setPostOfficeList([]);
-            else
-                getPostOffice(e.target.value);
+        else if (e.target.name == "encryptedTehsilCode") {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedTehsilCode: e.target.value,
+                encryptedBlockCode: null,
+                encryptedPostOfficeCode: null,
+                encryptedVillageCode: null
+            }))
+            setBlockList([]);
+            setPostOfficeList([]);
+            setVillageList([]);
+            e.target.value && getBlock(e.target.value);
         }
-
-        if (e.target.name == "encryptedPostOfficeCode") {
-            if (e.target.value == '')
-                setVillageList([]);
-            else
-                getVillage(e.target.value);
+        else if (e.target.name == "encryptedBlockCode") {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedBlockCode: e.target.value,
+                encryptedPostOfficeCode: null,
+                encryptedVillageCode: null
+            }))
+            setPostOfficeList([]);
+            setVillageList([]);
+            e.target.value && getPostOffice(e.target.value);
+        }
+        else if (e.target.name == "encryptedPostOfficeCode") {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedPostOfficeCode: e.target.value,
+                encryptedVillageCode: null
+            }))
+            setVillageList([]);
+            e.target.value && getVillage(e.target.value);
         }
 
         // if (e.target.name == 'farmerPic') {
@@ -398,20 +434,31 @@ const AddFarmer = () => {
         //     }));
         // }
 
-        if (e.target.name == 'encryptedDistributionCentreCode') {
-            if (e.target.value == '') {
-                setCollectionCentreList([]);
-            }
-            else {
-                getCollectionCentre(e.target.value)
-            }
+        else if (e.target.name == 'encryptedDistributionCentreCode') {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedDistributionCentreCode: e.target.value,
+                encryptedCollectionCentreCode: null,
+                encryptedFigCode: null,
+            }))
+            setCollectionCentreList([]);
+            setFigMasterList([])
+            e.target.value && getCollectionCentre(e.target.value)
         }
-
-        if (e.target.name == 'encryptedCollectionCentreCode') {
-            if (e.target.value == '')
-                setFigMasterList([])
-            else
-                getFigMaster(e.target.value)
+        else if (e.target.name == 'encryptedCollectionCentreCode') {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                encryptedCollectionCentreCode: e.target.value,
+                encryptedFigCode: null,
+            }))
+            setFigMasterList([])
+            e.target.value && getFigMaster(e.target.value)
+        }
+        else {
+            dispatch(farmerDetailsAction({
+                ...farmerData,
+                [e.target.name]: e.target.value
+            }));
         }
     };
 
@@ -630,72 +677,72 @@ const AddFarmer = () => {
 
                     <Row className="g-3">
                         <Col sm={4} lg={12}>
-                        <FalconComponentCard>
-                            <FalconComponentCard.Header title="Other Information" light={false} />
-                            <FalconComponentCard.Body language="jsx">
-                                <Row>
-                                    <Col sm={6} lg={4}>
-                                        <Form.Group as={Row} className="mb-2">
-                                            <Form.Label column sm={4}>
-                                                Educational Status
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Select id="txtEducationalStatus" name='educationalStatus' onChange={handleFieldChange} value={farmerData.educationalStatus}>
-                                                    <option value=''>Select Education</option>
-                                                    <option value='Primary School'>Primary School</option>
-                                                    <option value='High School'>High School</option>
-                                                    <option value='Inter'>Inter</option>
-                                                    <option value='Graduate'>Graduate</option>
-                                                    <option value='Post Graduate'>Post Graduate</option>
-                                                    <option value='Illiterate'>Illiterate</option>
-                                                    <option value='Doctrate'>Doctrate</option>
-                                                </Form.Select>
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title="Other Information" light={false} />
+                                <FalconComponentCard.Body language="jsx">
+                                    <Row>
+                                        <Col sm={6} lg={4}>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Educational Status
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtEducationalStatus" name='educationalStatus' onChange={handleFieldChange} value={farmerData.educationalStatus}>
+                                                        <option value=''>Select Education</option>
+                                                        <option value='Primary School'>Primary School</option>
+                                                        <option value='High School'>High School</option>
+                                                        <option value='Inter'>Inter</option>
+                                                        <option value='Graduate'>Graduate</option>
+                                                        <option value='Post Graduate'>Post Graduate</option>
+                                                        <option value='Illiterate'>Illiterate</option>
+                                                        <option value='Doctrate'>Doctrate</option>
+                                                    </Form.Select>
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
 
-                                    <Col sm={6} lg={4}>
-                                        <Form.Group as={Row} className="mb-2">
-                                            <Form.Label column sm={4}>
-                                                Marital Status<span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Select id="txtMaritalStatus" name="maritalStatus" onChange={handleFieldChange} value={farmerData.maritalStatus}>
-                                                    <option value="">Select Marital Status</option>
-                                                    <option value="Married">Married</option>
-                                                    <option value="Unmarried">Unmarried</option>
-                                                    <option value="Divorced">Divorced</option>
-                                                </Form.Select>
-                                                {Object.keys(farmerError.maritalStatusErr).map((key) => {
-                                                    return <span className="error-message">{farmerError.maritalStatusErr[key]}</span>
-                                                })}
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
+                                        <Col sm={6} lg={4}>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Marital Status<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtMaritalStatus" name="maritalStatus" onChange={handleFieldChange} value={farmerData.maritalStatus}>
+                                                        <option value="">Select Marital Status</option>
+                                                        <option value="Married">Married</option>
+                                                        <option value="Unmarried">Unmarried</option>
+                                                        <option value="Divorced">Divorced</option>
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.maritalStatusErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.maritalStatusErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
 
-                                    <Col sm={6} lg={4}>
-                                        <Form.Group as={Row} className="mb-2">
-                                            <Form.Label column sm={4}>
-                                                Social Category<span className="text-danger">*</span>
-                                            </Form.Label>
-                                            <Col sm={8}>
-                                                <Form.Select id="txtSocialCategory" name="socialCategory" onChange={handleFieldChange} value={farmerData.socialCategory}>
-                                                    <option value=''>Select Category</option>
-                                                    <option value='SC'>SC</option>
-                                                    <option value='ST'>ST</option>
-                                                    <option value='OBC'>OBC</option>
-                                                    <option value='General'>General</option>
-                                                </Form.Select>
-                                                {Object.keys(farmerError.socailCategoryErr).map((key) => {
-                                                    return <span className="error-message">{farmerError.socailCategoryErr[key]}</span>
-                                                })}
-                                            </Col>
-                                        </Form.Group>
-                                    </Col>
+                                        <Col sm={6} lg={4}>
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Social Category<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtSocialCategory" name="socialCategory" onChange={handleFieldChange} value={farmerData.socialCategory}>
+                                                        <option value=''>Select Category</option>
+                                                        <option value='SC'>SC</option>
+                                                        <option value='ST'>ST</option>
+                                                        <option value='OBC'>OBC</option>
+                                                        <option value='General'>General</option>
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.socailCategoryErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.socailCategoryErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
 
-                                </Row>
-                            </FalconComponentCard.Body>
-                        </FalconComponentCard>
+                                    </Row>
+                                </FalconComponentCard.Body>
+                            </FalconComponentCard>
                         </Col>
                     </Row>
 
@@ -862,7 +909,7 @@ const AddFarmer = () => {
                                                     Distribution Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedCollectionCentreCode}>
+                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedDistributionCentreCode}>
                                                         <option value=''>Select Distribution Centre</option>
                                                         {distributionList &&
                                                             distributionList.map((option, index) => (
@@ -881,7 +928,7 @@ const AddFarmer = () => {
                                                     Collection Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedDistributionCentreCode}>
+                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedCollectionCentreCode}>
                                                         <option value=''>Select Collection Centre</option>
                                                         {collectionCentreList &&
                                                             collectionCentreList.map((option, index) => (

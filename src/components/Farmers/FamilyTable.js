@@ -34,6 +34,9 @@ export const FamilyTable = () => {
 
   useEffect(() => {
     setRowDataValue(farmerFamilyDetailsReducer, familyDetailData);
+    // if (farmerError.familyErr.invalidFamilyDetail !== '') {
+    //   setFormError(true);
+    // }
   }, [familyDetailData, farmerFamilyDetailsReducer]);
 
   const setRowDataValue = (farmerFamilyDetailsReducer, familyDetailData) => {
@@ -147,14 +150,14 @@ export const FamilyTable = () => {
           Add Family Details
         </Button>
       </div>
-      {
-        farmerError.familyErr && farmerError.contactErr.invalidFamilyDetail &&
+      {/* {
+        farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail &&
         (
           <div className='mb-2'>
-            <span className="error-message">{farmerError.contactErr.invalidFamilyDetail}</span>
+            <span className="error-message">{farmerError.familyErr.invalidFamilyDetail}</span>
           </div>
         )
-      }
+      } */}
 
       <Form
         noValidate
@@ -195,6 +198,7 @@ export const FamilyTable = () => {
                   <td key={index}>
                     <Form.Control
                       type="number"
+                      min={0}
                       id="numAge"
                       name="memberAge"
                       value={familyDetailData.memberAge}
