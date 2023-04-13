@@ -384,13 +384,13 @@ export const Farmers = () => {
             });
         }
 
-        if (farmerCardDetailsList && farmerCardDetailsList.length > 1) {
-            farmerCardDetailsList.forEach((row, index) => {
-                if (!row.cardDescription || !row.memberSex) {
-                    cardDetailErr.invalidCardDetail = 'All fields are required';
-                }
-            });
-        }
+        // if (farmerCardDetailsList && farmerCardDetailsList.length > 1) {
+        //     farmerCardDetailsList.forEach((row, index) => {
+        //         if (!row.cardDescription || !row.memberSex) {
+        //             cardDetailErr.invalidCardDetail = 'All fields are required';
+        //         }
+        //     });
+        // }
 
         if (!isValid) {
             var errorObject = {

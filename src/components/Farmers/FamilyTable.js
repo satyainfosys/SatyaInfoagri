@@ -57,7 +57,11 @@ export const FamilyTable = () => {
 
     if (familyDetailData && familyDetailData.length > 0) {
       familyDetailData.forEach((row, index) => {
-        if (!row.familyMemberName || row.memberAge == 0 || !row.memberSex || !row.farmerMemberRelation || !row.memberEducation) {
+        if (!row.familyMemberName ||
+           !row.memberAge || row.memberAge == 0 ||
+           !row.memberSex ||
+           !row.farmerMemberRelation ||
+           !row.memberEducation) {
           isValid = false;
           setFormError(true);
         }
@@ -161,7 +165,7 @@ export const FamilyTable = () => {
 
       <Form
         noValidate
-        validated={formHasError}
+        validated={formHasError || (farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail)}
         className="details-form"
         id="AddFarmersFamilyTableDetailsForm"
       >

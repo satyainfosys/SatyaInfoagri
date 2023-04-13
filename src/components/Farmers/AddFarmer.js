@@ -48,6 +48,18 @@ const AddFarmer = () => {
             "encryptedDistributionCentreCode": "",
             "status": "Active"
         }))
+
+        $('#txtCountryName [value=""]').prop('selected', true)
+        $('#txtStateName [value=""]').prop('selected', true)
+        $('#txtDistrictName [value=""]').prop('selected', true)
+        $('#txtTehsilName [value=""]').prop('selected', true)
+        $('#txtBlockName [value=""]').prop('selected', true)
+        $('#txtPostOfficeName [value=""]').prop('selected', true)
+        $('#txtVillageName [value=""]').prop('selected', true)
+
+        $('#txtDistributionCentre [value=""]').prop('selected', true)
+        $('#txtCollectionCentre [value=""]').prop('selected', true)
+        $('#txtFIGName [value=""]').prop('selected', true)
     }
 
     const setSelectGEOInformation = () => {
