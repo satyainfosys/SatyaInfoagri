@@ -584,7 +584,7 @@ export const Farmers = () => {
                 encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
                 encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
-                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
                 addUser: localStorage.getItem("LoginUserName"),
                 familyDetails: farmerFamilyDetailsList,
                 commonContactDetails: commonContactDetailList,
@@ -901,7 +901,7 @@ export const Farmers = () => {
                 encryptedBlockCode: farmerData.encryptedBlockCode ? farmerData.encryptedBlockCode : "",
                 encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
                 encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
-                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }
