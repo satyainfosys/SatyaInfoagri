@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { farmerDetailsAction } from 'actions';
 import axios from 'axios';
 import Moment from "moment";
+import $ from "jquery";
 
 const AddFarmer = () => {
 
@@ -27,63 +28,46 @@ const AddFarmer = () => {
             "socialCategory": "",
             "countryName": "",
             "encryptedCountryCode": "",
+            "countryCode": "",
             "stateName": "",
             "encryptedStateCode": "",
+            "stateCode": "",
             "districtName": "",
             "encryptedDistrictCode": "",
+            "districtCode": "",
             "tehsilName": "",
             "encryptedTehsilCode": "",
+            "tehsilCode": "",
             "blockName": "",
             "encryptedBlockCode": "",
+            "blockCode": "",
             "postOfficeName": "",
             "encryptedPostOfficeCode": "",
+            "postOfficeCode": "",
             "villageName": "",
             "encryptedVillageCode": "",
+            "villageCode": "",
             "totalLand": "",
             "figName": "",
             "encryptedFigCode": "",
+            "figCode": "",
             "collectionCentre": "",
             "encryptedCollectionCentreCode": "",
+            "collectionCentreCode": "",
             "distributionCentre": "",
             "encryptedDistributionCentreCode": "",
+            "distributionCentreCode": "",
             "status": "Active"
         }))
 
-        $('#txtCountryName [value=""]').prop('selected', true)
-        $('#txtStateName [value=""]').prop('selected', true)
-        $('#txtDistrictName [value=""]').prop('selected', true)
-        $('#txtTehsilName [value=""]').prop('selected', true)
-        $('#txtBlockName [value=""]').prop('selected', true)
-        $('#txtPostOfficeName [value=""]').prop('selected', true)
-        $('#txtVillageName [value=""]').prop('selected', true)
-
-        $('#txtDistributionCentre [value=""]').prop('selected', true)
-        $('#txtCollectionCentre [value=""]').prop('selected', true)
-        $('#txtFIGName [value=""]').prop('selected', true)
-    }
-
-    const setSelectGEOInformation = () => {
-        $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
-        getStates(farmerData.encryptedCountryCode);
-        $('#txtStateName option:contains(' + farmerData.state + ')').prop('selected', true)
-        getDistrict(farmerData.encryptedStateCode);
-        $('#txtDistrictName option:contains(' + farmerData.district + ')').prop('selected', true)
-        getTehsil(farmerData.encryptedDistrictCode);
-        $('#txtTehsilName option:contains(' + farmerData.tehsil + ')').prop('selected', true)
-        getBlock(farmerData.encryptedTehsilCode);
-        $('#txtBlockName option:contains(' + farmerData.block + ')').prop('selected', true)
-        getPostOffice(farmerData.encryptedBlockCode);
-        $('#txtPostOfficeName option:contains(' + farmerData.postOffice + ')').prop('selected', true)
-        getVillage(farmerData.encryptedPostOfficeCode);
-        $('#txtVillageName option:contains(' + farmerData.village + ')').prop('selected', true)
-    }
-
-    const setOperationInformation = () => {
-        $('#txtDistributionCentre option:contains(' + farmerData.distributionCentre + ')').prop('selected', true)
-        getCollectionCentre(farmerData.encryptedDistributionCentreCode);
-        $('#txtCollectionCentre option:contains(' + farmerData.collectionCentre + ')').prop('selected', true)
-        getFigMaster(farmerData.encryptedCollectionCentreCode);
-        $('#txtFIGName option:contains(' + farmerData.figName + ')').prop('selected', true)
+        setStateList([]);
+        setDistrictList([]);
+        setTehsilList([]);
+        setBlockList([]);
+        setPostOfficeList([]);
+        setVillageList([]);
+        setCollectionCentreList([]);
+        setFigMasterList([]);
     }
 
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
@@ -106,7 +90,7 @@ const AddFarmer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [collectionCentreList, setCollectionCentreList] = useState([]);
     const [figMasterList, setFigMasterList] = useState([]);
-
+    
     useEffect(() => {
         getCountries();
     }, []);
@@ -121,7 +105,7 @@ const AddFarmer = () => {
                         res.data.data.forEach(country => {
                             countryData.push({
                                 key: country.countryName,
-                                value: country.encryptedCountryCode
+                                value: country.countryCode
                             });
                         });
                     setCountryList(countryData);
@@ -131,9 +115,9 @@ const AddFarmer = () => {
             });
     }
 
-    const getStates = async (EncryptedCountryCode) => {
+    const getStates = async (countryCode) => {
         const stateRequest = {
-            EncryptedCountryCode: EncryptedCountryCode
+            CountryCode: countryCode
         }
 
         axios
@@ -145,7 +129,7 @@ const AddFarmer = () => {
                         res.data.data.forEach(state => {
                             stateData.push({
                                 key: state.stateName,
-                                value: state.encryptedStateCode
+                                value: state.stateCode
                             });
                         });
                     setStateList(stateData);
@@ -155,10 +139,10 @@ const AddFarmer = () => {
             });
     }
 
-    const getDistrict = async (EncryptedStateCode) => {
+    const getDistrict = async (stateCode) => {
         const districtRequest = {
-            EncryptedCountryCode: farmerData.encryptedCountryCode,
-            EncryptedStateCode: EncryptedStateCode
+            countryCode: farmerData.countryCode,
+            stateCode: stateCode
         }
         axios
             .post(process.env.REACT_APP_API_URL + '/district-list', districtRequest)
@@ -170,7 +154,7 @@ const AddFarmer = () => {
                         res.data.data.forEach(district => {
                             districtData.push({
                                 key: district.districtName,
-                                value: district.encryptedDistrictCode
+                                value: district.districtCode
                             });
                         });
                     setDistrictList(districtData);
@@ -180,11 +164,11 @@ const AddFarmer = () => {
             });
     }
 
-    const getTehsil = async (EncryptedDistrictCode) => {
+    const getTehsil = async (districtCode) => {
         const teshilRequest = {
-            EncryptedCountryCode: farmerData.encryptedCountryCode,
-            EncryptedStateCode: farmerData.encryptedStateCode,
-            EncryptedDistrictCode: EncryptedDistrictCode
+            CountryCode: farmerData.countryCode,
+            StateCode: farmerData.stateCode,
+            DistrictCode: districtCode
         }
         axios
             .post(process.env.REACT_APP_API_URL + '/tehsil-list', teshilRequest)
@@ -195,7 +179,7 @@ const AddFarmer = () => {
                         res.data.data.forEach(tehsil => {
                             tehsilData.push({
                                 key: tehsil.tehsilName,
-                                value: tehsil.encryptedTehsilCode
+                                value: tehsil.tehsilCode
                             });
                         });
                     }
@@ -206,12 +190,12 @@ const AddFarmer = () => {
             });
     }
 
-    const getBlock = async (EncryptedTehsilCode) => {
+    const getBlock = async (tehsilCode) => {
         const blockRequest = {
-            EncryptedCountryCode: farmerData.encryptedCountryCode,
-            EncryptedStateCode: farmerData.encryptedStateCode,
-            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
-            EncryptedTehsilCode: EncryptedTehsilCode
+            CountryCode: farmerData.countryCode,
+            StateCode: farmerData.stateCode,
+            DistrictCode: farmerData.districtCode,
+            TehsilCode: tehsilCode
         }
 
         axios
@@ -223,7 +207,7 @@ const AddFarmer = () => {
                         res.data.data.forEach(block => {
                             blockData.push({
                                 key: block.blockName,
-                                value: block.encryptedBlockCode
+                                value: block.blockCode
                             });
                         });
                     }
@@ -232,13 +216,13 @@ const AddFarmer = () => {
             });
     }
 
-    const getPostOffice = async (EncryptedBlockCode) => {
+    const getPostOffice = async (blockCode) => {
         const postOfficeRequest = {
-            EncryptedCountryCode: farmerData.encryptedCountryCode,
-            EncryptedStateCode: farmerData.encryptedStateCode,
-            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
-            EncryptedTehsilCode: farmerData.encryptedTehsilCode,
-            EncryptedBlockCode: EncryptedBlockCode
+            CountryCode: farmerData.countryCode,
+            StateCode: farmerData.stateCode,
+            DistrictCode: farmerData.districtCode,
+            TehsilCode: farmerData.tehsilCode,
+            BlockCode: blockCode
         }
 
         let response = await axios.post(process.env.REACT_APP_API_URL + '/post-office-list', postOfficeRequest)
@@ -249,7 +233,7 @@ const AddFarmer = () => {
                 response.data.data.forEach(postOffice => {
                     postOfficeData.push({
                         key: postOffice.postOfficeName,
-                        value: postOffice.encryptedPostOfficeCode
+                        value: postOffice.postOfficeCode
                     });
                 });
             }
@@ -257,14 +241,14 @@ const AddFarmer = () => {
         }
     }
 
-    const getVillage = async (EncryptedPostOfficeCode) => {
+    const getVillage = async (postOfficeCode) => {
         const villageRequest = {
-            EncryptedCountryCode: farmerData.encryptedCountryCode,
-            EncryptedStateCode: farmerData.encryptedStateCode,
-            EncryptedDistrictCode: farmerData.encryptedDistrictCode,
-            EncryptedTehsilCode: farmerData.encryptedTehsilCode,
-            EncryptedBlockCode: farmerData.encryptedBlockCode,
-            EncryptedPostOfficeCode: EncryptedPostOfficeCode
+            CountryCode: farmerData.countryCode,
+            StateCode: farmerData.stateCode,
+            DistrictCode: farmerData.districtCode,
+            TehsilCode: farmerData.tehsilCode,
+            BlockCode: farmerData.blockCode,
+            PostOfficeCode: postOfficeCode
         }
 
         let villageResponse = await axios.post(process.env.REACT_APP_API_URL + '/village-list', villageRequest);
@@ -274,7 +258,7 @@ const AddFarmer = () => {
                 villageResponse.data.data.forEach(village => {
                     villageData.push({
                         key: village.villageName,
-                        value: village.encryptedVillageCode
+                        value: village.villageCode
                     })
                 })
             }
@@ -283,10 +267,10 @@ const AddFarmer = () => {
 
     }
 
-    const getCollectionCentre = async (EncryptedDistributionCentreCode) => {
+    const getCollectionCentre = async (distributionCentreCode) => {
         const requestData = {
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            EncryptedDistributionCode: EncryptedDistributionCentreCode
+            DistributionCode: distributionCentreCode
         }
 
         let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
@@ -298,7 +282,7 @@ const AddFarmer = () => {
                 response.data.data.forEach(collectionCentre => {
                     collectionCentreData.push({
                         key: collectionCentre.collectionCentreName,
-                        value: collectionCentre.encryptedCollectionCentreCode
+                        value: collectionCentre.collectionCentreCode
                     })
                 })
             }
@@ -306,10 +290,10 @@ const AddFarmer = () => {
         }
     }
 
-    const getFigMaster = async (encryptedCollectionCentreCode) => {
+    const getFigMaster = async (collectionCentreCode) => {
         const request = {
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            EncryptedCollectionCentreCode: encryptedCollectionCentreCode
+            CollectionCentreCode: collectionCentreCode
         }
 
         let figMasterResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-fig-master-list', request, {
@@ -321,7 +305,7 @@ const AddFarmer = () => {
                 figMasterResponse.data.data.forEach(figMaster => {
                     figMasterData.push({
                         key: figMaster.figName,
-                        value: figMaster.encryptedFigCode
+                        value: figMaster.figCode
                     })
                 })
             }
@@ -333,36 +317,72 @@ const AddFarmer = () => {
         Object.keys(farmerDetailsReducer.farmerDetails).length <= 0) {
         resetFarmerData();
     }
-    else if (farmerData.country &&
-        (!$('#txtCountryName').val() ||
-            !$('#txtStateName').val() ||
-            !$('#txtDistrictName').val() ||
-            !$('#txtTehsilName').val() ||
-            !$('#txtBlockName').val() ||
-            !$('#txtPostOfficeName').val() ||
-            !$('#txtVillageName').val()
-        )) {
-        setSelectGEOInformation();
+    
+    if (farmerData.stateCode &&
+        !$('#txtStateName').val())
+    {
+        getStates(farmerData.countryCode);
+    }
+    
+    if (farmerData.districtCode &&
+        !$('#txtDistrictName').val())
+    {
+        getDistrict(farmerData.stateCode);
+    }
 
-        if (!$('#txtDistributionCentre').val() ||
-            !$('#txtCollectionCentre').val() ||
-            !$('#txtFIGName').val()) {
-            setOperationInformation();
+    if (farmerData.tehsilCode &&
+        !$('#txtTehsilName').val())
+    {
+        getTehsil(farmerData.districtCode);
+    }
+
+    if (farmerData.blockCode &&
+        !$('#txtBlockName').val())
+    {
+        getBlock(farmerData.tehsilCode);
+    }
+
+    if (farmerData.postOfficeCode &&
+        !$('#txtPostOfficeName').val())
+    {
+        getPostOffice(farmerData.blockCode);
+    }
+
+    if (farmerData.villageCode &&
+        !$('#txtVillageName').val())
+    {
+        getVillage(farmerData.postOfficeCode);
+    }
+
+    if (farmerData.collectionCentreCode &&
+        !$('#txtCollectionCentre').val())
+    {
+        getCollectionCentre(farmerData.distributionCentreCode);
+
+        if(!farmerData.figCode)
+        {
+            getFigMaster(farmerData.collectionCentreCode);    
         }
     }
 
+    if (farmerData.figCode &&
+        !$('#txtFIGName').val())
+    {
+        getFigMaster(farmerData.collectionCentreCode);
+    }
+
     const handleFieldChange = (e) => {
-        if (e.target.name == "encryptedCountryCode") {
+        if (e.target.name == "countryCode") {
 
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedCountryCode: e.target.value,
-                encryptedStateCode: null,
-                encryptedDistrictCode: null,
-                encryptedTehsilCode: null,
-                encryptedBlockCode: null,
-                encryptedPostOfficeCode: null,
-                encryptedVillageCode: null
+                countryCode: e.target.value,
+                stateCode: null,
+                districtCode: null,
+                tehsilCode: null,
+                blockCode: null,
+                postOfficeCode: null,
+                villageCode: null
             }))
             setStateList([]);
             setDistrictList([]);
@@ -370,17 +390,18 @@ const AddFarmer = () => {
             setBlockList([]);
             setPostOfficeList([]);
             setVillageList([]);
+            
             e.target.value && getStates(e.target.value);
         }
-        else if (e.target.name == "encryptedStateCode") {
+        else if (e.target.name == "stateCode") {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedStateCode: e.target.value,
-                encryptedDistrictCode: null,
-                encryptedTehsilCode: null,
-                encryptedBlockCode: null,
-                encryptedPostOfficeCode: null,
-                encryptedVillageCode: null
+                stateCode: e.target.value,
+                districtCode: null,
+                tehsilCode: null,
+                blockCode: null,
+                postOfficeCode: null,
+                villageCode: null
             }))
             setDistrictList([]);
             setTehsilList([]);
@@ -389,14 +410,14 @@ const AddFarmer = () => {
             setVillageList([]);
             e.target.value && getDistrict(e.target.value);
         }
-        else if (e.target.name == "encryptedDistrictCode") {
+        else if (e.target.name == "districtCode") {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedDistrictCode: e.target.value,
-                encryptedTehsilCode: null,
-                encryptedBlockCode: null,
-                encryptedPostOfficeCode: null,
-                encryptedVillageCode: null
+                districtCode: e.target.value,
+                tehsilCode: null,
+                blockCode: null,
+                postOfficeCode: null,
+                villageCode: null
             }))
             setTehsilList([]);
             setBlockList([]);
@@ -404,35 +425,35 @@ const AddFarmer = () => {
             setVillageList([]);
             e.target.value && getTehsil(e.target.value)
         }
-        else if (e.target.name == "encryptedTehsilCode") {
+        else if (e.target.name == "tehsilCode") {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedTehsilCode: e.target.value,
-                encryptedBlockCode: null,
-                encryptedPostOfficeCode: null,
-                encryptedVillageCode: null
+                tehsilCode: e.target.value,
+                blockCode: null,
+                postOfficeCode: null,
+                villageCode: null
             }))
             setBlockList([]);
             setPostOfficeList([]);
             setVillageList([]);
             e.target.value && getBlock(e.target.value);
         }
-        else if (e.target.name == "encryptedBlockCode") {
+        else if (e.target.name == "blockCode") {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedBlockCode: e.target.value,
-                encryptedPostOfficeCode: null,
-                encryptedVillageCode: null
+                blockCode: e.target.value,
+                postOfficeCode: null,
+                villageCode: null
             }))
             setPostOfficeList([]);
             setVillageList([]);
             e.target.value && getPostOffice(e.target.value);
         }
-        else if (e.target.name == "encryptedPostOfficeCode") {
+        else if (e.target.name == "postOfficeCode") {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedPostOfficeCode: e.target.value,
-                encryptedVillageCode: null
+                postOfficeCode: e.target.value,
+                villageCode: null
             }))
             setVillageList([]);
             e.target.value && getVillage(e.target.value);
@@ -446,22 +467,22 @@ const AddFarmer = () => {
         //     }));
         // }
 
-        else if (e.target.name == 'encryptedDistributionCentreCode') {
+        else if (e.target.name == 'distributionCentreCode') {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedDistributionCentreCode: e.target.value,
-                encryptedCollectionCentreCode: null,
-                encryptedFigCode: null,
+                distributionCentreCode: e.target.value,
+                collectionCentreCode: null,
+                figCode: null,
             }))
             setCollectionCentreList([]);
             setFigMasterList([])
             e.target.value && getCollectionCentre(e.target.value)
         }
-        else if (e.target.name == 'encryptedCollectionCentreCode') {
+        else if (e.target.name == 'collectionCentreCode') {
             dispatch(farmerDetailsAction({
                 ...farmerData,
-                encryptedCollectionCentreCode: e.target.value,
-                encryptedFigCode: null,
+                collectionCentreCode: e.target.value,
+                figCode: null,
             }))
             setFigMasterList([])
             e.target.value && getFigMaster(e.target.value)
@@ -473,11 +494,6 @@ const AddFarmer = () => {
             }));
         }
     };
-
-    // if (farmerData.encryptedCountryCode && $('#txtCountryName').val()) {
-    //     $('#txtCountryName option:contains(' + farmerData.country + ')').prop('selected', true)
-    //     getStates(farmerData.encryptedCountryCode);
-    //   }
 
     // const removeProfilePic = () => {
     //     $('#profilepic').val(null);
@@ -770,7 +786,7 @@ const AddFarmer = () => {
                                                     Country Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtCountryName" name="encryptedCountryCode" defaultValue={farmerData.countryCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtCountryName" name="countryCode" value={farmerData.countryCode} onChange={handleFieldChange}>
                                                         <option value=''>Select Country</option>
                                                         {countryList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -787,7 +803,7 @@ const AddFarmer = () => {
                                                     State Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtStateName" name="encryptedStateCode" defaultValue={farmerData.stateCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtStateName" name="stateCode" value={farmerData.stateCode} onChange={handleFieldChange}>
                                                         <option value=''>Select State</option>
                                                         {stateList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -804,7 +820,7 @@ const AddFarmer = () => {
                                                     District Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtDistrictName" name="encryptedDistrictCode" defaultValue={farmerData.districtCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtDistrictName" name="districtCode" value={farmerData.districtCode} onChange={handleFieldChange}>
                                                         <option value=''>Select District</option>
                                                         {districtList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -821,7 +837,7 @@ const AddFarmer = () => {
                                                     Tehsil Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtTehsilName" name="encryptedTehsilCode" defaultValue={farmerData.tehsilCode} onChange={handleFieldChange} >
+                                                    <Form.Select id="txtTehsilName" name="tehsilCode" value={farmerData.tehsilCode} onChange={handleFieldChange} >
                                                         <option value=''>Select Tehsil</option>
                                                         {tehsilList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -838,7 +854,7 @@ const AddFarmer = () => {
                                                     Block Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtBlockName" name="encryptedBlockCode" defaultValue={farmerData.blockCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtBlockName" name="blockCode" value={farmerData.blockCode} onChange={handleFieldChange}>
                                                         <option value=''>Select Block</option>
                                                         {blockList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -855,7 +871,7 @@ const AddFarmer = () => {
                                                     Post Office Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtPostOfficeName" name="encryptedPostOfficeCode" defaultValue={farmerData.postOfficeCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtPostOfficeName" name="postOfficeCode" value={farmerData.postOfficeCode} onChange={handleFieldChange}>
                                                         <option value=''>Select Post Office</option>
                                                         {postOfficeList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -872,7 +888,7 @@ const AddFarmer = () => {
                                                     Village Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtVillageName" name="encryptedVillageCode" defaultValue={farmerData.villageCode} onChange={handleFieldChange}>
+                                                    <Form.Select id="txtVillageName" name="villageCode" value={farmerData.villageCode} onChange={handleFieldChange}>
                                                         <option value=''>Select Village</option>
                                                         {villageList.map((option, index) => (
                                                             <option key={index} value={option.value}>{option.key}</option>
@@ -921,7 +937,7 @@ const AddFarmer = () => {
                                                     Distribution Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtDistributionCentre" name="encryptedDistributionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedDistributionCentreCode}>
+                                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={farmerData.distributionCentreCode}>
                                                         <option value=''>Select Distribution Centre</option>
                                                         {distributionList &&
                                                             distributionList.map((option, index) => (
@@ -940,7 +956,7 @@ const AddFarmer = () => {
                                                     Collection Centre<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtCollectionCentre" name="encryptedCollectionCentreCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedCollectionCentreCode}>
+                                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={farmerData.collectionCentreCode}>
                                                         <option value=''>Select Collection Centre</option>
                                                         {collectionCentreList &&
                                                             collectionCentreList.map((option, index) => (
@@ -959,7 +975,7 @@ const AddFarmer = () => {
                                                     FIG Name
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Select id="txtFIGName" name="encryptedFigCode" onChange={handleFieldChange} defaultValue={farmerData.encryptedFigCode}>
+                                                    <Form.Select id="txtFIGName" name="figCode" onChange={handleFieldChange} value={farmerData.figCode}>
                                                         <option value=''>Select FIG</option>
                                                         {figMasterList &&
 

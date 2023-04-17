@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
+import $ from "jquery";
 
 const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', 'Documents'];
 
@@ -283,63 +284,63 @@ export const Farmers = () => {
             setFormError(true);
         }
 
-        if (!farmerData.encryptedCountryCode) {
+        if (!farmerData.countryCode) {
             countyrErr.empty = "Select country"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedStateCode) {
+        if (!farmerData.stateCode) {
             stateErr.empty = "Select state"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedDistrictCode) {
+        if (!farmerData.districtCode) {
             districtErr.empty = "Select district"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedTehsilCode) {
+        if (!farmerData.tehsilCode) {
             tehsilErr.empty = "Select tehsil"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedBlockCode) {
+        if (!farmerData.blockCode) {
             blockErr.empty = "Select block"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedPostOfficeCode) {
+        if (!farmerData.postOfficeCode) {
             postOfficeErr.empty = "Select post office"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedVillageCode) {
+        if (!farmerData.villageCode) {
             villageErr.empty = "Select village"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedDistributionCentreCode) {
+        if (!farmerData.distributionCentreCode) {
             ditributionErr.empty = "Select distribution centre"
             isValid = false;
             isFarmerValid = false;
             setFormError(true);
         }
 
-        if (!farmerData.encryptedCollectionCentreCode) {
+        if (!farmerData.collectionCentreCode) {
             collectionErr.empty = "Select collection centre"
             isValid = false;
             isFarmerValid = false;
@@ -573,16 +574,16 @@ export const Farmers = () => {
                 farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
                 farmerUser: "",
                 farmerPassword: "",
-                encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
-                encryptedCollCentreCode: farmerData.encryptedCollectionCentreCode ? farmerData.encryptedCollectionCentreCode : "",
-                encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
-                encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
-                encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
-                encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",
-                encryptedTehsilCode: farmerData.encryptedTehsilCode ? farmerData.encryptedTehsilCode : "",
-                encryptedBlockCode: farmerData.encryptedBlockCode ? farmerData.encryptedBlockCode : "",
-                encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
-                encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
+                figCode: farmerData.figCode ? farmerData.figCode : "",
+                collCentreCode: farmerData.collectionCentreCode ? farmerData.collectionCentreCode : "",
+                distributionCentreCode: farmerData.distributionCentreCode ? farmerData.distributionCentreCode : "",
+                countryCode: farmerData.countryCode ? farmerData.countryCode : "",
+                stateCode: farmerData.stateCode ? farmerData.stateCode : "",
+                districtCode: farmerData.districtCode ? farmerData.districtCode : "",
+                tehsilCode: farmerData.tehsilCode ? farmerData.tehsilCode : "",
+                blockCode: farmerData.blockCode ? farmerData.blockCode : "",
+                postOfficeCode: farmerData.postOfficeCode ? farmerData.postOfficeCode : "",
+                villageCode: farmerData.villageCode ? farmerData.villageCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
                 addUser: localStorage.getItem("LoginUserName"),
@@ -724,7 +725,7 @@ export const Farmers = () => {
                 response.data.data.forEach(distributionCentre => {
                     distributionCentreListData.push({
                         key: distributionCentre.distributionName,
-                        value: distributionCentre.encryptedDistributionCentreCode
+                        value: distributionCentre.distributionCentreCode
                     })
                 })
             }
@@ -891,16 +892,16 @@ export const Farmers = () => {
                 farmerTotalLand: farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0,
                 farmerUser: "",
                 farmerPassword: "",
-                encryptedFigCode: farmerData.encryptedFigCode ? farmerData.encryptedFigCode : "",
-                encryptedCollCentreCode: farmerData.encryptedCollectionCentreCode ? farmerData.encryptedCollectionCentreCode : "",
-                encryptedDistributionCentreCode: farmerData.encryptedDistributionCentreCode ? farmerData.encryptedDistributionCentreCode : "",
-                encryptedCountryCode: farmerData.encryptedCountryCode ? farmerData.encryptedCountryCode : "",
-                encryptedStateCode: farmerData.encryptedStateCode ? farmerData.encryptedStateCode : "",
-                encryptedDistrictCode: farmerData.encryptedDistrictCode ? farmerData.encryptedDistrictCode : "",
-                encryptedTehsilCode: farmerData.encryptedTehsilCode ? farmerData.encryptedTehsilCode : "",
-                encryptedBlockCode: farmerData.encryptedBlockCode ? farmerData.encryptedBlockCode : "",
-                encryptedPostOfficeCode: farmerData.encryptedPostOfficeCode ? farmerData.encryptedPostOfficeCode : "",
-                encryptedVillageCode: farmerData.encryptedVillageCode ? farmerData.encryptedVillageCode : "",
+                figCode: farmerData.figCode ? farmerData.figCode : "",
+                collCentreCode: farmerData.collectionCentreCode ? farmerData.collectionCentreCode : "",
+                distributionCentreCode: farmerData.distributionCentreCode ? farmerData.distributionCentreCode : "",
+                countryCode: farmerData.countryCode ? farmerData.countryCode : "",
+                stateCode: farmerData.stateCode ? farmerData.stateCode : "",
+                districtCode: farmerData.districtCode ? farmerData.districtCode : "",
+                tehsilCode: farmerData.tehsilCode ? farmerData.tehsilCode : "",
+                blockCode: farmerData.blockCode ? farmerData.blockCode : "",
+                postOfficeCode: farmerData.postOfficeCode ? farmerData.postOfficeCode : "",
+                villageCode: farmerData.villageCode ? farmerData.villageCode : "",
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
