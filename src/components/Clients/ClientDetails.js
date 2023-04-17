@@ -25,7 +25,9 @@ export const ClientDetails = () => {
       "contactNo": "",
       "contactPerson": "",
       "country": "",
+      "state": "",
       "countryCode": "",
+      "stateCode": "",
       "customerName": "",
       "encryptedBillCountryCode": "",
       "encryptedBillStateCode": "",
@@ -38,8 +40,6 @@ export const ClientDetails = () => {
       "noOfUsers": 1,
       "panNumber": "",
       "pinCode": "",
-      "state": "",
-      "stateCode": "",
       "status": "Active",
       "role": ""
     }));
@@ -76,7 +76,7 @@ export const ClientDetails = () => {
             res.data.data.forEach(country => {
               countryData.push({
                 key: country.countryName,
-                value: country.encryptedCountryCode
+                value: country.countryCode
               });
             });
           setCountryList(countryData);
@@ -84,9 +84,9 @@ export const ClientDetails = () => {
       });
   }
 
-  const getStates = async (EncryptedClientCountryCode, isBillingCountry) => {
+  const getStates = async (countryCode, isBillingCountry) => {
     const userData = {
-      EncryptedCountryCode: EncryptedClientCountryCode
+      CountryCode: countryCode
     }
 
     axios
@@ -100,7 +100,7 @@ export const ClientDetails = () => {
             res.data.data.forEach(state => {
               stateData.push({
                 key: state.stateName,
-                value: state.encryptedStateCode
+                value: state.stateCode
               });
             });
           }
@@ -113,21 +113,14 @@ export const ClientDetails = () => {
       });
   }
 
-  const setSelectCountryStates = () => {
-    $('#txtCountry option:contains(' + clientData.country + ')').prop('selected', true)
-    getStates(clientData.encryptedCountryCode);
-    $('#txtState option:contains(' + clientData.state + ')').prop('selected', true)
-
-    $('#txtBillingCountry option:contains(' + clientData.billingCountry + ')').prop('selected', true)
-    getStates(clientData.encryptedBillCountryCode, true);
-    $('#txtBillingState option:contains(' + clientData.billingState + ')').prop('selected', true)
+  if (clientData.stateCode &&
+    !$('#txtState').val()) {
+    getStates(clientData.countryCode);
   }
 
-  if (clientData.country &&
-    clientData.billingCountry &&
-    (!$('#txtCountry').val() || !$('#txtBillingCountry').val() ||
-      !$('#txtState').val() || !$('#txtBillingState').val())) {
-    setSelectCountryStates();
+  if (clientData.billStateCode &&
+    !$('#txtBillingState').val()) {
+    getStates(clientData.billCountryCode, true)
   }
 
   if (clientData.status && $('#txtStatus').val()) {
@@ -144,14 +137,14 @@ export const ClientDetails = () => {
       [e.target.name]: e.target.value
     }));
 
-    if (e.target.name == "encryptedCountryCode") {
+    if (e.target.name == "countryCode") {
       if (e.target.value == '')
         setStateList([]);
       else
         getStates(e.target.value);
     }
 
-    if (e.target.name == "encryptedBillCountryCode") {
+    if (e.target.name == "billCountryCode") {
       if (e.target.value == '')
         setBillingStateList([]);
       else
@@ -188,7 +181,7 @@ export const ClientDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>Country<span className="text-danger">*</span></Form.Label>
-                <Form.Select id="txtCountry" name="encryptedCountryCode" defaultValue={clientData.countryCode} onChange={handleFieldChange} required>
+                <Form.Select id="txtCountry" name="countryCode" value={clientData.countryCode} onChange={handleFieldChange} required>
                   <option value=''>Select country</option>
                   {countryList.map((option, index) => (
                     <option key={index} value={option.value}>{option.key}</option>
@@ -200,7 +193,7 @@ export const ClientDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>State<span className="text-danger">*</span></Form.Label>
-                <Form.Select id="txtState" name="encryptedStateCode" defaultValue={clientData.stateCode} onChange={handleFieldChange} required>
+                <Form.Select id="txtState" name="stateCode" value={clientData.stateCode} onChange={handleFieldChange} required>
                   <option value=''>Select state</option>
                   {stateList.map((option, index) => (
                     <option key={index} value={option.value}>{option.key}</option>
@@ -228,7 +221,7 @@ export const ClientDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>Country<span className="text-danger">*</span></Form.Label>
-                <Form.Select id="txtBillingCountry" name="encryptedBillCountryCode" defaultValue={clientData.billCountryCode} onChange={handleFieldChange} required>
+                <Form.Select id="txtBillingCountry" name="billCountryCode" value={clientData.billCountryCode} onChange={handleFieldChange} required>
                   <option value=''>Select country</option>
                   {countryList.map((option, index) => (
                     <option key={index} value={option.value}>{option.key}</option>
@@ -240,7 +233,7 @@ export const ClientDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>State<span className="text-danger">*</span></Form.Label>
-                <Form.Select id="txtBillingState" name="encryptedBillStateCode" defaultValue={clientData.billStateCode} onChange={handleFieldChange} required>
+                <Form.Select id="txtBillingState" name="billStateCode" value={clientData.billStateCode} onChange={handleFieldChange} required>
                   <option value=''>Select state</option>
                   {billingStateList.map((option, index) => (
                     <option key={index} value={option.value}>{option.key}</option>

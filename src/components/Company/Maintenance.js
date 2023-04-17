@@ -30,6 +30,8 @@ export const Maintenance = () => {
             "pinCode": "",
             "state": "",
             "country": "",
+            "stateCode": "",
+            "countryCode": "",
             "encryptedCompanyCode": "",
             "encryptedCountryCode": "",
             "encryptedStateCode": "",
@@ -72,7 +74,7 @@ export const Maintenance = () => {
                         res.data.data.forEach(country => {
                             countryData.push({
                                 key: country.countryName,
-                                value: country.encryptedCountryCode
+                                value: country.countryCode
                             });
                         });
                     setCountryList(countryData);
@@ -80,9 +82,9 @@ export const Maintenance = () => {
             });
     }
 
-    const getStates = async (EncryptedCountryCode) => {
+    const getStates = async (countryCode) => {
         const userData = {
-            EncryptedCountryCode: EncryptedCountryCode
+            CountryCode: countryCode
         }
 
         axios
@@ -96,7 +98,7 @@ export const Maintenance = () => {
                         res.data.data.forEach(state => {
                             stateData.push({
                                 key: state.stateName,
-                                value: state.encryptedStateCode
+                                value: state.stateCode
                             });
                         });
                     }
@@ -105,16 +107,9 @@ export const Maintenance = () => {
             });
     }
 
-    const setSelectCountryStates = () => {
-        $('#txtCountry option:contains(' + companyData.country + ')').prop('selected', true)
-        getStates(companyData.encryptedCountryCode);
-        $('#txtState option:contains(' + companyData.state + ')').prop('selected', true)
-    }
-
-    if (companyData.country &&
-        (!$('#txtCountry').val() ||
-            !$('#txtState').val())) {
-        setSelectCountryStates();
+    if (companyData.stateCode &&
+        !$('#txtState').val()) {
+        getStates(companyData.countryCode)
     }
 
     if (companyData.status && $('#txtStatus').val()) {
@@ -131,7 +126,7 @@ export const Maintenance = () => {
             [e.target.name]: e.target.value
         }));
 
-        if (e.target.name == "encryptedCountryCode") {
+        if (e.target.name == "countryCode") {
             if (e.target.value == '')
                 setStateList([]);
             else
@@ -263,7 +258,7 @@ export const Maintenance = () => {
                                 <Form.Control id="txtPincode" name="pinCode" maxLength={10} value={companyData.pinCode} onChange={handleFieldChange} placeholder="Pincode" />
                             </Row>
                             <Row className="mb-3">
-                                <Form.Select id="txtCountry" name="encryptedCountryCode" defaultValue={companyData.countryCode} onChange={handleFieldChange} required>
+                                <Form.Select id="txtCountry" name="countryCode" value={companyData.countryCode} onChange={handleFieldChange} required>
                                     <option value=''>Select country</option>
                                     {countryList.map((option, index) => (
                                         <option key={index} value={option.value}>{option.key}</option>
@@ -274,7 +269,7 @@ export const Maintenance = () => {
                                 })}
                             </Row>
                             <Row className="mb-3">
-                                <Form.Select id="txtState" name="encryptedStateCode" defaultValue={companyData.stateCode} onChange={handleFieldChange} required>
+                                <Form.Select id="txtState" name="stateCode" value={companyData.stateCode} onChange={handleFieldChange} required>
                                     <option value=''>Select state</option>
                                     {stateList.map((option, index) => (
                                         <option key={index} value={option.value}>{option.key}</option>

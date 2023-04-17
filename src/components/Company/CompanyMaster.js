@@ -186,13 +186,13 @@ export const CompanyMaster = () => {
             setFormError(true);
         }
 
-        if (!companyData.encryptedCountryCode) {
+        if (!companyData.countryCode) {
             countryErr.empty = "Select country";
             isValid = false;
             setFormError(true);
         }
 
-        if (!companyData.encryptedStateCode) {
+        if (!companyData.stateCode) {
             stateErr.empty = "Select state";
             isValid = false;
             setFormError(true);
@@ -348,8 +348,8 @@ export const CompanyMaster = () => {
                 address1: companyData.address1,
                 address2: companyData.address2 ? companyData.address2 : '',
                 address3: companyData.address3 ? companyData.address3 : '',
-                encryptedCountryCode: companyData.encryptedCountryCode,
-                encryptedStateCode: companyData.encryptedStateCode,
+                countryCode: companyData.countryCode,
+                stateCode: companyData.stateCode,
                 companyRegDate: companyData.companyRegDate ? companyData.companyRegDate : new Date(),
                 companyRegNo: companyData.companyRegNo ? companyData.companyRegNo : '',
                 companySalesTax: companyData.companySalesTax ? companyData.companySalesTax : '',
@@ -433,8 +433,8 @@ export const CompanyMaster = () => {
                 companyLutNo: companyData.companyLutNo ? companyData.companyLutNo : '',
                 companyExpImp: companyData.companyExpImp ? companyData.companyExpImp : '',
                 companyLogo: companyData.companyLogo ? companyData.companyLogo : '',
-                encryptedCountryCode: companyData.encryptedCountryCode,
-                encryptedStateCode: companyData.encryptedStateCode,
+                countryCode: companyData.countryCode,
+                stateCode: companyData.stateCode,
                 pinCode: companyData.pinCode ? companyData.pinCode : '',
                 ActiveStatus: !companyData.status || companyData.status == "Active" ? "A" : "S",
                 ModifyUser: localStorage.getItem("LoginUserName")

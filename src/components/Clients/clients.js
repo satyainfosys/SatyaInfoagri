@@ -188,14 +188,14 @@ export const Client = () => {
       setFormError(true);
     }
 
-    if (!clientData.encryptedCountryCode) {
+    if (!clientData.countryCode) {
       countryErr.empty = "Select country";
       isValid = false;
       isClientValid = false;
       setFormError(true);
     }
 
-    if (!clientData.encryptedStateCode) {
+    if (!clientData.stateCode) {
       stateErr.empty = "Select state";
       isValid = false;
       isClientValid = false;
@@ -209,14 +209,14 @@ export const Client = () => {
       setFormError(true);
     }
 
-    if (!clientData.encryptedBillCountryCode) {
+    if (!clientData.billCountryCode) {
       billingCountryErr.billCountryEmpty = "Select billing country";
       isValid = false;
       isClientValid = false;
       setFormError(true);
     }
 
-    if (!clientData.encryptedBillStateCode) {
+    if (!clientData.billStateCode) {
       billingStateErr.billStateEmpty = "Select billing state";
       isValid = false;
       isClientValid = false;
@@ -356,14 +356,14 @@ export const Client = () => {
         ClientAddress2: clientData.address2 ? clientData.address2 : '',
         ClientAddress3: clientData.address3 ? clientData.address3 : '',
         PINCode: clientData.pinCode ? clientData.pinCode : '',
-        EncryptedCountryCode: clientData.encryptedCountryCode,
-        EncryptedStateCode: clientData.encryptedStateCode,
+        CountryCode: clientData.countryCode,
+        StateCode: clientData.stateCode,
         ClientBillAddress1: clientData.billingAddress1,
         ClientBillAddress2: clientData.billingAddress2 ? clientData.billingAddress2 : '',
         ClientBillAddress3: clientData.billingAddress3 ? clientData.billingAddress3 : '',
         BillPINCode: clientData.billingPinCode,
-        EncryptedBillCountryCode: clientData.encryptedBillCountryCode,
-        EncryptedBillStateCode: clientData.encryptedBillStateCode,
+        BillCountryCode: clientData.billCountryCode,
+        BillStateCode: clientData.billStateCode,
         ClientPANNO: clientData.panNumber,
         ClientGSTNO: clientData.gstNumber,
         Role: clientData.role == "Super Admin" ? "S" : "C",
@@ -458,14 +458,14 @@ export const Client = () => {
         ClientAddress2: clientData.address2,
         ClientAddress3: clientData.address3,
         PINCode: clientData.pinCode,
-        EncryptedCountryCode: clientData.encryptedCountryCode,
-        EncryptedStateCode: clientData.encryptedStateCode,
+        CountryCode: clientData.countryCode,
+        StateCode: clientData.stateCode,
         ClientBillAddress1: clientData.billingAddress1,
         ClientBillAddress2: clientData.billingAddress2,
         ClientBillAddress3: clientData.billingAddress3,
         BillPINCode: clientData.billingPinCode,
-        EncryptedBillCountryCode: clientData.encryptedBillCountryCode,
-        EncryptedBillStateCode: clientData.encryptedBillStateCode,
+        BillCountryCode: clientData.billCountryCode,
+        BillStateCode: clientData.billStateCode,
         ClientPANNO: clientData.panNumber,
         ClientGSTNO: clientData.gstNumber,
         Role: clientData.role == "Super Admin" ? "S" : "C",
