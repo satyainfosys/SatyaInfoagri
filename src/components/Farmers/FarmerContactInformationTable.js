@@ -149,7 +149,7 @@ export const FarmerContactInformationTable = () => {
       }
       <Form
         noValidate
-        validated={formHasError}
+        validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
         className="details-form"
         id="AddCommonContactDetailsForm"
       >
