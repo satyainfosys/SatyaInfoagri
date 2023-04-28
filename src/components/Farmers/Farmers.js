@@ -183,7 +183,7 @@ export const Farmers = () => {
         $("#btnSave").show();
         $("#btnCancel").show();
         getFarmerKisanCardDetail();
-        getBankDetail();
+        // getBankDetail();
     })
 
     $('[data-rr-ui-event-key*="Land"]').click(function () {
@@ -223,7 +223,7 @@ export const Farmers = () => {
         const collectionErr = {};
         const contactErr = {};
         const familyErr = {};
-        const cardDetailErr = {};
+        // const cardDetailErr = {};
         // const bankDetailErr = {};
         // const irrigationDetailErr = {};
 
@@ -444,7 +444,7 @@ export const Farmers = () => {
                 collectionErr,
                 contactErr,
                 familyErr,
-                cardDetailErr
+                // cardDetailErr,
                 // bankDetailErr,
                 // irrigationDetailErr
             }
@@ -657,7 +657,7 @@ export const Farmers = () => {
                 index++;
             }
 
-            const bankKeys = ['bankName', 'bankAddress', 'branchName', 'bankIfscCode', 'addUser']
+            const bankKeys = ['bankAddress', 'bankBranch', 'bankIfscCode', 'addUser']
             var index = 0;
             for (var obj in requestData.bankDetails) {
                 var bankDetailObj = requestData.bankDetails[obj];
@@ -842,21 +842,21 @@ export const Farmers = () => {
         }
     }
 
-    const getBankDetail = async () => {
-        const request = {
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
-        }
+    // const getBankDetail = async () => {
+    //     const request = {
+    //         EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+    //     }
 
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
+    //     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
+    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    //     })
 
-        if (response.data.status == 200) {
-            if (response.data.data && response.data.data.length > 0) {
-                dispatch(bankDetailsAction(response.data.data));
-            }
-        }
-    }
+    //     if (response.data.status == 200) {
+    //         if (response.data.data && response.data.data.length > 0) {
+    //             dispatch(bankDetailsAction(response.data.data));
+    //         }
+    //     }
+    // }
 
     const getFarmerLiveStockCattleList = async () => {
         const request = {
@@ -1003,7 +1003,7 @@ export const Farmers = () => {
                             existUpdate = false
                         }
                         else if (existUpdate) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         }
                     }
                 })
@@ -1065,7 +1065,7 @@ export const Farmers = () => {
                         else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked
                             && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         } else {
                             farmerFamilyDetailIndex++;
                         }
@@ -1088,7 +1088,7 @@ export const Farmers = () => {
                             && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         }
                         else {
                             farmerFamilyDetailIndex++
@@ -1109,7 +1109,7 @@ export const Farmers = () => {
                         const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         const deleteFarmerFamilyResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-family-detail', { headers, data });
                         if (deleteFarmerFamilyResponse.data.status != 200) {
-                            toast.error(deleteContactResponse.data.message, {
+                            toast.error(deleteFarmerFamilyResponse.data.message, {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
@@ -1118,7 +1118,7 @@ export const Farmers = () => {
                         else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId && !deleteBankDetails
                             && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         }
                         else {
                             deleteFamerFamilyMemberIndex++;
@@ -1152,7 +1152,7 @@ export const Farmers = () => {
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
                             && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         }
                         else {
                             farmerContactDetailIndex++;
@@ -1175,7 +1175,7 @@ export const Farmers = () => {
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
                             && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         } else {
                             farmerContactDetailIndex++
                         }
@@ -1201,7 +1201,7 @@ export const Farmers = () => {
                         }
                         else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            //updateFarmerCallback();
                         }
                         else {
                             deleteFarmerContactDetailIndex++;
@@ -1210,6 +1210,8 @@ export const Farmers = () => {
                     }
                 })
             }
+
+            updateFarmerCallback();
 
             //BankDetail Add, Update, Delete
             if (!loopBreaked) {

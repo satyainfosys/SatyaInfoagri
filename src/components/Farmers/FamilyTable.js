@@ -58,10 +58,10 @@ export const FamilyTable = () => {
     if (familyDetailData && familyDetailData.length > 0) {
       familyDetailData.forEach((row, index) => {
         if (!row.familyMemberName ||
-           !row.memberAge || row.memberAge == 0 ||
-           !row.memberSex ||
-           !row.farmerMemberRelation ||
-           !row.memberEducation) {
+          !row.memberAge || row.memberAge == 0 ||
+          !row.memberSex ||
+          !row.farmerMemberRelation ||
+          !row.memberEducation) {
           isValid = false;
           setFormError(true);
         }
@@ -107,7 +107,9 @@ export const FamilyTable = () => {
 
     var deleteFarmerDetail = deleteFarmerFamilyCode ? deleteFarmerFamilyCode + "," + paramsData.encryptedFarmerFamilyCode : paramsData.encryptedFarmerFamilyCode;
 
-    localStorage.setItem("DeleteFarmerFamilyCodes", deleteFarmerDetail);
+    if (deleteFarmerDetail) {
+      localStorage.setItem("DeleteFarmerFamilyCodes", deleteFarmerDetail);
+    }
 
     toast.success("Family member deleted successfully", {
       theme: 'colored'

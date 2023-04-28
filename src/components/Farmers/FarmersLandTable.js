@@ -7,22 +7,7 @@ import { toast } from 'react-toastify';
 export const FarmersLandTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [rowData, setRowData] = useState([{
-    id: 1,
-    longitude: '',
-    latitude: '',
-    khasraNo: '',
-    landMark: '',
-    ownerShip: '',
-    usage: '',
-    croppingType: '',
-    landArea: '',
-    cultivatedLandUnit: '',
-    activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-    addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LoginUserName")
-  }]);
+  const [rowData, setRowData] = useState([]);
 
   const columnsArray = [
     'Longitude',
@@ -63,17 +48,37 @@ export const FarmersLandTable = () => {
   const farmerLandDetailsReducer = useSelector((state) => state.rootReducer.farmerLandDetailsReducer)
   let farmerLandDetailsData = farmerLandDetailsReducer.farmerLandDetails
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
-    setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData, emptyRow);
+    setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData);
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
 
-  const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData, emptyRow) => {
-    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : [emptyRow]);
+  const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData) => {
+    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : []);
   };
 
+  const validateFarmerLandDetailsForm = () => {
+    let isValid = true;
+
+    if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
+      farmerLandDetailsData.forEach((row, index) => {
+        if (!row.longitude || !row.latitude) {
+          isValid = false;
+          setFormError(true);
+        }
+
+      });
+    }
+    return isValid;
+  }
+
   const handleAddRow = () => {
-    farmerLandDetailsData.push(emptyRow);
-    dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+    if (validateFarmerLandDetailsForm()) {
+      farmerLandDetailsData.push(emptyRow);
+      dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+    }
   };
 
   const handleFieldChange = (e, index) => {

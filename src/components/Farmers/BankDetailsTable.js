@@ -3,11 +3,16 @@ import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { bankDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+  const [bankList, setBankList] = useState([]);
+
   const columnsArray = [
     'Bank Name',
     'Bank Address',
@@ -18,15 +23,14 @@ export const BankDetailsTable = () => {
     'Active Status',
     'Action'
   ];
-  const [modalShow, setModalShow] = useState(false);
-  const [paramsData, setParamsData] = useState({});
+
   const emptyRow = {
     id: rowData.length + 1,
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-    bankName: '',
+    bankCode: 0,
     bankAddress: '',
-    branchName: '',
-    accountNo: '',
+    bankBranch: '',
+    bankAccount: '',
     accountType: '',
     bankIfscCode: '',
     activeStatus: '',
@@ -37,7 +41,11 @@ export const BankDetailsTable = () => {
   const bankDetailsReducer = useSelector((state) => state.rootReducer.bankDetailsReducer)
   var bankDetailData = bankDetailsReducer.bankDetails;
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
+    getBankDetailList();
     setRowDataValue(bankDetailsReducer, bankDetailData);
   }, [bankDetailData, bankDetailsReducer]);
 
@@ -45,13 +53,36 @@ export const BankDetailsTable = () => {
     setRowData(bankDetailsReducer.bankDetails.length > 0 ? bankDetailData : []);
   };
 
+  const getBankDetailList = async () => {
+    const request = {
+      EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+    let bankListData = [];
+
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(bank => {
+          bankListData.push({
+            key: bank.bankName,
+            value: bank.bankCode
+          });
+        });
+      }
+      setBankList(bankListData);
+    }
+  }
+
   const validateBankDetailsForm = () => {
 
     let isValid = true;
 
     if (bankDetailData && bankDetailData.length > 0) {
       bankDetailData.forEach((row, index) => {
-        if (!row.bankName || row.bankAddress == 0 || !row.branchName || !row.accountNo || !row.accountType || !row.bankIfscCode) {
+        if (!row.bankName || !row.bankAddress || !row.bankBranch || !row.accountNo || !row.accountType || !row.bankIfscCode) {
           isValid = false;
           setFormError(true);
         }
@@ -69,6 +100,7 @@ export const BankDetailsTable = () => {
   };
 
   const handleFieldChange = (e, index) => {
+    debugger
     const { name, value } = e.target;
     var bankDetails = [...rowData];
     bankDetails[index][name] = value;
@@ -145,6 +177,7 @@ export const BankDetailsTable = () => {
 
       <Form
         noValidate
+        // validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
         validated={formHasError}
         className="details-form"
         id="AddFarmersBankTableDetailsForm"
@@ -166,7 +199,7 @@ export const BankDetailsTable = () => {
               {rowData.map((bankDetailData, index) => (
                 <tr key={index}>
                   <td key={index}>
-                    <Form.Control
+                    {/* <Form.Control
                       type="text"
                       id="txtBankName"
                       name="bankName"
@@ -176,7 +209,13 @@ export const BankDetailsTable = () => {
                       className="form-control"
                       maxLength={40}
                       required
-                    />
+                    /> */}
+                    <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)}>
+                      <option value=''>Select Bank</option>
+                      {bankList.map((option, index) => (
+                        <option key={index} value={option.value}>{option.key}</option>
+                      ))}
+                    </Form.Select>
                   </td>
                   <td key={index}>
                     <Form.Control
@@ -188,26 +227,28 @@ export const BankDetailsTable = () => {
                       placeholder="Bank Address"
                       className="form-control"
                       maxLength={60}
+                      required
                     />
                   </td>
                   <td key={index}>
                     <Form.Control
                       type="text"
-                      id="txtBranchName"
-                      name="branchName"
-                      value={bankDetailData.branchName}
+                      id="txtbankBranch"
+                      name="bankBranch"
+                      value={bankDetailData.bankBranch}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Branch name"
                       className="form-control"
                       maxLength={45}
+                      required
                     />
                   </td>
                   <td key={index}>
                     <Form.Control
                       type="text"
                       id="numAccountNumber"
-                      name="accountNo"
-                      value={bankDetailData.accountNo}
+                      name="bankAccount"
+                      value={bankDetailData.bankAccount}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Account Number"
                       className="form-control"
@@ -223,6 +264,7 @@ export const BankDetailsTable = () => {
                       value={bankDetailData.accountType}
                       onChange={(e) => handleFieldChange(e, index)}
                       className="form-control"
+                      required
                     >
                       <option value=''>Select account type</option>
                       <option value='Saving'>Saving</option>

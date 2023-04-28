@@ -92,7 +92,9 @@ export const FarmerContactInformationTable = () => {
 
     var deleteFarmerCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
 
-    localStorage.setItem("DeleteCommonContactDetailsIds", deleteFarmerCommonContactDetails);
+    if (deleteFarmerCommonContactDetails) {
+      localStorage.setItem("DeleteCommonContactDetailsIds", deleteFarmerCommonContactDetails);
+    }
 
     toast.success("Contact details deleted successfully", {
       theme: 'colored'

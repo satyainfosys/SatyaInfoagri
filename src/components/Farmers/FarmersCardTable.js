@@ -132,17 +132,9 @@ export const FarmersCardTable = () => {
           Add Card Details
         </Button>
       </div>
-      {
-        farmerError.cardDetailErr && farmerError.cardDetailErr.invalidCardDetail &&
-        (
-          <div className='mb-2'>
-            <span className="error-message">{farmerError.cardDetailErr.invalidCardDetail}</span>
-          </div>
-        )
-      }
-
       <Form
         noValidate
+        // validated={formHasError || (farmerError.cardDetailErr.invalidCardDetail)}
         validated={formHasError}
         className="details-form"
         id="AddFarmersCardTableDetailsForm"
