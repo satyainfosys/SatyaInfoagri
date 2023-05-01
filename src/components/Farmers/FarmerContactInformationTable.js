@@ -54,6 +54,11 @@ export const FarmerContactInformationTable = () => {
         }
       });
     }
+
+    if (isValid) {
+      setFormError(false)
+    }
+
     return isValid;
   }
 

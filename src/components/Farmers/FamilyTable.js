@@ -34,9 +34,6 @@ export const FamilyTable = () => {
 
   useEffect(() => {
     setRowDataValue(farmerFamilyDetailsReducer, familyDetailData);
-    // if (farmerError.familyErr.invalidFamilyDetail !== '') {
-    //   setFormError(true);
-    // }
   }, [familyDetailData, farmerFamilyDetailsReducer]);
 
   const setRowDataValue = (farmerFamilyDetailsReducer, familyDetailData) => {
@@ -67,6 +64,11 @@ export const FamilyTable = () => {
         }
       });
     }
+
+    if (isValid) {
+      setFormError(false)
+    }
+
     return isValid;
   }
 

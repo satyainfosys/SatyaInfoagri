@@ -20,7 +20,7 @@ const initialState = {
     contactErr: {},
     familyErr: {},
     cardDetailErr: {},
-    // bankDetailErr: {},
+    bankDetailErr: {},
     // irrigationDetailErr: {},
     // landDetailErr: {}
   }

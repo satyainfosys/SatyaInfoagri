@@ -27,6 +27,8 @@ export const BankDetailsTable = () => {
   const emptyRow = {
     id: rowData.length + 1,
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode"),
     bankCode: 0,
     bankAddress: '',
     bankBranch: '',
@@ -76,18 +78,28 @@ export const BankDetailsTable = () => {
     }
   }
 
+  if (bankDetailData.bankCode &&
+    !$('txtBankName').val()) {
+    getBankDetailList();
+  }
+
   const validateBankDetailsForm = () => {
 
     let isValid = true;
 
     if (bankDetailData && bankDetailData.length > 0) {
       bankDetailData.forEach((row, index) => {
-        if (!row.bankName || !row.bankAddress || !row.bankBranch || !row.accountNo || !row.accountType || !row.bankIfscCode) {
+        if (!row.bankCode || !row.bankAddress || !row.bankBranch || !row.bankAccount || !row.accountType || !row.bankIfscCode) {
           isValid = false;
           setFormError(true);
         }
       });
     }
+
+    if (isValid) {
+      setFormError(false)
+    }
+
     return isValid;
   }
 
@@ -100,7 +112,6 @@ export const BankDetailsTable = () => {
   };
 
   const handleFieldChange = (e, index) => {
-    debugger
     const { name, value } = e.target;
     var bankDetails = [...rowData];
     bankDetails[index][name] = value;
@@ -112,23 +123,25 @@ export const BankDetailsTable = () => {
       $("#btnSave").attr('disabled', false);
   }
 
-  const ModalPreview = (encryptedBankCode, accountNoToBeDelete) => {
+  const ModalPreview = (encryptedFarmerBankId, accountNoToBeDelete) => {
     setModalShow(true);
-    setParamsData({ encryptedBankCode, accountNoToBeDelete });
+    setParamsData({ encryptedFarmerBankId, accountNoToBeDelete });
   }
 
   const deleteBankDetails = () => {
     if (!paramsData)
       return false;
 
-    var objectIndex = bankDetailsReducer.bankDetails.findIndex(x => x.accountNo == paramsData.accountNoToBeDelete);
+    var objectIndex = bankDetailsReducer.bankDetails.findIndex(x => x.bankAccount == paramsData.accountNoToBeDelete);
     bankDetailsReducer.bankDetails.splice(objectIndex, 1);
 
-    var deleteBankDetailCode = localStorage.getItem("DeleteBankDetailCodes");
+    var deleteFarmerBankDetailId = localStorage.getItem("DeleteFarmerBankDetailIds");
 
-    var deleteBankDetailCodes = deleteBankDetailCode ? deleteBankDetailCode + "," + paramsData.encryptedBankCode : paramsData.encryptedBankCode;
+    var deleteFarmerBankDetailIds = deleteFarmerBankDetailId ? deleteFarmerBankDetailId + "," + paramsData.encryptedFarmerBankId : paramsData.encryptedFarmerBankId;
 
-    localStorage.setItem("DeleteBankDetailCodes", deleteBankDetailCodes);
+    if (deleteFarmerBankDetailIds) {
+      localStorage.setItem("DeleteFarmerBankDetailIds", deleteFarmerBankDetailIds);
+    }
 
     toast.success("Bank details deleted successfully", {
       theme: 'colored'
@@ -177,8 +190,8 @@ export const BankDetailsTable = () => {
 
       <Form
         noValidate
-        // validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
-        validated={formHasError}
+        validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
+        // validated={formHasError}
         className="details-form"
         id="AddFarmersBankTableDetailsForm"
       >
@@ -199,18 +212,7 @@ export const BankDetailsTable = () => {
               {rowData.map((bankDetailData, index) => (
                 <tr key={index}>
                   <td key={index}>
-                    {/* <Form.Control
-                      type="text"
-                      id="txtBankName"
-                      name="bankName"
-                      value={bankDetailData.bankName}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Bank Name"
-                      className="form-control"
-                      maxLength={40}
-                      required
-                    /> */}
-                    <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)}>
+                    <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)} required>
                       <option value=''>Select Bank</option>
                       {bankList.map((option, index) => (
                         <option key={index} value={option.value}>{option.key}</option>
@@ -297,7 +299,7 @@ export const BankDetailsTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedBankCode, bankDetailData.accountNo) }} />
+                    <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.accountNo) }} />
                   </td>
                 </tr>
               ))}

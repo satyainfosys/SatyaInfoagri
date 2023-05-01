@@ -183,7 +183,7 @@ export const Farmers = () => {
         $("#btnSave").show();
         $("#btnCancel").show();
         getFarmerKisanCardDetail();
-        // getBankDetail();
+        getBankDetail();
     })
 
     $('[data-rr-ui-event-key*="Land"]').click(function () {
@@ -223,8 +223,8 @@ export const Farmers = () => {
         const collectionErr = {};
         const contactErr = {};
         const familyErr = {};
-        // const cardDetailErr = {};
-        // const bankDetailErr = {};
+        const bankDetailErr = {};
+        // const cardDetailErr = {};        
         // const irrigationDetailErr = {};
 
         let isValid = true;
@@ -405,14 +405,14 @@ export const Farmers = () => {
         //     });
         // }
 
-        // if (bankDetailList && bankDetailList.length > 0) {
-        //     bankDetailList.forEach((row, index) => {
-        //         if (!row.bankName || !row.bankAddress || !row.branchName || !row.accountNo || !row.accountType || !row.bankIfscCode) {
-        //             bankDetailErr.invalidBankDetail = "All fields are required";
-        //             isValid = false;
-        //         }
-        //     })
-        // }
+        if (bankDetailList && bankDetailList.length > 0) {
+            bankDetailList.forEach((row, index) => {
+                if (!row.bankCode || !row.bankAddress || !row.bankBranch || !row.bankAccount || !row.accountType || !row.bankIfscCode) {
+                    bankDetailErr.invalidBankDetail = "All fields are required";
+                    isValid = false;
+                }
+            })
+        }
 
         // if (farmerIrrigationDetailsList && farmerIrrigationDetailsList.length > 0) {
         //     farmerIrrigationDetailsList.forEach((row, index) => {
@@ -444,8 +444,8 @@ export const Farmers = () => {
                 collectionErr,
                 contactErr,
                 familyErr,
-                // cardDetailErr,
-                // bankDetailErr,
+                bankDetailErr,
+                // cardDetailErr,                
                 // irrigationDetailErr
             }
             dispatch(farmerDetailsErrorAction(errorObject))
@@ -499,7 +499,7 @@ export const Farmers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         localStorage.removeItem("DeleteFarmerFamilyCodes");
         localStorage.removeItem("DeleteCommonContactDetailsIds");
-        localStorage.removeItem("DeleteBankDetailCodes");
+        localStorage.removeItem("DeleteFarmerBankDetailIds");
         localStorage.removeItem("DeleteFarmerKisanCardIds");
         localStorage.removeItem("DeleteFarmerIrrigationCodes");
         localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
@@ -842,21 +842,21 @@ export const Farmers = () => {
         }
     }
 
-    // const getBankDetail = async () => {
-    //     const request = {
-    //         EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
-    //     }
+    const getBankDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
 
-    //     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
-    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    //     })
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-bank-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
 
-    //     if (response.data.status == 200) {
-    //         if (response.data.data && response.data.data.length > 0) {
-    //             dispatch(bankDetailsAction(response.data.data));
-    //         }
-    //     }
-    // }
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(bankDetailsAction(response.data.data));
+            }
+        }
+    }
 
     const getFarmerLiveStockCattleList = async () => {
         const request = {
@@ -910,7 +910,7 @@ export const Farmers = () => {
 
             var deleteFarmerFamilyCodes = localStorage.getItem("DeleteFarmerFamilyCodes");
             var deleteFarmerContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
-            var deleteBankDetails = localStorage.getItem("DeleteBankDetailCodes");
+            var deleteBankDetails = localStorage.getItem("DeleteFarmerBankDetailIds");
             var deleteFarmerKisanCardIds = localStorage.getItem("DeleteFarmerKisanCardIds");
             var deleteFarmerIrrigationDetailCodes = localStorage.getItem("DeleteFarmerIrrigationCodes");
             var deleteFarmerLiveStockCattleDetailIds = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
@@ -1217,18 +1217,20 @@ export const Farmers = () => {
             if (!loopBreaked) {
                 for (let i = 0; i < bankDetailList.length; i++) {
                     const bankDetails = bankDetailList[i];
-                    const keys = ['bankName', 'bankAddress', 'branchName', 'bankIfscCode', 'addUser', 'modifyUser']
+                    const keys = ['bankAddress', 'bankBranch', 'bankIfscCode', 'addUser', 'modifyUser']
                     for (const key of Object.keys(bankDetails).filter((key) => keys.includes(key))) {
                         bankDetails[key] = bankDetails[key] ? bankDetails[key].toUpperCase() : '';
                     }
-                    if (bankDetails.encryptedBankCode) {
+                    if (bankDetails.encryptedFarmerBankId) {
                         const bankRequestData = {
-                            encryptedBankCode: bankDetails.encryptedBankCode,
+                            encryptedFarmerBankId: bankDetails.encryptedFarmerBankId,
+                            encryptedFarmerCode: bankDetails.encryptedFarmerCode,
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            bankName: bankDetails.bankName,
-                            bankAddress: bankDetails.bankAddress ? bankDetails.bankAddress : "",
-                            branchName: bankDetails.branchName,
-                            accountNo: bankDetails.accountNo,
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            bankCode: bankDetails.bankCode,
+                            bankAddress: bankDetails.bankAddress,
+                            bankBranch: bankDetails.bankBranch,
+                            bankAccount: bankDetails.bankAccount,
                             accountType: bankDetails.accountType,
                             bankIfscCode: bankDetails.bankIfscCode,
                             activeStatus: bankDetails.activeStatus,
@@ -1237,7 +1239,7 @@ export const Farmers = () => {
 
                         setIsLoading(true);
                         const updateBankDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/update-bank-details', bankRequestData, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-bank-details', bankRequestData, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);
@@ -1260,7 +1262,7 @@ export const Farmers = () => {
                     else if (!bankDetails.encryptedBankCode) {
                         setIsLoading(true);
                         const addBankDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-bank-details', bankDetails, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-bank-details', bankDetails, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);
@@ -1288,12 +1290,12 @@ export const Farmers = () => {
             if (deleteBankDetailList) {
                 var deleteBankDetailIndex = 1;
 
-                deleteBankDetailList.forEach(async deleteBankDetailCode => {
+                deleteBankDetailList.forEach(async deleteFarmerBankDetailId => {
                     if (!loopBreaked) {
-                        const data = { encryptedBankCode: deleteBankDetailCode }
+                        const data = { encryptedFarmerBankId: deleteFarmerBankDetailId }
                         const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         const deleteBankDetailResponse =
-                            await axios.delete(process.env.REACT_APP_API_URL + '/delete-bank-details', { headers, data });
+                            await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-bank-details', { headers, data });
                         if (deleteBankDetailResponse.data.status != 200) {
                             toast.error(deleteBankDetailResponse.data.message, {
                                 theme: 'colored',
