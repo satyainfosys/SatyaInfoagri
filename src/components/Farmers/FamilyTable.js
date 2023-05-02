@@ -212,7 +212,7 @@ export const FamilyTable = () => {
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Age"
                       className="form-control"
-                      maxLength={2}
+                      maxLength={3}
                       onKeyPress={(e) => {
                         const regex = /[0-9]|\./;
                         const key = String.fromCharCode(e.charCode);
