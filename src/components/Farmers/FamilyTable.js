@@ -16,7 +16,7 @@ export const FamilyTable = () => {
     encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
     encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
     familyMemberName: '',
-    memberAge: 0,
+    memberAge: '',
     memberSex: '',
     farmerMemberRelation: '',
     memberEducation: '',
@@ -55,7 +55,7 @@ export const FamilyTable = () => {
     if (familyDetailData && familyDetailData.length > 0) {
       familyDetailData.forEach((row, index) => {
         if (!row.familyMemberName ||
-          !row.memberAge || row.memberAge == 0 ||
+          !row.memberAge || !row.memberAge ||
           !row.memberSex ||
           !row.farmerMemberRelation ||
           !row.memberEducation) {
@@ -205,14 +205,21 @@ export const FamilyTable = () => {
 
                   <td key={index}>
                     <Form.Control
-                      type="number"
-                      min={0}
-                      id="numAge"
+                      type="text"
+                      id="txtAge"
                       name="memberAge"
                       value={familyDetailData.memberAge}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Age"
                       className="form-control"
+                      maxLength={2}
+                      onKeyPress={(e) => {
+                        const regex = /[0-9]|\./;
+                        const key = String.fromCharCode(e.charCode);
+                        if (!regex.test(key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       required
                     />
                   </td>

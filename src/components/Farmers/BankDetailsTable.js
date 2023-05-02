@@ -191,7 +191,6 @@ export const BankDetailsTable = () => {
       <Form
         noValidate
         validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
-        // validated={formHasError}
         className="details-form"
         id="AddFarmersBankTableDetailsForm"
       >
@@ -255,6 +254,13 @@ export const BankDetailsTable = () => {
                       placeholder="Account Number"
                       className="form-control"
                       maxLength={40}
+                      onKeyPress={(e) => {
+                        const regex = /[0-9]|\./;
+                        const key = String.fromCharCode(e.charCode);
+                        if (!regex.test(key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       required
                     />
                   </td>
@@ -299,7 +305,7 @@ export const BankDetailsTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.accountNo) }} />
+                    <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
                   </td>
                 </tr>
               ))}
