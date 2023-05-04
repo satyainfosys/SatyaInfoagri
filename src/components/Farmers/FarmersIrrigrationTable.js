@@ -143,8 +143,7 @@ export const FarmersIrrigrationTable = () => {
 
       <Form
         noValidate
-        // validated={formHasError || (farmerError.irrigationDetailErr.invalidIrrigationDetail)}
-        validated={formHasError}
+        validated={formHasError || (farmerError.irrigationDetailErr.invalidIrrigationDetail)}
         className="details-form"
         id="AddFarmersIrrigrationTableDetailsForm"
       >

@@ -248,7 +248,8 @@ export const Farmers = () => {
         const familyErr = {};
         const bankDetailErr = {};
         // const cardDetailErr = {};        
-        // const irrigationDetailErr = {};
+        const irrigationDetailErr = {};
+        const landDetailErr = {};
 
         let isValid = true;
         let isFarmerValid = true;
@@ -437,14 +438,23 @@ export const Farmers = () => {
             })
         }
 
-        // if (farmerIrrigationDetailsList && farmerIrrigationDetailsList.length > 0) {
-        //     farmerIrrigationDetailsList.forEach((row, index) => {
-        //         if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
-        //             irrigationDetailErr.invalidIrrigationDetail = "All fields are required"
-        //             isValid = false;
-        //         }
-        //     })
-        // }
+        if(farmerLandDetailsList && farmerLandDetailsList.length > 0){
+            farmerLandDetailsList.forEach((row, index) => {
+                if (!row.khasraNo || !row.ownerShip || !row.croppingType || !row.landArea){
+                    landDetailErr.invalidLandDetail = "Enter the required fields";
+                    isValid = false;
+                }
+            })
+        }
+
+        if (farmerIrrigationDetailsList && farmerIrrigationDetailsList.length > 0) {
+            farmerIrrigationDetailsList.forEach((row, index) => {
+                if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
+                    irrigationDetailErr.invalidIrrigationDetail = "All fields are required"
+                    isValid = false;
+                }
+            })
+        }
 
         if (!isValid) {
             var errorObject = {
@@ -468,8 +478,10 @@ export const Farmers = () => {
                 contactErr,
                 familyErr,
                 bankDetailErr,
+                irrigationDetailErr,
+                landDetailErr
                 // cardDetailErr,                
-                // irrigationDetailErr
+                
             }
             dispatch(farmerDetailsErrorAction(errorObject))
         }

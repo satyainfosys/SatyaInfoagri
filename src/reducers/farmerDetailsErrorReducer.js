@@ -21,8 +21,8 @@ const initialState = {
     familyErr: {},
     cardDetailErr: {},
     bankDetailErr: {},
-    // irrigationDetailErr: {},
-    // landDetailErr: {}
+    irrigationDetailErr: {},
+    landDetailErr: {}
   }
 };
 

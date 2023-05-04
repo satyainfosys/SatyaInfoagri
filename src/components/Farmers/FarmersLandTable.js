@@ -10,9 +10,10 @@ export const FarmersLandTable = () => {
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [locationRowData, setLocationRowData] = useState([{ id: 1, latitude: "", longitude: "" }]);
+  const [reducerIndex, setReducerIndex] = useState();
+  const [modalError, setModalError] = useState(false);
 
   const columnsArray = [
-    'Add',
     'Khasra No',
     'Land Mark',
     'Ownership',
@@ -20,6 +21,7 @@ export const FarmersLandTable = () => {
     'Org/Inorg',
     'Cultivated Land',
     'Active Status',
+    'Location',
     'Action'
   ];
 
@@ -27,12 +29,13 @@ export const FarmersLandTable = () => {
   const [paramsData, setParamsData] = useState({});
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [unitList, setUnitList] = useState([])
+  const [unitError, setUnitError] = useState('');
 
   const emptyRow = {
     id: rowData.length + 1,
     encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
     encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',    
+    encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',
     khasraNo: '',
     landMark: '',
     ownerShip: '',
@@ -72,16 +75,36 @@ export const FarmersLandTable = () => {
 
       });
     }
+
+    if (isValid) {
+      setFormError(false)
+    }
+
     return isValid;
   }
 
-  const handleAddRow = () => {
-    let isValid = validateFarmerLandDetailsForm();
-    if (isValid) {
-      farmerLandDetailsData.push(emptyRow);
-      dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+  const validateUnit = () => {
+    let unitError = {}
+    let isUnitValid = true;
+
+    if (!$('#txtUnit').val()) {
+      unitError.empty = "Select unit";
+      isUnitValid = false;
     }
-  };
+
+    setUnitError(unitError);
+    return isUnitValid;
+  }
+
+  const handleAddRow = () => {
+    if (validateUnit()) {
+      let isValid = validateFarmerLandDetailsForm();
+      if (isValid) {
+        farmerLandDetailsData.push(emptyRow);
+        dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+      }
+    };
+  }
 
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;
@@ -125,12 +148,15 @@ export const FarmersLandTable = () => {
     setModalShow(false);
   }
 
-  const localModalPreview = () => {
+  const locationModalPreview = (indexNo) => {
     setShowLocationModal(true);
+    setReducerIndex(indexNo)
   }
 
   const addLocationRow = () => {
-    setLocationRowData([...locationRowData, { id: locationRowData.length + 1, latitude: "", longitude: "" }]);
+    if (validateLocationModal()) {
+      setLocationRowData([...locationRowData, { id: locationRowData.length + 1, latitude: "", longitude: "" }]);
+    }
   };
 
   const getUnitList = async () => {
@@ -149,6 +175,55 @@ export const FarmersLandTable = () => {
       setUnitList(unitListData);
     }
   }
+
+  const handleLocationFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var locationDetails = [...locationRowData]
+    locationDetails[index][name] = value;
+    locationDetails = Object.keys(locationRowData).map(key => {
+      return locationRowData[key];
+    })
+    setLocationRowData(locationDetails);
+  }
+
+  const onLocationSave = (index) => {
+    if (validateLocationModal()) {
+      farmerLandDetailsData[index].farmerGeofancingLand = locationRowData;
+      dispatch(farmerLandDetailsAction(farmerLandDetailsData));
+      setShowLocationModal(false);
+      setLocationRowData([]);
+    }
+  }
+
+  const validateLocationModal = () => {
+    let isLocationFormValid = true;
+
+    if (locationRowData && locationRowData.length > 0) {
+      locationRowData.forEach((row, index) => {
+        if (!row.latitude || !row.longitude) {
+          isLocationFormValid = false;
+          setModalError(true);
+        }
+      })
+    }
+
+    if (isLocationFormValid) {
+      setModalError(false)
+    }
+
+    return isLocationFormValid;
+  }
+
+  // const deleteLocationDetails = (index) => {
+  //   if(!reducerIndex && !index)
+  //   return false;
+
+  //   farmerLandDetailsData[reducerIndex].location.splice(index, 1);
+  // }
+
+  const hasLocationData = locationRowData.some((location) => {
+    return location.latitude !== '' && location.longitude !== '';
+  });
 
   return (
     <>
@@ -183,18 +258,20 @@ export const FarmersLandTable = () => {
           backdrop="static"
         >
           <Modal.Header closeButton>
-            <Modal.Title id="contained-modal-title-vcenter">Location Details</Modal.Title>
+            <Modal.Title id="contained-modal-title-vcenter">Google Location Details</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form>
+            <Form
+              noValidate
+              validated={modalError}
+              className="details-form"
+            >
               <Table>
                 <thead>
                   <tr>
                     <th>Latitude</th>
                     <th>Longitude</th>
-                    <th>
-                      <Button onClick={addLocationRow}>+</Button>
-                    </th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -205,10 +282,11 @@ export const FarmersLandTable = () => {
                           type="text"
                           id="txtLatitude"
                           name="latitude"
-                          // value={row.latitude}
-                          // onChange={(e) => handleFieldChange(e, index)}
+                          value={row.latitude}
+                          onChange={(e) => handleLocationFieldChange(e, index)}
                           placeholder="Latitude"
                           className="form-control"
+                          required
                         />
                       </td>
                       <td key={index}>
@@ -216,22 +294,32 @@ export const FarmersLandTable = () => {
                           type="text"
                           id="txtLongitude"
                           name="longitude"
-                          // value={row.longitude}
-                          // onChange={(e) => handleFieldChange(e, index)}
+                          value={row.longitude}
+                          onChange={(e) => handleLocationFieldChange(e, index)}
                           placeholder="Longitude"
                           className="form-control"
                           required
                         />
                       </td>
+                      <td>
+                        <i className="fa fa-trash fa-lg" />
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
+              {/* <div style={{ display: 'flex', justifyContent: 'end' }}>
+                
+              </div> */}
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="success" onClick={() => setShowLocationModal(false)}>Cancel</Button>
-            <Button variant="danger">Save</Button>
+            <Button variant="danger" onClick={() => { setShowLocationModal(false), setLocationRowData([]) }}>Cancel</Button>
+            <Button variant="info" disabled={!hasLocationData}>
+              Show On Map
+            </Button>
+            <Button variant="success" onClick={() => onLocationSave(reducerIndex)}>Save</Button>
+            <Button onClick={addLocationRow}>Add More</Button>
           </Modal.Footer>
         </Modal>
       }
@@ -249,6 +337,9 @@ export const FarmersLandTable = () => {
                 <option key={index} value={option.value}>{option.key}</option>
               ))}
             </Form.Select>
+            {Object.keys(unitError).map((key) => {
+              return <span className="error-message">{unitError[key]}</span>
+            })}
           </Form.Group>
         </div>
         <div style={{ display: 'flex', justifyContent: 'end' }}>
@@ -263,7 +354,7 @@ export const FarmersLandTable = () => {
       </Row>
       <Form
         noValidate
-        validated={formHasError}
+        validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
         className="details-form"
         id="AddFarmersLiveStockTableDetailsForm"
       >
@@ -283,12 +374,6 @@ export const FarmersLandTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((farmerLandDetailsData, index) => (
                 <tr key={index}>
-                  <td key={index}>
-                    <Button style={{ fontSize: '10px' }}
-                      onClick={() => { localModalPreview() }} >
-                      Add Location
-                    </Button>
-                  </td>
                   <td key={index}>
                     <Form.Control
                       type="text"
@@ -368,6 +453,13 @@ export const FarmersLandTable = () => {
                       value={farmerLandDetailsData.landArea}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Cultivated Land"
+                      onKeyPress={(e) => {
+                        const regex = /[0-9]|\./;
+                        const key = String.fromCharCode(e.charCode);
+                        if (!regex.test(key)) {
+                          e.preventDefault();
+                        }
+                      }}
                       required
                     />
                   </td>
@@ -382,6 +474,13 @@ export const FarmersLandTable = () => {
                       <option value="Active">Active</option>
                       <option value="Suspended">Suspended</option>
                     </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Button style={{ fontSize: '10px' }}
+                      onClick={() => { locationModalPreview(index) }} >
+                      Google Location
+                    </Button>
                   </td>
 
                   <td>
