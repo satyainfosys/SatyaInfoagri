@@ -181,6 +181,7 @@ export const Farmers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         dispatch(commonContactDetailsAction(undefined));
         dispatch(bankDetailsAction(undefined));
+        dispatch(farmerLandDetailsAction(undefined));
         localStorage.removeItem("EncryptedFarmerCode");
     })
 
@@ -539,6 +540,7 @@ export const Farmers = () => {
         localStorage.removeItem("DeleteFarmerIrrigationCodes");
         localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
         localStorage.removeItem("DeleteFarmerMachineryDetailCodes");
+        localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
         localStorage.removeItem("DeleteFarmerLandCodes");
 
         if (!isAddFarmer) {
@@ -660,7 +662,8 @@ export const Farmers = () => {
                 farmerMachineryDetails: farmerMachineryDetailsList,
                 farmerLiveStockCattleDetails: farmerLiveStockCattleList,
                 farmerKisanCardDetails: farmerCardDetailsList,
-                farmerIrrigationDetails: farmerIrrigationDetailsList
+                farmerIrrigationDetails: farmerIrrigationDetailsList,
+                farmerLandDetails: farmerLandDetailsList
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation", "farmerIdNo"]
@@ -726,6 +729,18 @@ export const Farmers = () => {
                 }
                 requestData.farmerIrrigationDetails[index] = farmerIrrigationDetailsObj;
                 index++;
+            }
+
+            const landKeys = ['landMark', 'addUser']
+            var index = 0;
+            for(var obj in requestData.farmerLandDetails){
+                var farmerLandDetailsObj = requestData.farmerLandDetails[obj];
+
+                for(const key of Object.keys(farmerLandDetailsObj).filter((key) => landKeys.includes(key))){
+                    farmerLandDetailsObj[key] = farmerLandDetailsObj[key] ? farmerLandDetailsObj[key].toUpperCase() : '';                    
+                }
+                requestData.farmerLandDetails[index] = farmerLandDetailsObj;
+                index++
             }
 
             setIsLoading(true);
@@ -826,8 +841,6 @@ export const Farmers = () => {
             }
         }
     }
-
-
 
     const getFarmerKisanCardDetail = async () => {
         const request = {
@@ -934,7 +947,8 @@ export const Farmers = () => {
             var deleteFarmerIrrigationDetailCodes = localStorage.getItem("DeleteFarmerIrrigationCodes");
             var deleteFarmerLiveStockCattleDetailIds = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
             var deleteFarmerMachineryDetailCodes = localStorage.getItem("DeleteFarmerMachineryDetailCodes");
-            var deleterFarmerLandDetailCodes = localStorage.getItem("DeleteFarmerLandCodes");
+            var deleteFarmerLandDetailCodes = localStorage.getItem("DeleteFarmerLandCodes");
+            var deleteFarmerLandGeoDetailcodes = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
 
             const updateFarmerData = {
                 encryptedFarmerCode: farmerData.encryptedFarmerCode,
@@ -1018,7 +1032,7 @@ export const Farmers = () => {
                         }
 
                         if (deleteFarmerFamilyCodes || deleteFarmerContactDetailsId || deleteBankDetails || deleteFarmerKisanCardIds ||
-                            deleteFarmerIrrigationDetailCodes || deleteFarmerLiveStockCattleDetailIds || deleteFarmerMachineryDetailCodes || deleterFarmerLandDetailCodes) {
+                            deleteFarmerIrrigationDetailCodes || deleteFarmerLiveStockCattleDetailIds || deleteFarmerMachineryDetailCodes || deleteFarmerLandDetailCodes) {
                             existUpdate = false
                         }
                         else if (existUpdate) {
@@ -1082,7 +1096,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked
-                            && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
+                            && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
                         } else {
@@ -1104,7 +1118,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
+                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
@@ -1135,7 +1149,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
                         }
@@ -1169,7 +1183,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
-                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
                         }
@@ -1192,7 +1206,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
-                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
                         } else {
@@ -1218,7 +1232,7 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
+                        else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             //updateFarmerCallback();
                         }
@@ -1251,7 +1265,7 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if (deleteBankDetailIndex == deleteBankDetailList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes
+                        else if (deleteBankDetailIndex == deleteBankDetailList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
@@ -1299,7 +1313,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (bankDetailIndex == bankDetailList.length && !loopBreaked && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
@@ -1322,7 +1336,7 @@ export const Farmers = () => {
                             loopBreaked = true;
                         }
                         else if (bankDetailIndex == bankDetailList.length && !loopBreaked && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
@@ -1362,8 +1376,8 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds
-                            && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
+                            && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
                         else {
@@ -1384,8 +1398,8 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds
-                            && !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
+                            && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
                         else {
@@ -1412,7 +1426,7 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if (deleteFarmerCardIndex == deleteFarmerCardDetailList.length && !loopBreaked && !deleterFarmerLandDetailCodes
+                        else if (deleteFarmerCardIndex == deleteFarmerCardDetailList.length && !loopBreaked && !deleteFarmerLandGeoDetailcodes  && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
@@ -1438,8 +1452,6 @@ export const Farmers = () => {
                             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
                             encryptedFarmerLandCode: farmerLandDetail.encryptedFarmerLandCode,
                             encryptedFarmerLandGeoCode: farmerLandDetail.encryptedFarmerLandGeoCode,
-                            longitude: farmerLandDetail.longitude,
-                            latitude: farmerLandDetail.latitude,
                             khasraNo: farmerLandDetail.khasraNo ? farmerLandDetail.khasraNo : '',
                             landMark: farmerLandDetail.landMark ? farmerLandDetail.landMark : '',
                             ownerShip: farmerLandDetail.ownerShip ? farmerLandDetail.ownerShip : '',
@@ -1448,7 +1460,8 @@ export const Farmers = () => {
                             landArea: farmerLandDetail.landArea ? farmerLandDetail.landArea : '',
                             cultivatedLandUnit: farmerLandDetail.cultivatedLandUnit ? farmerLandDetail.cultivatedLandUnit : '',
                             activeStatus: farmerLandDetail.activeStatus ? farmerLandDetail.activeStatus : '',
-                            modifyUser: localStorage.getItem("LoginUserName")
+                            modifyUser: localStorage.getItem("LoginUserName"),
+                            farmerGeofancingLand: farmerLandDetail.farmerGeofancingLand
                         }
 
                         setIsLoading(true);
@@ -1464,8 +1477,8 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if ((farmerLandDetailIndex == farmerLandDetailsList.length) && !loopBreaked &&
-                            !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+                        else if ((farmerLandDetailIndex == farmerLandDetailsList.length) && !loopBreaked && !deleteFarmerLandGeoDetailcodes &&
+                            !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
                         else {
@@ -1486,8 +1499,8 @@ export const Farmers = () => {
                             });
                             loopBreaked = true;
                         }
-                        else if ((farmerLandDetailIndex == farmerLandDetailsList) && !loopBreaked &&
-                            !deleterFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+                        else if ((farmerLandDetailIndex == farmerLandDetailsList) && !loopBreaked && !deleteFarmerLandGeoDetailcodes &&
+                            !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
                         }
                         else {
@@ -1497,7 +1510,36 @@ export const Farmers = () => {
                 }
             }
 
-            var deleteFarmerLandDetailList = deleterFarmerLandDetailCodes ? deleterFarmerLandDetailCodes.split(',') : null;
+            var deleteFarmerLandGeoDetailList = deleteFarmerLandGeoDetailcodes ? deleteFarmerLandGeoDetailcodes.split(',') : null;
+
+            if(deleteFarmerLandGeoDetailList){
+                var delteFarmerLandGeoIndex = 1;
+
+                deleteFarmerLandGeoDetailList.forEach(async deleteFarmerLandGeoDetailCode => {
+                    if(!loopBreaked){
+                        const data = { encryptedFarmerLandGeoCode: deleteFarmerLandGeoDetailCode }
+                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        const deleteFarmerLandGeoResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-land-geo-fancing-detail', { headers, data });
+                        if(deleteFarmerLandGeoResponse.data.status != 200){
+                            toast.error(deleteFarmerLandGeoResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            loopBreaked = true;
+                        }
+                        else if ((deleteFarmerLandDetailIndex == deleteFarmerLandDetailList.length) && !loopBreaked && !deleteFarmerLandDetailCodes
+                            && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+                            updateFarmerCallback();
+                        }
+                        else {
+                            delteFarmerLandGeoIndex++;
+                        }
+
+                    }
+                })
+            }
+
+            var deleteFarmerLandDetailList = deleteFarmerLandDetailCodes ? deleteFarmerLandDetailCodes.split(',') : null;
 
             if (deleteFarmerLandDetailList) {
                 var deleteFarmerLandDetailIndex = 1;

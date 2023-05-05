@@ -30,6 +30,7 @@ export const FarmersLandTable = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [unitList, setUnitList] = useState([])
   const [unitError, setUnitError] = useState('');
+  const [unitCode, setUnitCode] = useState();
 
   const emptyRow = {
     id: rowData.length + 1,
@@ -44,7 +45,8 @@ export const FarmersLandTable = () => {
     landArea: '',
     activeStatus: '',
     addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LoginUserName")
+    modifyUser: localStorage.getItem("LoginUserName"),
+    unitCode: unitCode
   }
 
   const farmerLandDetailsReducer = useSelector((state) => state.rootReducer.farmerLandDetailsReducer)
@@ -56,6 +58,9 @@ export const FarmersLandTable = () => {
   useEffect(() => {
     getUnitList();
     setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData);
+    if (localStorage.getItem("EncryptedFarmerCode")) {
+      setLocationRowData([]);
+    }
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
 
   const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData) => {
@@ -87,13 +92,23 @@ export const FarmersLandTable = () => {
     let unitError = {}
     let isUnitValid = true;
 
-    if (!$('#txtUnit').val()) {
+    if (!unitCode) {
       unitError.empty = "Select unit";
       isUnitValid = false;
     }
 
     setUnitError(unitError);
     return isUnitValid;
+  }
+
+  const handleUnitChange = (e) => {
+    setUnitCode(e.target.value)
+    if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
+      for (let i = 0; i < farmerLandDetailsData.length; i++) {
+        farmerLandDetailsData[i].unitCode = e.target.value;
+        dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+      }
+    }
   }
 
   const handleAddRow = () => {
@@ -134,7 +149,9 @@ export const FarmersLandTable = () => {
 
     var deleteFarmerLandDetail = deleteFarmerLandCode ? deleteFarmerLandCode + "," + paramsData.encryptedFarmerLandCode : paramsData.encryptedFarmerLandCode;
 
-    localStorage.setItem("DeleteFarmerLandCodes", deleteFarmerLandDetail);
+    if (deleteFarmerLandDetail) {
+      localStorage.setItem("DeleteFarmerLandCodes", deleteFarmerLandDetail);
+    }
 
     toast.success("Land details deleted successfully", {
       theme: 'colored'
@@ -151,6 +168,12 @@ export const FarmersLandTable = () => {
   const locationModalPreview = (indexNo) => {
     setShowLocationModal(true);
     setReducerIndex(indexNo)
+
+    if (farmerLandDetailsData && farmerLandDetailsData[indexNo].farmerGeofancingLand) {
+      farmerLandDetailsData[indexNo].farmerGeofancingLand.map(landGeoDetail => {
+        locationRowData.push(landGeoDetail);
+      })
+    }
   }
 
   const addLocationRow = () => {
@@ -192,6 +215,9 @@ export const FarmersLandTable = () => {
       dispatch(farmerLandDetailsAction(farmerLandDetailsData));
       setShowLocationModal(false);
       setLocationRowData([]);
+
+      if ($("#btnSave").attr('disabled'))
+        $("#btnSave").attr('disabled', false);
     }
   }
 
@@ -214,12 +240,31 @@ export const FarmersLandTable = () => {
     return isLocationFormValid;
   }
 
-  // const deleteLocationDetails = (index) => {
-  //   if(!reducerIndex && !index)
-  //   return false;
+  const deleteLocationDetails = (index, item) => {
+    if (reducerIndex < 0 && index < 0)
+      return false;
 
-  //   farmerLandDetailsData[reducerIndex].location.splice(index, 1);
-  // }
+    farmerLandDetailsData[reducerIndex].farmerGeofancingLand.splice(index, 1);
+
+    var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
+
+    var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + " ," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
+
+    if (deleteFarmerLandGeoDetail) {
+      localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
+    }
+
+    toast.success("Irrigation details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(farmerLandDetailsAction(farmerLandDetailsData));
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
+
+    setShowLocationModal(false);
+  }
 
   const hasLocationData = locationRowData.some((location) => {
     return location.latitude !== '' && location.longitude !== '';
@@ -251,7 +296,7 @@ export const FarmersLandTable = () => {
       {showLocationModal &&
         <Modal
           show={showLocationModal}
-          onHide={() => setShowLocationModal(false)}
+          onHide={() => { setShowLocationModal(false), setLocationRowData([]) }}
           size="md"
           aria-labelledby="contained-modal-title-vcenter"
           centered
@@ -286,6 +331,14 @@ export const FarmersLandTable = () => {
                           onChange={(e) => handleLocationFieldChange(e, index)}
                           placeholder="Latitude"
                           className="form-control"
+                          // onKeyPress={(e) => {
+                          //   const keyCode = e.which || e.keyCode;
+                          //   const keyValue = String.fromCharCode(keyCode);
+                          //   const validRegex = /^-?([0-8]?[0-9]\.[0-9]{1,6}|90\.[0]{1,6})$/;
+                          //   if (!validRegex.test(e.target.value + keyValue)) {
+                          //     e.preventDefault();
+                          //   }
+                          // }}                          
                           required
                         />
                       </td>
@@ -302,15 +355,12 @@ export const FarmersLandTable = () => {
                         />
                       </td>
                       <td>
-                        <i className="fa fa-trash fa-lg" />
+                        <i className="fa fa-trash fa-lg" onClick={() => deleteLocationDetails(index, row)} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-              {/* <div style={{ display: 'flex', justifyContent: 'end' }}>
-                
-              </div> */}
             </Form>
           </Modal.Body>
           <Modal.Footer>
@@ -331,6 +381,7 @@ export const FarmersLandTable = () => {
               type="text"
               id="txtUnit"
               className="form-control"
+              onChange={handleUnitChange}
             >
               <option value=''>Select Unit</option>
               {unitList.map((option, index) => (

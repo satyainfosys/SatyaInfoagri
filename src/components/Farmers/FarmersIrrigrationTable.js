@@ -94,7 +94,9 @@ export const FarmersIrrigrationTable = () => {
 
     var deleteFarmerIrrigationDetail = deleteFarmerIrrigationCode ? deleteFarmerIrrigationCode + "," + paramsData.encryptedFarmerIrrigationCode : paramsData.encryptedFarmerIrrigationCode;
 
-    localStorage.setItem("DeleteFarmerIrrigationCodes", deleteFarmerIrrigationDetail);
+    if (deleteFarmerIrrigationDetail) {
+      localStorage.setItem("DeleteFarmerIrrigationCodes", deleteFarmerIrrigationDetail);
+    }
 
     toast.success("Irrigation details deleted successfully", {
       theme: 'colored'
