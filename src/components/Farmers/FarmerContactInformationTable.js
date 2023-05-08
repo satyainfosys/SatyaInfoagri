@@ -228,7 +228,7 @@ export const FarmerContactInformationTable = () => {
                     />
                   </td>
                   <td>
-                    <i className="fa fa-trash " onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
                   </td>
                 </tr>
               ))}

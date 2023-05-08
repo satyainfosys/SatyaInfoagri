@@ -246,7 +246,7 @@ export const FarmersIrrigrationTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
                   </td>
                 </tr>
               ))}

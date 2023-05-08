@@ -22,7 +22,8 @@ const initialState = {
     cardDetailErr: {},
     bankDetailErr: {},
     irrigationDetailErr: {},
-    landDetailErr: {}
+    landDetailErr: {},
+    unitErr: {}
   }
 };
 

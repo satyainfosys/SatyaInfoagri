@@ -199,7 +199,7 @@ export const FarmersCardTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash" onClick={() => { ModalPreview(farmerCardDetailData.encryptedFarmerKisanCardId, farmerCardDetailData.farmerKisanCardNo) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerCardDetailData.encryptedFarmerKisanCardId, farmerCardDetailData.farmerKisanCardNo) }} />
                   </td>
                 </tr>
               )

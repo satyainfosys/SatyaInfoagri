@@ -305,7 +305,7 @@ export const BankDetailsTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash " onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
                   </td>
                 </tr>
               ))}

@@ -283,7 +283,7 @@ export const FamilyTable = () => {
                     </Form.Select>
                   </td>
                   <td>
-                    <i className="fa fa-trash" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName) }} />
                   </td>
                 </tr>
               ))}

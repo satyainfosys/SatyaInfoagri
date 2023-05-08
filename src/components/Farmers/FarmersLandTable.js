@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal, Row } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { farmerLandDetailsAction } from 'actions';
+import { farmerLandDetailsAction, farmerDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 
@@ -30,7 +30,7 @@ export const FarmersLandTable = () => {
   const [showLocationModal, setShowLocationModal] = useState(false);
   const [unitList, setUnitList] = useState([])
   const [unitError, setUnitError] = useState('');
-  const [unitCode, setUnitCode] = useState();
+  const [unitCode, setUnitCode] = useState('');
 
   const emptyRow = {
     id: rowData.length + 1,
@@ -55,12 +55,27 @@ export const FarmersLandTable = () => {
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
+  const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
+  var farmerData = farmerDetailsReducer.farmerDetails;
+
   useEffect(() => {
     getUnitList();
     setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData);
     if (localStorage.getItem("EncryptedFarmerCode")) {
       setLocationRowData([]);
     }
+    if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
+      setUnitCode(farmerLandDetailsData[0].unitCode);
+    }
+
+    const sumOfLandArea = farmerLandDetailsData.reduce((acc, obj) => {
+      return acc + parseFloat(obj.landArea);
+    }, 0);
+
+    dispatch(farmerDetailsAction({
+      ...farmerData,
+      totalLand: sumOfLandArea
+    }))
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
 
   const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData) => {
@@ -109,6 +124,16 @@ export const FarmersLandTable = () => {
         dispatch(farmerLandDetailsAction(farmerLandDetailsData))
       }
     }
+
+    const selectedOption = e.target.options[e.target.selectedIndex];
+    const selectedKey = selectedOption.dataset.key || selectedOption.label;
+    dispatch(farmerDetailsAction({
+      ...farmerData,
+      unitName: selectedKey
+    }))
+    
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   }
 
   const handleAddRow = () => {
@@ -248,13 +273,13 @@ export const FarmersLandTable = () => {
 
     var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
 
-    var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + " ," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
+    var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + "," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
 
     if (deleteFarmerLandGeoDetail) {
       localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
     }
 
-    toast.success("Irrigation details deleted successfully", {
+    toast.success("Location details deleted successfully", {
       theme: 'colored'
     });
 
@@ -338,7 +363,7 @@ export const FarmersLandTable = () => {
                           //   if (!validRegex.test(e.target.value + keyValue)) {
                           //     e.preventDefault();
                           //   }
-                          // }}                          
+                          // }}
                           required
                         />
                       </td>
@@ -382,6 +407,8 @@ export const FarmersLandTable = () => {
               id="txtUnit"
               className="form-control"
               onChange={handleUnitChange}
+              name='unitCode'
+              value={unitCode}
             >
               <option value=''>Select Unit</option>
               {unitList.map((option, index) => (
@@ -511,6 +538,7 @@ export const FarmersLandTable = () => {
                           e.preventDefault();
                         }
                       }}
+                      maxLength={5}
                       required
                     />
                   </td>
@@ -535,7 +563,7 @@ export const FarmersLandTable = () => {
                   </td>
 
                   <td>
-                    <i className="fa fa-trash" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
                   </td>
                 </tr>
               ))

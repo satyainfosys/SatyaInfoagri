@@ -919,7 +919,7 @@ const AddFarmer = () => {
                                                     <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
                                                 </Col>
                                                 <Col sm={4}>
-                                                    <Form.Control id="txtHectare" name="" className="mb-1" placeholder="Hectare" value="HECTARE" disabled />
+                                                    <Form.Control id="txtHectare" name="unitName" className="mb-1" placeholder="Hectare" value={farmerData.unitName} disabled />
                                                 </Col>
                                             </Form.Group>
 
