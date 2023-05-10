@@ -9,6 +9,7 @@ export const FarmersIrrigrationTable = () => {
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
   const columnsArray = [
+    'S.No',
     'Irrigration Detail',
     'Irrigation Type',
     'Source Of Water',
@@ -165,6 +166,9 @@ export const FarmersIrrigrationTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((farmerIrrigationDetailData, index) => (
                 <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
                   <td key={index}>
                     <Form.Select
                       type="text"

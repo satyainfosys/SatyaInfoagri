@@ -14,6 +14,7 @@ export const FarmersLandTable = () => {
   const [modalError, setModalError] = useState(false);
 
   const columnsArray = [
+    'S.No',
     'Khasra No',
     'Land Mark',
     'Ownership',
@@ -31,6 +32,7 @@ export const FarmersLandTable = () => {
   const [unitList, setUnitList] = useState([])
   const [unitError, setUnitError] = useState('');
   const [unitCode, setUnitCode] = useState('');
+  const [locationErr, setLocationErr] = useState({})
 
   const emptyRow = {
     id: rowData.length + 1,
@@ -131,7 +133,7 @@ export const FarmersLandTable = () => {
       ...farmerData,
       unitName: selectedKey
     }))
-    
+
     if ($("#btnSave").attr('disabled'))
       $("#btnSave").attr('disabled', false);
   }
@@ -240,6 +242,7 @@ export const FarmersLandTable = () => {
       dispatch(farmerLandDetailsAction(farmerLandDetailsData));
       setShowLocationModal(false);
       setLocationRowData([]);
+      setLocationErr({});
 
       if ($("#btnSave").attr('disabled'))
         $("#btnSave").attr('disabled', false);
@@ -247,7 +250,10 @@ export const FarmersLandTable = () => {
   }
 
   const validateLocationModal = () => {
+    let locationErr = {};
     let isLocationFormValid = true;
+
+    const seenPairs = {};
 
     if (locationRowData && locationRowData.length > 0) {
       locationRowData.forEach((row, index) => {
@@ -255,11 +261,30 @@ export const FarmersLandTable = () => {
           isLocationFormValid = false;
           setModalError(true);
         }
+
+        if (!(parseFloat(row.latitude) >= -90 && parseFloat(row.latitude) <= 90) || !(parseFloat(row.longitude) > -180 && parseFloat(row.longitude) <= 180)) {
+          locationErr.invalidEntry = "Latitude should be between -90 to 90 and logitude from -180 to 180";
+          isLocationFormValid = false;
+        }
+        else {
+          const pair = row;
+          const pairString = `${pair.latitude},${pair.longitude}`;
+          if (seenPairs[pairString]) {
+            locationErr.invalid = "Same Latitude and Longitude pair is already added";
+            isLocationFormValid = false;
+          } else {
+            seenPairs[pairString] = true;
+          }
+        }
       })
     }
 
     if (isLocationFormValid) {
       setModalError(false)
+    }
+
+    if (!isLocationFormValid) {
+      setLocationErr(locationErr)
     }
 
     return isLocationFormValid;
@@ -269,20 +294,25 @@ export const FarmersLandTable = () => {
     if (reducerIndex < 0 && index < 0)
       return false;
 
-    farmerLandDetailsData[reducerIndex].farmerGeofancingLand.splice(index, 1);
+    if (farmerLandDetailsData[reducerIndex].farmerGeofancingLand && farmerLandDetailsData[reducerIndex].farmerGeofancingLand.length > 0) {
+      farmerLandDetailsData[reducerIndex].farmerGeofancingLand.splice(index, 1);
 
-    var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
+      var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
 
-    var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + "," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
+      var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + "," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
 
-    if (deleteFarmerLandGeoDetail) {
-      localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
+      if (deleteFarmerLandGeoDetail) {
+        localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
+      }
+    }
+    else {
+      locationRowData.splice(index, 1);
     }
 
     toast.success("Location details deleted successfully", {
       theme: 'colored'
     });
-
+    setLocationErr({});
     dispatch(farmerLandDetailsAction(farmerLandDetailsData));
 
     if ($("#btnSave").attr('disabled'))
@@ -321,7 +351,7 @@ export const FarmersLandTable = () => {
       {showLocationModal &&
         <Modal
           show={showLocationModal}
-          onHide={() => { setShowLocationModal(false), setLocationRowData([]) }}
+          onHide={() => { setShowLocationModal(false), setLocationRowData([]), setLocationErr({}) }}
           size="md"
           aria-labelledby="contained-modal-title-vcenter"
           centered
@@ -336,9 +366,13 @@ export const FarmersLandTable = () => {
               validated={modalError}
               className="details-form"
             >
+              {Object.keys(locationErr).map((key) => {
+                return <span className="error-message">{locationErr[key]}</span>
+              })}
               <Table>
                 <thead>
                   <tr>
+                    <th>S.No</th>
                     <th>Latitude</th>
                     <th>Longitude</th>
                     <th>Actions</th>
@@ -347,6 +381,9 @@ export const FarmersLandTable = () => {
                 <tbody>
                   {locationRowData.map((row, index) => (
                     <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
                       <td key={index}>
                         <Form.Control
                           type="text"
@@ -389,7 +426,7 @@ export const FarmersLandTable = () => {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="danger" onClick={() => { setShowLocationModal(false), setLocationRowData([]) }}>Cancel</Button>
+            <Button variant="danger" onClick={() => { setShowLocationModal(false), setLocationRowData([]), setLocationErr({}) }}>Cancel</Button>
             <Button variant="info" disabled={!hasLocationData}>
               Show On Map
             </Button>
@@ -452,6 +489,9 @@ export const FarmersLandTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((farmerLandDetailsData, index) => (
                 <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
                   <td key={index}>
                     <Form.Control
                       type="text"

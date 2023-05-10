@@ -14,6 +14,7 @@ export const BankDetailsTable = () => {
   const [bankList, setBankList] = useState([]);
 
   const columnsArray = [
+    'S. No',
     'Bank Name',
     'Bank Address',
     'Branch Name',
@@ -210,6 +211,9 @@ export const BankDetailsTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((bankDetailData, index) => (
                 <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
                   <td key={index}>
                     <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)} required>
                       <option value=''>Select Bank</option>

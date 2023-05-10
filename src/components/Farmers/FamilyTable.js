@@ -41,6 +41,7 @@ export const FamilyTable = () => {
   };
 
   const columnsArray = [
+    'S.No',
     'Name',
     'Age',
     'Sex',
@@ -189,6 +190,9 @@ export const FamilyTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((familyDetailData, index) => (
                 <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
                   <td key={index}>
                     <Form.Control
                       type="text"

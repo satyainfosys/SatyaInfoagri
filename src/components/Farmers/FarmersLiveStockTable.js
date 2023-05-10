@@ -8,21 +8,10 @@ export const FarmersLiveStockTable = () => {
 
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
-  const [cattleTypeErr, setCattleTypeErr] = useState({});
-  const [rowData, setRowData] = useState([{
-    id: 1,
-    cattleType: '',
-    noOfCattle: 0,
-    production: 0,
-    rate: 0,
-    cattleAge: 0,
-    milkType: '',
-    activeStatus: '',
-    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-    addUser: localStorage.getItem("LoginUserName"),
-    modifyUser: localStorage.getItem("LoginUserName")
-  },]);
+  const [rowData, setRowData] = useState([]);
+
   const columnsArray = [
+    'S.No',
     'Cattle Type',
     'No Of Cattle',
     'Production',
@@ -42,10 +31,10 @@ export const FarmersLiveStockTable = () => {
     encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
     cattleType: '',
-    noOfCattle: 0,
-    production: 0,
-    rate: 0,
-    cattleAge: 0,
+    noOfCattle: '',
+    production: '',
+    rate: '',
+    cattleAge: '',
     milkType: '',
     activeStatus: '',
     addUser: localStorage.getItem("LoginUserName"),
@@ -55,53 +44,42 @@ export const FarmersLiveStockTable = () => {
   const farmerLiveStockCattleDetailsReducer = useSelector((state) => state.rootReducer.farmerLiveStockCattleDetailsReducer)
   var farmerLiveStockCattleData = farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails;
 
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
-    setRowDataValue(farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData, emptyRow);
+    setRowDataValue(farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData);
   }, [farmerLiveStockCattleData, farmerLiveStockCattleDetailsReducer]);
 
-  const setRowDataValue = (farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData, emptyRow) => {
-    setRowData(farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.length > 0 ? farmerLiveStockCattleData : [emptyRow]);
-  };
-
-  const handleAddRow = () => {
-    const newId = rowData.length + 1;
-    const newRow = {
-      id: newId,
-      encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
-      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-      encryptedFarmerCattleCode: farmerLiveStockCattleData.encryptedFarmerCattleCode ? farmerLiveStockCattleData.encryptedFarmerCattleCode : '',
-      cattleType: '',
-      noOfCattle: 0,
-      production: 0,
-      rate: 0,
-      cattleAge: 0,
-      milkType: '',
-      activeStatus: '',
-      addUser: localStorage.getItem("LoginUserName"),
-      modifyUser: localStorage.getItem("LoginUserName")
-    }
-    let newArray = farmerLiveStockCattleData.push(newRow);
-    dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
+  const setRowDataValue = (farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData) => {
+    setRowData(farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.length > 0 ? farmerLiveStockCattleData : []);
   };
 
   const validateFarmersLiveStockCattleDetailForm = () => {
-    const cattleTypeErr = {};
-
     let isValid = true;
 
-    if (!farmerLiveStockCattleData.cattleType) {
-      cattleTypeErr.empty = "Select cattle type";
-      isValid = false;
-      setFormError(true);
+    if (farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0) {
+      farmerLiveStockCattleData.forEach((row, index) => {
+        if (!row.cattleType || !row.noOfCattle) {
+          isValid = false;
+          setFormError(true);
+        }
+      });
     }
 
-    if (!isValid) {
-      setCattleTypeErr(cattleTypeErr);
+    if (isValid) {
+      setFormError(false);
     }
 
     return isValid;
   }
+
+  const handleAddRow = () => {
+    if (validateFarmersLiveStockCattleDetailForm()) {
+      farmerLiveStockCattleData.push(emptyRow);
+      dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
+    }
+  };
 
   const handleFieldChange = (e, index) => {
     const { name, value } = e.target;
@@ -131,7 +109,9 @@ export const FarmersLiveStockTable = () => {
 
     var deleteFarmerCattleLiveStockDetail = deleteFarmerLiveStockDetailCode ? deleteFarmerLiveStockDetailCode + "," + paramsData.encryptedFarmerCattleCode : paramsData.encryptedFarmerCattleCode;
 
-    localStorage.setItem("DeleteFarmerLiveStockCattleDetailIds", deleteFarmerCattleLiveStockDetail);
+    if (deleteFarmerCattleLiveStockDetail) {
+      localStorage.setItem("DeleteFarmerLiveStockCattleDetailIds", deleteFarmerCattleLiveStockDetail);
+    }
 
     toast.success("Cattle details deleted successfully", {
       theme: 'colored'
@@ -143,6 +123,14 @@ export const FarmersLiveStockTable = () => {
       $("#btnSave").attr('disabled', false);
 
     setModalShow(false);
+  }
+
+  const handleKeyPress = (e) => {
+    const regex = /[0-9]|\./;
+    const key = String.fromCharCode(e.charCode);
+    if (!regex.test(key)) {
+      e.preventDefault();
+    }
   }
 
   return (
@@ -180,132 +168,144 @@ export const FarmersLiveStockTable = () => {
 
       <Form
         noValidate
-        validated={formHasError}
+        validated={formHasError || (farmerError.cattleStockErr && farmerError.cattleStockErr.invalidCattleDetail)}
         className="details-form"
         id="AddFarmersLiveStockTableDetailsForm"
       >
-        <Table striped responsive id="TableList" className="no-pb">
-          <thead>
-            <tr>
-              {columnsArray.map((column, index) => (
-                <th className="text-left" key={index}>
-                  {column}
-                </th>
-              ))}
-              <th />
-            </tr>
-          </thead>
-          <tbody id="tbody" className="details-form">
-            {rowData.map((farmerLiveStockCattleData, index) => (
-              <tr key={index}>
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtCattleType"
-                    name="cattleType"
-                    className="form-control"
-                    onChange={(e) => handleFieldChange(e, index)}
-                    value={farmerLiveStockCattleData.cattleType}
-                  >
-                    <option value=''>Select</option>
-                    <option value='Cow'>Cow</option>
-                    <option value='Buffalo'>Buffalo</option>
-                    <option value='Poultry Bird'>Poultry Bird</option>
-                    <option value='Goat'>Goat</option>
-                    <option value='Sheep'>Sheep</option>
-                    <option value='Poni'>Poni</option>
-                    <option value='Pig'>Pig</option>
-                    <option value='Camel'>Camel</option>
-                    <option value='Horse'>Horse</option>
-                    <option value='Others'>Others</option>
-                  </Form.Select>
-                  {Object.keys(cattleTypeErr).map((key) => {
-                    return <span className="error-message">{cattleTypeErr[key]}</span>
-                  })}
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="number"
-                    id="numNoOfCattle"
-                    name="noOfCattle"
-                    value={farmerLiveStockCattleData.noOfCattle}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="No Of Cattle"
-                    className="form-control"
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="number"
-                    min={0}
-                    id="numProduction" activeStatus
-                    name="production"
-                    value={farmerLiveStockCattleData.production}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="Production"
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="number"
-                    min={0}
-                    id="numRatePerLiter"
-                    name="rate"
-                    value={farmerLiveStockCattleData.rate}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="Rate Per Liter"
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Control
-                    type="number"
-                    min={0}
-                    id="numAge"
-                    name="cattleAge"
-                    value={farmerLiveStockCattleData.cattleAge}
-                    onChange={(e) => handleFieldChange(e, index)}
-                    placeholder="Age"
-                  />
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    type="text"
-                    id="txtMilkType"
-                    name="milkType"
-                    className="form-control"
-                    value={farmerLiveStockCattleData.milkType}
-                    onChange={(e) => handleFieldChange(e, index)}
-                  >
-                    <option value='Yes'>Yes</option>
-                    <option value='No'>No</option>
-                  </Form.Select>
-                </td>
-
-                <td key={index}>
-                  <Form.Select
-                    id="txtStatus"
-                    name="activeStatus"
-                    className="form-control"
-                    value={farmerLiveStockCattleData.activeStatus}
-                    onChange={(e) => handleFieldChange(e, index)}
-                  >
-                    <option value="Active">Active</option>
-                    <option value="Suspended">Suspended</option>
-                  </Form.Select>
-                </td>
-
-                <td>
-                  <i className="fa fa-trash" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
-                </td>
+        {
+          farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
+          <Table striped responsive id="TableList" className="no-pb">
+            <thead>
+              <tr>
+                {columnsArray.map((column, index) => (
+                  <th className="text-left" key={index}>
+                    {column}
+                  </th>
+                ))}
+                <th />
               </tr>
-            ))}
-          </tbody>
-        </Table>
+            </thead>
+            <tbody id="tbody" className="details-form">
+              {rowData.map((farmerLiveStockCattleData, index) => (
+                <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtCattleType"
+                      name="cattleType"
+                      className="form-control"
+                      onChange={(e) => handleFieldChange(e, index)}
+                      value={farmerLiveStockCattleData.cattleType}
+                      required
+                    >
+                      <option value=''>Select</option>
+                      <option value='Cow'>Cow</option>
+                      <option value='Buffalo'>Buffalo</option>
+                      <option value='Poultry Bird'>Poultry Bird</option>
+                      <option value='Goat'>Goat</option>
+                      <option value='Sheep'>Sheep</option>
+                      <option value='Poni'>Poni</option>
+                      <option value='Pig'>Pig</option>
+                      <option value='Camel'>Camel</option>
+                      <option value='Horse'>Horse</option>
+                      <option value='Others'>Others</option>
+                    </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="numNoOfCattle"
+                      name="noOfCattle"
+                      value={farmerLiveStockCattleData.noOfCattle}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="No Of Cattle"
+                      className="form-control"
+                      onKeyPress={handleKeyPress}
+                      maxLength={5}
+                      required
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="numProduction"
+                      name="production"
+                      value={farmerLiveStockCattleData.production}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Production"
+                      onKeyPress={handleKeyPress}
+                      maxLength={5}
+                      className="form-control"
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="numRatePerLiter"
+                      name="rate"
+                      value={farmerLiveStockCattleData.rate}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Rate Per Liter"
+                      onKeyPress={handleKeyPress}
+                      maxLength={7}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Control
+                      type="text"
+                      id="numAge"
+                      name="cattleAge"
+                      value={farmerLiveStockCattleData.cattleAge}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Age"
+                      onKeyPress={handleKeyPress}
+                      maxLength={2}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtMilkType"
+                      name="milkType"
+                      className="form-control"
+                      value={farmerLiveStockCattleData.milkType}
+                      onChange={(e) => handleFieldChange(e, index)}
+                    >
+                      <option value='Yes'>Yes</option>
+                      <option value='No'>No</option>
+                    </Form.Select>
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      id="txtStatus"
+                      name="activeStatus"
+                      className="form-control"
+                      value={farmerLiveStockCattleData.activeStatus}
+                      onChange={(e) => handleFieldChange(e, index)}
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Suspended">Suspended</option>
+                    </Form.Select>
+                  </td>
+
+                  <td>
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </Table>
+        }
+
       </Form>
     </>
   );

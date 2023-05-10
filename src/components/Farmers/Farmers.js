@@ -137,13 +137,13 @@ export const Farmers = () => {
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
         dispatch(farmerDetailsAction(undefined));
-        dispatch(farmerFamilyDetailsAction(undefined));
-        dispatch(commonContactDetailsAction(undefined));
-        dispatch(bankDetailsAction(undefined));
-        dispatch(farmerCardDetailsAction(undefined));
-        dispatch(farmerLiveStockCattleDetailsAction(undefined));
-        dispatch(farmerMachineryDetailsAction(undefined));
-        dispatch(farmerIrrigationDetailsAction(undefined));
+        dispatch(farmerFamilyDetailsAction([]));
+        dispatch(commonContactDetailsAction([]));
+        dispatch(bankDetailsAction([]));
+        dispatch(farmerCardDetailsAction([]));
+        dispatch(farmerLiveStockCattleDetailsAction([]));
+        dispatch(farmerMachineryDetailsAction([]));
+        dispatch(farmerIrrigationDetailsAction([]));
         $("#AddFarmerDetailsForm").data("changed", false);
     }
 
@@ -168,7 +168,7 @@ export const Farmers = () => {
         }
     }
 
-    $('[data-rr-ui-event-key*="Farmers"]').click(function () {
+    $('[data-rr-ui-event-key*="Farmers"]').off('click').on('click', function () {
         $("#btnNew").show();
         $("#btnSave").hide();
         $("#btnCancel").hide();
@@ -178,11 +178,13 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
-        dispatch(farmerFamilyDetailsAction(undefined));
-        dispatch(farmerDetailsErrorAction(undefined));
-        dispatch(commonContactDetailsAction(undefined));
-        dispatch(bankDetailsAction(undefined));
-        dispatch(farmerLandDetailsAction(undefined));
+        dispatch(farmerFamilyDetailsAction([]));
+        dispatch(commonContactDetailsAction([]));
+        dispatch(bankDetailsAction([]));
+        dispatch(farmerCardDetailsAction([]));
+        dispatch(farmerLiveStockCattleDetailsAction([]));
+        dispatch(farmerMachineryDetailsAction([]));
+        dispatch(farmerIrrigationDetailsAction([]));
         localStorage.removeItem("EncryptedFarmerCode");
         // $('#txtUnit').val('');
     })
@@ -206,9 +208,11 @@ export const Farmers = () => {
             getFarmerFamilyDetail();
         }
 
-        if (commonContactDetailList.length <= 0) {
-            getFarmerContactDetail();
-        }
+        // if (commonContactDetailList.length <= 0) {
+        //     getFarmerContactDetail();
+        // }
+
+        getFarmerContactDetail();
     })
 
     $('[data-rr-ui-event-key*="Bank"]').off('click').on('click', function () {
@@ -238,7 +242,7 @@ export const Farmers = () => {
         }
     })
 
-    $('[data-rr-ui-event-key*="Cattle"]').click(function () {
+    $('[data-rr-ui-event-key*="Cattle"]').off('click').on('click', function () {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -273,10 +277,11 @@ export const Farmers = () => {
         const contactErr = {};
         const familyErr = {};
         const bankDetailErr = {};
-        // const cardDetailErr = {};        
         const irrigationDetailErr = {};
         const landDetailErr = {};
         const unitErr = {};
+        const cattleStockErr = {};
+        const machineryDetailErr = {};
 
         let isValid = true;
         let isFarmerValid = true;
@@ -496,6 +501,24 @@ export const Farmers = () => {
             })
         }
 
+        if (farmerLiveStockCattleList && farmerLiveStockCattleList.length > 0) {
+            farmerLiveStockCattleList.forEach((row, index) => {
+                if (!row.cattleType || !row.noOfCattle) {
+                    cattleStockErr.invalidCattleDetail = "Fill the required fields"
+                    isValid = false;
+                }
+            })
+        }
+
+        if (farmerMachineryDetailsList && farmerMachineryDetailsList.length > 0) {
+            farmerMachineryDetailsList.forEach((row, index) => {
+                if (!row.machineryCategory || !row.machineryType || !row.machineryQty) {
+                    machineryDetailErr.invalidMachineryDetail = "Fill the required fields"
+                    isValid = false;
+                }
+            })
+        }
+
         if (!isValid) {
             var errorObject = {
                 firstNameErr,
@@ -521,7 +544,9 @@ export const Farmers = () => {
                 irrigationDetailErr,
                 landDetailErr,
                 // cardDetailErr,   
-                unitErr
+                unitErr,
+                cattleStockErr,
+                machineryDetailErr
             }
             dispatch(farmerDetailsErrorAction(errorObject))
         }
@@ -746,7 +771,7 @@ export const Farmers = () => {
                 index++;
             }
 
-            const machineryKeys = ['machineryType', 'addUser']
+            const machineryKeys = ['addUser']
             var index = 0;
             for (var obj in requestData.farmerMachineryDetails) {
                 var farmerMachineryDetailsObj = requestData.farmerMachineryDetails[obj];

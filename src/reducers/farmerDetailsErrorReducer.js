@@ -23,7 +23,9 @@ const initialState = {
     bankDetailErr: {},
     irrigationDetailErr: {},
     landDetailErr: {},
-    unitErr: {}
+    unitErr: {},
+    cattleStockErr: {},
+    machineryDetailErr: {}
   }
 };
 

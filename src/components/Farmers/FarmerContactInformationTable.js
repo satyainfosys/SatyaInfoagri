@@ -11,6 +11,7 @@ export const FarmerContactInformationTable = () => {
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
   const columnsArray = [
+    'S.No',
     'Contact Person',
     'Contact Type',
     'Contact Details',
@@ -176,6 +177,9 @@ export const FarmerContactInformationTable = () => {
             <tbody id="tbody" className="details-form">
               {rowData.map((commonContactDetailData, index) => (
                 <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
                   <td key={index}>
                     <Form.Control
                       type="text"
