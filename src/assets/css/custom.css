@@ -30,9 +30,9 @@
 }
 
 .row-selected,
-.table-striped tr:hover {
+.table-striped tbody tr:hover {
     cursor: pointer;
-    background-color: #5e6e8221;
+    background-color: rgba(237,242,249,1);
 }
 
 .table-striped>tbody>tr:nth-of-type(2n)>* {
@@ -123,6 +123,14 @@
     width: 40%;
 }
 
-/* .no-pd-card{
-    padding: 5px !important;
-} */
+.custom-bg-200{
+    background-color: #5e6e8221;
+}
+
+.table-bordered>:not(caption)>* {
+    border-width: 3px 0 !important;
+}
+
+.table-bordered>:not(caption)>*>* {
+    border-width: 0 3px !important;
+}

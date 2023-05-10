@@ -118,7 +118,7 @@ const TabPage = ({
 
             <AdvanceTable
               table
-              headerClassName="bg-200 text-900 text-nowrap align-middle"
+              headerClassName="custom-bg-200 text-900 text-nowrap align-middle"
               style = "padding-top : 0px"
               rowClassName="align-middle white-space-nowrap"
               tableProps={{

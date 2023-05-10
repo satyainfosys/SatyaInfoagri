@@ -158,15 +158,7 @@ export const FamilyTable = () => {
         >
           Add Family Details
         </Button>
-      </div>
-      {/* {
-        farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail &&
-        (
-          <div className='mb-2'>
-            <span className="error-message">{farmerError.familyErr.invalidFamilyDetail}</span>
-          </div>
-        )
-      } */}
+      </div>    
 
       <Form
         noValidate
@@ -176,15 +168,14 @@ export const FamilyTable = () => {
       >
         {
           familyDetailData && familyDetailData.length > 0 &&
-          <Table striped responsive id="TableList" className="no-pb">
-            <thead>
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
               {rowData && <tr>
                 {columnsArray.map((column, index) => (
                   <th className="text-left" key={index}>
                     {column}
                   </th>
                 ))}
-                <th />
               </tr>}
             </thead>
             <tbody id="tbody" className="details-form">
@@ -255,7 +246,7 @@ export const FamilyTable = () => {
                       value={familyDetailData.farmerMemberRelation}
                       required
                     >
-                      <option value=''>Select relation</option>
+                      <option value=''>Select Relation</option>
                       <option value='Father'>Father</option>
                       <option value='Mother'>Mother</option>
                       <option value='Brother'>Brother</option>
@@ -276,7 +267,7 @@ export const FamilyTable = () => {
                       value={familyDetailData.memberEducation}
                       required
                     >
-                      <option value=''>Select education</option>
+                      <option value=''>Select Education</option>
                       <option value="Primary School">Primary School</option>
                       <option value="High School">High School</option>
                       <option value="Inter">Inter</option>

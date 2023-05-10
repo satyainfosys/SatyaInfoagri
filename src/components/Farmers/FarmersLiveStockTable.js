@@ -174,15 +174,14 @@ export const FarmersLiveStockTable = () => {
       >
         {
           farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
-          <Table striped responsive id="TableList" className="no-pb">
-            <thead>
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (
                   <th className="text-left" key={index}>
                     {column}
                   </th>
                 ))}
-                <th />
               </tr>
             </thead>
             <tbody id="tbody" className="details-form">

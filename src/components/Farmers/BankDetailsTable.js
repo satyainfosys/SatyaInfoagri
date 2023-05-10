@@ -197,15 +197,14 @@ export const BankDetailsTable = () => {
       >
         {
           bankDetailData && bankDetailData.length > 0 &&
-          <Table striped responsive id="TableList" className="no-pb">
-            <thead>
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (
                   <th className="text-left" key={index}>
                     {column}
                   </th>
                 ))}
-                <th />
               </tr>
             </thead>
             <tbody id="tbody" className="details-form">
@@ -257,7 +256,7 @@ export const BankDetailsTable = () => {
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Account Number"
                       className="form-control"
-                      maxLength={40}
+                      maxLength={16}
                       onKeyPress={(e) => {
                         const regex = /[0-9]|\./;
                         const key = String.fromCharCode(e.charCode);
@@ -278,7 +277,7 @@ export const BankDetailsTable = () => {
                       className="form-control"
                       required
                     >
-                      <option value=''>Select account type</option>
+                      <option value=''>Select Account Type</option>
                       <option value='Saving'>Saving</option>
                       <option value='Current'>Current</option>
                     </Form.Select>

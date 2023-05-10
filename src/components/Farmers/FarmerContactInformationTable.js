@@ -163,15 +163,14 @@ export const FarmerContactInformationTable = () => {
       >
         {
           commonContactDetailData && commonContactDetailData.length > 0 &&
-          <Table striped responsive id="TableList" className="no-pb">
-            <thead>
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (
                   <th className="text-left" key={index}>
                     {column}
                   </th>
                 ))}
-                <th />
               </tr>
             </thead>
             <tbody id="tbody" className="details-form">
@@ -204,7 +203,7 @@ export const FarmerContactInformationTable = () => {
                       className="form-control"
                       required
                     >
-                      <option value=''>Select contact type</option>
+                      <option value=''>Select Contact Type</option>
                       <option value="OFE">Office Email Id</option>
                       <option value="OFM">Office Mobile No</option>
                       <option value="OFL">Office Land Line No</option>

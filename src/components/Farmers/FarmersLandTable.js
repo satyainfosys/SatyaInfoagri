@@ -4,12 +4,14 @@ import { useSelector, useDispatch } from 'react-redux';
 import { farmerLandDetailsAction, farmerDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 
 export const FarmersLandTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
-  const [locationRowData, setLocationRowData] = useState([{ id: 1, latitude: "", longitude: "" }]);
+  const [locationRowData, setLocationRowData] = useState([]);
   const [reducerIndex, setReducerIndex] = useState();
   const [modalError, setModalError] = useState(false);
 
@@ -23,6 +25,7 @@ export const FarmersLandTable = () => {
     'Cultivated Land',
     'Active Status',
     'Location',
+    'Map',
     'Action'
   ];
 
@@ -33,6 +36,8 @@ export const FarmersLandTable = () => {
   const [unitError, setUnitError] = useState('');
   const [unitCode, setUnitCode] = useState('');
   const [locationErr, setLocationErr] = useState({})
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [locationCoordinates, setLocationCoordinates] = useState([]);
 
   const emptyRow = {
     id: rowData.length + 1,
@@ -236,9 +241,9 @@ export const FarmersLandTable = () => {
     setLocationRowData(locationDetails);
   }
 
-  const onLocationSave = (index) => {
+  const onLocationSave = () => {
     if (validateLocationModal()) {
-      farmerLandDetailsData[index].farmerGeofancingLand = locationRowData;
+      farmerLandDetailsData[reducerIndex].farmerGeofancingLand = locationRowData;
       dispatch(farmerLandDetailsAction(farmerLandDetailsData));
       setShowLocationModal(false);
       setLocationRowData([]);
@@ -318,12 +323,27 @@ export const FarmersLandTable = () => {
     if ($("#btnSave").attr('disabled'))
       $("#btnSave").attr('disabled', false);
 
-    setShowLocationModal(false);
+    // setShowLocationModal(false);
   }
 
-  const hasLocationData = locationRowData.some((location) => {
-    return location.latitude !== '' && location.longitude !== '';
-  });
+  const showOnMap = (index) => {
+    if (farmerLandDetailsData[index].farmerGeofancingLand && farmerLandDetailsData[index].farmerGeofancingLand.length > 0) {
+      const coordinatesArray = farmerLandDetailsData[index].farmerGeofancingLand.map(obj => [parseFloat(obj.latitude), parseFloat(obj.longitude)]);
+      setLocationCoordinates(coordinatesArray);
+      setShowMapModal(true);
+      console.log(coordinatesArray)
+    }
+  }
+
+  // const onLatitudeInput = (e) => {
+  //   debugger
+  //   const inputValue = e.target.value;
+  //   const regex = /^-?([0-8]?[0-9]|90)\.\d{1,6}$/; // Latitude regex pattern
+
+  //   if (!regex.test(inputValue)) {
+  //     // Handle invalid input (e.g., show error message)
+  //   }
+  // }
 
   return (
     <>
@@ -360,7 +380,7 @@ export const FarmersLandTable = () => {
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">Google Location Details</Modal.Title>
           </Modal.Header>
-          <Modal.Body>
+          <Modal.Body className="max-five-rows">
             <Form
               noValidate
               validated={modalError}
@@ -369,69 +389,116 @@ export const FarmersLandTable = () => {
               {Object.keys(locationErr).map((key) => {
                 return <span className="error-message">{locationErr[key]}</span>
               })}
-              <Table>
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Latitude</th>
-                    <th>Longitude</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {locationRowData.map((row, index) => (
-                    <tr key={index}>
-                      <td>
-                        {index + 1}
-                      </td>
-                      <td key={index}>
-                        <Form.Control
-                          type="text"
-                          id="txtLatitude"
-                          name="latitude"
-                          value={row.latitude}
-                          onChange={(e) => handleLocationFieldChange(e, index)}
-                          placeholder="Latitude"
-                          className="form-control"
-                          // onKeyPress={(e) => {
-                          //   const keyCode = e.which || e.keyCode;
-                          //   const keyValue = String.fromCharCode(keyCode);
-                          //   const validRegex = /^-?([0-8]?[0-9]\.[0-9]{1,6}|90\.[0]{1,6})$/;
-                          //   if (!validRegex.test(e.target.value + keyValue)) {
-                          //     e.preventDefault();
-                          //   }
-                          // }}
-                          required
-                        />
-                      </td>
-                      <td key={index}>
-                        <Form.Control
-                          type="text"
-                          id="txtLongitude"
-                          name="longitude"
-                          value={row.longitude}
-                          onChange={(e) => handleLocationFieldChange(e, index)}
-                          placeholder="Longitude"
-                          className="form-control"
-                          required
-                        />
-                      </td>
-                      <td>
-                        <i className="fa fa-trash fa-lg" onClick={() => deleteLocationDetails(index, row)} />
-                      </td>
+              {
+                locationRowData && locationRowData.length > 0 &&
+                <Table striped bordered responsive className="text-nowrap">
+                  <thead className='custom-bg-200'>
+                    <tr>
+                      <th>S.No</th>
+                      <th>Latitude</th>
+                      <th>Longitude</th>
+                      <th>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </Table>
+                  </thead>
+                  <tbody>
+                    {locationRowData.map((row, index) => (
+                      <tr key={index}>
+                        <td>
+                          {index + 1}
+                        </td>
+                        <td key={index}>
+                          <Form.Control
+                            type="text"
+                            id="txtLatitude"
+                            name="latitude"
+                            value={row.latitude}
+                            onChange={(e) => handleLocationFieldChange(e, index)}
+                            placeholder="Latitude"
+                            className="form-control"
+                            maxLength={12}
+                            // onInput={onLatitudeInput}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                          />
+                        </td>
+                        <td key={index}>
+                          <Form.Control
+                            type="text"
+                            id="txtLongitude"
+                            name="longitude"
+                            value={row.longitude}
+                            onChange={(e) => handleLocationFieldChange(e, index)}
+                            placeholder="Longitude"
+                            className="form-control"
+                            maxLength={12}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                          />
+                        </td>
+                        <td>
+                          <i className="fa fa-trash fa-2x" onClick={() => deleteLocationDetails(index, row)} />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              }
+
             </Form>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="danger" onClick={() => { setShowLocationModal(false), setLocationRowData([]), setLocationErr({}) }}>Cancel</Button>
-            <Button variant="info" disabled={!hasLocationData}>
-              Show On Map
-            </Button>
-            <Button variant="success" onClick={() => onLocationSave(reducerIndex)}>Save</Button>
+            <Button variant="success" onClick={() => onLocationSave()}>Save</Button>
             <Button onClick={addLocationRow}>Add More</Button>
+          </Modal.Footer>
+        </Modal>
+      }
+      {
+        showMapModal &&
+        <Modal
+          show={showMapModal}
+          onHide={() => { setShowMapModal(false) }}
+          size="lg"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Map</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <div>
+              <MapContainer
+                center={locationCoordinates[0] ? locationCoordinates[0] : [28.6139, 77.2090]}
+                zoom={14}
+                style={{ height: '400px', width: '100%' }}
+              >
+                <TileLayer
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                  attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>OpenStreetMap</a> contributors"
+                />
+                <Polygon positions={locationCoordinates} />
+              </MapContainer>
+            </div>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="danger" onClick={() => { setShowMapModal(false) }}>Cancel</Button>
           </Modal.Footer>
         </Modal>
       }
@@ -475,15 +542,14 @@ export const FarmersLandTable = () => {
       >
         {
           farmerLandDetailsData && farmerLandDetailsData.length > 0 &&
-          <Table striped responsive id="TableList" className="no-pb">
-            <thead>
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (
                   <th className="text-left" key={index}>
                     {column}
                   </th>
                 ))}
-                <th />
               </tr>
             </thead>
             <tbody id="tbody" className="details-form">
@@ -578,7 +644,7 @@ export const FarmersLandTable = () => {
                           e.preventDefault();
                         }
                       }}
-                      maxLength={5}
+                      maxLength={6}
                       required
                     />
                   </td>
@@ -597,8 +663,19 @@ export const FarmersLandTable = () => {
 
                   <td key={index}>
                     <Button style={{ fontSize: '10px' }}
+                      variant="success"
                       onClick={() => { locationModalPreview(index) }} >
                       Google Location
+                    </Button>
+                  </td>
+
+                  <td key={index}>
+                    <Button style={{ fontSize: '10px' }}
+                      variant="info"
+                      onClick={() => { showOnMap(index) }}
+                      disabled={farmerLandDetailsData && farmerLandDetailsData.farmerGeofancingLand && farmerLandDetailsData.farmerGeofancingLand.length > 0 ? false : true}
+                    >
+                      Show On Map
                     </Button>
                   </td>
 

@@ -143,6 +143,7 @@ export const Farmers = () => {
         dispatch(farmerCardDetailsAction([]));
         dispatch(farmerLiveStockCattleDetailsAction([]));
         dispatch(farmerMachineryDetailsAction([]));
+        dispatch(farmerLandDetailsAction([]));
         dispatch(farmerIrrigationDetailsAction([]));
         $("#AddFarmerDetailsForm").data("changed", false);
     }
@@ -184,8 +185,9 @@ export const Farmers = () => {
         dispatch(farmerCardDetailsAction([]));
         dispatch(farmerLiveStockCattleDetailsAction([]));
         dispatch(farmerMachineryDetailsAction([]));
+        dispatch(farmerLandDetailsAction([]));
         dispatch(farmerIrrigationDetailsAction([]));
-        localStorage.removeItem("EncryptedFarmerCode");
+        // localStorage.removeItem("EncryptedFarmerCode");
         // $('#txtUnit').val('');
     })
 

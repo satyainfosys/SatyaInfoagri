@@ -47,11 +47,21 @@
         max-height: 400px;
         overflow-y: scroll;
     }
+
+    .max-five-rows {
+        max-height: 291px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width: 1200px) {
     .container {
         max-width: 1600px !important;
+    }
+
+    .max-five-rows {
+        max-height: 295px;
+        overflow-y: scroll;
     }
 }
 
@@ -106,6 +116,11 @@
     .micro-form .form-control, .micro-form input::placeholder, .micro-form .form-select, .micro-form .error-message{
         font-size: 10px !important;
     }
+
+    .max-five-rows {
+        max-height: 290px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width:1400px) {
@@ -127,6 +142,11 @@
 
     .tab-page-button-table-card {
         max-height: 190px;
+        overflow-y: scroll;
+    }
+
+    .max-five-rows {
+        max-height: 294px;
         overflow-y: scroll;
     }
 }
@@ -158,6 +178,11 @@
 
     .tab-page-button-table-card {
         max-height: 190px;
+        overflow-y: scroll;
+    }
+
+    .max-five-rows {
+        max-height: 295px;
         overflow-y: scroll;
     }
 }
