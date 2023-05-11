@@ -179,6 +179,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
+        dispatch(farmerDetailsErrorAction(undefined));
         dispatch(farmerFamilyDetailsAction([]));
         dispatch(commonContactDetailsAction([]));
         dispatch(bankDetailsAction([]));
@@ -210,10 +211,6 @@ export const Farmers = () => {
             getFarmerFamilyDetail();
         }
 
-        // if (commonContactDetailList.length <= 0) {
-        //     getFarmerContactDetail();
-        // }
-
         getFarmerContactDetail();
     })
 
@@ -221,6 +218,7 @@ export const Farmers = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('#btnSave').attr('disabled', false);
 
         if (farmerCardDetailsList.length <= 0) {
             getFarmerKisanCardDetail();
@@ -235,6 +233,8 @@ export const Farmers = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('#btnSave').attr('disabled', false);
+
         if (farmerIrrigationDetailsList.length <= 0) {
             getFarmerIrrigationDetail();
         }
@@ -248,6 +248,7 @@ export const Farmers = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('#btnSave').attr('disabled', false);
 
         if (farmerLiveStockCattleList.length <= 0) {
             getFarmerLiveStockCattleList();
@@ -287,6 +288,10 @@ export const Farmers = () => {
 
         let isValid = true;
         let isFarmerValid = true;
+        let isFamilyTabValid = true;
+        let isBankValid = true;
+        let isLandTabValid = true;
+        let isCattleTabValid = true;
 
         if (!farmerData.firstName) {
             firstNameErr.empty = "Enter first name";
@@ -418,13 +423,17 @@ export const Farmers = () => {
                 if (!row.familyMemberName || !row.memberAge || !row.memberSex || !row.farmerMemberRelation || !row.memberEducation) {
                     familyErr.invalidFamilyDetail = 'All fields are required';
                     isValid = false;
+                    isFamilyTabValid = false;
+
+                    if (isFarmerValid) {
+                        $('[data-rr-ui-event-key*="Family"]').trigger('click');
+                    }
                 }
             });
         }
 
         //To-do: Will open this validation once first two tabs are completed
         if (commonContactDetailList.length < 1) {
-
             contactErr.contactEmpty = "At least one contact detail required";
             setTimeout(() => {
                 toast.error(contactErr.contactEmpty, {
@@ -432,11 +441,10 @@ export const Farmers = () => {
                 });
             }, 500);
             isValid = false;
+            isFamilyTabValid = false;
 
             if (isFarmerValid) {
-                if (!$('[data-rr-ui-event-key*="Add Farmer"]').hasClass('active')) {
-                    $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
-                }
+                $('[data-rr-ui-event-key*="Family"]').trigger('click');
 
                 setTimeout(() => {
                     document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
@@ -468,6 +476,10 @@ export const Farmers = () => {
                 if (!row.bankCode || !row.bankAddress || !row.bankBranch || !row.bankAccount || !row.accountType || !row.bankIfscCode) {
                     bankDetailErr.invalidBankDetail = "All fields are required";
                     isValid = false;
+                    isBankValid = false;
+                    if (isFarmerValid && isFamilyTabValid) {
+                        $('[data-rr-ui-event-key*="Bank"]').trigger('click');
+                    }
                 }
             })
         }
@@ -477,12 +489,17 @@ export const Farmers = () => {
                 if (!row.khasraNo || !row.ownerShip || !row.croppingType || !row.landArea) {
                     landDetailErr.invalidLandDetail = "Enter the required fields";
                     isValid = false;
+                    isLandTabValid = false;
+
+                    if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                        $('[data-rr-ui-event-key*="Land"]').trigger('click');
+                    }
                 }
             })
         }
 
         if (farmerLandDetailsList && farmerLandDetailsList.length > 0) {
-            if (!$('#txtUnit').val()) {
+            if (!farmerData.unitName) {
                 unitErr.invalidUnit = "Select unit";
                 setTimeout(() => {
                     toast.error(unitErr.invalidUnit, {
@@ -490,7 +507,11 @@ export const Farmers = () => {
                     });
                 }, 500);
                 isValid = false;
+                isLandTabValid = false;
                 setFormError(true);
+                if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                    $('[data-rr-ui-event-key*="Land"]').trigger('click');
+                }
             }
         }
 
@@ -499,6 +520,11 @@ export const Farmers = () => {
                 if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
                     irrigationDetailErr.invalidIrrigationDetail = "All fields are required"
                     isValid = false;
+                    isLandTabValid = false;
+
+                    if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                        $('[data-rr-ui-event-key*="Land"]').trigger('click');
+                    }
                 }
             })
         }
@@ -508,6 +534,11 @@ export const Farmers = () => {
                 if (!row.cattleType || !row.noOfCattle) {
                     cattleStockErr.invalidCattleDetail = "Fill the required fields"
                     isValid = false;
+                    isCattleTabValid = false;
+
+                    if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid) {
+                        $('[data-rr-ui-event-key*="Cattle"]').trigger('click');
+                    }
                 }
             })
         }
@@ -517,6 +548,11 @@ export const Farmers = () => {
                 if (!row.machineryCategory || !row.machineryType || !row.machineryQty) {
                     machineryDetailErr.invalidMachineryDetail = "Fill the required fields"
                     isValid = false;
+                    isCattleTabValid = false;
+
+                    if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid) {
+                        $('[data-rr-ui-event-key*="Cattle"]').trigger('click');
+                    }
                 }
             })
         }
@@ -545,7 +581,6 @@ export const Farmers = () => {
                 bankDetailErr,
                 irrigationDetailErr,
                 landDetailErr,
-                // cardDetailErr,   
                 unitErr,
                 cattleStockErr,
                 machineryDetailErr
@@ -1007,6 +1042,7 @@ export const Farmers = () => {
 
         if (farmerValidation()) {
 
+            let isRequestValid = true;
             var deleteFarmerFamilyCodes = localStorage.getItem("DeleteFarmerFamilyCodes");
             var deleteFarmerContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
             var deleteBankDetails = localStorage.getItem("DeleteFarmerBankDetailIds");
@@ -1160,6 +1196,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked
@@ -1182,6 +1219,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails
@@ -1213,12 +1251,13 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId && !deleteBankDetails
                             && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            //updateFarmerCallback();
+                            updateFarmerCallback();
                         }
                         else {
                             deleteFamerFamilyMemberIndex++;
@@ -1247,6 +1286,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
@@ -1270,6 +1310,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
@@ -1297,11 +1338,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            //updateFarmerCallback();
+                            updateFarmerCallback();
                         }
                         else {
                             deleteFarmerContactDetailIndex++;
@@ -1330,6 +1372,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (deleteBankDetailIndex == deleteBankDetailList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
@@ -1377,12 +1420,13 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (bankDetailIndex == bankDetailList.length && !loopBreaked && !deleteBankDetails
                             && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             bankDetailIndex++;
@@ -1400,12 +1444,13 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (bankDetailIndex == bankDetailList.length && !loopBreaked && !deleteBankDetails
                             && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             bankDetailIndex++;
@@ -1415,94 +1460,94 @@ export const Farmers = () => {
             }
 
             //FarmerKisanCardDetail Add, Update, Delete
-            if (!loopBreaked) {
-                for (let i = 0; i < farmerCardDetailsList.length; i++) {
-                    const farmerCardDetails = farmerCardDetailsList[i]
+            // if (!loopBreaked) {
+            //     for (let i = 0; i < farmerCardDetailsList.length; i++) {
+            //         const farmerCardDetails = farmerCardDetailsList[i]
 
-                    if (farmerCardDetails.encryptedFarmerKisanCardId) {
-                        const requestData = {
-                            encryptedFarmerCode: farmerCardDetails.encryptedFarmerCode,
-                            encryptedFarmerKisanCardId: farmerCardDetails.encryptedFarmerKisanCardId,
-                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                            cardDescription: farmerCardDetails.cardDescription,
-                            farmerKisanCardNo: farmerCardDetails.farmerKisanCardNo,
-                            activeStatus: farmerCardDetails.activeStatus,
-                            modifyUser: localStorage.getItem("LoginUserName")
-                        };
+            //         if (farmerCardDetails.encryptedFarmerKisanCardId) {
+            //             const requestData = {
+            //                 encryptedFarmerCode: farmerCardDetails.encryptedFarmerCode,
+            //                 encryptedFarmerKisanCardId: farmerCardDetails.encryptedFarmerKisanCardId,
+            //                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            //                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            //                 cardDescription: farmerCardDetails.cardDescription,
+            //                 farmerKisanCardNo: farmerCardDetails.farmerKisanCardNo,
+            //                 activeStatus: farmerCardDetails.activeStatus,
+            //                 modifyUser: localStorage.getItem("LoginUserName")
+            //             };
 
-                        setIsLoading(true);
-                        const updateFarmerKisanCardDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-kisan-card-detail', requestData, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (updateFarmerKisanCardDetailResponse.data.status != 200) {
-                            toast.error(updateFarmerKisanCardDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
-                            && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
-                        }
-                        else {
-                            farmerCardDetailIndex++;
-                        }
-                    }
-                    else if (!farmerCardDetails.encryptedFarmerKisanCardId) {
-                        setIsLoading(true);
-                        const addFarmerKisanCardDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-kisan-card-detail', farmerCardDetails, {
-                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                            });
-                        setIsLoading(false);
-                        if (addFarmerKisanCardDetailResponse.data.status != 200) {
-                            toast.error(addFarmerKisanCardDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
-                            && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
-                        }
-                        else {
-                            farmerCardDetailIndex++
-                        }
-                    }
-                }
-            }
+            //             setIsLoading(true);
+            //             const updateFarmerKisanCardDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-kisan-card-detail', requestData, {
+            //                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            //             });
+            //             setIsLoading(false);
+            //             if (updateFarmerKisanCardDetailResponse.data.status != 200) {
+            //                 toast.error(updateFarmerKisanCardDetailResponse.data.message, {
+            //                     theme: 'colored',
+            //                     autoClose: 10000
+            //                 });
+            //                 loopBreaked = true;
+            //             }
+            //             else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
+            //                 && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+            //                 // updateFarmerCallback();
+            //             }
+            //             else {
+            //                 farmerCardDetailIndex++;
+            //             }
+            //         }
+            //         else if (!farmerCardDetails.encryptedFarmerKisanCardId) {
+            //             setIsLoading(true);
+            //             const addFarmerKisanCardDetailResponse =
+            //                 await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-kisan-card-detail', farmerCardDetails, {
+            //                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            //                 });
+            //             setIsLoading(false);
+            //             if (addFarmerKisanCardDetailResponse.data.status != 200) {
+            //                 toast.error(addFarmerKisanCardDetailResponse.data.message, {
+            //                     theme: 'colored',
+            //                     autoClose: 10000
+            //                 });
+            //                 loopBreaked = true;
+            //             }
+            //             else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes
+            //                 && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+            //                 // updateFarmerCallback();
+            //             }
+            //             else {
+            //                 farmerCardDetailIndex++
+            //             }
+            //         }
+            //     }
+            // }
 
-            var deleteFarmerCardDetailList = deleteFarmerKisanCardIds ? deleteFarmerKisanCardIds.split(',') : null;
+            // var deleteFarmerCardDetailList = deleteFarmerKisanCardIds ? deleteFarmerKisanCardIds.split(',') : null;
 
-            if (deleteFarmerCardDetailList) {
-                var deleteFarmerCardIndex = 1;
+            // if (deleteFarmerCardDetailList) {
+            //     var deleteFarmerCardIndex = 1;
 
-                deleteFarmerCardDetailList.forEach(async deleteFarmerKisanCardId => {
-                    if (!loopBreaked) {
-                        const data = { encryptedFarmerKisanCardId: deleteFarmerKisanCardId }
-                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        const deleteFarmerKisanCardResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-kisan-card-detail', { headers, data });
-                        if (deleteFarmerKisanCardResponse.data.status != 200) {
-                            toast.error(deleteFarmerKisanCardResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (deleteFarmerCardIndex == deleteFarmerCardDetailList.length && !loopBreaked && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
-                            && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
-                        }
-                        else {
-                            deleteFarmerCardIndex++;
-                        }
-                    }
-                })
-            }
+            //     deleteFarmerCardDetailList.forEach(async deleteFarmerKisanCardId => {
+            //         if (!loopBreaked) {
+            //             const data = { encryptedFarmerKisanCardId: deleteFarmerKisanCardId }
+            //             const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            //             const deleteFarmerKisanCardResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-kisan-card-detail', { headers, data });
+            //             if (deleteFarmerKisanCardResponse.data.status != 200) {
+            //                 toast.error(deleteFarmerKisanCardResponse.data.message, {
+            //                     theme: 'colored',
+            //                     autoClose: 10000
+            //                 });
+            //                 loopBreaked = true;
+            //             }
+            //             else if (deleteFarmerCardIndex == deleteFarmerCardDetailList.length && !loopBreaked && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
+            //                 && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
+            //                 updateFarmerCallback();
+            //             }
+            //             else {
+            //                 deleteFarmerCardIndex++;
+            //             }
+            //         }
+            //     })
+            // }
 
             //FarmerLandDetail Add, Update, Delete
             if (!loopBreaked) {
@@ -1543,11 +1588,13 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
+
                             loopBreaked = true;
                         }
                         else if ((farmerLandDetailIndex == farmerLandDetailsList.length) && !loopBreaked && !deleteFarmerLandGeoDetailcodes &&
                             !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerLandDetailIndex++;
@@ -1565,11 +1612,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((farmerLandDetailIndex == farmerLandDetailsList) && !loopBreaked && !deleteFarmerLandGeoDetailcodes &&
                             !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerLandDetailIndex++
@@ -1594,6 +1642,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         } else if ((delteFarmerLandGeoIndex == deleteFarmerLandGeoDetailList.length) && !loopBreaked && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
                             updateFarmerCallback();
@@ -1619,6 +1668,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((deleteFarmerLandDetailIndex == deleteFarmerLandDetailList.length) && !loopBreaked
@@ -1661,11 +1711,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerIrrigationDetailIndex == farmerIrrigationDetailsList.length && !loopBreaked
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerIrrigationDetailIndex++;
@@ -1683,11 +1734,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerIrrigationDetailIndex == farmerIrrigationDetailsList.length && !loopBreaked
                             && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerIrrigationDetailIndex++;
@@ -1712,6 +1764,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (deleteFarmerIrrigationDetailIndex == deleteFarmerIrrigationDetailList.length && !loopBreaked && !deleteFarmerLiveStockCattleDetailIds
@@ -1757,11 +1810,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerLiveStockCattleDetailIndex++;
@@ -1779,11 +1833,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerLiveStockCattleDetailIds
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerLiveStockCattleDetailIndex++;
@@ -1808,6 +1863,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((deleteFarmerLiveStockCattleDetailIndex == deleteFarmerLiveStockCattleDetailList.length) && !loopBreaked
@@ -1815,7 +1871,7 @@ export const Farmers = () => {
                             updateFarmerCallback();
                         }
                         else {
-                            deleteFarmerCardIndex++;
+                            deleteFarmerLiveStockCattleDetailIndex++;
                         }
                     }
                 })
@@ -1850,11 +1906,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((farmerMachineryDetailIndex == farmerMachineryDetailsList.length) && !loopBreaked
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerMachineryDetailIndex++
@@ -1872,11 +1929,12 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((farmerMachineryDetailIndex == farmerMachineryDetailsList.length) && !loopBreaked
                             && !deleteFarmerMachineryDetailCodes) {
-                            updateFarmerCallback();
+                            // updateFarmerCallback();
                         }
                         else {
                             farmerLiveStockCattleDetailIndex++;
@@ -1901,6 +1959,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if ((deleteFarmerMachineryDetailIndex == deleteFarmerMachineryDetailList.length) && !loopBreaked) {
@@ -1911,6 +1970,10 @@ export const Farmers = () => {
                         }
                     }
                 })
+            }
+
+            if (isRequestValid) {
+                updateFarmerCallback();
             }
         }
     };

@@ -74,9 +74,9 @@ export const FarmersLandTable = () => {
     if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
       setUnitCode(farmerLandDetailsData[0].unitCode);
     }
-
     const sumOfLandArea = farmerLandDetailsData.reduce((acc, obj) => {
-      return acc + parseFloat(obj.landArea);
+      const landArea = obj.landArea !== "" ? parseFloat(obj.landArea): 0;
+      return acc + landArea;
     }, 0);
 
     dispatch(farmerDetailsAction({
@@ -267,20 +267,23 @@ export const FarmersLandTable = () => {
           setModalError(true);
         }
 
-        if (!(parseFloat(row.latitude) >= -90 && parseFloat(row.latitude) <= 90) || !(parseFloat(row.longitude) > -180 && parseFloat(row.longitude) <= 180)) {
-          locationErr.invalidEntry = "Latitude should be between -90 to 90 and logitude from -180 to 180";
-          isLocationFormValid = false;
-        }
-        else {
-          const pair = row;
-          const pairString = `${pair.latitude},${pair.longitude}`;
-          if (seenPairs[pairString]) {
-            locationErr.invalid = "Same Latitude and Longitude pair is already added";
+        if (row.latitude && row.longitude) {
+          if (!(parseFloat(row.latitude) >= -90 && parseFloat(row.latitude) <= 90) || !(parseFloat(row.longitude) > -180 && parseFloat(row.longitude) <= 180)) {
+            locationErr.invalidEntry = "Latitude should be between -90 to 90 and logitude from -180 to 180";
             isLocationFormValid = false;
-          } else {
-            seenPairs[pairString] = true;
+          }
+          else {
+            const pair = row;
+            const pairString = `${pair.latitude},${pair.longitude}`;
+            if (seenPairs[pairString]) {
+              locationErr.invalid = "Same Latitude and Longitude pair is already added";
+              isLocationFormValid = false;
+            } else {
+              seenPairs[pairString] = true;
+            }
           }
         }
+
       })
     }
 
@@ -309,6 +312,7 @@ export const FarmersLandTable = () => {
       if (deleteFarmerLandGeoDetail) {
         localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
       }
+      locationRowData.splice(index, 1);
     }
     else {
       locationRowData.splice(index, 1);
@@ -318,12 +322,9 @@ export const FarmersLandTable = () => {
       theme: 'colored'
     });
     setLocationErr({});
-    dispatch(farmerLandDetailsAction(farmerLandDetailsData));
 
     if ($("#btnSave").attr('disabled'))
       $("#btnSave").attr('disabled', false);
-
-    // setShowLocationModal(false);
   }
 
   const showOnMap = (index) => {
@@ -331,7 +332,6 @@ export const FarmersLandTable = () => {
       const coordinatesArray = farmerLandDetailsData[index].farmerGeofancingLand.map(obj => [parseFloat(obj.latitude), parseFloat(obj.longitude)]);
       setLocationCoordinates(coordinatesArray);
       setShowMapModal(true);
-      console.log(coordinatesArray)
     }
   }
 
@@ -486,12 +486,13 @@ export const FarmersLandTable = () => {
             <div>
               <MapContainer
                 center={locationCoordinates[0] ? locationCoordinates[0] : [28.6139, 77.2090]}
-                zoom={14}
+                zoom={19}
                 style={{ height: '400px', width: '100%' }}
               >
                 <TileLayer
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>OpenStreetMap</a> contributors"
+                  maxZoom={100}
                 />
                 <Polygon positions={locationCoordinates} />
               </MapContainer>

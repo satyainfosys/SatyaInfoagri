@@ -241,7 +241,7 @@ export const BankDetailsTable = () => {
                       name="bankBranch"
                       value={bankDetailData.bankBranch}
                       onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Branch name"
+                      placeholder="Branch Name"
                       className="form-control"
                       maxLength={45}
                       required

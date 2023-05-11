@@ -187,7 +187,7 @@ export const FarmerContactInformationTable = () => {
                       maxLength={45}
                       value={commonContactDetailData.contactPerson}
                       onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Contact person name"
+                      placeholder="Contact Person Name"
                       className="form-control"
                       required
                     />
@@ -225,7 +225,7 @@ export const FarmerContactInformationTable = () => {
                       maxLength={30}
                       value={commonContactDetailData.contactDetails}
                       onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Contact details"
+                      placeholder="Contact Details"
                       className="form-control"
                       required
                     />
