@@ -11,7 +11,7 @@ export const FarmersLandTable = () => {
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
-  const [locationRowData, setLocationRowData] = useState([]);
+  let [locationRowData, setLocationRowData] = useState([]);
   const [reducerIndex, setReducerIndex] = useState();
   const [modalError, setModalError] = useState(false);
 
@@ -67,15 +67,19 @@ export const FarmersLandTable = () => {
 
   useEffect(() => {
     getUnitList();
-    setRowDataValue(farmerLandDetailsReducer, farmerLandDetailsData);
+
+    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : []);
+
     if (localStorage.getItem("EncryptedFarmerCode")) {
       setLocationRowData([]);
     }
+
     if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
       setUnitCode(farmerLandDetailsData[0].unitCode);
     }
+
     const sumOfLandArea = farmerLandDetailsData.reduce((acc, obj) => {
-      const landArea = obj.landArea !== "" ? parseFloat(obj.landArea): 0;
+      const landArea = obj.landArea !== "" ? parseFloat(obj.landArea) : 0;
       return acc + landArea;
     }, 0);
 
@@ -84,10 +88,6 @@ export const FarmersLandTable = () => {
       totalLand: sumOfLandArea
     }))
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
-
-  const setRowDataValue = (farmerLandDetailsReducer, farmerLandDetailsData) => {
-    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : []);
-  };
 
   const validateFarmerLandDetailsForm = () => {
 
@@ -199,12 +199,22 @@ export const FarmersLandTable = () => {
 
   const locationModalPreview = (indexNo) => {
     setShowLocationModal(true);
-    setReducerIndex(indexNo)
+    setReducerIndex(indexNo);
+    setModalError(false);
+
+    setLocationRowData([]);
+
+    var locationData = [];
 
     if (farmerLandDetailsData && farmerLandDetailsData[indexNo].farmerGeofancingLand) {
       farmerLandDetailsData[indexNo].farmerGeofancingLand.map(landGeoDetail => {
-        locationRowData.push(landGeoDetail);
+        locationData.push(landGeoDetail);
       })
+
+      setLocationRowData(locationData);
+
+    } else {
+      setLocationRowData([...locationRowData, { id: locationRowData.length + 1, latitude: "", longitude: "" }]);
     }
   }
 
@@ -233,11 +243,9 @@ export const FarmersLandTable = () => {
 
   const handleLocationFieldChange = (e, index) => {
     const { name, value } = e.target;
-    var locationDetails = [...locationRowData]
-    locationDetails[index][name] = value;
-    locationDetails = Object.keys(locationRowData).map(key => {
-      return locationRowData[key];
-    })
+    var locationDetails = [...locationRowData];
+    locationDetails[index] = { ...locationDetails[index], [name]: value };
+
     setLocationRowData(locationDetails);
   }
 
@@ -267,10 +275,11 @@ export const FarmersLandTable = () => {
           setModalError(true);
         }
 
-        if (row.latitude && row.longitude) {
+        if ((row.latitude && row.longitude)) {
           if (!(parseFloat(row.latitude) >= -90 && parseFloat(row.latitude) <= 90) || !(parseFloat(row.longitude) > -180 && parseFloat(row.longitude) <= 180)) {
             locationErr.invalidEntry = "Latitude should be between -90 to 90 and logitude from -180 to 180";
             isLocationFormValid = false;
+            setModalError(true);
           }
           else {
             const pair = row;
@@ -284,11 +293,23 @@ export const FarmersLandTable = () => {
           }
         }
 
+        if (!row.latitude && row.longitude) {
+          if (!(parseFloat(row.longitude) > -180 && parseFloat(row.longitude) <= 180)) {
+            locationErr.invalidEntry = "Longitude should be between -180 to 180";
+          }
+        }
+
+        if (row.latitude && !row.longitude) {
+          if (!(parseFloat(row.latitude) > -90 && parseFloat(row.latitude) <= 90)) {
+            locationErr.invalidEntry = "Latitude should be between -90 to 90";
+          }
+        }
       })
     }
 
     if (isLocationFormValid) {
       setModalError(false)
+      setLocationErr({})
     }
 
     if (!isLocationFormValid) {
@@ -303,7 +324,6 @@ export const FarmersLandTable = () => {
       return false;
 
     if (farmerLandDetailsData[reducerIndex].farmerGeofancingLand && farmerLandDetailsData[reducerIndex].farmerGeofancingLand.length > 0) {
-      farmerLandDetailsData[reducerIndex].farmerGeofancingLand.splice(index, 1);
 
       var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
 
@@ -335,15 +355,12 @@ export const FarmersLandTable = () => {
     }
   }
 
-  // const onLatitudeInput = (e) => {
-  //   debugger
-  //   const inputValue = e.target.value;
-  //   const regex = /^-?([0-8]?[0-9]|90)\.\d{1,6}$/; // Latitude regex pattern
-
-  //   if (!regex.test(inputValue)) {
-  //     // Handle invalid input (e.g., show error message)
-  //   }
-  // }
+  const locationCancelClick = () => {
+    setLocationErr({});
+    setLocationRowData([]);
+    setShowLocationModal(false);
+    localStorage.removeItem("DeleteFarmerLandGeoDetailCodes")
+  }
 
   return (
     <>
@@ -360,7 +377,7 @@ export const FarmersLandTable = () => {
             <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <h4>Are you sure, you want to delete this family member?</h4>
+            <h4>Are you sure, you want to delete this land detail?</h4>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
@@ -371,7 +388,7 @@ export const FarmersLandTable = () => {
       {showLocationModal &&
         <Modal
           show={showLocationModal}
-          onHide={() => { setShowLocationModal(false), setLocationRowData([]), setLocationErr({}) }}
+          onHide={() => locationCancelClick()}
           size="md"
           aria-labelledby="contained-modal-title-vcenter"
           centered
@@ -463,7 +480,7 @@ export const FarmersLandTable = () => {
             </Form>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="danger" onClick={() => { setShowLocationModal(false), setLocationRowData([]), setLocationErr({}) }}>Cancel</Button>
+            <Button variant="danger" onClick={() => locationCancelClick()}>Cancel</Button>
             <Button variant="success" onClick={() => onLocationSave()}>Save</Button>
             <Button onClick={addLocationRow}>Add More</Button>
           </Modal.Footer>
@@ -474,7 +491,7 @@ export const FarmersLandTable = () => {
         <Modal
           show={showMapModal}
           onHide={() => { setShowMapModal(false) }}
-          size="lg"
+          size="md"
           aria-labelledby="contained-modal-title-vcenter"
           centered
           backdrop="static"

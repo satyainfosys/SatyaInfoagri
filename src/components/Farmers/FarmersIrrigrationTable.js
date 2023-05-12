@@ -10,7 +10,7 @@ export const FarmersIrrigrationTable = () => {
   const [rowData, setRowData] = useState([]);
   const columnsArray = [
     'S.No',
-    'Irrigration Detail',
+    'Irrigation Detail',
     'Irrigation Type',
     'Source Of Water',
     'Active Status',
@@ -136,11 +136,11 @@ export const FarmersIrrigrationTable = () => {
       }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
-          id="btnAddFarmerIrrigrationTable"
+          id="btnAddFarmerIrrigationTable"
           className="mb-2"
           onClick={handleAddRow}
         >
-          Add Irrigration Details
+          Add Irrigation Details
         </Button>
       </div>
 
@@ -148,7 +148,7 @@ export const FarmersIrrigrationTable = () => {
         noValidate
         validated={formHasError || (farmerError.irrigationDetailErr.invalidIrrigationDetail)}
         className="details-form"
-        id="AddFarmersIrrigrationTableDetailsForm"
+        id="AddFarmersIrrigationTableDetailsForm"
       >
         {
           farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0 &&
@@ -171,7 +171,7 @@ export const FarmersIrrigrationTable = () => {
                   <td key={index}>
                     <Form.Select
                       type="text"
-                      id="txtIrrigrationDetails"
+                      id="txtIrrigationOwner"
                       name="irrigationOwner"
                       value={farmerIrrigationDetailData.irrigationOwner}
                       onChange={(e) => handleFieldChange(e, index)}
@@ -187,7 +187,7 @@ export const FarmersIrrigrationTable = () => {
                   <td key={index}>
                     <Form.Select
                       type="text"
-                      id="txtIrrigrationDetails"
+                      id="txtIrrigationDetails"
                       name="irrigationType"
                       value={farmerIrrigationDetailData.irrigationType}
                       onChange={(e) => handleFieldChange(e, index)}

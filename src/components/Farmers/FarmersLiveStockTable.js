@@ -148,7 +148,7 @@ export const FarmersLiveStockTable = () => {
             <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <h4>Are you sure, you want to delete this livestock cattle detail?</h4>
+            <h4>Are you sure, you want to delete this live stock detail?</h4>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>

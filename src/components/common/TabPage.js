@@ -219,7 +219,7 @@ const TabPage = ({
                              {companyList.length > 1 ?
                               <>
                                 {<Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
-                                  <option value=''>Select company</option>
+                                  <option value=''>Select Company</option>
                                   {companyList.map((option, index) => (
                                     <option key={index} value={option.value}>{option.key}</option>
                                   ))}
