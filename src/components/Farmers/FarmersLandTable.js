@@ -68,14 +68,17 @@ export const FarmersLandTable = () => {
   useEffect(() => {
     getUnitList();
 
-    setRowData(farmerLandDetailsReducer.farmerLandDetails.length > 0 ? farmerLandDetailsData : []);
+    if(farmerLandDetailsReducer.farmerLandDetails.length > 0)
+    {
+      setRowData(farmerLandDetailsData);
+      setUnitCode(farmerLandDetailsData[0].unitCode);
+    }
+    else{
+      setUnitCode('');
+    }
 
     if (localStorage.getItem("EncryptedFarmerCode")) {
       setLocationRowData([]);
-    }
-
-    if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
-      setUnitCode(farmerLandDetailsData[0].unitCode);
     }
 
     const sumOfLandArea = farmerLandDetailsData.reduce((acc, obj) => {
@@ -225,6 +228,7 @@ export const FarmersLandTable = () => {
   };
 
   const getUnitList = async () => {
+    
     let response = await axios.get(process.env.REACT_APP_API_URL + '/unit-list')
     let unitListData = [];
 
@@ -236,8 +240,11 @@ export const FarmersLandTable = () => {
             value: units.unitCode
           })
         })
+        setUnitList(unitListData);
       }
-      setUnitList(unitListData);
+    }
+    else{
+      setUnitList([]);
     }
   }
 

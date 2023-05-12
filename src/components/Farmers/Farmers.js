@@ -61,15 +61,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         getCompany();
-        localStorage.removeItem("DeleteFarmerFamilyCodes");
-        localStorage.removeItem("DeleteCommonContactDetailsIds");
-        localStorage.removeItem("DeleteFarmerBankDetailIds");
-        localStorage.removeItem("DeleteFarmerKisanCardIds");
-        localStorage.removeItem("DeleteFarmerIrrigationCodes");
-        localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
-        localStorage.removeItem("DeleteFarmerMachineryDetailCodes");
-        localStorage.removeItem("DeleteFarmerLandCodes");
-        localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
+        clearFarmerLocalStorages();
     }, []);
 
     const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
@@ -142,11 +134,23 @@ export const Farmers = () => {
         dispatch(commonContactDetailsAction([]));
         dispatch(bankDetailsAction([]));
         dispatch(farmerCardDetailsAction([]));
-        dispatch(farmerLiveStockCattleDetailsAction([]));
-        dispatch(farmerMachineryDetailsAction([]));
         dispatch(farmerLandDetailsAction([]));
         dispatch(farmerIrrigationDetailsAction([]));
-        $("#AddFarmerDetailsForm").data("changed", false);
+        dispatch(farmerLiveStockCattleDetailsAction([]));
+        dispatch(farmerMachineryDetailsAction([]));
+        // $("#AddFarmerDetailsForm").data("changed", false);
+    }
+
+    const clearFarmerLocalStorages = () => {
+        localStorage.removeItem("DeleteFarmerFamilyCodes");
+        localStorage.removeItem("DeleteCommonContactDetailsIds");
+        localStorage.removeItem("DeleteFarmerBankDetailIds");
+        localStorage.removeItem("DeleteFarmerKisanCardIds");
+        localStorage.removeItem("DeleteFarmerIrrigationCodes");
+        localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
+        localStorage.removeItem("DeleteFarmerMachineryDetailCodes");
+        localStorage.removeItem("DeleteFarmerLandCodes");
+        localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
     }
 
     const newDetails = () => {
@@ -180,26 +184,9 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
-        dispatch(farmerDetailsErrorAction(undefined));
-        dispatch(farmerFamilyDetailsAction([]));
-        dispatch(commonContactDetailsAction([]));
-        dispatch(bankDetailsAction([]));
-        dispatch(farmerCardDetailsAction([]));
-        dispatch(farmerLiveStockCattleDetailsAction([]));
-        dispatch(farmerMachineryDetailsAction([]));
-        dispatch(farmerLandDetailsAction([]));
-        dispatch(farmerIrrigationDetailsAction([]));
-        // localStorage.removeItem("EncryptedFarmerCode");
-        // $('#txtUnit').val('');
-        localStorage.removeItem("DeleteFarmerFamilyCodes");
-        localStorage.removeItem("DeleteCommonContactDetailsIds");
-        localStorage.removeItem("DeleteFarmerBankDetailIds");
-        localStorage.removeItem("DeleteFarmerKisanCardIds");
-        localStorage.removeItem("DeleteFarmerIrrigationCodes");
-        localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
-        localStorage.removeItem("DeleteFarmerMachineryDetailCodes");
-        localStorage.removeItem("DeleteFarmerLandCodes");
-        localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
+
+        clearFarmerReducers();
+        clearFarmerLocalStorages();
     })
 
     $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
@@ -211,7 +198,6 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
-        $('#txtUnit').val(null);
     })
 
     $('[data-rr-ui-event-key*="Family"]').off('click').on('click', function () {
@@ -644,15 +630,7 @@ export const Farmers = () => {
         $('#AddDocumentDetailsForm').get(0).reset();
 
         dispatch(farmerDetailsErrorAction(undefined));
-        localStorage.removeItem("DeleteFarmerFamilyCodes");
-        localStorage.removeItem("DeleteCommonContactDetailsIds");
-        localStorage.removeItem("DeleteFarmerBankDetailIds");
-        localStorage.removeItem("DeleteFarmerKisanCardIds");
-        localStorage.removeItem("DeleteFarmerIrrigationCodes");
-        localStorage.removeItem("DeleteFarmerLiveStockCattleDetailIds");
-        localStorage.removeItem("DeleteFarmerMachineryDetailCodes");
-        localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
-        localStorage.removeItem("DeleteFarmerLandCodes");
+        clearFarmerLocalStorages();
 
         if (!isAddFarmer) {
             toast.success("Farmer details updated successfully!", {
