@@ -458,15 +458,6 @@ export const Farmers = () => {
             });
         }
 
-        // if (farmerCardDetailsList && farmerCardDetailsList.length > 0) {
-        //     farmerCardDetailsList.forEach((row, index) => {
-        //         if (!row.cardDescription || !row.memberSex) {
-        //             cardDetailErr.invalidCardDetail = 'All fields are required';
-        //             isValid = false;
-        //         }
-        //     });
-        // }
-
         if (bankDetailList && bankDetailList.length > 0) {
             bankDetailList.forEach((row, index) => {
                 if (!row.bankCode || !row.bankAddress || !row.bankBranch || !row.bankAccount || !row.accountType || !row.bankIfscCode) {
@@ -527,7 +518,7 @@ export const Farmers = () => {
 
         if (farmerLiveStockCattleList && farmerLiveStockCattleList.length > 0) {
             farmerLiveStockCattleList.forEach((row, index) => {
-                if (!row.cattleType || !row.noOfCattle) {
+                if (!row.cattleCode || !row.noOfCattle) {
                     cattleStockErr.invalidCattleDetail = "Fill the required fields"
                     isValid = false;
                     isCattleTabValid = false;
@@ -1763,7 +1754,7 @@ export const Farmers = () => {
                             encryptedFarmerCattleCode: farmerLiveStockCattleDetail.encryptedFarmerCattleCode,
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                            cattleType: farmerLiveStockCattleDetail.cattleType,
+                            cattleCode: farmerLiveStockCattleDetail.cattleCode,
                             noOfCattle: farmerLiveStockCattleDetail.noOfCattle,
                             production: farmerLiveStockCattleDetail.production,
                             rate: farmerLiveStockCattleDetail.rate,
@@ -1784,7 +1775,6 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            isRequestValid = false;
                             loopBreaked = true;
                         }
                         else if (farmerCardDetailIndex == farmerCardDetailsList.length && !loopBreaked && !deleteFarmerLiveStockCattleDetailIds

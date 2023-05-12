@@ -3,12 +3,14 @@ import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerLiveStockCattleDetailsAction } from '../../actions/index';
 import { toast } from 'react-toastify';
+import axios from 'axios';
 
 export const FarmersLiveStockTable = () => {
 
   const dispatch = useDispatch();
   const [formHasError, setFormError] = useState(false);
   const [rowData, setRowData] = useState([]);
+  const [cattleTypeList, setCattleTypeList] = useState([]);
 
   const columnsArray = [
     'S.No',
@@ -30,7 +32,7 @@ export const FarmersLiveStockTable = () => {
     encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
     encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-    cattleType: '',
+    cattleCode: '',
     noOfCattle: '',
     production: '',
     rate: '',
@@ -48,6 +50,8 @@ export const FarmersLiveStockTable = () => {
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
   useEffect(() => {
+    getCattleTypeList();
+
     setRowDataValue(farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData);
   }, [farmerLiveStockCattleData, farmerLiveStockCattleDetailsReducer]);
 
@@ -55,12 +59,37 @@ export const FarmersLiveStockTable = () => {
     setRowData(farmerLiveStockCattleDetailsReducer.farmerLiveStockCattleDetails.length > 0 ? farmerLiveStockCattleData : []);
   };
 
+  const getCattleTypeList = async () => {
+    let response = await axios.get(process.env.REACT_APP_API_URL + "/cattle-type-list")
+    let cattleListData = [];
+
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(cattleTypes => {
+          cattleListData.push({
+            key: cattleTypes.cattleName,
+            value: cattleTypes.cattleCode
+          })
+        })
+        setCattleTypeList(cattleListData);
+      }
+    }
+    else {
+      setCattleTypeList([]);
+    }
+  }
+
+  if (farmerLiveStockCattleData.cattleCode &&
+    !$('#txtCattleCode').val()) {
+    getCattleTypeList();
+  }
+
   const validateFarmersLiveStockCattleDetailForm = () => {
     let isValid = true;
 
     if (farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0) {
       farmerLiveStockCattleData.forEach((row, index) => {
-        if (!row.cattleType || !row.noOfCattle) {
+        if (!row.cattleCode || !row.noOfCattle) {
           isValid = false;
           setFormError(true);
         }
@@ -191,26 +220,11 @@ export const FarmersLiveStockTable = () => {
                     {index + 1}
                   </td>
                   <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtCattleType"
-                      name="cattleType"
-                      className="form-control"
-                      onChange={(e) => handleFieldChange(e, index)}
-                      value={farmerLiveStockCattleData.cattleType}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Cow'>Cow</option>
-                      <option value='Buffalo'>Buffalo</option>
-                      <option value='Poultry Bird'>Poultry Bird</option>
-                      <option value='Goat'>Goat</option>
-                      <option value='Sheep'>Sheep</option>
-                      <option value='Poni'>Poni</option>
-                      <option value='Pig'>Pig</option>
-                      <option value='Camel'>Camel</option>
-                      <option value='Horse'>Horse</option>
-                      <option value='Others'>Others</option>
+                    <Form.Select id="txtCattleCode" name="cattleCode" value={farmerLiveStockCattleData.cattleCode} onChange={(e) => handleFieldChange(e, index)} required>
+                      <option value=''>Select Bank</option>
+                      {cattleTypeList.map((option, index) => (
+                        <option key={index} value={option.value}>{option.key}</option>
+                      ))}
                     </Form.Select>
                   </td>
 

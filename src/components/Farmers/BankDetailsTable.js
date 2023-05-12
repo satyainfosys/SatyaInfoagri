@@ -80,7 +80,7 @@ export const BankDetailsTable = () => {
   }
 
   if (bankDetailData.bankCode &&
-    !$('txtBankName').val()) {
+    !$('#txtBankName').val()) {
     getBankDetailList();
   }
 
