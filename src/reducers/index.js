@@ -32,6 +32,7 @@ import farmerIrrigationDetailsReducer from './farmerIrrigationDetailsReducer'
 import farmerLandDetailsReducer from './farmerLandDetailsReducer'
 import figMasterDetailReducer from './figMasterDetailReducer'
 import distributionCentreListReducer from './distributionCentreListReducer'
+import farmerDocumentDetailsReducer from './farmerDocumentDetailsReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -66,7 +67,8 @@ const rootReducer = combineReducers({
   farmerIrrigationDetailsReducer,
   farmerLandDetailsReducer,
   figMasterDetailReducer,
-  distributionCentreListReducer
+  distributionCentreListReducer,
+  farmerDocumentDetailsReducer
 });
 
 export default rootReducer;

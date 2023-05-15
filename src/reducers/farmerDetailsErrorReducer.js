@@ -25,7 +25,8 @@ const initialState = {
     landDetailErr: {},
     unitErr: {},
     cattleStockErr: {},
-    machineryDetailErr: {}
+    machineryDetailErr: {},
+    documentDetailErr: {}
   }
 };
 
