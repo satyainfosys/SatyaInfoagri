@@ -228,3 +228,10 @@ export const distributionCentreListAction = (payload) => {
     payload
   };
 };
+
+export const farmerDocumentDetailsAction = (payload) => {
+  return {
+    type: 'FARMERDOCUMENTDETAILS',
+    payload
+  };
+};

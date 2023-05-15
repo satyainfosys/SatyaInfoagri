@@ -14,7 +14,7 @@ export const BankDetailsTable = () => {
   const [bankList, setBankList] = useState([]);
 
   const columnsArray = [
-    'S. No',
+    'S.No',
     'Bank Name',
     'Bank Address',
     'Branch Name',
