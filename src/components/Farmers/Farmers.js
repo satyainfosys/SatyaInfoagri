@@ -562,15 +562,36 @@ export const Farmers = () => {
             })
         }
 
-        if(farmerDocumentDetailsList && farmerDocumentDetailsList.length > 0){
+        if (farmerDocumentDetailsList && farmerDocumentDetailsList.length > 0) {
             farmerDocumentDetailsList.forEach((row, index) => {
-                if(!row.documentType || !row.farmerDocument){
+                if (!row.documentType || !row.farmerDocument) {
                     documentDetailErr.invalidDocumentDetail = "Fill the required fields"
                     isValid = false;
                     isDocumentValid = false;
 
-                    if(isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid){
+                    if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
                         $('[data-rr-ui-event-key*="Documents"]').trigger('click');
+                    }
+                }
+
+                if (row.farmerDocument && row.farmerDocument.type) {
+                    var fileType = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+                    if (!fileType.includes(row.farmerDocument.type)) {
+                        isValid = false;
+                        setFormError(true);
+                        toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .png, .jpeg, .jpg", {
+                            theme: 'colored',
+                            autoClose: 5000
+                        })
+                    }
+
+                    if (row.farmerDocument.size > 1024 * 500) {
+                        isValid = false;
+                        setFormError(true);
+                        toast.error("File size must be under 500 KB", {
+                            theme: 'colored',
+                            autoClose: 5000
+                        })
                     }
                 }
             })
@@ -776,7 +797,8 @@ export const Farmers = () => {
                 farmerLiveStockCattleDetails: farmerLiveStockCattleList,
                 farmerKisanCardDetails: farmerCardDetailsList,
                 farmerIrrigationDetails: farmerIrrigationDetailsList,
-                farmerLandDetails: farmerLandDetailsList
+                farmerLandDetails: farmerLandDetailsList,
+                farmerDocumentDetails: farmerDocumentDetailsList
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'addUser', "farmerEducation", "farmerIdNo"]
@@ -855,6 +877,58 @@ export const Farmers = () => {
                 requestData.farmerLandDetails[index] = farmerLandDetailsObj;
                 index++
             }
+
+            const documentKeys = ['documentNo', 'addUser']
+            var index = 0;
+            for (var obj in requestData.farmerDocumentDetails) {
+                var farmerDocumentDetailsObj = requestData.farmerDocumentDetails[obj];
+
+                for (const key of Object.keys(farmerDocumentDetailsObj).filter((key) => documentKeys.includes(key))) {
+                    farmerDocumentDetailsObj[key] = farmerDocumentDetailsObj[key] ? farmerDocumentDetailsObj[key].toUpperCase() : '';
+                }
+                requestData.farmerDocumentDetails[index] = farmerDocumentDetailsObj;
+                index++
+            }
+
+            const formData = new FormData();
+            formData.append("EncryptedClientCode", localStorage.getItem("EncryptedClientCode"))
+            formData.append("EncryptedCompanyCode", localStorage.getItem("EncryptedCompanyCode"))
+            formData.append("FarmerFirstName", farmerData.firstName)
+            formData.append("FarmerMiddleName", farmerData.middleName ? farmerData.middleName : "")
+            formData.append("FarmerLastName", farmerData.lastName)
+            formData.append("FarmerAddress", farmerData.address)
+            formData.append("FarmerEducation", farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "")
+            formData.append("FarmerSocialCategory", farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "GEN")
+            formData.append("FarmerDOB", farmerData.farmerDOB ? farmerData.farmerDOB : new Date())
+            formData.append("FarmerGender", farmerData.farmerGender == "Male" ? "M" : farmerData.farmerGender == "Female" ? "F" : farmerData.farmerGender == "Others" ? "O" : "M")
+            formData.append("FarmerMaritalStatus", farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "U")
+            formData.append("FarmerFatherName", farmerData.fatherName)
+            formData.append("FarmerTotalLand", farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0)
+            formData.append("FarmerUser", "")
+            formData.append("FarmerPassword", "")
+            formData.append("FigCode", farmerData.figCode ? farmerData.figCode : "")
+            formData.append("CollCentreCode", farmerData.collectionCentreCode)
+            formData.append("DistributionCentreCode", farmerData.distributionCentreCode)
+            formData.append("CountryCode", farmerData.countryCode)
+            formData.append("StateCode", farmerData.stateCode)
+            formData.append("DistrictCode", farmerData.districtCode)
+            formData.append("TehsilCode", farmerData.tehsilCode)
+            formData.append("BlockCode", farmerData.blockCode)
+            formData.append("PostOfficeCode", farmerData.postOfficeCode)
+            formData.append("VillageCode", farmerData.villageCode)
+            formData.append("ActiveStatus", farmerData.status == null || farmerData.status == "Active" ? "A" : "S")
+            formData.append("ApprovalStatus", farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D")
+            formData.append("AddUser", localStorage.getItem("LoginUserName"))
+            formData.append("FamilyDetails", farmerFamilyDetailsList)
+            formData.append("CommonContactDetails", commonContactDetailList)
+            formData.append("BankDetails", bankDetailList)
+            formData.append("FarmerLandDetails", farmerLandDetailsList)
+            formData.append("FarmerIrrigationDetails", farmerIrrigationDetailsList)
+            formData.append("FarmerLiveStockCattleDetails", farmerLiveStockCattleList)
+            formData.append("FarmerMachineryDetails", farmerMachineryDetailsList)
+            formData.append("FarmerDocumentDetails", farmerDocumentDetailsList)
+
+            requestData = formData;
 
             setIsLoading(true);
             axios.post(process.env.REACT_APP_API_URL + '/add-farmer', requestData, {
@@ -1461,7 +1535,7 @@ export const Farmers = () => {
             if (!loopBreaked) {
                 for (let i = 0; i < farmerLandDetailsList.length; i++) {
                     const farmerLandDetail = farmerLandDetailsList[i];
-                    const keys = ['landMark', 'addUser', 'modifyUse']
+                    const keys = ['landMark', 'addUser', 'modifyUser']
                     for (const key of Object.keys(farmerLandDetail).filter((key) => keys.includes(key))) {
                         farmerLandDetail[key] = farmerLandDetail[key] ? farmerLandDetail[key].toUpperCase() : '';
                     }
@@ -1884,48 +1958,30 @@ export const Farmers = () => {
             //FarmerDocumentDetail Add, Update, Delete
             if (!loopBreaked) {
                 for (let i = 0; i < farmerDocumentDetailsList.length; i++) {
-                    const farmerDocumentDetail = farmerDocumentDetailsList[i]
+                    const farmerDocumentDetail = farmerDocumentDetailsList[i];
+                    const keys = ['documentNo', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(farmerDocumentDetail).filter((key) => keys.includes(key))) {
+                        farmerDocumentDetail[key] = farmerDocumentDetail[key] ? farmerDocumentDetail[key].toUpperCase() : '';
+                    }
 
                     if (farmerDocumentDetail.encryptedFarmerDocumentId) {
-                        const requestData = {
-                            encryptedFarmerDocumentId: farmerDocumentDetail.encryptedFarmerDocumentId,
-                            encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode"),
-                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                            documentType: farmerDocumentDetail.documentType,
-                            documnetNo: farmerDocumentDetail.documnetNo ? farmerDocumentDetail.documnetNo : "",
-                            activeStatus: farmerDocumentDetail.activeStatus,
-                            modifyUser: localStorage.getItem("LoginUserName")
-                        }
+                        const formData = new FormData();
+                        formData.append("EncryptedFarmerDocumentId", farmerDocumentDetail.encryptedFarmerDocumentId)
+                        formData.append("EncryptedFarmerCode", localStorage.getItem("EncryptedFarmerCode"))
+                        formData.append("EncryptedClientCode", localStorage.getItem("EncryptedClientCode"))
+                        formData.append("EncryptedCompanyCode", localStorage.getItem("EncryptedCompanyCode"))
+                        formData.append("DocumentType", farmerDocumentDetail.documentType)
+                        formData.append("DocumentNo", farmerDocumentDetail.documentNo ? farmerDocumentDetail.documentNo : "")
+                        formData.append("UploadDocument", farmerDocumentDetail.farmerDocument)
+                        formData.append("ModifyUser", localStorage.getItem("LoginUserName"))
 
                         setIsLoading(true);
                         const updateFarmerDocumentDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-document-detail', requestData, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-document-detail', formData, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);
-                        if (updateFarmerDocumentDetailResponse.data.status == 200) {
-                            if (farmerDocumentDetail.farmerDocument && farmerDocumentDetail.farmerDocument.type) {
-                                const formData = new FormData();
-                                formData.append("UploadDocument", farmerDocumentDetail.farmerDocument)
-                                formData.append("EncryptedId", farmerDocumentDetail.encryptedFarmerDocumentId)
-                                formData.append("IsUpdate", true)
-
-                                let uploadResponse = await axios.post(process.env.REACT_APP_API_URL + '/upload-document', formData, {
-                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                                })
-
-                                if (uploadResponse.data.status != 200) {
-                                    toast.error(uploadResponse.data.message, {
-                                        theme: 'colored',
-                                        autoClose: 10000
-                                    });
-
-                                    loopBreaked = true;
-                                }
-                            }
-                        }
-                        else if (updateFarmerDocumentDetailResponse.data.status != 200) {
+                        if (updateFarmerDocumentDetailResponse.data.status != 200) {
                             toast.error(updateFarmerDocumentDetailResponse.data.message, {
                                 theme: 'colored',
                                 autoClose: 10000
@@ -1942,34 +1998,21 @@ export const Farmers = () => {
                         }
                     }
                     else if (!farmerDocumentDetail.encryptedFarmerDocumentId) {
+                        const formData = new FormData();
+                        formData.append("EncryptedFarmerCode", localStorage.getItem("EncryptedFarmerCode"))
+                        formData.append("EncryptedClientCode", localStorage.getItem("EncryptedClientCode"))
+                        formData.append("EncryptedCompanyCode", localStorage.getItem("EncryptedCompanyCode"))
+                        formData.append("DocumentType", farmerDocumentDetail.documentType)
+                        formData.append("DocumentNo", farmerDocumentDetail.documentNo ? farmerDocumentDetail.documentNo : "")
+                        formData.append("UploadDocument", farmerDocumentDetail.farmerDocument)
+                        formData.append("AddUser", farmerDocumentDetail.addUser)
                         setIsLoading(true)
                         const addFarmerDocumentDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-document-detail', farmerDocumentDetail, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-document-detail', formData, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);
-                        if (addFarmerDocumentDetailResponse.data.status == 200) {
-                            if (farmerDocumentDetail.farmerDocument && farmerDocumentDetail.farmerDocument.type) {
-                                const formData = new FormData();
-                                formData.append("UploadDocument", farmerDocumentDetail.farmerDocument)
-                                formData.append("EncryptedId", addFarmerDocumentDetailResponse.data.data.encryptedFarmerDocumentId)
-                                formData.append("IsUpdate", false)
-
-                                let uploadResponse = await axios.post(process.env.REACT_APP_API_URL + '/upload-document', formData, {
-                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                                })
-
-                                if (uploadResponse.data.status != 200) {
-                                    toast.error(uploadResponse.data.message, {
-                                        theme: 'colored',
-                                        autoClose: 10000
-                                    });
-
-                                    loopBreaked = true;
-                                }
-                            }
-                        }
-                        else if (addFarmerDocumentDetailResponse.data.status != 200) {
+                        if (addFarmerDocumentDetailResponse.data.status != 200) {
                             toast.error(addFarmerDocumentDetailResponse.data.message, {
                                 theme: 'colored',
                                 autoClose: 10000
@@ -1996,7 +2039,10 @@ export const Farmers = () => {
                 for (let i = 0; i < deleteFarmerDocumentDetailList.length; i++) {
                     const deleteFarmerDocumentId = deleteFarmerDocumentDetailList[i];
                     if (!loopBreaked) {
-                        const data = { encryptedFarmerDocumentId: deleteFarmerDocumentId }
+                        const data = {
+                            encryptedFarmerDocumentId: deleteFarmerDocumentId,
+                            encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+                        }
                         const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         const deleteFarmerDocumentResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-document-detail', { headers, data });
                         if (deleteFarmerDocumentResponse.data.status != 200) {

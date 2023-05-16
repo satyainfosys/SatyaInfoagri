@@ -1,4 +1,4 @@
-import { farmerDocumentDetailsAction } from 'actions';
+import { farmerDetailsAction, farmerDocumentDetailsAction } from 'actions';
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table, Modal } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -35,6 +35,12 @@ export const FarmersDocumentDetails = () => {
   let farmerDocumentDetailsReducer = useSelector((state) => state.rootReducer.farmerDocumentDetailsReducer)
   let farmerDocumentDetailsData = farmerDocumentDetailsReducer.farmerDocumentDetails;
 
+  const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
+  const farmerData = farmerDetailsReducer.farmerDetails;
+
+  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
+  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
   useEffect(() => {
     setRowDataValue(farmerDocumentDetailsReducer, farmerDocumentDetailsData);
   }, [farmerDocumentDetailsData, farmerDocumentDetailsReducer]);
@@ -47,6 +53,19 @@ export const FarmersDocumentDetails = () => {
     const { name, value, files } = e.target;
     var farmerDocumentDetails = [...rowData];
     farmerDocumentDetails[index][name] = name === 'farmerDocument' ? files[0] : value;
+
+    if (name === 'farmerDocument') {
+      farmerDocumentDetails[index][name] = files[0];
+      if (farmerDocumentDetails[index].documentType == "Farmer Photo") {
+        dispatch(farmerDetailsAction({
+          ...farmerData,
+          farmerPhotoURL: URL.createObjectURL(files[0])
+        }))
+      }
+    } else {
+      farmerDocumentDetails[index][name] = value;
+    }
+
     farmerDocumentDetails = Object.keys(rowData).map(key => {
       return rowData[key];
     })
@@ -172,8 +191,7 @@ export const FarmersDocumentDetails = () => {
 
       <Form
         noValidate
-        // validated={formHasError || (farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail)}
-        validated={formHasError}
+        validated={formHasError || (farmerError.documentDetailErr && farmerError.documentDetailErr.invalidDocumentDetail)}
         className="details-form"
         id="AddFarmersDocumentTableDetailsForm"
       >

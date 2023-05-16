@@ -91,7 +91,7 @@ const AddFarmer = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [collectionCentreList, setCollectionCentreList] = useState([]);
     const [figMasterList, setFigMasterList] = useState([]);
-    
+
     useEffect(() => {
         getCountries();
     }, []);
@@ -318,57 +318,48 @@ const AddFarmer = () => {
         Object.keys(farmerDetailsReducer.farmerDetails).length <= 0) {
         resetFarmerData();
     }
-    
+
     if (farmerData.stateCode &&
-        !$('#txtStateName').val())
-    {
+        !$('#txtStateName').val()) {
         getStates(farmerData.countryCode);
     }
-    
+
     if (farmerData.districtCode &&
-        !$('#txtDistrictName').val())
-    {
+        !$('#txtDistrictName').val()) {
         getDistrict(farmerData.stateCode);
     }
 
     if (farmerData.tehsilCode &&
-        !$('#txtTehsilName').val())
-    {
+        !$('#txtTehsilName').val()) {
         getTehsil(farmerData.districtCode);
     }
 
     if (farmerData.blockCode &&
-        !$('#txtBlockName').val())
-    {
+        !$('#txtBlockName').val()) {
         getBlock(farmerData.tehsilCode);
     }
 
     if (farmerData.postOfficeCode &&
-        !$('#txtPostOfficeName').val())
-    {
+        !$('#txtPostOfficeName').val()) {
         getPostOffice(farmerData.blockCode);
     }
 
     if (farmerData.villageCode &&
-        !$('#txtVillageName').val())
-    {
+        !$('#txtVillageName').val()) {
         getVillage(farmerData.postOfficeCode);
     }
 
     if (farmerData.collectionCentreCode &&
-        !$('#txtCollectionCentre').val())
-    {
+        !$('#txtCollectionCentre').val()) {
         getCollectionCentre(farmerData.distributionCentreCode);
 
-        if(!farmerData.figCode)
-        {
-            getFigMaster(farmerData.collectionCentreCode);    
+        if (!farmerData.figCode) {
+            getFigMaster(farmerData.collectionCentreCode);
         }
     }
 
     if (farmerData.figCode &&
-        !$('#txtFIGName').val())
-    {
+        !$('#txtFIGName').val()) {
         getFigMaster(farmerData.collectionCentreCode);
     }
 
@@ -391,7 +382,7 @@ const AddFarmer = () => {
             setBlockList([]);
             setPostOfficeList([]);
             setVillageList([]);
-            
+
             e.target.value && getStates(e.target.value);
         }
         else if (e.target.name == "stateCode") {
@@ -681,21 +672,10 @@ const AddFarmer = () => {
                                         <Col className="ms-2 no-padding">
                                             <>
                                                 {
-                                                    farmerData && farmerData.farmerPicURL ? (
-                                                        <img src={farmerData.farmerPicURL} alt='Farmer'></img>
+                                                    farmerData && farmerData.farmerPhotoURL ? (
+                                                        <img height={100} width={100} src={farmerData.farmerPhotoURL} alt='Farmer'></img>
                                                     ) : null
                                                 }
-                                                <InputGroup className="mb-1">
-                                                    <Form.Control type="file" id='profilepic' name='farmerPic' onChange={handleFieldChange} />
-                                                    {farmerData && farmerData.farmerPicURL ? (
-                                                        <InputGroup.Text>
-                                                            <i className="fa fa-trash"
-                                                                onClick={() => { removeProfilePic() }}
-                                                            />
-                                                        </InputGroup.Text>
-                                                    ) : null
-                                                    }
-                                                </InputGroup>
                                             </>
                                         </Col>
                                     </Row>
