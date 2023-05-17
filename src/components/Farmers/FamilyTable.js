@@ -76,7 +76,7 @@ export const FamilyTable = () => {
   const handleAddRow = async () => {
     let formValid = validateFarmerFamilyDetailsForm()
     if (formValid) {
-      familyDetailData.push(emptyRow);
+      familyDetailData.unshift(emptyRow);
       dispatch(farmerFamilyDetailsAction(familyDetailData));
     }
   };
@@ -108,9 +108,8 @@ export const FamilyTable = () => {
 
     var deleteFarmerFamilyCode = localStorage.getItem("DeleteFarmerFamilyCodes");
 
-    var deleteFarmerDetail = deleteFarmerFamilyCode ? deleteFarmerFamilyCode + "," + paramsData.encryptedFarmerFamilyCode : paramsData.encryptedFarmerFamilyCode;
-
-    if (deleteFarmerDetail) {
+    if (paramsData.encryptedFarmerFamilyCode) {
+      var deleteFarmerDetail = deleteFarmerFamilyCode ? deleteFarmerFamilyCode + "," + paramsData.encryptedFarmerFamilyCode : paramsData.encryptedFarmerFamilyCode;
       localStorage.setItem("DeleteFarmerFamilyCodes", deleteFarmerDetail);
     }
 
@@ -158,7 +157,7 @@ export const FamilyTable = () => {
         >
           Add Family Details
         </Button>
-      </div>    
+      </div>
 
       <Form
         noValidate

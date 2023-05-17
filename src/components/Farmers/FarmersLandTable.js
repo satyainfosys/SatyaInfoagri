@@ -68,12 +68,11 @@ export const FarmersLandTable = () => {
   useEffect(() => {
     getUnitList();
 
-    if(farmerLandDetailsReducer.farmerLandDetails.length > 0)
-    {
+    if (farmerLandDetailsReducer.farmerLandDetails.length > 0) {
       setRowData(farmerLandDetailsData);
       setUnitCode(farmerLandDetailsData[0].unitCode);
     }
-    else{
+    else {
       setUnitCode('');
     }
 
@@ -150,7 +149,7 @@ export const FarmersLandTable = () => {
     if (validateUnit()) {
       let isValid = validateFarmerLandDetailsForm();
       if (isValid) {
-        farmerLandDetailsData.push(emptyRow);
+        farmerLandDetailsData.unshift(emptyRow);
         dispatch(farmerLandDetailsAction(farmerLandDetailsData))
       }
     };
@@ -182,9 +181,8 @@ export const FarmersLandTable = () => {
 
     var deleteFarmerLandCode = localStorage.getItem("DeleteFarmerLandCodes");
 
-    var deleteFarmerLandDetail = deleteFarmerLandCode ? deleteFarmerLandCode + "," + paramsData.encryptedFarmerLandCode : paramsData.encryptedFarmerLandCode;
-
-    if (deleteFarmerLandDetail) {
+    if (paramsData.encryptedFarmerLandCode) {
+      var deleteFarmerLandDetail = deleteFarmerLandCode ? deleteFarmerLandCode + "," + paramsData.encryptedFarmerLandCode : paramsData.encryptedFarmerLandCode;
       localStorage.setItem("DeleteFarmerLandCodes", deleteFarmerLandDetail);
     }
 
@@ -223,12 +221,12 @@ export const FarmersLandTable = () => {
 
   const addLocationRow = () => {
     if (validateLocationModal()) {
-      setLocationRowData([...locationRowData, { id: locationRowData.length + 1, latitude: "", longitude: "" }]);
+      setLocationRowData([{ id: locationRowData.length + 1, latitude: "", longitude: "" }, ...locationRowData]);
     }
   };
 
   const getUnitList = async () => {
-    
+
     let response = await axios.get(process.env.REACT_APP_API_URL + '/unit-list')
     let unitListData = [];
 
@@ -243,7 +241,7 @@ export const FarmersLandTable = () => {
         setUnitList(unitListData);
       }
     }
-    else{
+    else {
       setUnitList([]);
     }
   }
@@ -334,9 +332,8 @@ export const FarmersLandTable = () => {
 
       var deleteFarmerLandGeoDetailCode = localStorage.getItem("DeleteFarmerLandGeoDetailCodes")
 
-      var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + "," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
-
-      if (deleteFarmerLandGeoDetail) {
+      if (item.encryptedFarmerLandGeoCode) {
+        var deleteFarmerLandGeoDetail = deleteFarmerLandGeoDetailCode ? deleteFarmerLandGeoDetailCode + "," + item.encryptedFarmerLandGeoCode : item.encryptedFarmerLandGeoCode;
         localStorage.setItem("DeleteFarmerLandGeoDetailCodes", deleteFarmerLandGeoDetail);
       }
       locationRowData.splice(index, 1);
@@ -440,7 +437,6 @@ export const FarmersLandTable = () => {
                             placeholder="Latitude"
                             className="form-control"
                             maxLength={12}
-                            // onInput={onLatitudeInput}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);

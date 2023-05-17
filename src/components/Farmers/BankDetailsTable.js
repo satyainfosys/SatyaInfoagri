@@ -107,7 +107,7 @@ export const BankDetailsTable = () => {
   const handleAddRow = () => {
     let formValid = validateBankDetailsForm()
     if (formValid) {
-      bankDetailData.push(emptyRow);
+      bankDetailData.unshift(emptyRow);
       dispatch(bankDetailsAction(bankDetailData));
     }
   };
@@ -138,9 +138,8 @@ export const BankDetailsTable = () => {
 
     var deleteFarmerBankDetailId = localStorage.getItem("DeleteFarmerBankDetailIds");
 
-    var deleteFarmerBankDetailIds = deleteFarmerBankDetailId ? deleteFarmerBankDetailId + "," + paramsData.encryptedFarmerBankId : paramsData.encryptedFarmerBankId;
-
-    if (deleteFarmerBankDetailIds) {
+    if (paramsData.encryptedFarmerBankId) {
+      var deleteFarmerBankDetailIds = deleteFarmerBankDetailId ? deleteFarmerBankDetailId + "," + paramsData.encryptedFarmerBankId : paramsData.encryptedFarmerBankId;
       localStorage.setItem("DeleteFarmerBankDetailIds", deleteFarmerBankDetailIds);
     }
 

@@ -672,8 +672,8 @@ const AddFarmer = () => {
                                         <Col className="ms-2 no-padding">
                                             <>
                                                 {
-                                                    farmerData && farmerData.farmerPhotoURL ? (
-                                                        <img height={100} width={100} src={farmerData.farmerPhotoURL} alt='Farmer'></img>
+                                                    farmerData && farmerData.profilePhotoURL ? (
+                                                        <img height={100} width={100} src={farmerData.profilePhotoURL} alt='Farmer'></img>
                                                     ) : null
                                                 }
                                             </>

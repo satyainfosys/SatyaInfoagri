@@ -70,7 +70,7 @@ export const FarmersMachinaryDetailsTable = () => {
   const handleAddRow = () => {
 
     if (validateFarmerMachineryDetailsForm()) {
-      farmerMachineryDetailsData.push(emptyRow);
+      farmerMachineryDetailsData.unshift(emptyRow);
       dispatch(farmerMachineryDetailsAction(farmerMachineryDetailsData));
     }
   };
@@ -101,9 +101,8 @@ export const FarmersMachinaryDetailsTable = () => {
 
     var deleteFarmerMachineryDetailCode = localStorage.getItem("DeleteFarmerMachineryDetailCodes");
 
-    var deleteFarmerMachineryDetails = deleteFarmerMachineryDetailCode ? deleteFarmerMachineryDetailCode + "," + paramsData.encryptedFarmerMachineryCode : paramsData.encryptedFarmerMachineryCode;
-
-    if (deleteFarmerMachineryDetails) {
+    if(paramsData.encryptedFarmerMachineryCode){
+      var deleteFarmerMachineryDetails = deleteFarmerMachineryDetailCode ? deleteFarmerMachineryDetailCode + "," + paramsData.encryptedFarmerMachineryCode : paramsData.encryptedFarmerMachineryCode;
       localStorage.setItem("DeleteFarmerMachineryDetailCodes", deleteFarmerMachineryDetails);
     }
 

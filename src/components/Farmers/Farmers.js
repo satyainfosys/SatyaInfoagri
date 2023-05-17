@@ -261,11 +261,6 @@ export const Farmers = () => {
     })
 
     $('[data-rr-ui-event-key*="Documents"]').off('click').on('click', function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-        $('#btnSave').attr('disabled', false);
-
         if (farmerDocumentDetailsList.length <= 0) {
             getFarmerDocumentDetailList();
         }
@@ -564,7 +559,7 @@ export const Farmers = () => {
 
         if (farmerDocumentDetailsList && farmerDocumentDetailsList.length > 0) {
             farmerDocumentDetailsList.forEach((row, index) => {
-                if (!row.documentType || !row.farmerDocument) {
+                if (!row.documentType || (!row.farmerDocument && !row.documentURL)) {
                     documentDetailErr.invalidDocumentDetail = "Fill the required fields"
                     isValid = false;
                     isDocumentValid = false;
@@ -893,45 +888,53 @@ export const Farmers = () => {
             const formData = new FormData();
             formData.append("EncryptedClientCode", localStorage.getItem("EncryptedClientCode"))
             formData.append("EncryptedCompanyCode", localStorage.getItem("EncryptedCompanyCode"))
-            formData.append("FarmerFirstName", farmerData.firstName)
-            formData.append("FarmerMiddleName", farmerData.middleName ? farmerData.middleName : "")
-            formData.append("FarmerLastName", farmerData.lastName)
-            formData.append("FarmerAddress", farmerData.address)
-            formData.append("FarmerEducation", farmerData.educationalStatus == "Primary School" ? "PRS" : farmerData.educationalStatus == "High School" ? "HGS" : farmerData.educationalStatus == "Inter" ? "INT" : farmerData.educationalStatus == "Graduate" ? "GRD" : farmerData.educationalStatus == "Post Graduate" ? "PSG" : farmerData.educationalStatus == "Illiterate" ? "ILT" : farmerData.educationalStatus == "Doctrate" ? "DOC" : "")
-            formData.append("FarmerSocialCategory", farmerData.socialCategory == "ST" ? "ST" : farmerData.socialCategory == "SC" ? "SC" : farmerData.socialCategory == "OBC" ? "OBC" : farmerData.socialCategory == "General" ? "GEN" : "GEN")
-            formData.append("FarmerDOB", farmerData.farmerDOB ? farmerData.farmerDOB : new Date())
-            formData.append("FarmerGender", farmerData.farmerGender == "Male" ? "M" : farmerData.farmerGender == "Female" ? "F" : farmerData.farmerGender == "Others" ? "O" : "M")
-            formData.append("FarmerMaritalStatus", farmerData.maritalStatus == "Married" ? "M" : farmerData.maritalStatus == "Unmarried" ? "U" : farmerData.maritalStatus == "Divorced" ? "D" : "U")
-            formData.append("FarmerFatherName", farmerData.fatherName)
-            formData.append("FarmerTotalLand", farmerData.totalLand ? parseFloat(farmerData.totalLand).toFixed(2) : 0)
+            formData.append("FarmerFirstName", requestData.farmerFirstName)
+            formData.append("FarmerMiddleName", requestData.farmerMiddleName ? requestData.farmerMiddleName : "")
+            formData.append("FarmerLastName", requestData.farmerLastName)
+            formData.append("FarmerAddress", requestData.farmerAddress)
+            formData.append("FarmerEducation", requestData.farmerEducation ? requestData.farmerEducation : "")
+            formData.append("FarmerSocialCategory", requestData.farmerSocialCategory ? requestData.farmerSocialCategory : "GEN")
+            formData.append("FarmerDOB", requestData.farmerDOB ? requestData.farmerDOB : new Date())
+            formData.append("FarmerGender", requestData.farmerGender ? requestData.farmerGender : "M")
+            formData.append("FarmerMaritalStatus", requestData.farmerMaritalStatus ? requestData.farmerMaritalStatus : "U")
+            formData.append("FarmerFatherName", requestData.farmerFatherName)
+            formData.append("FarmerTotalLand", requestData.farmerTotalLand ? parseFloat(requestData.farmerTotalLand).toFixed(2) : 0)
             formData.append("FarmerUser", "")
             formData.append("FarmerPassword", "")
-            formData.append("FigCode", farmerData.figCode ? farmerData.figCode : "")
-            formData.append("CollCentreCode", farmerData.collectionCentreCode)
-            formData.append("DistributionCentreCode", farmerData.distributionCentreCode)
-            formData.append("CountryCode", farmerData.countryCode)
-            formData.append("StateCode", farmerData.stateCode)
-            formData.append("DistrictCode", farmerData.districtCode)
-            formData.append("TehsilCode", farmerData.tehsilCode)
-            formData.append("BlockCode", farmerData.blockCode)
-            formData.append("PostOfficeCode", farmerData.postOfficeCode)
-            formData.append("VillageCode", farmerData.villageCode)
-            formData.append("ActiveStatus", farmerData.status == null || farmerData.status == "Active" ? "A" : "S")
-            formData.append("ApprovalStatus", farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D")
+            formData.append("FigCode", requestData.figCode ? requestData.figCode : "")
+            formData.append("CollCentreCode", requestData.collCentreCode)
+            formData.append("DistributionCentreCode", requestData.distributionCentreCode)
+            formData.append("CountryCode", requestData.countryCode)
+            formData.append("StateCode", requestData.stateCode)
+            formData.append("DistrictCode", requestData.districtCode)
+            formData.append("TehsilCode", requestData.tehsilCode)
+            formData.append("BlockCode", requestData.blockCode)
+            formData.append("PostOfficeCode", requestData.postOfficeCode)
+            formData.append("VillageCode", requestData.villageCode)
+            formData.append("ActiveStatus", requestData.activeStatus ? requestData.activeStatus : "A")
+            formData.append("ApprovalStatus", requestData.approvalStatus ? requestData.approvalStatus : "D")
             formData.append("AddUser", localStorage.getItem("LoginUserName"))
-            formData.append("FamilyDetails", farmerFamilyDetailsList)
-            formData.append("CommonContactDetails", commonContactDetailList)
-            formData.append("BankDetails", bankDetailList)
-            formData.append("FarmerLandDetails", farmerLandDetailsList)
-            formData.append("FarmerIrrigationDetails", farmerIrrigationDetailsList)
-            formData.append("FarmerLiveStockCattleDetails", farmerLiveStockCattleList)
-            formData.append("FarmerMachineryDetails", farmerMachineryDetailsList)
-            formData.append("FarmerDocumentDetails", farmerDocumentDetailsList)
 
-            requestData = formData;
+            formData.append("FamilyDetails", JSON.stringify(requestData.familyDetails));
+            formData.append("CommonContactDetails", JSON.stringify(requestData.commonContactDetails));
+            formData.append("BankDetails", JSON.stringify(requestData.bankDetails));
+            formData.append("FarmerLandDetails", JSON.stringify(requestData.farmerLandDetails))
+            formData.append("FarmerIrrigationDetails", JSON.stringify(requestData.farmerIrrigationDetails))
+            formData.append("FarmerLiveStockCattleDetails", JSON.stringify(requestData.farmerLiveStockCattleDetails))
+            formData.append("FarmerMachineryDetails", JSON.stringify(requestData.farmerMachineryDetails))
+
+            requestData.farmerDocumentDetails.forEach((farmerDocumentDetail, index) => {
+                formData.append(`FarmerDocumentDetails[${index}].DocumentType`, farmerDocumentDetail.documentType);
+                formData.append(`FarmerDocumentDetails[${index}].DocumentNo`, farmerDocumentDetail.documentNo);
+                formData.append(`FarmerDocumentDetails[${index}].ActiveStatus`, farmerDocumentDetail.activeStatus);
+                formData.append(`FarmerDocumentDetails[${index}].AddUser`, farmerDocumentDetail.addUser);
+                if (farmerDocumentDetail.farmerDocument) {
+                    formData.append(`FarmerDocumentDetails[${index}].UploadDocument`, farmerDocumentDetail.farmerDocument);
+                }
+            });
 
             setIsLoading(true);
-            axios.post(process.env.REACT_APP_API_URL + '/add-farmer', requestData, {
+            axios.post(process.env.REACT_APP_API_URL + '/add-farmer', formData, {
                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
             })
                 .then(res => {
@@ -1973,6 +1976,7 @@ export const Farmers = () => {
                         formData.append("DocumentType", farmerDocumentDetail.documentType)
                         formData.append("DocumentNo", farmerDocumentDetail.documentNo ? farmerDocumentDetail.documentNo : "")
                         formData.append("UploadDocument", farmerDocumentDetail.farmerDocument)
+                        formData.append("DocumentURL", farmerDocumentDetail.documentURL)
                         formData.append("ModifyUser", localStorage.getItem("LoginUserName"))
 
                         setIsLoading(true);

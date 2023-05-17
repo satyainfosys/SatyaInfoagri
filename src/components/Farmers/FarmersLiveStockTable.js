@@ -105,7 +105,7 @@ export const FarmersLiveStockTable = () => {
 
   const handleAddRow = () => {
     if (validateFarmersLiveStockCattleDetailForm()) {
-      farmerLiveStockCattleData.push(emptyRow);
+      farmerLiveStockCattleData.unshift(emptyRow);
       dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
     }
   };
@@ -136,9 +136,8 @@ export const FarmersLiveStockTable = () => {
 
     var deleteFarmerLiveStockDetailCode = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
 
-    var deleteFarmerCattleLiveStockDetail = deleteFarmerLiveStockDetailCode ? deleteFarmerLiveStockDetailCode + "," + paramsData.encryptedFarmerCattleCode : paramsData.encryptedFarmerCattleCode;
-
-    if (deleteFarmerCattleLiveStockDetail) {
+    if(paramsData.encryptedFarmerCattleCode){
+      var deleteFarmerCattleLiveStockDetail = deleteFarmerLiveStockDetailCode ? deleteFarmerLiveStockDetailCode + "," + paramsData.encryptedFarmerCattleCode : paramsData.encryptedFarmerCattleCode;
       localStorage.setItem("DeleteFarmerLiveStockCattleDetailIds", deleteFarmerCattleLiveStockDetail);
     }
 
@@ -221,7 +220,7 @@ export const FarmersLiveStockTable = () => {
                   </td>
                   <td key={index}>
                     <Form.Select id="txtCattleCode" name="cattleCode" value={farmerLiveStockCattleData.cattleCode} onChange={(e) => handleFieldChange(e, index)} required>
-                      <option value=''>Select Bank</option>
+                      <option value=''>Select Cattle</option>
                       {cattleTypeList.map((option, index) => (
                         <option key={index} value={option.value}>{option.key}</option>
                       ))}

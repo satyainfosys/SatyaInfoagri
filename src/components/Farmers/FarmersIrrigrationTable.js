@@ -62,7 +62,7 @@ export const FarmersIrrigrationTable = () => {
 
   const handleAddRow = () => {
     if (validateFarmerIrrigationForm()) {
-      farmerIrrigationDetailData.push(emptyRow);
+      farmerIrrigationDetailData.unshift(emptyRow);
       dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetailData));
     }
   };
@@ -93,9 +93,8 @@ export const FarmersIrrigrationTable = () => {
 
     var deleteFarmerIrrigationCode = localStorage.getItem("DeleteFarmerIrrigationCodes");
 
-    var deleteFarmerIrrigationDetail = deleteFarmerIrrigationCode ? deleteFarmerIrrigationCode + "," + paramsData.encryptedFarmerIrrigationCode : paramsData.encryptedFarmerIrrigationCode;
-
-    if (deleteFarmerIrrigationDetail) {
+    if (paramsData.encryptedFarmerIrrigationCode) {
+      var deleteFarmerIrrigationDetail = deleteFarmerIrrigationCode ? deleteFarmerIrrigationCode + "," + paramsData.encryptedFarmerIrrigationCode : paramsData.encryptedFarmerIrrigationCode;
       localStorage.setItem("DeleteFarmerIrrigationCodes", deleteFarmerIrrigationDetail);
     }
 

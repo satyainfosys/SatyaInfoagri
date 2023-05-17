@@ -67,7 +67,7 @@ export const FarmerContactInformationTable = () => {
 
     let formValid = validateContactDetailForm()
     if (formValid) {
-      commonContactDetailData.push(emptyRow);
+      commonContactDetailData.unshift(emptyRow);
       dispatch(commonContactDetailsAction(commonContactDetailData));
     }
   };
@@ -96,11 +96,10 @@ export const FarmerContactInformationTable = () => {
 
     var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
-    var deleteFarmerCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
-
-    if (deleteFarmerCommonContactDetails) {
+    if(paramsData.encryptedCommonContactDetailsId){
+      var deleteFarmerCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
       localStorage.setItem("DeleteCommonContactDetailsIds", deleteFarmerCommonContactDetails);
-    }
+    }        
 
     toast.success("Contact details deleted successfully", {
       theme: 'colored'

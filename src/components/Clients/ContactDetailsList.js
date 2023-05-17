@@ -119,9 +119,10 @@ const ContactDetailsList = () => {
         {contactDetailReducer &&
           contactDetailReducer.clientContactDetails &&
           contactDetailReducer.clientContactDetails.length > 0 && (
-            <Table striped responsive id="ClientContactDetailsTable" className='no-pb'>
-              <thead>
+            <Table striped bordered responsive id="ClientContactDetailsTable" className="no-pb text-nowrap">
+              <thead className='custom-bg-200'>
                 <tr>
+                  <th>S. No</th>
                   <th>Contact Person</th>
                   <th>Mobile No</th>
                   <th>Email Id</th>
@@ -137,6 +138,7 @@ const ContactDetailsList = () => {
                   contactDetailReducer.clientContactDetails.map((data, index) =>
                   (data &&
                     <tr>
+                      <td>{index + 1}</td>
                       <td>{data.contactPerson}</td>
                       <td>{data.mobileNo}</td>
                       <td>{data.emailId}</td>

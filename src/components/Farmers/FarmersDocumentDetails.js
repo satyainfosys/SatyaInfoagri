@@ -1,8 +1,9 @@
 import { farmerDetailsAction, farmerDocumentDetailsAction } from 'actions';
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Modal } from 'react-bootstrap';
+import { Form, Button, Table, Modal, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
 
 export const FarmersDocumentDetails = () => {
   const dispatch = useDispatch();
@@ -16,7 +17,7 @@ export const FarmersDocumentDetails = () => {
     'ID Type',
     'ID Proof No',
     'Upload Document',
-    'Actions'
+    'Action'
   ]
 
   const emptyRow = {
@@ -52,15 +53,22 @@ export const FarmersDocumentDetails = () => {
   const handleFieldChange = (e, index) => {
     const { name, value, files } = e.target;
     var farmerDocumentDetails = [...rowData];
-    farmerDocumentDetails[index][name] = name === 'farmerDocument' ? files[0] : value;
 
     if (name === 'farmerDocument') {
-      farmerDocumentDetails[index][name] = files[0];
-      if (farmerDocumentDetails[index].documentType == "Farmer Photo") {
-        dispatch(farmerDetailsAction({
-          ...farmerData,
-          farmerPhotoURL: URL.createObjectURL(files[0])
-        }))
+      if (files[0]) {
+        farmerDocumentDetails[index][name] = files[0];
+        const documentURL = URL.createObjectURL(files[0])
+        farmerDocumentDetails[index].documentURL = documentURL;
+
+        if (farmerDocumentDetails[index].documentType == "Farmer Photo") {
+          dispatch(farmerDetailsAction({
+            ...farmerData,
+            profilePhotoURL: documentURL
+          }))
+        }
+      } else {
+        farmerDocumentDetails[index].documentURL = '';
+        farmerDocumentDetails[index].farmerDocument = null;
       }
     } else {
       farmerDocumentDetails[index][name] = value;
@@ -80,7 +88,7 @@ export const FarmersDocumentDetails = () => {
 
     if (farmerDocumentDetailsData && farmerDocumentDetailsData.length > 0) {
       farmerDocumentDetailsData.forEach((row, index) => {
-        if (!row.documentType || !row.farmerDocument) {
+        if (!row.documentType || (!row.farmerDocument && !row.documentURL)) {
           isValid = false;
           setFormError(true);
         }
@@ -136,9 +144,8 @@ export const FarmersDocumentDetails = () => {
 
     var deleteFarmerDocumentDetailsId = localStorage.getItem("DeleteFarmerDocumentIds");
 
-    var deleteFarmerDocumentDetail = deleteFarmerDocumentDetailsId ? deleteFarmerDocumentDetailsId + "," + paramsData.encryptedFarmerDocumentId : paramsData.encryptedFarmerDocumentId;
-
-    if (deleteFarmerDocumentDetail) {
+    if (paramsData.encryptedFarmerDocumentId) {
+      var deleteFarmerDocumentDetail = deleteFarmerDocumentDetailsId ? deleteFarmerDocumentDetailsId + "," + paramsData.encryptedFarmerDocumentId : paramsData.encryptedFarmerDocumentId;
       localStorage.setItem("DeleteFarmerDocumentIds", deleteFarmerDocumentDetail);
     }
 
@@ -247,17 +254,30 @@ export const FarmersDocumentDetails = () => {
                       className="form-control"
                     />
                   </td>
-
+                  
                   <td key={index}>
-                    <Form.Control
-                      type="file"
-                      id="documentFile"
-                      name="farmerDocument"
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    />
+                    <InputGroup>
+                      <Form.Control
+                        type="file"
+                        id={'documentFile_' + index}
+                        name='farmerDocument'
+                        onChange={(e) => handleFieldChange(e, index)}
+                        className="form-control"
+                        required />
+                      {farmerDocumentDetailsData && farmerDocumentDetailsData.documentURL ? (
+                        <InputGroup.Text>
+                          <a
+                            href={farmerDocumentDetailsData.documentURL}
+                            target="_blank"
+                          >
+                            <i className="fa-solid fa-eye" />
+                          </a>
+                        </InputGroup.Text>
+                      ) : null
+                      }
+                    </InputGroup>
                   </td>
+
                   <td>
                     <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerDocumentDetailsData.encryptedFarmerDocumentId) }} />
                   </td>

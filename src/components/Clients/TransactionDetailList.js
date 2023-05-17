@@ -29,19 +29,20 @@ const TransactionDetailList = () => {
   return (
     <>
       {clientError.transactionDetailErr && clientError.transactionDetailErr.transactionEmpty &&
-        
-          (<div className='p-1'>
-            <span className="error-message">{clientError.transactionDetailErr.transactionEmpty}</span>
-          </div>)
+
+        (<div className='p-1'>
+          <span className="error-message">{clientError.transactionDetailErr.transactionEmpty}</span>
+        </div>)
       }
 
       {transactionDetailReducer &&
         transactionDetailReducer.transactionDetails &&
         transactionDetailReducer.transactionDetails.length > 0 &&
 
-        <Table striped responsive id="TransactionDetailsTable">
-          <thead>
+        <Table striped bordered responsive id="TransactionDetailsTable" className="no-pb text-nowrap">
+          <thead className='custom-bg-200'>
             <tr>
+              <th>S. No</th>
               <th>Module Name</th>
               <th>Start Date</th>
               <th>End Date</th>
@@ -53,8 +54,9 @@ const TransactionDetailList = () => {
           </thead>
           <tbody>
 
-            {transactionDetailReducer.transactionDetails.map(data =>
+            {transactionDetailReducer.transactionDetails.map((data, index) =>
               <tr>
+                <td>{index + 1}</td>
                 <td>{data.moduleName}</td>
                 <td>{Moment(data.startDate).format("DD/MM/YYYY")}</td>
                 <td>{Moment(data.endDate).format("DD/MM/YYYY")}</td>

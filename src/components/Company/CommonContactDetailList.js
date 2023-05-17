@@ -204,9 +204,10 @@ const CommonContactDetailList = () => {
                 {commonContactDetailListReducer &&
                     commonContactDetailListReducer.commonContactDetailsList &&
                     commonContactDetailListReducer.commonContactDetailsList.length > 0 && (
-                        <Table striped responsive id="CompanyContactDetailsTable" className='no-pb'>
-                            <thead>
+                        <Table striped bordered responsive id="CompanyContactDetailsTable" className="no-pb text-nowrap">
+                            <thead className='custom-bg-200'>
                                 <tr>
+                                    <th>S. No</th>
                                     <th>Contact Person</th>
                                     <th>Contact Type</th>
                                     <th>Contact Details</th>
@@ -221,6 +222,7 @@ const CommonContactDetailList = () => {
                                     commonContactDetailListReducer.commonContactDetailsList.map((data, index) =>
                                     (data &&
                                         <tr>
+                                            <td>{index + 1}</td>
                                             <td>{data.contactPerson}</td>
                                             <td>{data.contactType == "OFE" ? "Office Email Id" :
                                                 data.contactType == "OFM" ? "Office Mobile No" :
