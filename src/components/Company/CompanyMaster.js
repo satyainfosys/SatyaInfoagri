@@ -132,25 +132,28 @@ export const CompanyMaster = () => {
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        if ($("#AddCompanyDetailsForm").isChanged() ||
-            commonContactDetailChanged.commonContactDetailsChanged
-        ) {
-            setModalShow(true);
-        }
-        else {
-            $('[data-rr-ui-event-key*="Company List"]').trigger('click');
-        }
+        $('[data-rr-ui-event-key*="Company List"]').trigger('click');
+        // if ($("#AddCompanyDetailsForm").isChanged() ||
+        //     commonContactDetailChanged.commonContactDetailsChanged
+        // ) {
+        //     setModalShow(true);
+        // }
+        // else {
+        //     $('[data-rr-ui-event-key*="Company List"]').trigger('click');
+        // }
     }
 
     const exitModule = () => {
+        // $('#btnExit').attr('isExit', 'true');
+        // if (($("#AddCompanyDetailsForm").isChanged()) ||
+        //     commonContactDetailChanged.commonContactDetailsChanged) {
+        //     setModalShow(true);
+        // }
+        // else {
+        //     window.location.href = '/dashboard';
+        // }
         $('#btnExit').attr('isExit', 'true');
-        if (($("#AddCompanyDetailsForm").isChanged()) ||
-            commonContactDetailChanged.commonContactDetailsChanged) {
-            setModalShow(true);
-        }
-        else {
-            window.location.href = '/dashboard';
-        }
+        window.location.href = '/dashboard';
     }
 
     const discardChanges = () => {

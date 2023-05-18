@@ -155,7 +155,7 @@ export const FarmersMachinaryDetailsTable = () => {
       >
         {
           farmerMachineryDetailsData && farmerMachineryDetailsData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
             <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (

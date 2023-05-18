@@ -134,3 +134,7 @@
 .table-bordered>:not(caption)>*>* {
     border-width: 0 3px !important;
 }
+
+.tab-page-table>:not(caption)>*>*{
+    padding: 0.4rem !important;
+}

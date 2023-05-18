@@ -355,13 +355,13 @@ const TabPage = ({
               {index == 2 && module == 'Farmers' && (
                 <>
 
-                  <FalconComponentCard id="FamilyMemberTableDetails">
+                  <FalconComponentCard id="FamilyMemberTableDetails" className="tab-page-button-table-card mb-2">
                     <FalconComponentCard.Body language="jsx">
                       <FamilyTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="ContactDetailsTable">
+                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <FarmerContactInformationTable />
                     </FalconComponentCard.Body>
@@ -370,7 +370,7 @@ const TabPage = ({
               )}
               {index == 3 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="BankDetailsTable">
+                  <FalconComponentCard id="BankDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <BankDetailsTable />
                     </FalconComponentCard.Body>
@@ -380,13 +380,13 @@ const TabPage = ({
 
               {index == 4 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersLandDetailsTable">
+                  <FalconComponentCard id="FarmersLandDetailsTable" className="tab-page-button-table-card mb-2">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersLandTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="FarmersIrrigrationDetailsTable">
+                  <FalconComponentCard id="FarmersIrrigrationDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersIrrigrationTable />
                     </FalconComponentCard.Body>
@@ -396,13 +396,13 @@ const TabPage = ({
 
               {index == 5 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersLiveStockTable">
+                  <FalconComponentCard id="FarmersLiveStockTable" className="tab-page-button-table-card mb-2">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersLiveStockTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="FarmersMachinaryTable">
+                  <FalconComponentCard id="FarmersMachinaryTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersMachinaryDetailsTable />
                     </FalconComponentCard.Body>
@@ -412,7 +412,7 @@ const TabPage = ({
 
               {index == 6 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersDocumentDetailsFrom">
+                  <FalconComponentCard id="FarmersDocumentDetailsFrom" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <FarmersDocumentDetails />
                     </FalconComponentCard.Body>

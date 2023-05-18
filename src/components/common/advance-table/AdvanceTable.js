@@ -238,29 +238,63 @@ const AdvanceTable = ({
                 {row.cells.map((cell, index) => {
 
                   return (
-                    <td
-                      key={index}
-                      {...cell.getCellProps(cell.column.cellProps)}
-                    >
-                      {
-                        cell.column.id != "status" ?
-                          cell.render('Cell') :
-                          cell.row.values.status == "Active" ?
-                            <Badge
-                              pill
-                              bg="success"
-                            >
-                              {cell.render('Cell')}
-                            </Badge> :
-                            cell.row.values.status == "Suspended" ?
+                    <>
+                      <td
+                        key={index}
+                        {...cell.getCellProps(cell.column.cellProps)}
+                      >
+                        {
+                          cell.column.id != "status" && cell.column.id != "approvalStatus" ?
+                            cell.render('Cell') :
+                            cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
                                 pill
-                                bg="secondary"
+                                bg="success"
                               >
                                 {cell.render('Cell')}
-                              </Badge> : ''
-                      }
-                    </td>
+                              </Badge> :
+                              cell.column.id == "status" && cell.row.values.status == "Suspended" ?
+                                <Badge
+                                  pill
+                                  bg="secondary"
+                                >
+                                  {cell.render('Cell')}
+                                </Badge> :
+                                cell.column.id == "approvalStatus" && cell.row.values.approvalStatus == "Approved" ?
+                                  <Badge
+                                    pill
+                                    bg="success"
+                                  >
+                                    {cell.render('Cell')}
+                                  </Badge>
+                                  :
+                                  cell.column.id == "approvalStatus" && cell.row.values.approvalStatus == "Draft" ?
+                                    <Badge
+                                      pill
+                                      bg="info"
+                                    >
+                                      {cell.render('Cell')}
+                                    </Badge>
+                                    :
+                                    cell.column.id == "approvalStatus" && cell.row.values.approvalStatus == "Send for Verification" ?
+                                      <Badge
+                                        pill
+                                        bg="warning"
+                                      >
+                                        {cell.render('Cell')}
+                                      </Badge>
+                                      :
+                                      cell.column.id == "approvalStatus" && cell.row.values.approvalStatus == "Suspended" ?
+                                        <Badge
+                                          pill
+                                          bg="danger"
+                                        >
+                                          {cell.render('Cell')}
+                                        </Badge>
+                                        : ''
+                        }
+                      </td>
+                    </>
                   );
                 })}
               </tr>

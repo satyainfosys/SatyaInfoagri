@@ -412,7 +412,7 @@ export const FarmersLandTable = () => {
               })}
               {
                 locationRowData && locationRowData.length > 0 &&
-                <Table striped bordered responsive className="text-nowrap">
+                <Table striped bordered responsive className="text-nowrap tab-page-table">
                   <thead className='custom-bg-200'>
                     <tr>
                       <th>S.No</th>

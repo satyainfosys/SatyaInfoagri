@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Table, Modal, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { Link } from 'react-router-dom';
 
 export const FarmersDocumentDetails = () => {
   const dispatch = useDispatch();
@@ -11,6 +10,7 @@ export const FarmersDocumentDetails = () => {
   const [rowData, setRowData] = useState([]);
   const [modalShow, setModalShow] = useState(false);
   const [paramsData, setParamsData] = useState({});
+  const [fileErrorMessage, setFileErrorMessage] = useState(false);
 
   const columnsArray = [
     'S.No',
@@ -88,16 +88,20 @@ export const FarmersDocumentDetails = () => {
 
     if (farmerDocumentDetailsData && farmerDocumentDetailsData.length > 0) {
       farmerDocumentDetailsData.forEach((row, index) => {
-        if (!row.documentType || (!row.farmerDocument && !row.documentURL)) {
+        if (!row.documentType) {
           isValid = false;
           setFormError(true);
+        }
+
+        if ((!row.farmerDocument && !row.documentURL)) {
+          isValid = false;
+          setFileErrorMessage(true)
         }
 
         if (row.farmerDocument && row.farmerDocument.type) {
           var fileType = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
           if (!fileType.includes(row.farmerDocument.type)) {
             isValid = false;
-            setFormError(true);
             toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .png, .jpeg, .jpg", {
               theme: 'colored',
               autoClose: 5000
@@ -106,7 +110,6 @@ export const FarmersDocumentDetails = () => {
 
           if (row.farmerDocument.size > 1024 * 500) {
             isValid = false;
-            setFormError(true);
             toast.error("File size must be under 500 KB", {
               theme: 'colored',
               autoClose: 5000
@@ -117,6 +120,7 @@ export const FarmersDocumentDetails = () => {
     }
 
     if (isValid) {
+      setFileErrorMessage(false)
       setFormError(false);
     }
 
@@ -185,7 +189,14 @@ export const FarmersDocumentDetails = () => {
           </Modal.Footer>
         </Modal >
       }
-
+      {
+        (fileErrorMessage || (farmerError.documentDetailErr && farmerError.documentDetailErr.empty)) &&
+        (
+          <div className='mb-2'>
+            <span className="error-message">Please upload the document first</span>
+          </div>
+        )
+      }
       <div style={{ display: 'flex', justifyContent: 'end' }}>
         <Button
           id="btnAddFarmersDocumentTable"
@@ -204,7 +215,7 @@ export const FarmersDocumentDetails = () => {
       >
         {
           farmerDocumentDetailsData && farmerDocumentDetailsData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
             <thead className='custom-bg-200'>
               {rowData && <tr>
                 {columnsArray.map((column, index) => (
@@ -254,28 +265,36 @@ export const FarmersDocumentDetails = () => {
                       className="form-control"
                     />
                   </td>
-                  
+
                   <td key={index}>
-                    <InputGroup>
-                      <Form.Control
-                        type="file"
-                        id={'documentFile_' + index}
-                        name='farmerDocument'
-                        onChange={(e) => handleFieldChange(e, index)}
-                        className="form-control"
-                        required />
-                      {farmerDocumentDetailsData && farmerDocumentDetailsData.documentURL ? (
-                        <InputGroup.Text>
-                          <a
-                            href={farmerDocumentDetailsData.documentURL}
-                            target="_blank"
-                          >
-                            <i className="fa-solid fa-eye" />
-                          </a>
-                        </InputGroup.Text>
-                      ) : null
-                      }
-                    </InputGroup>
+                    {
+                      farmerDocumentDetailsData.documentURL ?
+                        <InputGroup>
+                          <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Change</Button>
+                          {farmerDocumentDetailsData && farmerDocumentDetailsData.documentURL ? (
+                            <InputGroup.Text>
+                              <a
+                                href={farmerDocumentDetailsData.documentURL}
+                                target="_blank"
+                              >
+                                <i className="fa-solid fa-eye" />
+                              </a>
+                            </InputGroup.Text>
+                          ) : null
+                          }
+                        </InputGroup>
+                        :
+                        <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Upload</Button>
+                    }
+                    <Form.Control
+                      type="file"
+                      id={'documentFile_' + index}
+                      name='farmerDocument'
+                      onChange={(e) => handleFieldChange(e, index)}
+                      className="form-control"
+                      accept='.jpg,.jpeg,.png,.bmp,.doc,.docx,application/pdf'
+                      hidden
+                    />
                   </td>
 
                   <td>

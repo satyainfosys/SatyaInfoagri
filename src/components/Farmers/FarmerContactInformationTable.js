@@ -79,7 +79,11 @@ export const FarmerContactInformationTable = () => {
     commonContactDetails = Object.keys(rowData).map(key => {
       return rowData[key];
     })
+
     dispatch(commonContactDetailsAction(commonContactDetails))
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   }
 
   const ModalPreview = (encryptedCommonContactDetailsId, contactDetailsToDelete) => {
@@ -96,10 +100,10 @@ export const FarmerContactInformationTable = () => {
 
     var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
-    if(paramsData.encryptedCommonContactDetailsId){
+    if (paramsData.encryptedCommonContactDetailsId) {
       var deleteFarmerCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
       localStorage.setItem("DeleteCommonContactDetailsIds", deleteFarmerCommonContactDetails);
-    }        
+    }
 
     toast.success("Contact details deleted successfully", {
       theme: 'colored'
@@ -162,7 +166,7 @@ export const FarmerContactInformationTable = () => {
       >
         {
           commonContactDetailData && commonContactDetailData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
             <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (
