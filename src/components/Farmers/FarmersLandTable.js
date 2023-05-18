@@ -5,6 +5,7 @@ import { farmerLandDetailsAction, farmerDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import 'leaflet/dist/leaflet.css';
 
 export const FarmersLandTable = () => {
@@ -580,15 +581,15 @@ export const FarmersLandTable = () => {
                     {index + 1}
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtKhasraNo"
                       name="khasraNo"
                       value={farmerLandDetailsData.khasraNo}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Khasra No"
                       className="form-control"
-                      required
+                      required={true}
+                      maxLength={10}
                     />
                   </td>
                   <td key={index}>
