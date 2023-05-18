@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Col, Form, Row, InputGroup } from 'react-bootstrap';
+import React, { useState, useEffect } from 'react';
+import { Col, Form, Row } from 'react-bootstrap';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { farmerDetailsAction } from 'actions';
@@ -450,15 +450,6 @@ const AddFarmer = () => {
             setVillageList([]);
             e.target.value && getVillage(e.target.value);
         }
-
-        // if (e.target.name == 'farmerPic') {
-        //     dispatch(farmerDetailsAction({
-        //         ...farmerData,
-        //         farmerPic: e.target.files[0],
-        //         farmerPicURL: URL.createObjectURL(e.target.files[0])
-        //     }));
-        // }
-
         else if (e.target.name == 'distributionCentreCode') {
             dispatch(farmerDetailsAction({
                 ...farmerData,
@@ -485,18 +476,10 @@ const AddFarmer = () => {
                 [e.target.name]: e.target.value
             }));
         }
-    };
 
-    // const removeProfilePic = () => {
-    //     $('#profilepic').val(null);
-    //     dispatch(farmerDetailsAction({
-    //         ...farmerData,
-    //         farmerPic: "",
-    //         farmerPicURL: "",
-    //         removeProfilePhoto: true
-    //     }))
-    //     $('#btnSave').attr('disabled', false);
-    // }
+        if ($("#btnSave").attr('disabled'))
+            $("#btnSave").attr('disabled', false);
+    };
 
     return (
         <>

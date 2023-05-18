@@ -150,6 +150,9 @@ export const ClientDetails = () => {
       else
         getStates(e.target.value, true);
     }
+
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   };
 
   return (

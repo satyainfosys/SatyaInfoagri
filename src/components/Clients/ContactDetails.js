@@ -163,6 +163,8 @@ const ContactDetails = () => {
       ...contactDetailData,
       [e.target.name]: e.target.value
     }));
+    if ($("#btnSave").attr('disabled'))
+      $("#btnSave").attr('disabled', false);
   };
 
   const hideForm = () => {

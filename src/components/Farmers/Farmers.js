@@ -206,8 +206,6 @@ export const Farmers = () => {
     })
 
     $('[data-rr-ui-event-key*="Family"]').off('click').on('click', function () {
-        $('#btnSave').attr('disabled', false);
-
         if (farmerFamilyDetailsList.length <= 0) {
             getFarmerFamilyDetail();
         }
@@ -216,26 +214,12 @@ export const Farmers = () => {
     })
 
     $('[data-rr-ui-event-key*="Bank"]').off('click').on('click', function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-        $('#btnSave').attr('disabled', false);
-
-        if (farmerCardDetailsList.length <= 0) {
-            getFarmerKisanCardDetail();
-        }
-
         if (bankDetailList.length <= 0) {
             getBankDetail();
         }
     })
 
     $('[data-rr-ui-event-key*="Land"]').off('click').on('click', function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-        $('#btnSave').attr('disabled', false);
-
         if (farmerIrrigationDetailsList.length <= 0) {
             getFarmerIrrigationDetail();
         }
@@ -246,11 +230,6 @@ export const Farmers = () => {
     })
 
     $('[data-rr-ui-event-key*="Cattle"]').off('click').on('click', function () {
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
-        $('#btnSave').attr('disabled', false);
-
         if (farmerLiveStockCattleList.length <= 0) {
             getFarmerLiveStockCattleList();
         }
@@ -559,8 +538,17 @@ export const Farmers = () => {
 
         if (farmerDocumentDetailsList && farmerDocumentDetailsList.length > 0) {
             farmerDocumentDetailsList.forEach((row, index) => {
-                if (!row.documentType || (!row.farmerDocument && !row.documentURL)) {
+                if (!row.documentType) {
                     documentDetailErr.invalidDocumentDetail = "Fill the required fields"
+                    isValid = false;
+                    isDocumentValid = false;
+
+                    if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                        $('[data-rr-ui-event-key*="Documents"]').trigger('click');
+                    }
+                }
+                if (!(row.farmerDocument && row.documentURL)) {
+                    documentDetailErr.empty = "Upload file"
                     isValid = false;
                     isDocumentValid = false;
 
@@ -573,20 +561,30 @@ export const Farmers = () => {
                     var fileType = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
                     if (!fileType.includes(row.farmerDocument.type)) {
                         isValid = false;
+                        isDocumentValid = false;
                         setFormError(true);
                         toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .png, .jpeg, .jpg", {
                             theme: 'colored',
                             autoClose: 5000
                         })
+
+                        if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                            $('[data-rr-ui-event-key*="Documents"]').trigger('click');
+                        }
                     }
 
                     if (row.farmerDocument.size > 1024 * 500) {
                         isValid = false;
+                        isDocumentValid = false;
                         setFormError(true);
                         toast.error("File size must be under 500 KB", {
                             theme: 'colored',
                             autoClose: 5000
                         })
+
+                        if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                            $('[data-rr-ui-event-key*="Documents"]').trigger('click');
+                        }
                     }
                 }
             })

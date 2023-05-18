@@ -336,6 +336,8 @@ export const TransactionDetails = () => {
                 $('.payment-mode-details').hide();
             }
         }
+        if ($("#btnSave").attr('disabled'))
+            $("#btnSave").attr('disabled', false);
     };
 
     const handleAmountChange = e => {

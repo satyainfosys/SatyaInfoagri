@@ -161,6 +161,8 @@ const CommonContactDetails = () => {
             ...commonContactDetailData,
             [e.target.name]: e.target.value
         }));
+        if ($("#btnSave").attr('disabled'))
+            $("#btnSave").attr('disabled', false);
     };
 
     const hideCommonContactForm = () => {

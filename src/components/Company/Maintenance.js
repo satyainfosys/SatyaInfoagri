@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Form, Row, Spinner, InputGroup } from 'react-bootstrap';
+import { Col, Form, Row, Spinner, InputGroup, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { companyDetailsAction, clientDataAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -134,13 +134,24 @@ export const Maintenance = () => {
         }
 
         if (e.target.name == 'companyLogo') {
-            dispatch(companyDetailsAction({
-                ...companyData,
-                companyLogo: e.target.files[0],
-                companyLogoURL: URL.createObjectURL(e.target.files[0])
-            }));
-            $("#imgCompanyLogo").show();
+            if (e.target.files[0]) {
+                dispatch(companyDetailsAction({
+                    ...companyData,
+                    companyLogo: e.target.files[0],
+                    companyLogoURL: URL.createObjectURL(e.target.files[0])
+                }));
+            }
+            else {
+                dispatch(companyDetailsAction({
+                    ...companyData,
+                    companyLogo: null,
+                    companyLogoURL: ''
+                }));
+            }
         }
+
+        if ($("#btnSave").attr('disabled'))
+            $("#btnSave").attr('disabled', false);
     };
 
     const sameAsClientCompanyDataChanged = () => {
@@ -336,20 +347,25 @@ export const Maintenance = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Company Logo</Form.Label>
-                                {companyData && companyData.companyLogoURL ? (
-                                    <img src={companyData.companyLogoURL} id='imgCompanyLogo' width="60px" height="100px" />
-                                ) : null}
-                                <InputGroup className="mb-1">
-                                    <Form.Control type="file" id='logoFile' name='companyLogo' onChange={handleFieldChange} />
-                                    {companyData && companyData.companyLogoURL ? (
-                                        <InputGroup.Text>
-                                            <i className="fa fa-trash"
-                                                onClick={() => { removeLogo() }}
-                                            />
-                                        </InputGroup.Text>
-                                    ) : null
-                                    }
-                                </InputGroup>
+                                {
+                                    (companyData && companyData.companyLogoURL) ?
+                                        (
+                                            <>
+                                                <img src={companyData.companyLogoURL} id='imgCompanyLogo' width="60px" height="100px" />
+                                                <InputGroup className="mb-1">
+                                                    <Button onClick={() => { document.getElementById('logoFile').click(); }}>Change</Button>
+                                                    <InputGroup.Text>
+                                                        <i className="fa fa-trash"
+                                                            onClick={() => { removeLogo() }}
+                                                        />
+                                                    </InputGroup.Text>
+                                                </InputGroup>
+                                            </>
+                                        )
+                                        :
+                                        <Button onClick={() => { document.getElementById('logoFile').click(); }}>Upload</Button>
+                                }
+                                <Form.Control type="file" id='logoFile' name='companyLogo' onChange={handleFieldChange} hidden />
                                 {Object.keys(companyError.imageTypeErr).map((key) => {
                                     return <span className="error-message">{companyError.imageTypeErr[key]}</span>
                                 })}

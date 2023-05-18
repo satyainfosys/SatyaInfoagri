@@ -99,13 +99,13 @@ export const Client = () => {
   }
 
   $('[data-rr-ui-event-key*="Customer List"]').click(function () {
-    $('#btnExit').attr('isExit', 'false');
-    if ($("#AddClientDetailsForm").isChanged() ||
-      clientContactDetailChanged.contactDetailsChanged ||
-      transactionDetailChanged.transactionDetailChanged
-    ) {
-      setModalShow(true);
-    }
+    // $('#btnExit').attr('isExit', 'false');
+    // if ($("#AddClientDetailsForm").isChanged() ||
+    //   clientContactDetailChanged.contactDetailsChanged ||
+    //   transactionDetailChanged.transactionDetailChanged
+    // ) {
+    //   setModalShow(true);
+    // }
 
     $("#btnNew").show();
     $("#btnSave").hide();
@@ -144,15 +144,16 @@ export const Client = () => {
 
   const cancelClick = () => {
     $('#btnExit').attr('isExit', 'false');
-    if ($("#AddClientDetailsForm").isChanged() ||
-      clientContactDetailChanged.contactDetailsChanged ||
-      transactionDetailChanged.transactionDetailChanged
-    ) {
-      setModalShow(true);
-    }
-    else {
-      $('[data-rr-ui-event-key*="Customer List"]').trigger('click');
-    }
+    $('[data-rr-ui-event-key*="Customer List"]').trigger('click');
+    // if ($("#AddClientDetailsForm").isChanged() ||
+    //   clientContactDetailChanged.contactDetailsChanged ||
+    //   transactionDetailChanged.transactionDetailChanged
+    // ) {
+    //   setModalShow(true);
+    // }
+    // else {
+    //   $('[data-rr-ui-event-key*="Customer List"]').trigger('click');
+    // }
   }
 
   const clientValidation = () => {
@@ -622,14 +623,15 @@ export const Client = () => {
 
   const exitModule = () => {
     $('#btnExit').attr('isExit', 'true');
-    if (($("#AddClientDetailsForm").isChanged()) ||
-      (clientContactDetailChanged.contactDetailsChanged) ||
-      transactionDetailChanged.transactionDetailChanged) {
-      setModalShow(true);
-    }
-    else {
-      window.location.href = '/dashboard';
-    }
+    window.location.href = '/dashboard';
+    // if (($("#AddClientDetailsForm").isChanged()) ||
+    //   (clientContactDetailChanged.contactDetailsChanged) ||
+    //   transactionDetailChanged.transactionDetailChanged) {
+    //   setModalShow(true);
+    // }
+    // else {
+    //   window.location.href = '/dashboard';
+    // }
   }
 
   const discardChanges = () => {
