@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Table, Modal, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const FarmersDocumentDetails = () => {
   const dispatch = useDispatch();
@@ -255,14 +256,14 @@ export const FarmersDocumentDetails = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtDocumentNo"
                       name="documentNo"
                       value={farmerDocumentDetailsData.documentNo}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Document No"
                       className="form-control"
+                      maxLength={30}
                     />
                   </td>
 

@@ -5,6 +5,7 @@ import { companyDetailsAction, clientDataAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const Maintenance = () => {
 
@@ -253,20 +254,20 @@ export const Maintenance = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Company Name<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtCompanyName" name="companyName" maxLength={50} value={companyData.companyName} onChange={handleFieldChange} placeholder="Company Name" required />
+                                <EnlargableTextbox id="txtCompanyName" name="companyName" maxLength={50} value={companyData.companyName} onChange={handleFieldChange} placeholder="Company Name" required={true} />
                                 {Object.keys(companyError.companyNameErr).map((key) => {
                                     return <span className="error-message">{companyError.companyNameErr[key]}</span>
                                 })}
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Company Address<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtCompanyAddress" name="address1" maxLength={30} value={companyData.address1} onChange={handleFieldChange} className="mb-1" placeholder="Address 1" required />
+                                <EnlargableTextbox id="txtCompanyAddress" name="address1" maxLength={30} value={companyData.address1} onChange={handleFieldChange} className="mb-1" placeholder="Address 1" required={true} />
                                 {Object.keys(companyError.addressErr).map((key) => {
                                     return <span className="error-message">{companyError.addressErr[key]}</span>
                                 })}
-                                <Form.Control id="txtCompanyAddress2" name="address2" maxLength={30} value={companyData.address2} onChange={handleFieldChange} className="mb-1" placeholder="Address 2" />
-                                <Form.Control id="txtCompanyAddress3" name="address3" maxLength={30} value={companyData.address3} onChange={handleFieldChange} className="mb-1" placeholder="Address 3" />
-                                <Form.Control id="txtPincode" name="pinCode" maxLength={10} value={companyData.pinCode} onChange={handleFieldChange} placeholder="Pincode" />
+                                <EnlargableTextbox id="txtCompanyAddress2" name="address2" maxLength={30} value={companyData.address2} onChange={handleFieldChange} className="mb-1" placeholder="Address 2" />
+                                <EnlargableTextbox id="txtCompanyAddress3" name="address3" maxLength={30} value={companyData.address3} onChange={handleFieldChange} className="mb-1" placeholder="Address 3" />
+                                <EnlargableTextbox id="txtPincode" name="pinCode" maxLength={10} value={companyData.pinCode} onChange={handleFieldChange} placeholder="Pincode" />
                             </Row>
                             <Row className="mb-3">
                                 <Form.Select id="txtCountry" name="countryCode" value={companyData.countryCode} onChange={handleFieldChange} required>
@@ -295,23 +296,23 @@ export const Maintenance = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Company Shortname</Form.Label>
-                                <Form.Control id="txtCompanyShortName" name="companyShortName" maxLength={20} value={companyData.companyShortName} onChange={handleFieldChange} placeholder="Company Shortname" />
+                                <EnlargableTextbox id="txtCompanyShortName" name="companyShortName" maxLength={20} value={companyData.companyShortName} onChange={handleFieldChange} placeholder="Company Shortname" />
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Company Credentials</Form.Label>
-                                <Form.Control id="txtPanNo" name="companyPan" maxLength={30} value={companyData.companyPan} onChange={handleFieldChange} placeholder="Company PAN No" />
+                                <EnlargableTextbox id="txtPanNo" name="companyPan" maxLength={30} value={companyData.companyPan} onChange={handleFieldChange} placeholder="Company PAN No" />
                                 {Object.keys(companyError.panNoErr).map((key) => {
                                     return <span className="error-message">{companyError.panNoErr[key]}</span>
                                 })}
-                                <Form.Control id="txtGstNo" name="companyGstNo" maxLength={30} value={companyData.companyGstNo} onChange={handleFieldChange} placeholder="Company GST No" />
+                                <EnlargableTextbox id="txtGstNo" name="companyGstNo" maxLength={30} value={companyData.companyGstNo} onChange={handleFieldChange} placeholder="Company GST No" />
                                 {Object.keys(companyError.gstNoErr).map((key) => {
                                     return <span className="error-message">{companyError.gstNoErr[key]}</span>
                                 })}
-                                <Form.Control id="txtSalesTax" name="companySalesTax" maxLength={30} value={companyData.companySalesTax} onChange={handleFieldChange} placeholder="Company sales tax" />
-                                <Form.Control id="txtTinNo" name="companyTinNo" maxLength={30} value={companyData.companyTinNo} onChange={handleFieldChange} placeholder="Company TIN no" />
-                                <Form.Control id="txtLutNo" name="companyLutNo" maxLength={30} value={companyData.companyLutNo} onChange={handleFieldChange} placeholder="Company LUT no" />
-                                <Form.Control id="txtExpImpNo" name="companyExpImp" maxLength={30} value={companyData.companyExpImp} onChange={handleFieldChange} placeholder="Company Exp-Imp no" />
-                                <Form.Control id="txtRegNo" name="companyRegNo" maxLength={30} value={companyData.companyRegNo} onChange={handleFieldChange} placeholder="Company Registration no" />
+                                <EnlargableTextbox id="txtSalesTax" name="companySalesTax" maxLength={30} value={companyData.companySalesTax} onChange={handleFieldChange} placeholder="Company sales tax" />
+                                <EnlargableTextbox id="txtTinNo" name="companyTinNo" maxLength={30} value={companyData.companyTinNo} onChange={handleFieldChange} placeholder="Company TIN no" />
+                                <EnlargableTextbox id="txtLutNo" name="companyLutNo" maxLength={30} value={companyData.companyLutNo} onChange={handleFieldChange} placeholder="Company LUT no" />
+                                <EnlargableTextbox id="txtExpImpNo" name="companyExpImp" maxLength={30} value={companyData.companyExpImp} onChange={handleFieldChange} placeholder="Company Exp-Imp no" />
+                                <EnlargableTextbox id="txtRegNo" name="companyRegNo" maxLength={30} value={companyData.companyRegNo} onChange={handleFieldChange} placeholder="Company Registration no" />
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Company Regestration Date</Form.Label>

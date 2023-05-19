@@ -3,6 +3,7 @@ import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { commonContactDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const FarmerContactInformationTable = () => {
   const dispatch = useDispatch();
@@ -183,8 +184,7 @@ export const FarmerContactInformationTable = () => {
                     {index + 1}
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtContactPerson"
                       name="contactPerson"
                       maxLength={45}
@@ -192,7 +192,7 @@ export const FarmerContactInformationTable = () => {
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Contact Person Name"
                       className="form-control"
-                      required
+                      required={true}
                     />
                   </td>
 
@@ -221,8 +221,7 @@ export const FarmerContactInformationTable = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtContactDetails"
                       name="contactDetails"
                       maxLength={30}
@@ -230,7 +229,7 @@ export const FarmerContactInformationTable = () => {
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Contact Details"
                       className="form-control"
-                      required
+                      required={true}
                     />
                   </td>
                   <td>

@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Col, Form, Row, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { commonContactDetailsListAction, commonContactDetailsAction, commonContactDetailChangedAction } from '../../actions/index';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 const CommonContactDetails = () => {
 
@@ -181,7 +182,7 @@ const CommonContactDetails = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label className='details-form'>Contact Person<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtContactPerson" name="contactPerson" maxLength={45} value={commonContactDetailData.contactPerson} onChange={handleFieldChange} placeholder="Contact person name" required />
+                                <EnlargableTextbox id="txtContactPerson" name="contactPerson" maxLength={45} value={commonContactDetailData.contactPerson} onChange={handleFieldChange} placeholder="Contact person name" required={true} />
                                 {Object.keys(contactNameErr).map((key) => {
                                     return <span className="error-message">{contactNameErr[key]}</span>
                                 })}
@@ -211,7 +212,7 @@ const CommonContactDetails = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Contact Details<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtContactDetails" name="contactDetails" maxLength={30} value={commonContactDetailData.contactDetails} onChange={handleFieldChange} placeholder="Contact details" required />
+                                <EnlargableTextbox id="txtContactDetails" name="contactDetails" maxLength={30} value={commonContactDetailData.contactDetails} onChange={handleFieldChange} placeholder="Contact details" required />
                                 {Object.keys(contactDetailsErr).map((key) => {
                                     return <span className="error-message">{contactDetailsErr[key]}</span>
                                 })}

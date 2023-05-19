@@ -547,7 +547,7 @@ export const Farmers = () => {
                         $('[data-rr-ui-event-key*="Documents"]').trigger('click');
                     }
                 }
-                if (!(row.farmerDocument && row.documentURL)) {
+                if ((!row.farmerDocument && !row.documentURL)) {
                     documentDetailErr.empty = "Upload file"
                     isValid = false;
                     isDocumentValid = false;

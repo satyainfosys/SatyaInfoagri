@@ -67,7 +67,9 @@ export const FarmersLandTable = () => {
   var farmerData = farmerDetailsReducer.farmerDetails;
 
   useEffect(() => {
-    getUnitList();
+    if (unitList.length <= 0) {
+      getUnitList();
+    }
 
     if (farmerLandDetailsReducer.farmerLandDetails.length > 0) {
       setRowData(farmerLandDetailsData);
@@ -429,8 +431,7 @@ export const FarmersLandTable = () => {
                           {index + 1}
                         </td>
                         <td key={index}>
-                          <Form.Control
-                            type="text"
+                          <EnlargableTextbox
                             id="txtLatitude"
                             name="latitude"
                             value={row.latitude}
@@ -447,12 +448,11 @@ export const FarmersLandTable = () => {
                                 e.preventDefault();
                               }
                             }}
-                            required
+                            required={true}
                           />
                         </td>
                         <td key={index}>
-                          <Form.Control
-                            type="text"
+                          <EnlargableTextbox
                             id="txtLongitude"
                             name="longitude"
                             value={row.longitude}
@@ -469,7 +469,7 @@ export const FarmersLandTable = () => {
                                 e.preventDefault();
                               }
                             }}
-                            required
+                            required={true}
                           />
                         </td>
                         <td>
@@ -593,14 +593,14 @@ export const FarmersLandTable = () => {
                     />
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtLandMark"
                       name="landMark"
                       value={farmerLandDetailsData.landMark}
                       onChange={(e) => handleFieldChange(e, index)}
                       placeholder="Land Mark"
                       className="form-control"
+                      maxLength={100}
                     />
                   </td>
 
@@ -652,8 +652,7 @@ export const FarmersLandTable = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="num"
+                    <EnlargableTextbox
                       id="txtLandArea"
                       name="landArea"
                       value={farmerLandDetailsData.landArea}
@@ -667,7 +666,7 @@ export const FarmersLandTable = () => {
                         }
                       }}
                       maxLength={6}
-                      required
+                      required={true}
                     />
                   </td>
                   <td key={index}>

@@ -124,7 +124,7 @@ const TabPage = ({
               tableProps={{
                 bordered: true,
                 striped: true,
-                className: 'mb-0 overflow-hidden',
+                className: 'mb-0 overflow-hidden tab-page-table',
                 responsive: true
               }}
             />

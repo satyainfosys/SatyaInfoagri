@@ -4,6 +4,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
 import { userDetailsAction, clientDataAction } from '../../actions/index';
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 // import { useForm } from 'react-hook-form';
 
 
@@ -78,7 +79,7 @@ export const UserDetails = () => {
 
     const handleFieldChange = e => {
         if (e.target.name == 'encryptedClientCode' && (!userData || $('#txtClient option:selected').val() != userData.encryptedClientCode)) {
-            
+
             const client = clientUserData.find(x => x.customerName == $('#txtClient option:selected').text());
 
             !client || client.role == "Client" ? setIsAdmin(false) : setIsAdmin(true);
@@ -123,6 +124,8 @@ export const UserDetails = () => {
                 [e.target.name]: e.target.value
             }));
         }
+        if ($("#btnSave").attr('disabled'))
+            $("#btnSave").attr('disabled', false);
     }
 
 
@@ -157,15 +160,22 @@ export const UserDetails = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Email</Form.Label>
-                                <Form.Control id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
+                                <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Mobile Number</Form.Label>
-                                <Form.Control id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin} />
+                                <EnlargableTextbox id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin}
+                                    onKeyPress={(e) => {
+                                        const regex = /[0-9]|\./;
+                                        const key = String.fromCharCode(e.charCode);
+                                        if (!regex.test(key)) {
+                                            e.preventDefault();
+                                        }
+                                    }} />
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Username<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} onChange={handleFieldChange} placeholder="Enter Username" required />
+                                <EnlargableTextbox id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} onChange={handleFieldChange} placeholder="Enter Username" required={true} />
                                 {Object.keys(userError.loginUserNameErr).map((key) => {
                                     return <span className="error-message">{userError.loginUserNameErr[key]}</span>
                                 })}

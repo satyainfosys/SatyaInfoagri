@@ -4,6 +4,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
 import { clientDetailsAction } from '../../actions/index';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const ClientDetails = () => {
 
@@ -164,23 +165,23 @@ export const ClientDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Customer Name<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtCustomerName" name="customerName" maxLength={50} value={clientData.customerName} onChange={handleFieldChange} placeholder="Customer Name" required />
+                <EnlargableTextbox id="txtCustomerName" name="customerName" maxLength={50} value={clientData.customerName} onChange={handleFieldChange} placeholder="Customer Name" required={true} />
                 {Object.keys(clientError.customerNameErr).map((key) => {
                   return <span className="error-message">{clientError.customerNameErr[key]}</span>
                 })}
               </Row>
               <Row className="mb-3">
                 <Form.Label>Customer Address<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtCustomerAddress" name="address1" maxLength={50} value={clientData.address1} onChange={handleFieldChange} className="mb-1" placeholder="Address" required />
+                <EnlargableTextbox id="txtCustomerAddress" name="address1" maxLength={50} value={clientData.address1} onChange={handleFieldChange} className="mb-1" placeholder="Address" required={true} />
                 {Object.keys(clientError.clientAddressErr).map((key) => {
                   return <span className="error-message">{clientError.clientAddressErr[key]}</span>
                 })}
-                <Form.Control id="txtCustomerAddress2" name="address2" maxLength={50} value={clientData.address2} onChange={handleFieldChange} className="mb-1" placeholder="Address 2" />
-                <Form.Control id="txtCustomerAddress3" name="address3" maxLength={50} value={clientData.address3} onChange={handleFieldChange} className="mb-1" placeholder="Address 3" />
+                <EnlargableTextbox id="txtCustomerAddress2" name="address2" maxLength={50} value={clientData.address2} onChange={handleFieldChange} className="mb-1" placeholder="Address 2" />
+                <EnlargableTextbox id="txtCustomerAddress3" name="address3" maxLength={50} value={clientData.address3} onChange={handleFieldChange} className="mb-1" placeholder="Address 3" />
               </Row>
               <Row className="mb-3">
                 <Form.Label>Pincode</Form.Label>
-                <Form.Control id="txtPincode" name="pinCode" maxLength={10} value={clientData.pinCode} onChange={handleFieldChange} placeholder="Pincode" />
+                <EnlargableTextbox id="txtPincode" name="pinCode" maxLength={10} value={clientData.pinCode} onChange={handleFieldChange} placeholder="Pincode" />
               </Row>
               <Row className="mb-3">
                 <Form.Label>Country<span className="text-danger">*</span></Form.Label>
@@ -211,16 +212,16 @@ export const ClientDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Billing Address<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtBillingAddress" name="billingAddress1" maxLength={50} value={clientData.billingAddress1} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address" required />
+                <EnlargableTextbox id="txtBillingAddress" name="billingAddress1" maxLength={50} value={clientData.billingAddress1} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address" required />
                 {Object.keys(clientError.billingAddressErr).map((key) => {
                   return <span className="error-message">{clientError.billingAddressErr[key]}</span>
                 })}
-                <Form.Control id="txtBillingAddress2" name="billingAddress2" maxLength={50} value={clientData.billingAddress2} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address 2" />
-                <Form.Control id="txtBillingAddress3" name="billingAddress3" maxLength={50} value={clientData.billingAddress3} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address 3" />
+                <EnlargableTextbox id="txtBillingAddress2" name="billingAddress2" maxLength={50} value={clientData.billingAddress2} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address 2" />
+                <EnlargableTextbox id="txtBillingAddress3" name="billingAddress3" maxLength={50} value={clientData.billingAddress3} onChange={handleFieldChange} className="mb-1" placeholder="Billing Address 3" />
               </Row>
               <Row className="mb-3">
                 <Form.Label>Pincode</Form.Label>
-                <Form.Control id="txtBillingPincode" name="billingPinCode" maxLength={10} value={clientData.billingPinCode} onChange={handleFieldChange} placeholder="Pincode" />
+                <EnlargableTextbox id="txtBillingPincode" name="billingPinCode" maxLength={10} value={clientData.billingPinCode} onChange={handleFieldChange} placeholder="Pincode" />
               </Row>
               <Row className="mb-3">
                 <Form.Label>Country<span className="text-danger">*</span></Form.Label>
@@ -251,14 +252,14 @@ export const ClientDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>PAN No.<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtPAN" name="panNumber" maxLength={20} value={clientData.panNumber} onChange={handleFieldChange} placeholder="PAN No." required />
+                <EnlargableTextbox id="txtPAN" name="panNumber" maxLength={20} value={clientData.panNumber} onChange={handleFieldChange} placeholder="PAN No." required />
                 {Object.keys(clientError.panNoErr).map((key) => {
                   return <span className="error-message">{clientError.panNoErr[key]}</span>
                 })}
               </Row>
               <Row className="mb-3">
                 <Form.Label>GST No.<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtGST" name="gstNumber" maxLength={20} value={clientData.gstNumber} onChange={handleFieldChange} placeholder="GST No." required />
+                <EnlargableTextbox id="txtGST" name="gstNumber" maxLength={20} value={clientData.gstNumber} onChange={handleFieldChange} placeholder="GST No." required />
                 {Object.keys(clientError.gstNoErr).map((key) => {
                   return <span className="error-message">{clientError.gstNoErr[key]}</span>
                 })}
@@ -283,14 +284,29 @@ export const ClientDetails = () => {
               </Row>
               <Row className="mb-3">
                 <Form.Label>No. of Companies</Form.Label>
-                <Form.Control type='number' min={1} id="numNoOfCompanies" max={9999} value={clientData.noOfComapnies} name="noOfComapnies" onChange={handleFieldChange} placeholder="No. of Companies" required />
+                <EnlargableTextbox id="numNoOfCompanies" maxLength={4} value={clientData.noOfComapnies} name="noOfComapnies" onChange={handleFieldChange} placeholder="No. of Companies" required={true}
+                  onKeyPress={(e) => {
+                    const regex = /[0-9]|\./;
+                    const key = String.fromCharCode(e.charCode);
+                    if (!regex.test(key)) {
+                      e.preventDefault();
+                    }
+                  }}
+                />
                 {Object.keys(clientError.noOfCompaniesErr).map((key) => {
                   return <span className="error-message">{clientError.noOfCompaniesErr[key]}</span>
                 })}
               </Row>
               <Row className="mb-3">
                 <Form.Label>No. of Users</Form.Label>
-                <Form.Control type='number' min={1} id="numNoOfUsers" max={9999} value={clientData.noOfUsers} name="noOfUsers" onChange={handleFieldChange} placeholder="No. of Users" required />
+                <EnlargableTextbox id="numNoOfUsers" maxLength={4} value={clientData.noOfUsers} name="noOfUsers" onChange={handleFieldChange} placeholder="No. of Users" required
+                  onKeyPress={(e) => {
+                    const regex = /[0-9]|\./;
+                    const key = String.fromCharCode(e.charCode);
+                    if (!regex.test(key)) {
+                      e.preventDefault();
+                    }
+                  }} />
                 {Object.keys(clientError.noOfUsersErr).map((key) => {
                   return <span className="error-message">{clientError.noOfUsersErr[key]}</span>
                 })}

@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const FamilyTable = () => {
   const [formHasError, setFormError] = useState(false);
@@ -184,8 +185,7 @@ export const FamilyTable = () => {
                     {index + 1}
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtFamilyMemberName"
                       name="familyMemberName"
                       value={familyDetailData.familyMemberName}
@@ -193,13 +193,12 @@ export const FamilyTable = () => {
                       placeholder="Name"
                       className="form-control"
                       maxLength={30}
-                      required
+                      required={true}
                     />
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtAge"
                       name="memberAge"
                       value={familyDetailData.memberAge}
@@ -214,7 +213,7 @@ export const FamilyTable = () => {
                           e.preventDefault();
                         }
                       }}
-                      required
+                      required={true}
                     />
                   </td>
 

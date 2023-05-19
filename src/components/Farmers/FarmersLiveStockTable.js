@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { farmerLiveStockCattleDetailsAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const FarmersLiveStockTable = () => {
 
@@ -136,7 +137,7 @@ export const FarmersLiveStockTable = () => {
 
     var deleteFarmerLiveStockDetailCode = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
 
-    if(paramsData.encryptedFarmerCattleCode){
+    if (paramsData.encryptedFarmerCattleCode) {
       var deleteFarmerCattleLiveStockDetail = deleteFarmerLiveStockDetailCode ? deleteFarmerLiveStockDetailCode + "," + paramsData.encryptedFarmerCattleCode : paramsData.encryptedFarmerCattleCode;
       localStorage.setItem("DeleteFarmerLiveStockCattleDetailIds", deleteFarmerCattleLiveStockDetail);
     }
@@ -228,8 +229,7 @@ export const FarmersLiveStockTable = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="numNoOfCattle"
                       name="noOfCattle"
                       value={farmerLiveStockCattleData.noOfCattle}
@@ -238,13 +238,12 @@ export const FarmersLiveStockTable = () => {
                       className="form-control"
                       onKeyPress={handleKeyPress}
                       maxLength={5}
-                      required
+                      required={true}
                     />
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="numProduction"
                       name="production"
                       value={farmerLiveStockCattleData.production}
@@ -257,8 +256,7 @@ export const FarmersLiveStockTable = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="numRatePerLiter"
                       name="rate"
                       value={farmerLiveStockCattleData.rate}
@@ -270,8 +268,7 @@ export const FarmersLiveStockTable = () => {
                   </td>
 
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="numAge"
                       name="cattleAge"
                       value={farmerLiveStockCattleData.cattleAge}

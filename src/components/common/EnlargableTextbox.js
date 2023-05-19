@@ -16,8 +16,9 @@ export const EnlargableTextbox = (props) => {
   
     const calculateWidth = () => {
       const minWidth = originalWidth > 60 ? originalWidth : 60;
-      const enlargedWidth = `${props.value.length * 14}px`;
-      return (props.value.length * 13) > minWidth && enlarged ? enlargedWidth : '100%';
+      const valueLength = props.value && props.value.length > 0 ? props.value.length : 0;
+      const enlargedWidth = `${valueLength * 14}px`;
+      return (valueLength * 13) > minWidth && enlarged ? enlargedWidth : '100%';
     };
   
     return (
@@ -35,6 +36,8 @@ export const EnlargableTextbox = (props) => {
           placeholder={props.placeholder}
           required={props.required ? props.required : false}
           maxLength={props.maxLength}
+          onKeyPress={props.onKeyPress}
+          disabled={props.disabled}
         />
     );
   };

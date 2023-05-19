@@ -7,6 +7,7 @@ import { transactionDetailsAction } from 'actions';
 import { transactionDetailChangedAction } from '../../actions/index'
 import { toast } from 'react-toastify';
 import Moment from "moment";
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const TransactionDetails = () => {
 
@@ -46,7 +47,7 @@ export const TransactionDetails = () => {
 
     const getModule = async () => {
         axios
-            .get(process.env.REACT_APP_API_URL + '/security-module-master-list',{
+            .get(process.env.REACT_APP_API_URL + '/security-module-master-list', {
                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
             })
             .then(res => {
@@ -236,7 +237,7 @@ export const TransactionDetails = () => {
             transactionDetailData.forEach(transactionDetail => {
                 if (!loopBreaked) {
                     if (transactionDetail.moduleName == transactionData.moduleName) {
-                        if ((Moment(transactionDetail.startDate).format("YYYY-MM-DD") <= formData.startDate && Moment(transactionDetail.endDate).format("YYYY-MM-DD") >= formData.startDate) ||                        
+                        if ((Moment(transactionDetail.startDate).format("YYYY-MM-DD") <= formData.startDate && Moment(transactionDetail.endDate).format("YYYY-MM-DD") >= formData.startDate) ||
                             (Moment(transactionDetail.startDate).format("YYYY-MM-DD") <= formData.endDate && Moment(transactionDetail.endDate).format("YYYY-MM-DD") >= formData.endDate) ||
                             (Moment(transactionDetail.startDate).format("YYYY-MM-DD") >= formData.startDate)) {
                             toast.error(`For this date range ${transactionData.moduleName} already exists, please select other date range`, {
@@ -421,7 +422,7 @@ export const TransactionDetails = () => {
                         </Row>
                         <Row className="mb-3 payment-mode-details">
                             <Form.Label id="lblPaymentModeNo">Cheque No.</Form.Label>
-                            <Form.Control id="txtChequeNo" name="chequeNo" maxLength={15} onChange={handleFieldChange} placeholder="Enter number" />
+                            <EnlargableTextbox id="txtChequeNo" name="chequeNo" maxLength={15} onChange={handleFieldChange} placeholder="Enter number" />
                             {Object.keys(chequeNoErr).map((key) => {
                                 return <span className="error-message">{chequeNoErr[key]}</span>
                             })}
@@ -435,7 +436,7 @@ export const TransactionDetails = () => {
                         </Row>
                         <Row className="mb-3 payment-mode-details">
                             <Form.Label id="lblPaymentModeBankName">Cheque Bank</Form.Label>
-                            <Form.Control id="txtChequeBank" name="chequeBank" onChange={handleFieldChange} placeholder="Enter bank name" />
+                            <EnlargableTextbox id="txtChequeBank" name="chequeBank" onChange={handleFieldChange} placeholder="Enter bank name" />
                             {Object.keys(chequeBankErr).map((key) => {
                                 return <span className="error-message">{chequeBankErr[key]}</span>
                             })}
@@ -445,14 +446,28 @@ export const TransactionDetails = () => {
                     <Col className="me-3 ms-3">
                         <Row className="mb-3">
                             <Form.Label>Amount<span className="text-danger">*</span></Form.Label>
-                            <Form.Control type='number' id="txtAmount" name="amount" min={0} onChange={handleAmountChange} placeholder="Enter amount" required />
+                            <EnlargableTextbox id="txtAmount" name="amount" min={0} onChange={handleAmountChange} placeholder="Enter amount" required={true}
+                                onKeyPress={(e) => {
+                                    const regex = /[0-9]|\./;
+                                    const key = String.fromCharCode(e.charCode);
+                                    if (!regex.test(key)) {
+                                        e.preventDefault();
+                                    }
+                                }} />
                             {Object.keys(amountErr).map((key) => {
                                 return <span className="error-message">{amountErr[key]}</span>
                             })}
                         </Row>
                         <Row className="mb-3">
                             <Form.Label>GST Percentage</Form.Label>
-                            <Form.Control type='number' id="numGstPercent" name="gstPercentage" min={0} onChange={handleGstChange} placeholder="Enter gst percentage" />
+                            <EnlargableTextbox id="numGstPercent" name="gstPercentage" min={0} onChange={handleGstChange} placeholder="Enter gst percentage"
+                                onKeyPress={(e) => {
+                                    const regex = /[0-9]|\./;
+                                    const key = String.fromCharCode(e.charCode);
+                                    if (!regex.test(key)) {
+                                        e.preventDefault();
+                                    }
+                                }} />
                         </Row>
                         <Row className="mb-3">
                             <Form.Label>Total Amount Payable</Form.Label>

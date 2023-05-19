@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { bankDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();
@@ -48,7 +49,9 @@ export const BankDetailsTable = () => {
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
   useEffect(() => {
-    getBankDetailList();
+    if (bankList.length <= 0) {
+      getBankDetailList();
+    }
     setRowDataValue(bankDetailsReducer, bankDetailData);
   }, [bankDetailData, bankDetailsReducer]);
 
@@ -221,8 +224,7 @@ export const BankDetailsTable = () => {
                     </Form.Select>
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtBankAddress"
                       name="bankAddress"
                       value={bankDetailData.bankAddress}
@@ -230,12 +232,11 @@ export const BankDetailsTable = () => {
                       placeholder="Bank Address"
                       className="form-control"
                       maxLength={60}
-                      required
+                      required={true}
                     />
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtbankBranch"
                       name="bankBranch"
                       value={bankDetailData.bankBranch}
@@ -243,12 +244,11 @@ export const BankDetailsTable = () => {
                       placeholder="Branch Name"
                       className="form-control"
                       maxLength={45}
-                      required
+                      required={true}
                     />
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="numAccountNumber"
                       name="bankAccount"
                       value={bankDetailData.bankAccount}
@@ -263,7 +263,7 @@ export const BankDetailsTable = () => {
                           e.preventDefault();
                         }
                       }}
-                      required
+                      required={true}
                     />
                   </td>
                   <td key={index}>
@@ -282,8 +282,7 @@ export const BankDetailsTable = () => {
                     </Form.Select>
                   </td>
                   <td key={index}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtBankIfscCode"
                       name="bankIfscCode"
                       value={bankDetailData.bankIfscCode}
@@ -291,7 +290,7 @@ export const BankDetailsTable = () => {
                       placeholder="IFSC Code"
                       className="form-control"
                       maxLength={20}
-                      required
+                      required={true}
                     />
                   </td>
                   <td key={index}>

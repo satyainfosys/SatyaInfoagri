@@ -6,6 +6,7 @@ import { farmerDetailsAction } from 'actions';
 import axios from 'axios';
 import Moment from "moment";
 import $ from "jquery";
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 const AddFarmer = () => {
 
@@ -514,7 +515,7 @@ const AddFarmer = () => {
                                                     First Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
+                                                    <EnlargableTextbox id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
                                                     {Object.keys(farmerError.firstNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.firstNameErr[key]}</span>
                                                     })}
@@ -526,7 +527,7 @@ const AddFarmer = () => {
                                                     Middle Name
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtMiddleName" name="middleName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
+                                                    <EnlargableTextbox id="txtMiddleName" name="middleName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
                                                 </Col>
                                             </Form.Group>
 
@@ -535,7 +536,7 @@ const AddFarmer = () => {
                                                     Last Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
+                                                    <EnlargableTextbox id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
                                                     {Object.keys(farmerError.lastNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.lastNameErr[key]}</span>
                                                     })}
@@ -586,7 +587,7 @@ const AddFarmer = () => {
                                                     Father Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
+                                                    <EnlargableTextbox id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
                                                     {Object.keys(farmerError.farmerFatherNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.farmerFatherNameErr[key]}</span>
                                                     })}

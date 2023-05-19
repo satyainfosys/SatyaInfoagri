@@ -6,6 +6,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { updateClientContactDetailsAction } from '../../actions/index';
 import { clientContactDetailsAction } from '../../actions/index'
 import { contactDetailChangedAction } from '../../actions/index'
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 const ContactDetails = () => {
 
@@ -183,7 +184,7 @@ const ContactDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label className='details-form'>Contact Person<span className="text-danger">*</span></Form.Label>
-                <Form.Control id="txtContactPerson" name="contactPerson" maxLength={50} value={contactDetailData.contactPerson} onChange={handleFieldChange} placeholder="Contact person name" required />
+                <EnlargableTextbox id="txtContactPerson" name="contactPerson" maxLength={50} value={contactDetailData.contactPerson} onChange={handleFieldChange} placeholder="Contact person name" required={true} />
                 {Object.keys(contactNameErr).map((key) => {
                   return <span className="error-message">{contactNameErr[key]}</span>
                 })}
@@ -192,7 +193,14 @@ const ContactDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Mobile No<span className="text-danger">*</span></Form.Label>
-                <Form.Control type='number' id="txtMobileno" name="mobileNo" maxLength={10} value={contactDetailData.mobileNo} onChange={handleFieldChange} placeholder="Mobile No" required />
+                <EnlargableTextbox id="txtMobileno" name="mobileNo" maxLength={10} value={contactDetailData.mobileNo} onChange={handleFieldChange} placeholder="Mobile No" required={true}
+                  onKeyPress={(e) => {
+                    const regex = /[0-9]|\./;
+                    const key = String.fromCharCode(e.charCode);
+                    if (!regex.test(key)) {
+                      e.preventDefault();
+                    }
+                  }} />
                 {Object.keys(contactMobileNoErr).map((key) => {
                   return <span className="error-message">{contactMobileNoErr[key]}</span>
                 })}
@@ -201,7 +209,7 @@ const ContactDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Email Id</Form.Label>
-                <Form.Control id="txtEmailId" name="emailId" maxLength={50} value={contactDetailData.emailId} onChange={handleFieldChange} placeholder="Email Id" />
+                <EnlargableTextbox id="txtEmailId" name="emailId" maxLength={50} value={contactDetailData.emailId} onChange={handleFieldChange} placeholder="Email Id" />
                 {Object.keys(emailIdErr).map((key) => {
                   return <span className="error-message">{emailIdErr[key]}</span>
                 })}
@@ -210,7 +218,7 @@ const ContactDetails = () => {
             <Col className="me-3 ms-3">
               <Row className="mb-3">
                 <Form.Label>Designation</Form.Label>
-                <Form.Control id="txtDesignation" name="designation" maxLength={50} value={contactDetailData.designation} onChange={handleFieldChange} placeholder="Designation" />
+                <EnlargableTextbox id="txtDesignation" name="designation" maxLength={50} value={contactDetailData.designation} onChange={handleFieldChange} placeholder="Designation" />
               </Row>
             </Col>
             <Col className="me-3 ms-3">

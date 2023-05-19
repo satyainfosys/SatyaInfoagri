@@ -3,6 +3,7 @@ import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerMachineryDetailsAction } from '../../actions/index';
 import { toast } from 'react-toastify';
+import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const FarmersMachinaryDetailsTable = () => {
   const dispatch = useDispatch();
@@ -101,7 +102,7 @@ export const FarmersMachinaryDetailsTable = () => {
 
     var deleteFarmerMachineryDetailCode = localStorage.getItem("DeleteFarmerMachineryDetailCodes");
 
-    if(paramsData.encryptedFarmerMachineryCode){
+    if (paramsData.encryptedFarmerMachineryCode) {
       var deleteFarmerMachineryDetails = deleteFarmerMachineryDetailCode ? deleteFarmerMachineryDetailCode + "," + paramsData.encryptedFarmerMachineryCode : paramsData.encryptedFarmerMachineryCode;
       localStorage.setItem("DeleteFarmerMachineryDetailCodes", deleteFarmerMachineryDetails);
     }
@@ -216,8 +217,7 @@ export const FarmersMachinaryDetailsTable = () => {
                   </td>
 
                   <td key={idx}>
-                    <Form.Control
-                      type="text"
+                    <EnlargableTextbox
                       id="txtQuantity"
                       name="machineryQty"
                       value={farmerMachineryDetailsData.machineryQty}
@@ -231,7 +231,7 @@ export const FarmersMachinaryDetailsTable = () => {
                         }
                       }}
                       maxLength={3}
-                      required
+                      required={true}
                     />
                   </td>
 
