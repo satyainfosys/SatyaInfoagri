@@ -99,7 +99,7 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 190px;
+        max-height: 210px;
         overflow-y: scroll;
     }
 
@@ -121,6 +121,10 @@
         max-height: 290px;
         overflow-y: scroll;
     }
+
+    .many-column-table .form-control {
+        width: 105px !important;
+    }
 }
 
 @media (min-width:1400px) {
@@ -141,13 +145,17 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 190px;
+        max-height: 210px;
         overflow-y: scroll;
     }
 
     .max-five-rows {
         max-height: 294px;
         overflow-y: scroll;
+    }
+
+    .many-column-table .form-control {
+        width: 135px !important;
     }
 }
 
@@ -177,12 +185,16 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 190px;
+        max-height: 215px;
         overflow-y: scroll;
     }
 
     .max-five-rows {
         max-height: 295px;
         overflow-y: scroll;
+    }
+
+    .many-column-table .form-control {
+        width: 160px !important;
     }
 }

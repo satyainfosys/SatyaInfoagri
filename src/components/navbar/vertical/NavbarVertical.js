@@ -49,12 +49,25 @@ const NavbarVertical = () => {
             $('#' + parentContainerId).removeClass('collapsed');
             $('#' + parentContainerId).attr('aria-expanded', 'true');
             $('#' + childMenuContainerId).addClass('show');
+
+            var parentParentContainerId = $('#' + parentContainerId).attr('data-parent-container-id');
+
+            if($('#' + parentParentContainerId).hasClass('dropdown-indicator') &&
+              $('#' + parentParentContainerId).hasClass('collapsed')) 
+            {
+              var childChildMenuContainerId = $('#' + parentParentContainerId).attr('data-children-container-id');
+              $('#' + parentParentContainerId).removeClass('collapsed');
+              $('#' + parentParentContainerId).attr('aria-expanded', 'true');
+              $('#' + childChildMenuContainerId).addClass('show');
+            }
           }
 
           if(!$(this).hasClass('dropdown-indicator'))
           {
             $('li a.nav-link').removeClass("active");
-            $(this).addClass("active");
+            setTimeout(() => {
+              $(this).addClass("active");
+            }, 100);
           }
         }
     });

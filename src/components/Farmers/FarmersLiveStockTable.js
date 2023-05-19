@@ -203,7 +203,7 @@ export const FarmersLiveStockTable = () => {
       >
         {
           farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
             <thead className='custom-bg-200'>
               <tr>
                 {columnsArray.map((column, index) => (

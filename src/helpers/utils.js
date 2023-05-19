@@ -114,13 +114,34 @@ export const getMenuTree = () => {
               const name = childMenus[j].menuItemName;
               const menuUrl = childMenus[j].menuItemPageURL;
 
+              var childChildMenus = res.data.data.filter(x => x.parentId == childId);
+
               menuTreeHtml += `<li id="child_${childId}" class="nav-item">
-                                      <a class="nav-link" href="${menuUrl}" data-parent-container-id="parent_${childrenId}" data-bs-toggle="" aria-expanded="false">
+                                      <a id="parent_parent_${childId}" data-children-container-id="children_children_${childId}" aria-current="page" class="nav-link ${childChildMenus.length > 0 ? 'dropdown-indicator collapsed\" aria-expanded="false' : ''}" ${childChildMenus.length == 0 ? 'href="' + menuUrl + '"' : ''} data-parent-container-id="parent_${childrenId}">
                                         <div class="d-flex align-items-center">
                                          <span class="nav-link-text ps-1">${name}</span>
                                         </div>
-                                      </a>
-                                    </li>`;
+                                      </a>`;
+
+                                      if (childChildMenus.length > 0) {
+                                        menuTreeHtml += `<ul id="children_children_${childId}" class="nav collapse">`;
+                            
+                                        for (let j = 0; j < childChildMenus.length; j++) {
+                                          const childChildId = childChildMenus[j].childId;
+                                          const name = childChildMenus[j].menuItemName;
+                                          const menuUrl = childChildMenus[j].menuItemPageURL;
+                            
+                                          menuTreeHtml += `<li id="child_child_${childChildId}" class="nav-item">
+                                                                  <a class="nav-link" href="${menuUrl}" data-parent-container-id="parent_parent_${childId}" data-bs-toggle="" aria-expanded="false">
+                                                                    <div class="d-flex align-items-center">
+                                                                     <span class="nav-link-text ps-1">${name}</span>
+                                                                    </div>
+                                                                  </a>`;
+                                        }
+                            
+                                        menuTreeHtml += '</ul>';
+                                      }
+                menuTreeHtml += '</li>';
             }
 
             menuTreeHtml += '</ul>';
