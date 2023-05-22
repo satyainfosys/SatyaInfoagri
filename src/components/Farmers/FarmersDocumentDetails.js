@@ -246,7 +246,7 @@ export const FarmersDocumentDetails = () => {
                       <option value=''>Select</option>
                       <option value='Driving License'>Driving License</option>
                       <option value='Farmer Photo'>Farmer Photo</option>
-                      <option value='LDC'>Land Document</option>
+                      <option value='Land Document'>Land Document</option>
                       <option value='PAN Card'>PAN Card</option>
                       <option value='Ration Card'>Ration Card</option>
                       <option value='Registration Form'>Registration Form</option>

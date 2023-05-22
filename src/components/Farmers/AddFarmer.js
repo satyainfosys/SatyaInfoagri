@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { useDispatch, useSelector } from 'react-redux';
-import { farmerDetailsAction } from 'actions';
+import { farmerDetailsAction, formChangedAction } from 'actions';
 import axios from 'axios';
 import Moment from "moment";
 import $ from "jquery";
@@ -79,6 +79,9 @@ const AddFarmer = () => {
 
     const distributionCentreListReducer = useSelector((state) => state.rootReducer.distributionCentreListReducer)
     const distributionList = distributionCentreListReducer.distributionCentreList
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const [formHasError, setFormError] = useState(false);
     const [countryList, setCountryList] = useState([]);
@@ -477,8 +480,20 @@ const AddFarmer = () => {
             }));
         }
 
-        if ($("#btnSave").attr('disabled'))
-            $("#btnSave").attr('disabled', false);
+        if (farmerData.encryptedFarmerCode) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                farmerUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                farmerAdd: true
+            }))
+        }
+
+        // if ($("#btnSave").attr('disabled'))
+        //     $("#btnSave").attr('disabled', false);
     };
 
     return (

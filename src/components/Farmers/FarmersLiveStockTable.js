@@ -51,7 +51,9 @@ export const FarmersLiveStockTable = () => {
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
   useEffect(() => {
-    getCattleTypeList();
+    if (cattleTypeList.length <= 0) {
+      getCattleTypeList();
+    }
 
     setRowDataValue(farmerLiveStockCattleDetailsReducer, farmerLiveStockCattleData);
   }, [farmerLiveStockCattleData, farmerLiveStockCattleDetailsReducer]);

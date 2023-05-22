@@ -235,3 +235,10 @@ export const farmerDocumentDetailsAction = (payload) => {
     payload
   };
 };
+
+export const formChangedAction = (payload) => {
+  return {
+    type: 'FORMCHANGED',
+    payload
+  };
+};

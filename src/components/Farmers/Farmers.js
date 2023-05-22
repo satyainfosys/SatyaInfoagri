@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction, formChangedAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import $ from "jquery";
@@ -94,6 +94,9 @@ export const Farmers = () => {
     const farmerDocumentDetailsReducer = useSelector((state) => state.rootReducer.farmerDocumentDetailsReducer)
     const farmerDocumentDetailsList = farmerDocumentDetailsReducer.farmerDocumentDetails;
 
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
     const getFarmerContactDetail = async () => {
         const request = {
             EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -112,23 +115,11 @@ export const Farmers = () => {
         }
     }
 
-    if (farmerData.encryptedFarmerCode && (!commonContactDetailList || commonContactDetailList.length == 0)) {
+    if (farmerData.encryptedFarmerCode && (!commonContactDetailList || commonContactDetailList.length == 0) && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
         getFarmerContactDetail();
     }
 
-    // $.fn.extend({
-    //     trackChanges: function () {
-    //         $(":input", this).change(function () {
-    //             $(this.form).data("changed", true);
-    //         });
-    //     }
-    //     ,
-    //     isChanged: function () {
-    //         return this.data("changed");
-    //     }
-    // });
-
-    // $("#AddFarmersDetailForm").trackChanges();
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const clearFarmerReducers = () => {
         dispatch(farmerDetailsErrorAction(undefined));
@@ -142,6 +133,7 @@ export const Farmers = () => {
         dispatch(farmerLiveStockCattleDetailsAction([]));
         dispatch(farmerMachineryDetailsAction([]));
         dispatch(farmerDocumentDetailsAction([]));
+        dispatch(formChangedAction(undefined));
         // $("#AddFarmerDetailsForm").data("changed", false);
     }
 
@@ -179,7 +171,21 @@ export const Farmers = () => {
         }
     }
 
+    const isFinished = (formName, changeValue) => {
+        let objFormChangedData = formChangedData;
+        objFormChangedData = {
+            ...objFormChangedData,
+            [formName]: changeValue
+        };
+        dispatch(formChangedAction(objFormChangedData));
+
+        return !(Object.values(objFormChangedData).some(value => value === true));
+    }
+
     $('[data-rr-ui-event-key*="Farmers"]').off('click').on('click', function () {
+        if (isFormChanged) {
+            setModalShow(true)
+        }
         $("#btnNew").show();
         $("#btnSave").hide();
         $("#btnCancel").hide();
@@ -210,7 +216,10 @@ export const Farmers = () => {
             getFarmerFamilyDetail();
         }
 
-        getFarmerContactDetail();
+        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
+            getFarmerContactDetail();
+        }
+
     })
 
     $('[data-rr-ui-event-key*="Bank"]').off('click').on('click', function () {
@@ -246,6 +255,7 @@ export const Farmers = () => {
     })
 
     const farmerValidation = () => {
+        setModalShow(false)
         const firstNameErr = {};
         const lastNameErr = {};
         const addressErr = {};
@@ -661,11 +671,10 @@ export const Farmers = () => {
     }
 
     const updateFarmerCallback = (isAddFarmer = false) => {
+        setModalShow(false);
+
         $("#AddFarmersDetailForm").data("changed", false);
         $('#AddFarmersDetailForm').get(0).reset();
-
-        // $("#AddDocumentDetailsForm").data("changed", false);
-        // $('#AddDocumentDetailsForm').get(0).reset();
 
         dispatch(farmerDetailsErrorAction(undefined));
         clearFarmerLocalStorages();
@@ -677,6 +686,9 @@ export const Farmers = () => {
         }
 
         $('#btnSave').attr('disabled', true)
+
+        clearFarmerReducers();
+        clearFarmerLocalStorages();
 
         fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 
@@ -1005,7 +1017,11 @@ export const Farmers = () => {
 
     const exitModule = () => {
         $('#btnExit').attr('isExit', 'true');
-        window.location.href = '/dashboard';
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+        }
     }
 
     const getFarmerFamilyDetail = async () => {
@@ -1165,73 +1181,31 @@ export const Farmers = () => {
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }
-            // debugger
-            // var updateRequired = $("#AddFarmersDetailForm").isChanged() || farmerData.removeFarmerOriginalForm == true || farmerData.removeProfilePhoto == true || farmerFamilyDetailChanged.familyDetailsChanged
-
-            // if (!updateRequired) {
-            //     toast.warning("Nothing to change!", {
-            //         theme: 'colored'
-            //     });
-
-            //     return;
-            // }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'modifyUser', "farmerEducation", "farmerIdNo"]
             for (const key of Object.keys(updateFarmerData).filter((key) => keys.includes(key))) {
                 updateFarmerData[key] = updateFarmerData[key] ? updateFarmerData[key].toUpperCase() : '';
             }
 
-            // if ($("#AddFarmersDetailForm").isChanged()) {
-            setIsLoading(true);
-            await axios.post(process.env.REACT_APP_API_URL + '/update-farmer', updateFarmerData, {
-                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-            })
-                .then(res => {
-                    setIsLoading(false);
-                    if (res.data.status != 200) {
-                        toast.error(res.data.message, {
-                            theme: 'colored',
-                            autoClose: 10000
-                        });
-                    } else if (res.data.status == 200) {
-                        var existUpdate = true;
-                        if (farmerData.farmerPic && farmerData.farmerPic.type) {
-                            existUpdate = false;
-                            uploadDocuments(farmerData.farmerPic, res.data.data.encryptedFarmerCode, "ProfilePhoto", true);
-                        }
-
-                        if (farmerData.farmerForm && farmerData.farmerForm.type) {
-                            existUpdate = false;
-                            uploadDocuments(farmerData.farmerForm, res.data.data.encryptedFarmerCode, "FarmerForm", true);
-                        }
-
-                        if (farmerData.removeProfilePhoto) {
-                            existUpdate = false;
-                            deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
-                        }
-
-                        if (farmerData.removeFarmerOriginalForm) {
-                            existUpdate = false;
-                            deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
-                        }
-
-                        if (deleteFarmerFamilyCodes || deleteFarmerContactDetailsId || deleteBankDetails || deleteFarmerKisanCardIds ||
-                            deleteFarmerIrrigationDetailCodes || deleteFarmerLiveStockCattleDetailIds || deleteFarmerMachineryDetailCodes || deleteFarmerLandDetailCodes || deleteFarmerDocumentIds) {
-                            existUpdate = false
-                        }
-                        else if (existUpdate) {
-                            //updateFarmerCallback();
-                        }
-                    }
+            if (formChangedData.farmerUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-farmer', updateFarmerData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                 })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status != 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                        } else if (res.data.status == 200) {
 
-
-            if (farmerData.removeFarmerOriginalForm) {
-                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeFarmerOriginalForm, "FarmerForm")
-            }
-
-            if (farmerData.removeProfilePhoto) {
-                deleteDocument(farmerData.encryptedFarmerCode, farmerData.removeProfilePhoto, "ProfilePhoto")
+                            if (isFinished('farmerUpdate', false)) {
+                                updateFarmerCallback();
+                            }
+                        }
+                    })
             }
 
             var loopBreaked = false;
@@ -1247,186 +1221,215 @@ export const Farmers = () => {
 
 
             //FarmerFamilyDetail Add, Update, Delete
-            for (let i = 0; i < farmerFamilyDetailsList.length; i++) {
-                const farmerFamilyDetails = farmerFamilyDetailsList[i];
-                if (!loopBreaked) {
-                    const keys = ['familyMemberName', 'modifyUser', 'addUser']
-                    for (const key of Object.keys(farmerFamilyDetails).filter((key) => keys.includes(key))) {
-                        farmerFamilyDetails[key] = farmerFamilyDetails[key] ? farmerFamilyDetails[key].toUpperCase() : '';
-                    }
+            if (formChangedData.familyUpdate || formChangedData.familyAdd || formChangedData.familyDelete) {
+                for (let i = 0; i < farmerFamilyDetailsList.length; i++) {
+                    const farmerFamilyDetails = farmerFamilyDetailsList[i];
+                    if (!loopBreaked) {
+                        const keys = ['familyMemberName', 'modifyUser', 'addUser']
+                        for (const key of Object.keys(farmerFamilyDetails).filter((key) => keys.includes(key))) {
+                            farmerFamilyDetails[key] = farmerFamilyDetails[key] ? farmerFamilyDetails[key].toUpperCase() : '';
+                        }
 
-                    if (farmerFamilyDetails.encryptedFarmerFamilyCode) {
-                        const familyRequestData = {
-                            encryptedFarmerFamilyCode: farmerFamilyDetails.encryptedFarmerFamilyCode,
-                            encryptedFarmerCode: farmerFamilyDetails.encryptedFarmerCode,
-                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                            familyMemberName: farmerFamilyDetails.familyMemberName,
-                            memberAge: farmerFamilyDetails.memberAge,
-                            memberSex: farmerFamilyDetails.memberSex,
-                            farmerMemberRelation: farmerFamilyDetails.farmerMemberRelation,
-                            memberEducation: farmerFamilyDetails.memberEducation,
-                            modifyUser: localStorage.getItem("LoginUserName")
+                        if (formChangedData.familyUpdate) {
+                            if (farmerFamilyDetails.encryptedFarmerFamilyCode) {
+                                const familyRequestData = {
+                                    encryptedFarmerFamilyCode: farmerFamilyDetails.encryptedFarmerFamilyCode,
+                                    encryptedFarmerCode: farmerFamilyDetails.encryptedFarmerCode,
+                                    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                                    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                                    familyMemberName: farmerFamilyDetails.familyMemberName,
+                                    memberAge: farmerFamilyDetails.memberAge,
+                                    memberSex: farmerFamilyDetails.memberSex,
+                                    farmerMemberRelation: farmerFamilyDetails.farmerMemberRelation,
+                                    memberEducation: farmerFamilyDetails.memberEducation,
+                                    modifyUser: localStorage.getItem("LoginUserName")
+                                }
+                                setIsLoading(true);
+                                const updateFarmerFamilyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-family-detail', familyRequestData, {
+                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                });
+                                setIsLoading(false);
+                                if (updateFarmerFamilyDetailResponse.data.status != 200) {
+                                    toast.error(updateFarmerFamilyDetailResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                                else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked
+                                    && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
+                                    && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                    updateFarmerCallback();
+                                } else {
+                                    farmerFamilyDetailIndex++;
+                                }
+                            }
                         }
-                        setIsLoading(true);
-                        const updateFarmerFamilyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-farmer-family-detail', familyRequestData, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (updateFarmerFamilyDetailResponse.data.status != 200) {
-                            toast.error(updateFarmerFamilyDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked
-                            && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
-                            && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            //updateFarmerCallback();
-                        } else {
-                            farmerFamilyDetailIndex++;
+
+                        if (formChangedData.familyAdd) {
+                            if (!farmerFamilyDetails.encryptedFarmerFamilyCode) {
+                                setIsLoading(true);
+                                const addFarmerFamilyDetailResponse =
+                                    await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-family-member', farmerFamilyDetails, {
+                                        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                    });
+                                setIsLoading(false);
+                                if (addFarmerFamilyDetailResponse.data.status != 200) {
+                                    toast.error(addFarmerFamilyDetailResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                                // else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails
+                                //     && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
+                                //     && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                                //     && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                //     updateFarmerCallback();
+                                // }
+                                // else {
+                                //     farmerFamilyDetailIndex++
+                                // }
+                            }
+
+                            if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails
+                                && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
+                                && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                                && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                updateFarmerCallback();
+                            }
+                            else {
+                                farmerFamilyDetailIndex++
+                            }
                         }
                     }
-                    else if (!farmerFamilyDetails.encryptedFarmerFamilyCode) {
-                        setIsLoading(true);
-                        const addFarmerFamilyDetailResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-farmer-family-member', farmerFamilyDetails, {
-                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                            });
-                        setIsLoading(false);
-                        if (addFarmerFamilyDetailResponse.data.status != 200) {
-                            toast.error(addFarmerFamilyDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (farmerFamilyDetailIndex == farmerFamilyDetailsList.length && !loopBreaked && !deleteFarmerFamilyCodes && !deleteFarmerContactDetailsId && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
-                            && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
-                            && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            //updateFarmerCallback();
-                        }
-                        else {
-                            farmerFamilyDetailIndex++
-                        }
+                }
+
+                if (formChangedData.familyDelete) {
+                    var deleteFarmerFamilyMemberList = deleteFarmerFamilyCodes ? deleteFarmerFamilyCodes.split(',') : null;
+
+                    if (deleteFarmerFamilyMemberList) {
+                        var deleteFamerFamilyMemberIndex = 1;
+
+                        deleteFarmerFamilyMemberList.forEach(async deleteFarmerFamilyCode => {
+                            if (!loopBreaked) {
+
+                                const data = { encryptedFarmerFamilycode: deleteFarmerFamilyCode }
+                                const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                const deleteFarmerFamilyResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-family-detail', { headers, data });
+                                if (deleteFarmerFamilyResponse.data.status != 200) {
+                                    toast.error(deleteFarmerFamilyResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                                else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId && !deleteBankDetails
+                                    && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                                    && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                    updateFarmerCallback();
+                                }
+                                else {
+                                    deleteFamerFamilyMemberIndex++;
+                                }
+                            }
+                        });
                     }
                 }
             }
 
-            var deleteFarmerFamilyMemberList = deleteFarmerFamilyCodes ? deleteFarmerFamilyCodes.split(',') : null;
-
-            if (deleteFarmerFamilyMemberList) {
-                var deleteFamerFamilyMemberIndex = 1;
-
-                deleteFarmerFamilyMemberList.forEach(async deleteFarmerFamilyCode => {
-                    if (!loopBreaked) {
-
-                        const data = { encryptedFarmerFamilycode: deleteFarmerFamilyCode }
-                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        const deleteFarmerFamilyResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-family-detail', { headers, data });
-                        if (deleteFarmerFamilyResponse.data.status != 200) {
-                            toast.error(deleteFarmerFamilyResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (deleteFamerFamilyMemberIndex == deleteFarmerFamilyMemberList.length && !loopBreaked && !deleteFarmerContactDetailsId && !deleteBankDetails
-                            && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
-                            && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            updateFarmerCallback();
-                        }
-                        else {
-                            deleteFamerFamilyMemberIndex++;
-                        }
-                    }
-                });
-            }
 
             //FarmerContactDetail Add, Update, Delete
-            if (!loopBreaked) {
-                for (let i = 0; i < commonContactDetailList.length; i++) {
-                    const farmerContactDetails = commonContactDetailList[i];
-                    const keys = ['contactPerson', 'addUser', 'modifyUser']
-                    for (const key of Object.keys(farmerContactDetails).filter((key) => keys.includes(key))) {
-                        farmerContactDetails[key] = farmerContactDetails[key] ? farmerContactDetails[key].toUpperCase() : '';
-                    }
+            if (formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete) {
+                if (!loopBreaked) {
+                    for (let i = 0; i < commonContactDetailList.length; i++) {
+                        const farmerContactDetails = commonContactDetailList[i];
+                        const keys = ['contactPerson', 'addUser', 'modifyUser']
+                        for (const key of Object.keys(farmerContactDetails).filter((key) => keys.includes(key))) {
+                            farmerContactDetails[key] = farmerContactDetails[key] ? farmerContactDetails[key].toUpperCase() : '';
+                        }
 
-                    if (farmerContactDetails.encryptedCommonContactDetailsId) {
-                        setIsLoading(true);
-                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', farmerContactDetails, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (updateContactDetailResponse.data.status != 200) {
-                            toast.error(updateContactDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
+                        if (formChangedData.contactDetailUpdate) {
+                            if (farmerContactDetails.encryptedCommonContactDetailsId) {
+                                setIsLoading(true);
+                                const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', farmerContactDetails, {
+                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                });
+                                setIsLoading(false);
+                                if (updateContactDetailResponse.data.status != 200) {
+                                    toast.error(updateContactDetailResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                                else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
+                                    && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                                    && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                    updateFarmerCallback();
+                                }
+                                else {
+                                    farmerContactDetailIndex++;
+                                }
+                            }
                         }
-                        else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
-                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
-                            && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            //updateFarmerCallback();
-                        }
-                        else {
-                            farmerContactDetailIndex++;
-                        }
-                    }
-                    else if (!farmerContactDetails.encryptedCommonContactDetailsId) {
-                        setIsLoading(true);
-                        const addFarmerContactDetailsResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', farmerContactDetails, {
-                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                            });
-                        setIsLoading(false);
-                        if (addFarmerContactDetailsResponse.data.status != 200) {
-                            toast.error(addFarmerContactDetailsResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
-                            && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
-                            && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            //updateFarmerCallback();
-                        } else {
-                            farmerContactDetailIndex++
+                        else if (formChangedData.contactDetailAdd) {
+                            if (!farmerContactDetails.encryptedCommonContactDetailsId) {
+                                setIsLoading(true);
+                                const addFarmerContactDetailsResponse =
+                                    await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', farmerContactDetails, {
+                                        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                    });
+                                setIsLoading(false);
+                                if (addFarmerContactDetailsResponse.data.status != 200) {
+                                    toast.error(addFarmerContactDetailsResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                            }
+
+                            if (farmerContactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteFarmerContactDetailsId
+                                && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds
+                                && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                updateFarmerCallback();
+                            } else {
+                                farmerContactDetailIndex++
+                            }
                         }
                     }
                 }
-            }
 
-            var deleteFarmerContactDetailsList = deleteFarmerContactDetailsId ? deleteFarmerContactDetailsId.split(',') : null;
-            if (deleteFarmerContactDetailsList) {
-                var deleteFarmerContactDetailIndex = 1;
+                if (formChangedData.contactDetailDelete) {
+                    var deleteFarmerContactDetailsList = deleteFarmerContactDetailsId ? deleteFarmerContactDetailsId.split(',') : null;
+                    if (deleteFarmerContactDetailsList) {
+                        var deleteFarmerContactDetailIndex = 1;
 
-                deleteFarmerContactDetailsList.forEach(async deleteFarmerContactDetailId => {
-                    if (!loopBreaked) {
-                        const data = { encryptedCommonContactDetailsId: deleteFarmerContactDetailId }
-                        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
-                        if (deleteCommContactDetailResponse.data.status != 200) {
-                            toast.error(deleteCommContactDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            loopBreaked = true;
-                        }
-                        else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
-                            && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
-                            updateFarmerCallback();
-                        }
-                        else {
-                            deleteFarmerContactDetailIndex++;
-                        }
+                        deleteFarmerContactDetailsList.forEach(async deleteFarmerContactDetailId => {
+                            if (!loopBreaked) {
+                                const data = { encryptedCommonContactDetailsId: deleteFarmerContactDetailId }
+                                const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
+                                if (deleteCommContactDetailResponse.data.status != 200) {
+                                    toast.error(deleteCommContactDetailResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    loopBreaked = true;
+                                }
+                                else if (deleteFarmerContactDetailIndex == deleteFarmerContactDetailsList.length && !loopBreaked && !deleteBankDetails && !deleteFarmerKisanCardIds && !deleteFarmerLandGeoDetailcodes && !deleteFarmerLandDetailCodes
+                                    && !deleteFarmerIrrigationDetailCodes && !deleteFarmerLiveStockCattleDetailIds && !deleteFarmerMachineryDetailCodes && !deleteFarmerDocumentIds) {
+                                    updateFarmerCallback();
+                                }
+                                else {
+                                    deleteFarmerContactDetailIndex++;
+                                }
 
+                            }
+                        })
                     }
-                })
+                }
             }
 
             //BankDetail Add, Update, Delete            
@@ -2064,13 +2067,17 @@ export const Farmers = () => {
                     }
                 }
             }
-            updateFarmerCallback();
         }
     };
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            // document.querySelector('[data-rr-ui-event-key*="Farmers"]').dispatchEvent(new Event('click'));
+            $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
+        }
     }
 
     const getFarmerDocumentDetailList = async () => {
@@ -2114,7 +2121,7 @@ export const Farmers = () => {
                         <h4>Do you want to save changes?</h4>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" onClick={addFarmerDetails}>Save</Button>
+                        <Button variant="success" onClick={formChangedData.farmerUpdate ? updateFarmerDetails : addFarmerDetails}>Save</Button>
                         <Button variant="danger" onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -2126,7 +2133,7 @@ export const Farmers = () => {
                 tabArray={tabArray}
                 module="Farmers"
                 newDetails={newDetails}
-                saveDetails={!farmerData.encryptedFarmerCode ? addFarmerDetails : updateFarmerDetails}
+                saveDetails={farmerData.encryptedFarmerCode ? updateFarmerDetails : addFarmerDetails}
                 exitModule={exitModule}
                 companyList={companyList}
                 cancelClick={cancelClick}

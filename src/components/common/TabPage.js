@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { Tabs, Row, Col, Form, Tab, Button, Modal } from 'react-bootstrap';
 import TabPageMainMenu from 'components/navbar/top/TabPageMainMenu';
+import { useSelector } from 'react-redux';
 
 //Datatable Modules
 import FalconComponentCard from 'components/common/FalconComponentCard';
@@ -63,6 +64,15 @@ const TabPage = ({
       return this.data('changed');
     }
   });
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
+  const isAnyFormDirty = Object.values(formChangedData).some(value => value === true);
+
+  if(isAnyFormDirty){
+    document.getElementById("btnSave").disabled = false;
+  }
 
   useEffect(() => {
     $('[data-rr-ui-event-key*="Customer List"]').trigger('click');
@@ -216,7 +226,7 @@ const TabPage = ({
                       <FalconComponentCard.Body language="jsx" className="no-padding mt-1 mb-1 ms-1">
                         <Row>
                           <Col sm={6} lg={4}>
-                             {companyList.length > 1 ?
+                            {companyList.length > 1 ?
                               <>
                                 {<Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
                                   <option value=''>Select Company</option>

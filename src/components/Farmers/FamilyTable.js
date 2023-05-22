@@ -1,4 +1,4 @@
-import { farmerFamilyDetailsAction } from 'actions';
+import { farmerFamilyDetailsAction, formChangedAction } from 'actions';
 import React, { useEffect, useState } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
@@ -32,6 +32,9 @@ export const FamilyTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     setRowDataValue(farmerFamilyDetailsReducer, familyDetailData);
@@ -91,8 +94,17 @@ export const FamilyTable = () => {
     })
     dispatch(farmerFamilyDetailsAction(farmerFamilyDetails))
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    if (farmerFamilyDetails[index].encryptedFarmerFamilyCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        familyUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        familyAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedFarmerFamilyCode, familyMemberToDelete) => {
@@ -120,8 +132,10 @@ export const FamilyTable = () => {
 
     dispatch(farmerFamilyDetailsAction(familyDetailData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      familyDelete: true
+    }))
 
     setModalShow(false);
   }

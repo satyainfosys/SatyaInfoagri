@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { commonContactDetailsAction } from 'actions';
+import { commonContactDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
@@ -36,6 +36,9 @@ export const FarmerContactInformationTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     setRowDataValue(commonContactDetailsReducer, commonContactDetailData);
@@ -83,8 +86,17 @@ export const FarmerContactInformationTable = () => {
 
     dispatch(commonContactDetailsAction(commonContactDetails))
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    if (commonContactDetails[index].encryptedCommonContactDetailsId) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        contactDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        contactDetailAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedCommonContactDetailsId, contactDetailsToDelete) => {
@@ -112,8 +124,10 @@ export const FarmerContactInformationTable = () => {
 
     dispatch(commonContactDetailsAction(commonContactDetailData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      contactDetailDelete: true
+    }))
 
     setModalShow(false);
   }
