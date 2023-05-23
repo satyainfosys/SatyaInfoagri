@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Button, Col, Form, Row } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateClientContactDetailsAction } from '../../actions/index';
+import { formChangedAction, updateClientContactDetailsAction } from '../../actions/index';
 import { clientContactDetailsAction } from '../../actions/index'
 import { contactDetailChangedAction } from '../../actions/index'
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
@@ -32,6 +32,9 @@ const ContactDetails = () => {
     updateClientContactDetailReducer.updateClientContactDetails.length <= 0) {
     resetContactDetailData();
   }
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   const [formHasError, setFormError] = useState(false);
   const [contactNameErr, setContactNameErr] = useState({});
@@ -101,18 +104,15 @@ const ContactDetails = () => {
 
       dispatch(clientContactDetailsAction(userData));
 
-      const addContactDetail = {
-        contactDetailsChanged: true
-      }
-
-      dispatch(contactDetailChangedAction(addContactDetail));
-
-      if ($("#btnSave").attr('disabled'))
-        $("#btnSave").attr('disabled', false);
+      dispatch(formChangedAction({
+        ...formChangedData,
+        contactDetailAdd: true
+      }))
 
       toast.success("Contact Added Successfully", {
         theme: 'colored'
       });
+
       hideForm();
     }
   };
@@ -140,14 +140,10 @@ const ContactDetails = () => {
 
       dispatch(clientContactDetailsAction(contactDetailList));
 
-      const updateContactDetail = {
-        contactDetailsChanged: true
-      }
-
-      dispatch(contactDetailChangedAction(updateContactDetail));
-
-      if ($("#btnSave").attr('disabled'))
-        $("#btnSave").attr('disabled', false);
+      dispatch(formChangedAction({
+        ...formChangedData,
+        contactDetailUpdate: true
+      }))
 
       toast.success("Contact Updated Successfully", {
         theme: 'colored'

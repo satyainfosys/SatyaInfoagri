@@ -2,11 +2,9 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
-import { userDetailsAction, clientDataAction } from '../../actions/index';
+import { userDetailsAction, clientDataAction, formChangedAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
-// import { useForm } from 'react-hook-form';
-
 
 export const UserDetails = () => {
 
@@ -40,6 +38,9 @@ export const UserDetails = () => {
 
     const clientDataReducer = useSelector((state) => state.rootReducer.clientDataReducer)
     var clientUserData = clientDataReducer.clientData;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const getClientList = async () => {
         axios
@@ -124,8 +125,18 @@ export const UserDetails = () => {
                 [e.target.name]: e.target.value
             }));
         }
-        if ($("#btnSave").attr('disabled'))
-            $("#btnSave").attr('disabled', false);
+
+        if (userData.encryptedSecurityUserId) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                userDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                userDetailAdd: true
+            }))
+        }
     }
 
 

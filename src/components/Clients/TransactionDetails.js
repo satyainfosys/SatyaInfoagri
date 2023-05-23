@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Button, Col, Form, Row, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { transactionDetailsAction } from 'actions';
+import { formChangedAction, transactionDetailsAction } from 'actions';
 import { transactionDetailChangedAction } from '../../actions/index'
 import { toast } from 'react-toastify';
 import Moment from "moment";
@@ -25,6 +25,9 @@ export const TransactionDetails = () => {
 
     const transactionDetailsReducer = useSelector((state) => state.rootReducer.transactionDetailsReducer)
     const transactionDetailData = transactionDetailsReducer.transactionDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const [formData, setFormData] = useState(initialState);
     const dispatch = useDispatch();
@@ -253,14 +256,10 @@ export const TransactionDetails = () => {
             if (!loopBreaked) {
                 dispatch(transactionDetailsAction(transactionData));
 
-                const addTransactionDetail = {
-                    transactionDetailChanged: true
-                }
-
-                dispatch(transactionDetailChangedAction(addTransactionDetail));
-
-                if ($("#btnSave").attr('disabled'))
-                    $("#btnSave").attr('disabled', false);
+                dispatch(formChangedAction({
+                    ...formChangedData,
+                    transactionDetailAdd: true
+                }))
 
                 toast.success("Transaction Added Successfully", {
                     theme: 'colored'
@@ -337,8 +336,6 @@ export const TransactionDetails = () => {
                 $('.payment-mode-details').hide();
             }
         }
-        if ($("#btnSave").attr('disabled'))
-            $("#btnSave").attr('disabled', false);
     };
 
     const handleAmountChange = e => {

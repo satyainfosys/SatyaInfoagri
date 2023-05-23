@@ -4,7 +4,7 @@ import { Button, Modal, Table, Spinner } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
-import { commonContactDetailsAction, commonContactDetailsListAction, commonContactDetailChangedAction, clientContactListAction } from '../../actions/index';
+import { commonContactDetailsAction, commonContactDetailsListAction, commonContactDetailChangedAction, clientContactListAction, formChangedAction } from '../../actions/index';
 
 const CommonContactDetailList = () => {
     const dispatch = useDispatch();
@@ -14,6 +14,9 @@ const CommonContactDetailList = () => {
 
     const clientContactListReducer = useSelector((state) => state.rootReducer.clientContactListReducer)
     var clientContactListData = clientContactListReducer.clientContactList
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const [modalShow, setModalShow] = useState(false);
 
@@ -56,20 +59,16 @@ const CommonContactDetailList = () => {
             dispatch(commonContactDetailsListAction(commonContactDetailListReducer.commonContactDetailsList));
         }
 
-        if ($("#btnSave").attr('disabled'))
-            $("#btnSave").attr('disabled', false);
+        dispatch(formChangedAction({
+            ...formChangedData,
+            commonContactDetailDelete: true
+        }))
 
         toast.success("Common contact deleted successfully", {
             theme: 'colored'
         });
 
         setModalShow(false);
-
-        const commoncontactDetailDeleted = {
-            commonContactDetailsChanged: true
-        }
-
-        dispatch(commonContactDetailChangedAction(commoncontactDetailDeleted));
     }
 
     const showAddCommonContactDetailsForm = () => {

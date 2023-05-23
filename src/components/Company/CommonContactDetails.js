@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Form, Row, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
-import { commonContactDetailsListAction, commonContactDetailsAction, commonContactDetailChangedAction } from '../../actions/index';
+import { commonContactDetailsListAction, commonContactDetailsAction, commonContactDetailChangedAction, formChangedAction } from '../../actions/index';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 const CommonContactDetails = () => {
@@ -39,6 +39,9 @@ const CommonContactDetails = () => {
         commonContactDetailsReducer.commonContactDetails.length <= 0) {
         resetCommonContactDetailData();
     }
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const validateCommonContactDetailForm = () => {
         const contactNameErr = {};
@@ -95,14 +98,10 @@ const CommonContactDetails = () => {
 
             dispatch(commonContactDetailsListAction(contactData));
 
-            const addCommonContactDetail = {
-                commonContactDetailsChanged: true
-            }
-
-            dispatch(commonContactDetailChangedAction(addCommonContactDetail));
-
-            if ($("#btnSave").attr('disabled'))
-                $("#btnSave").attr('disabled', false);
+            dispatch(formChangedAction({
+                ...formChangedData,
+                commonContactDetailAdd: true
+            }))
 
             toast.success("Common Contact Added Successfully", {
                 theme: 'colored'
@@ -133,14 +132,10 @@ const CommonContactDetails = () => {
 
             dispatch(commonContactDetailsListAction(commonContactDetailList));
 
-            const updateCommonContactDetail = {
-                commonContactDetailsChanged: true
-            }
-
-            dispatch(commonContactDetailChangedAction(updateCommonContactDetail));
-
-            if ($("#btnSave").attr('disabled'))
-                $("#btnSave").attr('disabled', false);
+            dispatch(formChangedAction({
+                ...formChangedData,
+                commonContactDetailUpdate: true
+            }))
 
             toast.success("Contact Updated Successfully", {
                 theme: 'colored'

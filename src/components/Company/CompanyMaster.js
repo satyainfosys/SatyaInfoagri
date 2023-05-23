@@ -4,7 +4,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { companyDetailsAction, commonContactDetailsAction, companyDetailsErrorAction, commonContactDetailsListAction, commonContactDetailChangedAction } from '../../actions/index';
+import { companyDetailsAction, commonContactDetailsAction, companyDetailsErrorAction, commonContactDetailsListAction, commonContactDetailChangedAction, formChangedAction } from '../../actions/index';
 import Moment from "moment";
 
 const tabArray = ['Company List', 'Maintenance'];
@@ -65,22 +65,13 @@ export const CompanyMaster = () => {
     const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
     const commonContactDetailList = commonContactDetailListReducer.commonContactDetailsList;
 
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
+
     const [formHasError, setFormError] = useState(false);
-
-
-    $.fn.extend({
-        trackChanges: function () {
-            $(":input", this).change(function () {
-                $(this.form).data("changed", true);
-            });
-        }
-        ,
-        isChanged: function () {
-            return this.data("changed");
-        }
-    });
-
-    $("#AddCompanyDetailsForm").trackChanges();
+    const [activeTabName, setActiveTabName] = useState();
 
     const clearCompanyReducers = () => {
         dispatch(companyDetailsAction(undefined));
@@ -88,21 +79,30 @@ export const CompanyMaster = () => {
         dispatch(companyDetailsErrorAction(undefined));
         dispatch(commonContactDetailsListAction(undefined));
         dispatch(commonContactDetailChangedAction(undefined));
-        $("#AddCompanyDetailsForm").data("changed", false);
+        dispatch(formChangedAction(undefined));
     }
 
-    $('[data-rr-ui-event-key*="Company List"]').click(function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Maintenance"]').attr('disabled', true);
-        $('#AddCompanyDetailsForm').get(0).reset();
-        localStorage.removeItem("EncryptedResponseCompanyCode")
-        localStorage.removeItem("DeleteCommonContactDetailsId")
-        clearCompanyReducers();
+    $('[data-rr-ui-event-key*="Company List"]').off('click').on('click', function () {
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Maintenance"]').attr('disabled', true);
+            $('#AddCompanyDetailsForm').get(0).reset();
+            localStorage.removeItem("EncryptedResponseCompanyCode")
+            localStorage.removeItem("DeleteCommonContactDetailsId")
+            clearCompanyReducers();
+        }
     })
 
-    $('[data-rr-ui-event-key*="Maintenance"]').click(function () {
+    $('[data-rr-ui-event-key*="Maintenance"]').off('click').on('click', function () {
+        setActiveTabName("Maintenance")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -132,31 +132,24 @@ export const CompanyMaster = () => {
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        $('[data-rr-ui-event-key*="Company List"]').trigger('click');
-        // if ($("#AddCompanyDetailsForm").isChanged() ||
-        //     commonContactDetailChanged.commonContactDetailsChanged
-        // ) {
-        //     setModalShow(true);
-        // }
-        // else {
-        //     $('[data-rr-ui-event-key*="Company List"]').trigger('click');
-        // }
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            $('[data-rr-ui-event-key*="Company List"]').trigger('click');
+        }
     }
 
     const exitModule = () => {
-        // $('#btnExit').attr('isExit', 'true');
-        // if (($("#AddCompanyDetailsForm").isChanged()) ||
-        //     commonContactDetailChanged.commonContactDetailsChanged) {
-        //     setModalShow(true);
-        // }
-        // else {
-        //     window.location.href = '/dashboard';
-        // }
         $('#btnExit').attr('isExit', 'true');
-        window.location.href = '/dashboard';
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+        }
     }
 
     const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
         if ($('#btnExit').attr('isExit') == 'true')
             window.location.href = '/dashboard';
         else
@@ -294,7 +287,7 @@ export const CompanyMaster = () => {
             .then(res => {
                 setIsLoading(false);
                 if (res.data.status == 200) {
-                    if (!commonContactDetailChanged.commonContactDetailsChanged) {
+                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd) {
                         updateCompanyCallback();
                     }
                     else if (!isUpdate) {
@@ -330,7 +323,7 @@ export const CompanyMaster = () => {
                         ...companyData,
                         isRemoved: false
                     }))
-                    if (!commonContactDetailChanged.commonContactDetailsChanged) {
+                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd) {
                         updateCompanyCallback();
                     }
                 } else {
@@ -442,22 +435,15 @@ export const CompanyMaster = () => {
                 ActiveStatus: !companyData.status || companyData.status == "Active" ? "A" : "S",
                 ModifyUser: localStorage.getItem("LoginUserName")
             }
-            var updateRequired = $("#AddCompanyDetailsForm").isChanged() || commonContactDetailChanged.commonContactDetailsChanged || companyData.isRemoved == true;
-
-            if (!updateRequired) {
-                toast.warning("Nothing to change!", {
-                    theme: 'colored'
-                });
-
-                return;
-            }
 
             const keys = ['companyName', 'companyShortName', 'companyType', 'address1', 'address2', 'address3', 'companyPan', 'companyGstNo', 'ModifyUser']
             for (const key of Object.keys(updatedCompanyData).filter((key) => keys.includes(key))) {
                 updatedCompanyData[key] = updatedCompanyData[key] ? updatedCompanyData[key].toUpperCase() : '';
             }
 
-            if ($("#AddCompanyDetailsForm").isChanged()) {
+            var hasError = false;
+
+            if (formChangedData.companyDetailUpdate) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-company', updatedCompanyData, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -469,15 +455,13 @@ export const CompanyMaster = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
+                            hasError = true;
                         } else if (res.data.status == 200) {
                             if (companyData.companyLogo.type) {
                                 uploadCompanyLogo(companyData.companyLogo, companyData.encryptedCompanyCode, true);
                             }
                             if (companyData.isRemoved) {
                                 deleteCompanyLogo(companyData.encryptedCompanyCode, companyData.isRemoved)
-                            }
-                            else if (!commonContactDetailChanged.commonContactDetailsChanged && !companyData.companyLogo.type && !companyData.isRemoved) {
-                                updateCompanyCallback();
                             }
                         }
                     })
@@ -489,93 +473,81 @@ export const CompanyMaster = () => {
 
             var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsId");
 
-            if (commonContactDetailChanged.commonContactDetailsChanged) {
-                var loopBreaked = false;
+            if (!hasError && (formChangedData.commonContactDetailUpdate || formChangedData.commonContactDetailAdd || formChangedData.commonContactDetailDelete)) {
                 var commoncontactDetailIndex = 1;
 
                 for (let i = 0; i < commonContactDetailList.length; i++) {
+
                     const commonContactDetails = commonContactDetailList[i];
-                    if (!loopBreaked) {
 
-                        const keys = ['contactPerson', 'modifyUser', 'addUser']
-                        for (const key of Object.keys(commonContactDetails).filter((key) => keys.includes(key))) {
-                            commonContactDetails[key] = commonContactDetails[key] ? commonContactDetails[key].toUpperCase() : '';
-                        }
+                    const keys = ['contactPerson', 'modifyUser', 'addUser']
+                    for (const key of Object.keys(commonContactDetails).filter((key) => keys.includes(key))) {
+                        commonContactDetails[key] = commonContactDetails[key] ? commonContactDetails[key].toUpperCase() : '';
+                    }
 
-                        if (commonContactDetails.encryptedCommonContactDetailsId) {
-                            setIsLoading(true);
-                            const updateCommonContactDetailResponse =
-                                await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', commonContactDetails, {
-                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                                });
-                            setIsLoading(false);
-                            if (updateCommonContactDetailResponse.data.status != 200) {
-                                toast.error(updateCommonContactDetailResponse.data.message, {
-                                    theme: 'colored',
-                                    autoClose: 10000
-                                });
-                                loopBreaked = true;
-                            }
-                            else if (commoncontactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteCommonContactDetailsId && !companyData.companyLogo.type) {
-                                updateCompanyCallback();
-                            }
-                            else {
-                                commoncontactDetailIndex++;
-                            }
-                        }
-                        else if (!commonContactDetails.encryptedCommonContactDetailsId) {
-                            setIsLoading(true);
-                            const addCommonContactDetailResponse =
-                                await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', commonContactDetails, {
-                                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                                });
-                            setIsLoading(false);
-                            if (addCommonContactDetailResponse.data.status != 200) {
-                                toast.error(addCommonContactDetailResponse.data.message, {
-                                    theme: 'colored',
-                                    autoClose: 10000
-                                });
-                                loopBreaked = true;
-                            }
-                            else if (commoncontactDetailIndex == commonContactDetailList.length && !loopBreaked && !deleteCommonContactDetailsId && !companyData.companyLogo.type) {
-                                updateCompanyCallback();
-                            }
-                            else {
-                                commoncontactDetailIndex++;
-                            }
+                    if (formChangedData.commonContactDetailUpdate && commonContactDetails.encryptedCommonContactDetailsId) {
+
+                        setIsLoading(true);
+                        const updateCommonContactDetailResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', commonContactDetails, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (updateCommonContactDetailResponse.data.status != 200) {
+                            toast.error(updateCommonContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
                         }
                     }
+                    else if (formChangedData.commonContactDetailAdd && !commonContactDetails.encryptedCommonContactDetailsId) {
+                        setIsLoading(true);
+                        const addCommonContactDetailResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', commonContactDetails, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addCommonContactDetailResponse.data.status != 200) {
+                            toast.error(addCommonContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    commoncontactDetailIndex++;
                 }
 
-                var deleteCommonContactDetailList = deleteCommonContactDetailsId ? deleteCommonContactDetailsId.split(',') : null;
+                if (!hasError && formChangedData.commonContactDetailDelete) {
+                    var deleteCommonContactDetailList = deleteCommonContactDetailsId ? deleteCommonContactDetailsId.split(',') : null;
 
-                if (deleteCommonContactDetailList) {
-                    var deleteContactDetailIndex = 1;
+                    if (deleteCommonContactDetailList) {
+                        var deleteContactDetailIndex = 1;
 
-                    deleteCommonContactDetailList.forEach(async deleteCommonContactDetailsId => {
-                        if (!loopBreaked) {
-
+                        for (let i = 0; i < deleteCommonContactDetailList.length; i++) {
+                            const deleteCommonContactDetailsId = deleteCommonContactDetailList[i]
                             const data = { encryptedCommonContactDetailsId: deleteCommonContactDetailsId }
                             const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                            setIsLoading(true);
+
                             const deleteCommonContactResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
-                            setIsLoading(false);
                             if (deleteCommonContactResponse.data.status != 200) {
                                 toast.error(deleteCommonContactResponse.data.message, {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
-                            }
-                            else if (deleteContactDetailIndex == deleteCommonContactDetailList.length && !loopBreaked && !companyData.companyLogo.type) {
-                                updateCompanyCallback();
-                            }
-                            else {
-                                deleteContactDetailIndex++;
+                                hasError = true;
+                                break;
                             }
                         }
-                    });
+                        deleteContactDetailIndex++
+                    }
                 }
+            }
+            if (!hasError) {
+                updateCompanyCallback();
             }
         }
     };
@@ -605,7 +577,7 @@ export const CompanyMaster = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={!companyData.encryptedCompanyCode ? addCompanyDetails : updateCompanyDetails}>Save</Button>
-                        <Button variant="danger" onClick={discardChanges}>Discard</Button>
+                        <Button variant="danger" id="btnDiscard" onClick={() => discardChanges()}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
             }

@@ -696,6 +696,7 @@ export const Farmers = () => {
 
         $('[data-rr-ui-event-key*="Farmers"]').click();
     }
+
     const addFarmerDetails = () => {
         if (farmerValidation()) {
             const requestData = {
@@ -1087,7 +1088,7 @@ export const Farmers = () => {
                 updateFarmerData[key] = updateFarmerData[key] ? updateFarmerData[key].toUpperCase() : '';
             }
 
-            var loopBreaked = false;
+            var hasError = false;
 
             if (formChangedData.farmerUpdate) {
                 setIsLoading(true);
@@ -1101,7 +1102,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                         }
                     })
             }
@@ -1118,7 +1119,7 @@ export const Farmers = () => {
 
 
             //FarmerFamilyDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.familyUpdate || formChangedData.familyAdd || formChangedData.familyDelete)) {
+            if (!hasError && (formChangedData.familyUpdate || formChangedData.familyAdd || formChangedData.familyDelete)) {
                 for (let i = 0; i < farmerFamilyDetailsList.length; i++) {
 
                     const farmerFamilyDetails = farmerFamilyDetailsList[i];
@@ -1151,7 +1152,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1167,14 +1168,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerFamilyDetailIndex++
                 }
 
-                if (!loopBreaked && formChangedData.familyDelete) {
+                if (!hasError && formChangedData.familyDelete) {
                     var deleteFarmerFamilyMemberList = deleteFarmerFamilyCodes ? deleteFarmerFamilyCodes.split(',') : null;
 
                     if (deleteFarmerFamilyMemberList) {
@@ -1191,7 +1192,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1201,7 +1202,7 @@ export const Farmers = () => {
             }
 
             //FarmerContactDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
+            if (!hasError && (formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
                 for (let i = 0; i < commonContactDetailList.length; i++) {
                     const farmerContactDetails = commonContactDetailList[i];
 
@@ -1221,7 +1222,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1237,14 +1238,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerContactDetailIndex++
                 }
 
-                if (!loopBreaked && formChangedData.contactDetailDelete) {
+                if (!hasError && formChangedData.contactDetailDelete) {
                     var deleteFarmerContactDetailsList = deleteFarmerContactDetailsId ? deleteFarmerContactDetailsId.split(',') : null;
                     if (deleteFarmerContactDetailsList) {
                         var deleteFarmerContactDetailIndex = 1;
@@ -1260,7 +1261,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1270,9 +1271,9 @@ export const Farmers = () => {
             }
 
             //BankDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.bankUpdate || formChangedData.bankAdd || formChangedData.bankDelete)) {
+            if (!hasError && (formChangedData.bankUpdate || formChangedData.bankAdd || formChangedData.bankDelete)) {
 
-                if (!loopBreaked && formChangedData.bankDelete) {
+                if (!hasError && formChangedData.bankDelete) {
                     var deleteBankDetailList = deleteBankDetails ? deleteBankDetails.split(',') : null;
 
                     if (deleteBankDetailList) {
@@ -1290,7 +1291,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1334,7 +1335,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1350,7 +1351,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1360,7 +1361,7 @@ export const Farmers = () => {
             }
 
             //FarmerLandDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.landDetailUpdate || formChangedData.landDetailAdd || formChangedData.landDetailDelete || formChangedData.landGeoDetailDelete)) {
+            if (!hasError && (formChangedData.landDetailUpdate || formChangedData.landDetailAdd || formChangedData.landDetailDelete || formChangedData.landGeoDetailDelete)) {
                 for (let i = 0; i < farmerLandDetailsList.length; i++) {
                     const farmerLandDetail = farmerLandDetailsList[i];
 
@@ -1400,7 +1401,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1416,14 +1417,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerLandDetailIndex++;
                 }
 
-                if (!loopBreaked && formChangedData.landGeoDetailDelete) {
+                if (!hasError && formChangedData.landGeoDetailDelete) {
                     var deleteFarmerLandGeoDetailList = deleteFarmerLandGeoDetailcodes ? deleteFarmerLandGeoDetailcodes.split(',') : null;
 
                     if (deleteFarmerLandGeoDetailList) {
@@ -1439,7 +1440,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1447,7 +1448,7 @@ export const Farmers = () => {
                     }
                 }
 
-                if (!loopBreaked && formChangedData.landDetailDelete) {
+                if (!hasError && formChangedData.landDetailDelete) {
                     var deleteFarmerLandDetailList = deleteFarmerLandDetailCodes ? deleteFarmerLandDetailCodes.split(',') : null;
 
                     if (deleteFarmerLandDetailList) {
@@ -1464,7 +1465,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1474,7 +1475,7 @@ export const Farmers = () => {
             }
 
             //FarmerIrrigationDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.irrigationDetailUpdate || formChangedData.irrigationDetailAdd || formChangedData.irrigationDetailDelete)) {
+            if (!hasError && (formChangedData.irrigationDetailUpdate || formChangedData.irrigationDetailAdd || formChangedData.irrigationDetailDelete)) {
                 for (let i = 0; i < farmerIrrigationDetailsList.length; i++) {
 
                     const farmerIrrigationDetail = farmerIrrigationDetailsList[i]
@@ -1503,7 +1504,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1519,14 +1520,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerIrrigationDetailIndex++;
                 }
 
-                if (!loopBreaked && formChangedData.irrigationDetailDelete) {
+                if (!hasError && formChangedData.irrigationDetailDelete) {
                     var deleteFarmerIrrigationDetailList = deleteFarmerIrrigationDetailCodes ? deleteFarmerIrrigationDetailCodes.split(',') : null;
 
                     if (deleteFarmerIrrigationDetailList) {
@@ -1544,7 +1545,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1554,7 +1555,7 @@ export const Farmers = () => {
             }
 
             //FarmerLiveStockCattleDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.cattleDetailUpdate || formChangedData.cattleDetailAdd || formChangedData.cattleDetailDelete)) {
+            if (!hasError && (formChangedData.cattleDetailUpdate || formChangedData.cattleDetailAdd || formChangedData.cattleDetailDelete)) {
                 for (let i = 0; i < farmerLiveStockCattleList.length; i++) {
 
                     const farmerLiveStockCattleDetail = farmerLiveStockCattleList[i]
@@ -1586,7 +1587,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1602,14 +1603,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerLiveStockCattleDetailIndex++;
                 }
 
-                if (!loopBreaked && formChangedData.cattleDetailDelete) {
+                if (!hasError && formChangedData.cattleDetailDelete) {
                     var deleteFarmerLiveStockCattleDetailList = deleteFarmerLiveStockCattleDetailIds ? deleteFarmerLiveStockCattleDetailIds.split(',') : null;
 
                     if (deleteFarmerLiveStockCattleDetailList) {
@@ -1627,7 +1628,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1637,7 +1638,7 @@ export const Farmers = () => {
             }
 
             //FarmerMachineryDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.machineryDetailUpdate || formChangedData.machineryDetailAdd || formChangedData.machineryDetailDelete)) {
+            if (!hasError && (formChangedData.machineryDetailUpdate || formChangedData.machineryDetailAdd || formChangedData.machineryDetailDelete)) {
                 for (let i = 0; i < farmerMachineryDetailsList.length; i++) {
 
                     const farmerMachineryDetail = farmerMachineryDetailsList[i]
@@ -1666,7 +1667,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1682,14 +1683,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerLiveStockCattleDetailIndex++;
                 }
 
-                if (!loopBreaked && formChangedData.machineryDetailDelete) {
+                if (!hasError && formChangedData.machineryDetailDelete) {
                     var deleteFarmerMachineryDetailList = deleteFarmerMachineryDetailCodes ? deleteFarmerMachineryDetailCodes.split(',') : null;
 
                     if (deleteFarmerMachineryDetailList) {
@@ -1707,7 +1708,7 @@ export const Farmers = () => {
                                     theme: 'colored',
                                     autoClose: 10000
                                 });
-                                loopBreaked = true;
+                                hasError = true;
                                 break;
                             }
                         }
@@ -1717,7 +1718,7 @@ export const Farmers = () => {
             }
 
             //FarmerDocumentDetail Add, Update, Delete
-            if (!loopBreaked && (formChangedData.documentDetailUpdate || formChangedData.documentDetailAdd || formChangedData.documentDetailDelete)) {
+            if (!hasError && (formChangedData.documentDetailUpdate || formChangedData.documentDetailAdd || formChangedData.documentDetailDelete)) {
                 for (let i = 0; i < farmerDocumentDetailsList.length; i++) {
 
                     const farmerDocumentDetail = farmerDocumentDetailsList[i];
@@ -1750,7 +1751,7 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
@@ -1774,14 +1775,14 @@ export const Farmers = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            loopBreaked = true;
+                            hasError = true;
                             break;
                         }
                     }
                     farmerDocumentDetailIndex++;
                 }
 
-                if (!loopBreaked && formChangedData.documentDetailDelete) {
+                if (!hasError && formChangedData.documentDetailDelete) {
                     var deleteFarmerDocumentDetailList = deleteFarmerDocumentIds ? deleteFarmerDocumentIds.split(',') : null;
 
                     if (deleteFarmerDocumentDetailList) {
@@ -1789,7 +1790,7 @@ export const Farmers = () => {
 
                         for (let i = 0; i < deleteFarmerDocumentDetailList.length; i++) {
                             const deleteFarmerDocumentId = deleteFarmerDocumentDetailList[i];
-                            if (!loopBreaked) {
+                            if (!hasError) {
                                 const data = {
                                     encryptedFarmerDocumentId: deleteFarmerDocumentId,
                                     encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
@@ -1801,7 +1802,7 @@ export const Farmers = () => {
                                         theme: 'colored',
                                         autoClose: 10000
                                     });
-                                    loopBreaked = true;
+                                    hasError = true;
                                     break;
                                 }
                             }
@@ -1810,7 +1811,7 @@ export const Farmers = () => {
                 }
             }
 
-            if (!loopBreaked) {
+            if (!hasError) {
                 updateFarmerCallback();
             }
         }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { userDetailsAction, userDetailsErrorAction } from '../../actions/index';
+import { formChangedAction, userDetailsAction, userDetailsErrorAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
@@ -57,27 +57,36 @@ export const User = () => {
     const userDetailsReducer = useSelector((state) => state.rootReducer.userDetailsReducer)
     const userData = userDetailsReducer.userDetails;
 
-    $.fn.extend({
-        trackChanges: function () {
-            $(":input", this).change(function () {
-                $(this.form).data("changed", true);
-            });
-        }
-        ,
-        isChanged: function () {
-            return this.data("changed");
-        }
-    });
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
-    $("#UserDetailsForm").trackChanges();
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
+
+    const [activeTabName, setActiveTabName] = useState();
+
+    // $.fn.extend({
+    //     trackChanges: function () {
+    //         $(":input", this).change(function () {
+    //             $(this.form).data("changed", true);
+    //         });
+    //     }
+    //     ,
+    //     isChanged: function () {
+    //         return this.data("changed");
+    //     }
+    // });
+
+    // $("#UserDetailsForm").trackChanges();
 
     const clearUserDetailsReducer = () => {
         dispatch(userDetailsAction(undefined));
         dispatch(userDetailsErrorAction(undefined));
-        $("#UserDetailsForm").data("changed", false);
+        dispatch(formChangedAction(undefined));
+        // $("#UserDetailsForm").data("changed", false);
     }
 
     $('[data-rr-ui-event-key*="User Detail"]').click(function () {
+        setActiveTabName("User Detail")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -93,7 +102,7 @@ export const User = () => {
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        if ($("#UserDetailsForm").isChanged()) {
+        if (isFormChanged) {
             setModalShow(true);
         }
         else {
@@ -103,7 +112,7 @@ export const User = () => {
 
     const exitModule = () => {
         $('#btnExit').attr('isExit', 'true');
-        if ($("#UserDetailsForm").isChanged()) {
+        if (isFormChanged) {
             setModalShow(true);
         }
         else {
@@ -112,6 +121,7 @@ export const User = () => {
     }
 
     const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
         if ($('#btnExit').attr('isExit') == 'true')
             window.location.href = '/dashboard';
         else
@@ -121,18 +131,21 @@ export const User = () => {
     }
 
 
-    $('[data-rr-ui-event-key*="User List"]').click(function () {
-        $('#btnExit').attr('isExit', 'false');
-        if ($("#UserDetailsForm").isChanged()) {
+    $('[data-rr-ui-event-key*="User List"]').off('click').on('click', function () {
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
             setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', true);
+            $('#UserDetailsForm').get(0).reset();
+            clearUserDetailsReducer();
         }
-
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', true);
-        $('#UserDetailsForm').get(0).reset();
-        clearUserDetailsReducer();
     })
 
     const userValidation = () => {
@@ -165,8 +178,7 @@ export const User = () => {
     const updateUserCallback = (isAddUser = false) => {
 
         $("#UserDetailsForm").data("changed", false);
-        if(!isAddUser)
-        {
+        if (!isAddUser) {
             var country = $('#txtCountry').val();
             var state = $('#txtState').val();
         }
@@ -238,23 +250,14 @@ export const User = () => {
                 loginUserName: userData.loginUserName,
                 ActiveStatus: !userData.status || userData.status == "Active" ? "A" : "S",
                 ModifyUser: localStorage.getItem("LoginUserName")
-            }
-            var updateRequired = $("#UserDetailsForm").isChanged();
-
-            if (!updateRequired) {
-                toast.warning("Nothing to change!", {
-                    theme: 'colored'
-                });
-
-                return;
-            }
+            }           
 
             const keys = ['loginUserName', 'ModifyUser']
             for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
                 updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
-            }
+            }            
 
-            if ($("#UserDetailsForm").isChanged()) {
+            if (formChangedData.userDetailUpdate) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -299,7 +302,7 @@ export const User = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={!userData.encryptedSecurityUserId ? addUserDetails : updateUserDetails}>Save</Button>
-                        <Button variant="danger" onClick={discardChanges}>Discard</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
             }

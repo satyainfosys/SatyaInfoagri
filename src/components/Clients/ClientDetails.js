@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
 import { useSelector, useDispatch } from 'react-redux';
-import { clientDetailsAction } from '../../actions/index';
+import { clientDetailsAction, formChangedAction } from '../../actions/index';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
 export const ClientDetails = () => {
@@ -56,6 +56,9 @@ export const ClientDetails = () => {
 
   const clientDetailsErrorReducer = useSelector((state) => state.rootReducer.clientDetailsErrorReducer)
   const clientError = clientDetailsErrorReducer.clientDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   const [countryList, setCountryList] = useState([]);
   const [stateList, setStateList] = useState([]);
@@ -152,8 +155,17 @@ export const ClientDetails = () => {
         getStates(e.target.value, true);
     }
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    if (clientData.encryptedClientCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        clientUpdate: true
+      }))
+    }else{
+      dispatch(formChangedAction({
+        ...formChangedData,
+        clientAdd: true
+      }))
+    }
   };
 
   return (

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Col, Form, Row, Spinner, InputGroup, Button } from 'react-bootstrap';
 import axios from 'axios';
-import { companyDetailsAction, clientDataAction } from 'actions';
+import { companyDetailsAction, clientDataAction, formChangedAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { toast } from 'react-toastify';
@@ -54,6 +54,9 @@ export const Maintenance = () => {
 
     const companyDetailsErrorReducer = useSelector((state) => state.rootReducer.companyDetailsErrorReducer)
     const companyError = companyDetailsErrorReducer.companyDetailsError;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const [countryList, setCountryList] = useState([]);
     const [stateList, setStateList] = useState([]);
@@ -151,8 +154,17 @@ export const Maintenance = () => {
             }
         }
 
-        if ($("#btnSave").attr('disabled'))
-            $("#btnSave").attr('disabled', false);
+        if (companyData.encryptedCompanyCode) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                companyDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                companyDetailAdd: true
+            }))
+        }
     };
 
     const sameAsClientCompanyDataChanged = () => {

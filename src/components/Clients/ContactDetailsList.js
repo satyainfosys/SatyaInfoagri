@@ -2,7 +2,7 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import { Button, Modal, Table } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { updateClientContactDetailsAction } from '../../actions/index';
+import { formChangedAction, updateClientContactDetailsAction } from '../../actions/index';
 import { clientContactDetailsAction } from '../../actions/index';
 import { contactDetailChangedAction } from '../../actions/index'
 import { toast } from 'react-toastify';
@@ -13,6 +13,10 @@ const ContactDetailsList = () => {
   const contactDetailReducer = useSelector((state) => state.rootReducer.clientContactDetailsReducer)
   const clientDetailsErrorReducer = useSelector((state) => state.rootReducer.clientDetailsErrorReducer)
   const clientError = clientDetailsErrorReducer.clientDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
   const [paramsData, setParamsData] = useState({});
 
   const [modalShow, setModalShow] = useState(false);
@@ -59,16 +63,12 @@ const ContactDetailsList = () => {
 
     dispatch(clientContactDetailsAction(contactDetailReducer.clientContactDetails));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      contactDetailDelete: true
+    }))
 
     setModalShow(false);
-
-    const contactDetailDeleted = {
-      contactDetailsChanged: true
-    }
-
-    dispatch(contactDetailChangedAction(contactDetailDeleted));
   }
 
   const showAddContactDetailsForm = () => {
