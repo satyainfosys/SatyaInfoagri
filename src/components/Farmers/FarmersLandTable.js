@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal, Row } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { farmerLandDetailsAction, farmerDetailsAction } from 'actions';
+import { farmerLandDetailsAction, farmerDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
@@ -15,6 +15,7 @@ export const FarmersLandTable = () => {
   let [locationRowData, setLocationRowData] = useState([]);
   const [reducerIndex, setReducerIndex] = useState();
   const [modalError, setModalError] = useState(false);
+  const [landCode, setLandCode] = useState(false);
 
   const columnsArray = [
     'S.No',
@@ -66,6 +67,9 @@ export const FarmersLandTable = () => {
   const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
   var farmerData = farmerDetailsReducer.farmerDetails;
 
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
   useEffect(() => {
     if (unitList.length <= 0) {
       getUnitList();
@@ -92,6 +96,18 @@ export const FarmersLandTable = () => {
       ...farmerData,
       totalLand: sumOfLandArea
     }))
+
+    if (sumOfLandArea > 0 && localStorage.getItem("EncryptedFarmerCode")) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        farmerUpdate: true
+      }))
+    } else if (sumOfLandArea > 0) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        farmerAdd: true
+      }))
+    }
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
 
   const validateFarmerLandDetailsForm = () => {
@@ -144,8 +160,12 @@ export const FarmersLandTable = () => {
       unitName: selectedKey
     }))
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    if(localStorage.getItem("EncryptedFarmerCode")){
+      dispatch(formChangedAction({
+        ...formChangedData,
+        landDetailUpdate: true
+      }))
+    }
   }
 
   const handleAddRow = () => {
@@ -166,8 +186,18 @@ export const FarmersLandTable = () => {
       return rowData[key];
     })
     dispatch(farmerLandDetailsAction(farmerLandDetails))
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+
+    if (farmerLandDetails[index].encryptedFarmerLandCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        landDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        landDetailAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedFarmerLandCode) => {
@@ -195,16 +225,19 @@ export const FarmersLandTable = () => {
 
     dispatch(farmerLandDetailsAction(farmerLandDetailsData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      landDetailDelete: true
+    }))
 
     setModalShow(false);
   }
 
-  const locationModalPreview = (indexNo) => {
+  const locationModalPreview = (indexNo, encryptedFarmerLandCode) => {
     setShowLocationModal(true);
     setReducerIndex(indexNo);
     setModalError(false);
+    setLandCode(encryptedFarmerLandCode)
 
     setLocationRowData([]);
 
@@ -255,6 +288,13 @@ export const FarmersLandTable = () => {
     locationDetails[index] = { ...locationDetails[index], [name]: value };
 
     setLocationRowData(locationDetails);
+
+    if (landCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        landDetailUpdate: true
+      }))
+    }
   }
 
   const onLocationSave = () => {
@@ -265,8 +305,12 @@ export const FarmersLandTable = () => {
       setLocationRowData([]);
       setLocationErr({});
 
-      if ($("#btnSave").attr('disabled'))
-        $("#btnSave").attr('disabled', false);
+      if (localStorage.getItem("DeleteFarmerLandGeoDetailCodes")) {
+        dispatch(formChangedAction({
+          ...formChangedData,
+          landGeoDetailDelete: true
+        }))
+      }
     }
   }
 
@@ -349,9 +393,6 @@ export const FarmersLandTable = () => {
       theme: 'colored'
     });
     setLocationErr({});
-
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
   }
 
   const showOnMap = (index) => {
@@ -685,7 +726,7 @@ export const FarmersLandTable = () => {
                   <td key={index}>
                     <Button style={{ fontSize: '10px' }}
                       variant="success"
-                      onClick={() => { locationModalPreview(index) }} >
+                      onClick={() => { locationModalPreview(index, farmerLandDetailsData.encryptedFarmerLandCode) }} >
                       Google Location
                     </Button>
                   </td>

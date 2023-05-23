@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { farmerMachineryDetailsAction } from '../../actions/index';
+import { farmerMachineryDetailsAction, formChangedAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 
@@ -40,6 +40,9 @@ export const FarmersMachinaryDetailsTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     setRowDataValue(farmerMachineryDetailsReducer, farmerMachineryDetailsData);
@@ -83,9 +86,19 @@ export const FarmersMachinaryDetailsTable = () => {
     farmerMachineryDetails = Object.keys(rowData).map(key => {
       return rowData[key];
     })
-    dispatch(farmerMachineryDetailsAction(farmerMachineryDetails))
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(farmerMachineryDetailsAction(farmerMachineryDetails));
+
+    if (farmerMachineryDetails[idx].encryptedFarmerMachineryCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        machineryDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        machineryDetailAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedFarmerMachineryCode) => {
@@ -113,8 +126,10 @@ export const FarmersMachinaryDetailsTable = () => {
 
     dispatch(farmerMachineryDetailsAction(farmerMachineryDetailsData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      machineryDetailDelete: true
+    }))
 
     setModalShow(false);
   }

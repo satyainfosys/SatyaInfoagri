@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { farmerLiveStockCattleDetailsAction } from '../../actions/index';
+import { farmerLiveStockCattleDetailsAction, formChangedAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
@@ -49,6 +49,9 @@ export const FarmersLiveStockTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     if (cattleTypeList.length <= 0) {
@@ -121,9 +124,19 @@ export const FarmersLiveStockTable = () => {
       return rowData[key];
     })
     dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleDetails))
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
-  };
+
+    if (farmerLiveStockCattleDetails[index].encryptedFarmerCattleCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        cattleDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        cattleDetailAdd: true
+      }))
+    }
+  }
 
   const ModalPreview = (encryptedFarmerCattleCode) => {
     setModalShow(true);
@@ -150,8 +163,10 @@ export const FarmersLiveStockTable = () => {
 
     dispatch(farmerLiveStockCattleDetailsAction(farmerLiveStockCattleData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      cattleDetailDelete: true
+    }))
 
     setModalShow(false);
   }

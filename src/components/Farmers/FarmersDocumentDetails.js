@@ -1,4 +1,4 @@
-import { farmerDetailsAction, farmerDocumentDetailsAction } from 'actions';
+import { farmerDetailsAction, farmerDocumentDetailsAction, formChangedAction } from 'actions';
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Table, Modal, InputGroup } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
@@ -43,6 +43,9 @@ export const FarmersDocumentDetails = () => {
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
 
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
   useEffect(() => {
     setRowDataValue(farmerDocumentDetailsReducer, farmerDocumentDetailsData);
   }, [farmerDocumentDetailsData, farmerDocumentDetailsReducer]);
@@ -80,8 +83,18 @@ export const FarmersDocumentDetails = () => {
     })
     dispatch(farmerDocumentDetailsAction(farmerDocumentDetails))
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    if (farmerDocumentDetails[index].encryptedFarmerDocumentId) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        documentDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        documentDetailAdd: true
+      }))
+    }
+
   }
 
   const validateFarmerDocumentDetailsForm = () => {
@@ -160,8 +173,10 @@ export const FarmersDocumentDetails = () => {
 
     dispatch(farmerDocumentDetailsAction(farmerDocumentDetailsData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      documentDetailDelete: true
+    }))
 
     setModalShow(false);
   }

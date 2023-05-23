@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
-import { bankDetailsAction } from 'actions';
+import { bankDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
@@ -47,6 +47,9 @@ export const BankDetailsTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     if (bankList.length <= 0) {
@@ -123,8 +126,18 @@ export const BankDetailsTable = () => {
       return rowData[key];
     })
     dispatch(bankDetailsAction(bankDetails))
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+
+    if (bankDetails[index].encryptedFarmerBankId) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        bankUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        bankAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedFarmerBankId, accountNoToBeDelete) => {
@@ -152,8 +165,10 @@ export const BankDetailsTable = () => {
 
     dispatch(bankDetailsAction(bankDetailData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      bankDelete: true
+    }))
 
     setModalShow(false);
   }

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal } from 'react-bootstrap';
-import { farmerIrrigationDetailsAction } from 'actions';
+import { farmerIrrigationDetailsAction, formChangedAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -37,6 +37,9 @@ export const FarmersIrrigrationTable = () => {
 
   const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
   const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     setRowDataValue(farmerIrrigationDetailsReducer, farmerIrrigationDetailData);
@@ -75,8 +78,18 @@ export const FarmersIrrigrationTable = () => {
       return rowData[key];
     })
     dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetails))
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+
+    if (farmerIrrigationDetails[index].encryptedFarmerIrrigationCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        irrigationDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        irrigationDetailAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedFarmerIrrigationCode) => {
@@ -104,8 +117,10 @@ export const FarmersIrrigrationTable = () => {
 
     dispatch(farmerIrrigationDetailsAction(farmerIrrigationDetailData));
 
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
+    dispatch(formChangedAction({
+      ...formChangedData,
+      irrigationDetailDelete: true
+    }))
 
     setModalShow(false);
   }
