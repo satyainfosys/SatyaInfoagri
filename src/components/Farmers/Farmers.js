@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerCardDetailsAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction, formChangedAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction, formChangedAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import $ from "jquery";
@@ -83,9 +83,6 @@ export const Farmers = () => {
     const farmerMachineryDetailsReducer = useSelector((state) => state.rootReducer.farmerMachineryDetailsReducer)
     const farmerMachineryDetailsList = farmerMachineryDetailsReducer.farmerMachineryDetails;
 
-    const farmerCardDetailsReducer = useSelector((state) => state.rootReducer.farmerCardDetailsReducer)
-    const farmerCardDetailsList = farmerCardDetailsReducer.farmerCardDetails;
-
     const farmerIrrigationDetailsReducer = useSelector((state) => state.rootReducer.farmerIrrigationDetailsReducer)
     const farmerIrrigationDetailsList = farmerIrrigationDetailsReducer.farmerIrrigationDetails;
 
@@ -128,7 +125,6 @@ export const Farmers = () => {
         dispatch(farmerFamilyDetailsAction([]));
         dispatch(commonContactDetailsAction([]));
         dispatch(bankDetailsAction([]));
-        dispatch(farmerCardDetailsAction([]));
         dispatch(farmerLandDetailsAction([]));
         dispatch(farmerIrrigationDetailsAction([]));
         dispatch(farmerLiveStockCattleDetailsAction([]));
@@ -733,7 +729,6 @@ export const Farmers = () => {
                 bankDetails: bankDetailList,
                 farmerMachineryDetails: farmerMachineryDetailsList,
                 farmerLiveStockCattleDetails: farmerLiveStockCattleList,
-                farmerKisanCardDetails: farmerCardDetailsList,
                 farmerIrrigationDetails: farmerIrrigationDetailsList,
                 farmerLandDetails: farmerLandDetailsList,
                 farmerDocumentDetails: farmerDocumentDetailsList
@@ -1043,7 +1038,6 @@ export const Farmers = () => {
             var deleteFarmerFamilyCodes = localStorage.getItem("DeleteFarmerFamilyCodes");
             var deleteFarmerContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
             var deleteBankDetails = localStorage.getItem("DeleteFarmerBankDetailIds");
-            var deleteFarmerKisanCardIds = localStorage.getItem("DeleteFarmerKisanCardIds");
             var deleteFarmerIrrigationDetailCodes = localStorage.getItem("DeleteFarmerIrrigationCodes");
             var deleteFarmerLiveStockCattleDetailIds = localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds");
             var deleteFarmerMachineryDetailCodes = localStorage.getItem("DeleteFarmerMachineryDetailCodes");
@@ -1110,7 +1104,6 @@ export const Farmers = () => {
             var farmerFamilyDetailIndex = 1;
             var farmerContactDetailIndex = 1;
             var bankDetailIndex = 1;
-            var farmerCardDetailIndex = 1;
             var farmerLandDetailIndex = 1;
             var farmerIrrigationDetailIndex = 1;
             var farmerLiveStockCattleDetailIndex = 1;

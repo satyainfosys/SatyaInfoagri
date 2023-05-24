@@ -6,7 +6,8 @@ import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import {
   clientDetailsAction, clientContactDetailsAction, transactionDetailsAction,
-  clientDetailsErrorAction, contactDetailChangedAction, transactionDetailChangedAction, formChangedAction
+  clientDetailsErrorAction, contactDetailChangedAction, transactionDetailChangedAction, formChangedAction,
+  clientContactListAction
 } from '../../actions/index';
 
 const tabArray = ['Customer List', 'Customer Details', 'Transaction Details'];
@@ -60,8 +61,8 @@ export const Client = () => {
   const clientDetailsReducer = useSelector((state) => state.rootReducer.clientDetailsReducer)
   const clientData = clientDetailsReducer.clientDetails;
 
-  const clientContactDetailsReducer = useSelector((state) => state.rootReducer.clientContactDetailsReducer)
-  const contactDetailData = clientContactDetailsReducer.clientContactDetails;
+  const clientContactListReducer = useSelector((state) => state.rootReducer.clientContactListReducer)
+  const contactDetailData = clientContactListReducer.clientContactList;
 
   const transactionDetailsReducer = useSelector((state) => state.rootReducer.transactionDetailsReducer)
   const transactionDetailData = transactionDetailsReducer.transactionDetails;
@@ -76,11 +77,13 @@ export const Client = () => {
 
   const clearClientReducers = () => {
     dispatch(clientDetailsAction(undefined));
-    dispatch(clientContactDetailsAction(undefined));
+    // dispatch(clientContactDetailsAction(undefined));
+    dispatch(clientContactListAction([]))
     dispatch(transactionDetailsAction(undefined));
     dispatch(clientDetailsErrorAction(undefined));
     dispatch(contactDetailChangedAction(undefined));
     dispatch(transactionDetailChangedAction(undefined));
+    localStorage.removeItem("DeleteContactDetailsId")
     dispatch(formChangedAction(undefined));
   }
 
@@ -406,6 +409,7 @@ export const Client = () => {
     }
 
     dispatch(clientDetailsErrorAction(undefined));
+    dispatch(formChangedAction(undefined));
 
     if (!isAddClient) {
       toast.success("Client details updated successfully!", {
@@ -414,7 +418,7 @@ export const Client = () => {
     }
 
     $('#btnSave').attr('disabled', true)
-    clearClientReducers();
+    // clearClientReducers();
 
     fetchUsers(1);
   }
@@ -472,6 +476,7 @@ export const Client = () => {
       var deleteContactDetailsId = localStorage.getItem("DeleteContactDetailsId");
 
       if (!hasError && (formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
+        debugger
         var contactDetailIndex = 1;
 
         for (let i = 0; i < contactDetailData.length; i++) {

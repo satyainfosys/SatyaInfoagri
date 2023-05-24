@@ -1,253 +1,291 @@
-import React from 'react';
-import { useState } from 'react';
-import { Button, Col, Form, Row } from 'react-bootstrap';
-import { toast } from 'react-toastify';
+import React, { useState } from 'react'
+import { clientContactListAction, formChangedAction } from 'actions'
 import { useSelector, useDispatch } from 'react-redux';
-import { formChangedAction, updateClientContactDetailsAction } from '../../actions/index';
-import { clientContactDetailsAction } from '../../actions/index'
-import { contactDetailChangedAction } from '../../actions/index'
+import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { useEffect } from 'react';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import { toast } from 'react-toastify';
 
-const ContactDetails = () => {
+export const ContactDetails = () => {
+  const [formHasError, setFormError] = useState(false);
+  const [rowData, setRowData] = useState([]);
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
+
+  const columnsArray = [
+    'S.No',
+    'Contact Person',
+    'Mobile No',
+    'Email Id',
+    'Designation',
+    'Send Mail',
+    'Action'
+  ];
 
   const dispatch = useDispatch();
 
-  const resetContactDetailData = () => {
-    contactDetailData = {
-      contactPerson: '',
-      mobileNo: '',
-      emailId: '',
-      designation: '',
-      sendMail: ''
-    }
+  const emptyRow = {
+    id: rowData.length + 1,
+    encryptedClientCode: localStorage.getItem("EncryptedResponseClientCode") ? localStorage.getItem("EncryptedResponseClientCode") : "",
+    contactPerson: '',
+    mobileNo: '',
+    emailId: '',
+    designation: '',
+    sendMail: '',
+    addUser: localStorage.getItem("LoginUserName"),
+    modifyUser: localStorage.getItem("LoginUserName")
   }
 
-  const contactDetailListReducer = useSelector((state) => state.rootReducer.clientContactDetailsReducer)
-  const contactDetailList = contactDetailListReducer.clientContactDetails;
-
-  const updateClientContactDetailReducer = useSelector((state) => state.rootReducer.updateClientContactDetailReducer)
-  var contactDetailData = updateClientContactDetailReducer.updateClientContactDetails;
-
-  if (!updateClientContactDetailReducer.updateClientContactDetails ||
-    updateClientContactDetailReducer.updateClientContactDetails.length <= 0) {
-    resetContactDetailData();
-  }
+  const clientContactListReducer = useSelector((state) => state.rootReducer.clientContactListReducer)
+  let clientContactListData = clientContactListReducer.clientContactList;
 
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
-  const [formHasError, setFormError] = useState(false);
-  const [contactNameErr, setContactNameErr] = useState({});
-  const [contactMobileNoErr, setContactMobileNoErr] = useState({});
-  const [emailIdErr, setEmailIdErr] = useState({});
+  useEffect(() => {
+    if (clientContactListReducer.clientContactList.length > 0) {
+      setRowData(clientContactListData)
+    }
+
+  }, [clientContactListData, clientContactListReducer])
 
   const validateContactDetailForm = () => {
-    const contactNameErr = {};
-    const contactMobileNoErr = {};
-    const emailIdErr = {};
-
     let isValid = true;
 
-    if (!contactDetailData.contactPerson) {
-      contactNameErr.nameEmpty = "Enter contact person name";
-      isValid = false;
-      setFormError(true);
+    if (clientContactListData && clientContactListData.length > 0) {
+      clientContactListData.forEach((row, index) => {
+        if (!row.contactPerson || !row.mobileNo) {
+          isValid = false;
+          setFormError(true);
+        }
+
+        if (!(/^(\+\d{1,3}[- ]?)?\d{10}$/.test(row.mobileNo))) {
+          isValid = false;
+          setFormError(true);
+        }
+
+        if (row.emailId) {
+          if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(row.emailId))) {
+            isValid = false;
+            setFormError(true);
+          }
+        }
+      });
     }
 
-    if (!contactDetailData.mobileNo) {
-      contactMobileNoErr.mobileNoEmpty = "Enter contact mobile number";
-      isValid = false;
-      setFormError(true);
-    }
-    else if (!(/^(\+\d{1,3}[- ]?)?\d{10}$/.test(contactDetailData.mobileNo))) {
-      contactMobileNoErr.mobileNoInvalid = "Invalid mobile number, mobile number should be of 10 digits";
-      isValid = false;
-      setFormError(true);
+    if (isValid) {
+      setFormError(false)
     }
 
-    if (contactDetailData.emailId) {
-      if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(contactDetailData.emailId))) {
-        emailIdErr.emailInvalid = "Invalid email address";
-        isValid = false;
-        setFormError(true);
-      }
-    }
-    if (!isValid) {
-      setContactNameErr(contactNameErr);
-      setContactMobileNoErr(contactMobileNoErr);
-      setEmailIdErr(emailIdErr);
-    }
     return isValid;
   }
 
-  const clearStates = () => {
-    setFormError(false);
-    setContactNameErr({});
-    setContactMobileNoErr({});
-    setEmailIdErr({});
+  const handleAddRow = () => {
+    let formValid = validateContactDetailForm()
+    if (formValid) {
+      clientContactListData.unshift(emptyRow)
+      dispatch(clientContactListAction(clientContactListData))
+    }
   }
 
+  const handleFieldChange = (e, index) => {
+    const { name, value } = e.target;
+    var contactDetails = [...rowData];
+    contactDetails[index][name] = value;
+    contactDetails = Object.keys(rowData).map(key => {
+      return rowData[key];
+    })
+    dispatch(clientContactListAction(contactDetails))
 
-  const addContactDetailInList = () => {
-
-    if (validateContactDetailForm()) {
-      const userData = {
-        encryptedClientContactDetailsId: "",
-        encryptedClientCode: localStorage.getItem("EncryptedResponseClientCode"),
-        contactPerson: contactDetailData.contactPerson,
-        mobileNo: contactDetailData.mobileNo,
-        emailId: contactDetailData.emailId,
-        designation: contactDetailData.designation,
-        sendMail: contactDetailData.sendMail == "Y" ? "Y" : "N",
-        addUser: localStorage.getItem("LoginUserName"),
-      }
-
-      dispatch(clientContactDetailsAction(userData));
-
-      dispatch(formChangedAction({
-        ...formChangedData,
-        contactDetailAdd: true
-      }))
-
-      toast.success("Contact Added Successfully", {
-        theme: 'colored'
-      });
-
-      hideForm();
-    }
-  };
-
-  const updateContactDetails = () => {
-
-    if (validateContactDetailForm()) {
-
-      var contactPersonMobileNoToUpdate = localStorage.getItem("contactPersonMobileNoToUpdate");
-
-      const contactDetail = {
-        encryptedClientContactDetailsId: contactDetailData.encryptedClientContactDetailsId,
-        encryptedClientCode: contactDetailData.encryptedClientCode,
-        contactPerson: contactDetailData.contactPerson,
-        mobileNo: contactDetailData.mobileNo,
-        emailId: contactDetailData.emailId,
-        designation: contactDetailData.designation,
-        sendMail: contactDetailData.sendMail == "Y" ? "Y" : "N",
-        addUser: contactDetailData.addUser,
-        modifyUser: localStorage.getItem("LoginUserName"),
-      }
-
-      var objectIndex = contactDetailList.findIndex(x => x.mobileNo == contactPersonMobileNoToUpdate);
-      contactDetailList[objectIndex] = contactDetail;
-
-      dispatch(clientContactDetailsAction(contactDetailList));
-
+    if (contactDetails[index].encryptedClientContactDetailsId) {
       dispatch(formChangedAction({
         ...formChangedData,
         contactDetailUpdate: true
       }))
-
-      toast.success("Contact Updated Successfully", {
-        theme: 'colored'
-      });
-
-      hideForm();
-
-      localStorage.setItem("contactPersonMobileNoToUpdate", "");
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        contactDetailAdd: true
+      }))
     }
-  };
+  }
 
-  const handleFieldChange = e => {
-    dispatch(updateClientContactDetailsAction({
-      ...contactDetailData,
-      [e.target.name]: e.target.value
-    }));
-    if ($("#btnSave").attr('disabled'))
-      $("#btnSave").attr('disabled', false);
-  };
+  const ModalPreview = (encryptedClientContactDetailsId, contactMobileNoToDelete) => {
+    setModalShow(true);
+    setParamsData({ encryptedClientContactDetailsId, contactMobileNoToDelete });
+  }
 
-  const hideForm = () => {
-    $("#AddContactDetailsForm").hide();
-    $("#ContactDetailsTable").show();
-    dispatch(updateClientContactDetailsAction(undefined));
-    resetContactDetailData();
-    clearStates();
+  const deleteContactDetails = () => {
+
+    if (!paramsData)
+      return false;
+
+    var objectIndex = clientContactListReducer.clientContactList.findIndex(x => x.mobileNo == paramsData.contactMobileNoToDelete);
+    clientContactListReducer.clientContactList.splice(objectIndex, 1)
+
+    var deleteContactDetailId = localStorage.getItem("DeleteContactDetailsId");
+
+    if (paramsData.encryptedClientContactDetailsId) {
+      var deleteContactDetail = deleteContactDetailId ? deleteContactDetailId + "," + paramsData.encryptedClientContactDetailsId : paramsData.encryptedClientContactDetailsId;
+      localStorage.setItem("DeleteContactDetailsId", deleteContactDetail);
+    }
+
+    toast.success("Contact deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(clientContactListAction(clientContactListData));
+
+    dispatch(formChangedAction({
+      ...formChangedData,
+      contactDetailDelete: true
+    }))
+
+    setModalShow(false);
   }
 
   return (
     <>
-      {contactDetailData &&
-        <Form noValidate validated={formHasError} className="details-form" id='AddContactForm'>
-          <Row>
-            <Col className="me-3 ms-3">
-              <Row className="mb-3">
-                <Form.Label className='details-form'>Contact Person<span className="text-danger">*</span></Form.Label>
-                <EnlargableTextbox id="txtContactPerson" name="contactPerson" maxLength={50} value={contactDetailData.contactPerson} onChange={handleFieldChange} placeholder="Contact person name" required={true} />
-                {Object.keys(contactNameErr).map((key) => {
-                  return <span className="error-message">{contactNameErr[key]}</span>
-                })}
-              </Row>
-            </Col>
-            <Col className="me-3 ms-3">
-              <Row className="mb-3">
-                <Form.Label>Mobile No<span className="text-danger">*</span></Form.Label>
-                <EnlargableTextbox id="txtMobileno" name="mobileNo" maxLength={10} value={contactDetailData.mobileNo} onChange={handleFieldChange} placeholder="Mobile No" required={true}
-                  onKeyPress={(e) => {
-                    const regex = /[0-9]|\./;
-                    const key = String.fromCharCode(e.charCode);
-                    if (!regex.test(key)) {
-                      e.preventDefault();
-                    }
-                  }} />
-                {Object.keys(contactMobileNoErr).map((key) => {
-                  return <span className="error-message">{contactMobileNoErr[key]}</span>
-                })}
-              </Row>
-            </Col>
-            <Col className="me-3 ms-3">
-              <Row className="mb-3">
-                <Form.Label>Email Id</Form.Label>
-                <EnlargableTextbox id="txtEmailId" name="emailId" maxLength={50} value={contactDetailData.emailId} onChange={handleFieldChange} placeholder="Email Id" />
-                {Object.keys(emailIdErr).map((key) => {
-                  return <span className="error-message">{emailIdErr[key]}</span>
-                })}
-              </Row>
-            </Col>
-            <Col className="me-3 ms-3">
-              <Row className="mb-3">
-                <Form.Label>Designation</Form.Label>
-                <EnlargableTextbox id="txtDesignation" name="designation" maxLength={50} value={contactDetailData.designation} onChange={handleFieldChange} placeholder="Designation" />
-              </Row>
-            </Col>
-            <Col className="me-3 ms-3">
-              <Row className="mb-3">
-                <Form.Label>Send Mail</Form.Label>
-                <Form.Select id="txtSendMail" name="sendMail" value={contactDetailData.sendMail} onChange={handleFieldChange}>
-                  <option value=''>Select</option>
-                  <option value="Y">Yes</option>
-                  <option value="N">No</option>
-                </Form.Select>
-              </Row>
-              <Row className="mb-2" id='btnAddContactDetail'>
-                <Button variant="primary" type="button" onClick={() => addContactDetailInList()}>
-                  Add
-                </Button>
-              </Row>
-              <Row className="mb-2" id='btnUpdateContactDetail'>
-                <Button variant="primary" onClick={() => updateContactDetails()}>
-                  Update
-                </Button>
-              </Row>
-              <Row className="mb-2">
-                <Button variant="danger" onClick={() => hideForm()}>
-                  Cancel
-                </Button>
-              </Row>
-            </Col>
-          </Row>
-        </Form>
+      {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this contact detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteContactDetails()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
       }
+      <div style={{ display: 'flex', justifyContent: 'end' }}>
+        <Button
+          id="btnAddClientContactDetailsTable"
+          className="mb-2"
+          onClick={handleAddRow}
+        >
+          Add Contact Details
+        </Button>
+      </div>
+      <Form
+        noValidate
+        // validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
+        validated={formHasError}
+        className="details-form"
+        id="AddClientContactDetailsForm"
+      >
+        {
+          clientContactListData && clientContactListData.length > 0 &&
+          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+            <thead className='custom-bg-200'>
+              <tr>
+                {columnsArray.map((column, index) => (
+                  <th className="text-left" key={index}>
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody id="tbody" className="details-form">
+              {rowData.map((clientContactListData, index) => (
+                <tr key={index}>
+                  <td>
+                    {index + 1}
+                  </td>
+
+                  <td key={index}>
+                    <EnlargableTextbox
+                      id="txtContactPerson"
+                      name="contactPerson"
+                      value={clientContactListData.contactPerson}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Contact Person Name"
+                      className="form-control"
+                      required={true}
+                      maxLength={50}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <EnlargableTextbox
+                      id="txtMobileno"
+                      name="mobileNo"
+                      value={clientContactListData.mobileNo}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Mobile No"
+                      className="form-control"
+                      maxLength={10}
+                      required={true}
+                      onKeyPress={(e) => {
+                        const regex = /[0-9]|\./;
+                        const key = String.fromCharCode(e.charCode);
+                        if (!regex.test(key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <EnlargableTextbox
+                      id="txtEmailId"
+                      name="emailId"
+                      value={clientContactListData.emailId}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Email Id"
+                      className="form-control"
+                      maxLength={50}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <EnlargableTextbox
+                      id="txtDesignation"
+                      name="designation"
+                      value={clientContactListData.designation}
+                      onChange={(e) => handleFieldChange(e, index)}
+                      placeholder="Designation"
+                      className="form-control"
+                      maxLength={50}
+                    />
+                  </td>
+
+                  <td key={index}>
+                    <Form.Select
+                      type="text"
+                      id="txtSendMail"
+                      name="sendMail"
+                      className="form-control"
+                      value={clientContactListData.sendMail}
+                      onChange={(e) => handleFieldChange(e, index)}
+                    >
+                      <option value=''>Select</option>
+                      <option value="Y">Yes</option>
+                      <option value="N">No</option>
+                    </Form.Select>
+                  </td>
+
+                  <td>
+                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(clientContactListData.encryptedClientContactDetailsId, clientContactListData.mobileNo) }} />
+                  </td>
+                </tr>
+              ))
+              }
+            </tbody>
+          </Table>
+        }
+      </Form>
     </>
   )
-};
+}
 
-
-export default ContactDetails;
+export default ContactDetails

@@ -8,7 +8,6 @@ import FalconComponentCard from 'components/common/FalconComponentCard';
 
 import ClientDetails from '../Clients/ClientDetails';
 import ContactDetails from '../Clients/ContactDetails';
-import ContactDetailsList from '../Clients/ContactDetailsList';
 import TransactionDetails from '../Clients/TransactionDetails';
 import TransactionDetailList from '../Clients/TransactionDetailList';
 
@@ -17,8 +16,7 @@ import AdvanceTable from 'components/common/advance-table/AdvanceTable';
 import AdvanceTableFooter from 'components/common/advance-table/AdvanceTableFooter';
 import AdvanceTableSearchBox from 'components/common/advance-table/AdvanceTableSearchBox';
 
-import CommonContactDetailList from 'components/Company/CommonContactDetailList';
-import CommonContactDetails from 'components/Company/CommonContactDetails';
+import CommonContactDetailsTable from 'components/Company/CommonContactDetailsTable';
 import Maintenance from 'components/Company/Maintenance';
 
 import UserDetails from 'components/User/UserDetails';
@@ -28,14 +26,11 @@ import ProductDetails from 'components/Product/ProductDetails';
 import $ from 'jquery';
 import AddFarmer from 'components/Farmers/AddFarmer';
 import FarmersDocumentDetails from 'components/Farmers/FarmersDocumentDetails';
-import FarmersEventDetails from 'components/Farmers/FarmersEventDetails';
-import FarmersMktSmsDetails from 'components/Farmers/FarmersMktSmsDetails';
 import FarmersLiveStockTable from 'components/Farmers/FarmersLiveStockTable';
 import FarmersMachinaryDetailsTable from 'components/Farmers/FarmersMachinaryDetailsTable';
 import FarmersLandTable from 'components/Farmers/FarmersLandTable';
 import FarmersIrrigrationTable from 'components/Farmers/FarmersIrrigrationTable';
 import BankDetailsTable from 'components/Farmers/BankDetailsTable';
-import FarmersCardTable from 'components/Farmers/FarmersCardTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
 import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
 
@@ -70,7 +65,7 @@ const TabPage = ({
 
   const isAnyFormDirty = Object.values(formChangedData).some(value => value === true);
 
-  if(isAnyFormDirty){
+  if (isAnyFormDirty) {
     document.getElementById("btnSave").disabled = false;
   }
 
@@ -274,18 +269,9 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="AddContactDetailsForm">
+                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
                       <ContactDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
-
-                  <FalconComponentCard
-                    id="ContactDetailsTable"
-                    className="tab-page-button-table-card no-pb"
-                  >
-                    <FalconComponentCard.Body language="jsx">
-                      <ContactDetailsList />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>
@@ -319,18 +305,9 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="CommonContactDetailsForm">
+                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
-                      <CommonContactDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
-
-                  <FalconComponentCard
-                    id="CommonContactDetailsCard"
-                    className="tab-page-button-table-card no-pb"
-                  >
-                    <FalconComponentCard.Body language="jsx">
-                      <CommonContactDetailList />
+                      <CommonContactDetailsTable />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>

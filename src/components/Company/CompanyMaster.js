@@ -59,8 +59,8 @@ export const CompanyMaster = () => {
     const companyDetailsReducer = useSelector((state) => state.rootReducer.companyDetailsReducer)
     const companyData = companyDetailsReducer.companyDetails;
 
-    const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
-    const commonContactDetailList = commonContactDetailListReducer.commonContactDetailsList;
+    let commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
+    const commonContactDetailList = commonContactDetailsReducer.commonContactDetails;
 
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
@@ -72,11 +72,13 @@ export const CompanyMaster = () => {
 
     const clearCompanyReducers = () => {
         dispatch(companyDetailsAction(undefined));
-        dispatch(commonContactDetailsAction(undefined));
+        // dispatch(commonContactDetailsAction(undefined));
         dispatch(companyDetailsErrorAction(undefined));
-        dispatch(commonContactDetailsListAction(undefined));
-        dispatch(commonContactDetailChangedAction(undefined));
+        // dispatch(commonContactDetailsListAction(undefined));
+        // dispatch(commonContactDetailChangedAction(undefined));
+        dispatch(commonContactDetailsAction([]));
         dispatch(formChangedAction(undefined));
+        localStorage.removeItem("DeleteCommonContactDetailsIds")
     }
 
     $('[data-rr-ui-event-key*="Company List"]').off('click').on('click', function () {
@@ -93,7 +95,7 @@ export const CompanyMaster = () => {
             $('[data-rr-ui-event-key*="Maintenance"]').attr('disabled', true);
             $('#AddCompanyDetailsForm').get(0).reset();
             localStorage.removeItem("EncryptedResponseCompanyCode")
-            localStorage.removeItem("DeleteCommonContactDetailsId")
+            localStorage.removeItem("DeleteCommonContactDetailsIds")
             clearCompanyReducers();
         }
     })
@@ -122,7 +124,6 @@ export const CompanyMaster = () => {
             $('#clientChkBox').prop('checked', false);
             $('#contactListChkBox').prop('checked', false);
             $('#btnSave').attr('disabled', false);
-            $("#AddCompanyDetailsForm").data("changed", false);
             clearCompanyReducers();
         }
     }
@@ -328,6 +329,7 @@ export const CompanyMaster = () => {
                 }
             })
     }
+
     const addCompanyDetails = () => {
         if (companyValidation()) {
             const requestData = {
@@ -465,7 +467,7 @@ export const CompanyMaster = () => {
                 deleteCompanyLogo(companyData.encryptedCompanyCode, companyData.isRemoved)
             }
 
-            var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsId");
+            var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
             if (!hasError && (formChangedData.commonContactDetailUpdate || formChangedData.commonContactDetailAdd || formChangedData.commonContactDetailDelete)) {
                 var commoncontactDetailIndex = 1;

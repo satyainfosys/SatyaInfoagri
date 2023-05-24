@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -86,18 +86,8 @@ const AdvanceTable = ({
 
         if (res.data.status == 200) {
           let contactDetailsData = [];
-          if ($('#ContactDetailsTable tbody tr').length > 1) {
-            $('#ContactDetailsTable tbody tr').remove();
-          }
-
           contactDetailsData = res.data.data;
-          dispatch(clientContactDetailsAction(contactDetailsData));
-
-          if (res.data && res.data.data.length > 0) {
-            $("#ClientContactDetailsTable").show();
-          } else {
-            $("#ClientContactDetailsTable").hide();
-          }
+          dispatch(clientContactListAction(contactDetailsData));
         }
         else {
           $("#ClientContactDetailsTable").hide();
@@ -152,17 +142,8 @@ const AdvanceTable = ({
       .then(res => {
 
         if (res.data.status == 200) {
-          let commonContactDetailsData = [];
-          if ($('#CommonContactDetailsCard tbody tr').length > 1) {
-            $('#CommonContactDetailsCard tbody tr').remove();
-          }
-          commonContactDetailsData = res.data.data;
-          dispatch(commonContactDetailsListAction(commonContactDetailsData));
-
-          if (res.data && res.data.data.length > 0) {
-            $("#CompanyContactDetailsTable").show();
-          } else {
-            $("#CompanyContactDetailsTable").hide();
+          if(res.data.data && res.data.data.length > 0){
+            dispatch(commonContactDetailsAction(res.data.data))
           }
         }
         else {
