@@ -72,10 +72,7 @@ export const CompanyMaster = () => {
 
     const clearCompanyReducers = () => {
         dispatch(companyDetailsAction(undefined));
-        // dispatch(commonContactDetailsAction(undefined));
         dispatch(companyDetailsErrorAction(undefined));
-        // dispatch(commonContactDetailsListAction(undefined));
-        // dispatch(commonContactDetailChangedAction(undefined));
         dispatch(commonContactDetailsAction([]));
         dispatch(formChangedAction(undefined));
         localStorage.removeItem("DeleteCommonContactDetailsIds")
@@ -217,7 +214,7 @@ export const CompanyMaster = () => {
         }
 
         if (companyData.companyLogo && companyData.companyLogo.type) {
-            var imageType = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp'];
+            var imageType = ['image/jpeg', 'image/jpg','image/bmp'];
             if (imageType.indexOf(companyData.companyLogo.type) === -1) {
                 imageTypeErr.invalidImage = "Selected image is invalid";
                 isValid = false;

@@ -113,10 +113,10 @@ export const FarmersDocumentDetails = () => {
         }
 
         if (row.farmerDocument && row.farmerDocument.type) {
-          var fileType = ['image/jpeg', 'image/jpg', 'image/png', 'image/bmp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+          var fileType = ['image/jpeg', 'image/jpg', 'image/bmp', 'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
           if (!fileType.includes(row.farmerDocument.type)) {
             isValid = false;
-            toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .png, .jpeg, .jpg", {
+            toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .jpeg, .jpg", {
               theme: 'colored',
               autoClose: 5000
             })
@@ -308,7 +308,7 @@ export const FarmersDocumentDetails = () => {
                       name='farmerDocument'
                       onChange={(e) => handleFieldChange(e, index)}
                       className="form-control"
-                      accept='.jpg,.jpeg,.png,.bmp,.doc,.docx,application/pdf'
+                      accept='.jpg,.jpeg,.bmp,.doc,.docx,application/pdf'
                       hidden
                     />
                   </td>

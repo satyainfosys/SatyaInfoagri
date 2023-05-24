@@ -174,8 +174,8 @@
     }
 
     .list-card {
-        min-height: 525px;
-        max-height: 525px;
+        min-height: 725px;
+        max-height: 725px;
         overflow-y: scroll;
     }
 
