@@ -476,7 +476,6 @@ export const Client = () => {
       var deleteContactDetailsId = localStorage.getItem("DeleteContactDetailsId");
 
       if (!hasError && (formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
-        debugger
         var contactDetailIndex = 1;
 
         for (let i = 0; i < contactDetailData.length; i++) {
