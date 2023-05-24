@@ -66,12 +66,6 @@ export const Client = () => {
   const transactionDetailsReducer = useSelector((state) => state.rootReducer.transactionDetailsReducer)
   const transactionDetailData = transactionDetailsReducer.transactionDetails;
 
-  const contactChanged = useSelector((state) => state.rootReducer.contactDetailChangedReducer)
-  let clientContactDetailChanged = contactChanged.contactDetailChanged;
-
-  const transactionChanged = useSelector((state) => state.rootReducer.transactionDetailChangedReducer)
-  let transactionDetailChanged = transactionChanged.transactionDetailChanged;
-
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
@@ -79,20 +73,6 @@ export const Client = () => {
 
   const [formHasError, setFormError] = useState(false);
   const [activeTabName, setActiveTabName] = useState();
-
-  // $.fn.extend({
-  //   trackChanges: function () {
-  //     $(":input", this).change(function () {
-  //       $(this.form).data("changed", true);
-  //     });
-  //   }
-  //   ,
-  //   isChanged: function () {
-  //     return this.data("changed");
-  //   }
-  // });
-
-  // $("#AddClientDetailsForm").trackChanges();
 
   const clearClientReducers = () => {
     dispatch(clientDetailsAction(undefined));
@@ -102,7 +82,6 @@ export const Client = () => {
     dispatch(contactDetailChangedAction(undefined));
     dispatch(transactionDetailChangedAction(undefined));
     dispatch(formChangedAction(undefined));
-    // $("#AddClientDetailsForm").data("changed", false);
   }
 
   $('[data-rr-ui-event-key*="Customer List"]').off('click').on('click', function () {
@@ -148,7 +127,6 @@ export const Client = () => {
     $('[data-rr-ui-event-key*="Details"]').attr('disabled', false);
     $('[data-rr-ui-event-key*="Customer Details"]').trigger('click');
     $('#btnSave').attr('disabled', false);
-    $("#AddClientDetailsForm").trackChanges();
     $("#TransactionDetailsListCard").hide();
     clearClientReducers();
   }
@@ -421,6 +399,7 @@ export const Client = () => {
   }
 
   const updateCallback = (isAddClient = false) => {
+    setModalShow(false);
 
     if (clientData.gstNumber === localStorage.getItem("GSTNumber")) {
       localStorage.setItem("NoOfCompany", parseInt(clientData.noOfComapnies))
@@ -505,10 +484,11 @@ export const Client = () => {
           }
 
           if (formChangedData.contactDetailUpdate && contactDetails.encryptedClientContactDetailsId) {
-
+            setIsLoading(true)
             const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-client-contact-detail', contactDetails, {
               headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
             });
+            setIsLoading(false);
             if (updateContactDetailResponse.data.status != 200) {
               toast.error(updateContactDetailResponse.data.message, {
                 theme: 'colored',
@@ -568,9 +548,11 @@ export const Client = () => {
 
         for (let i = 0; i < newTransactions.length; i++) {
           const transactionDetail = newTransactions[i];
+          setIsLoading(true)
           const transactionDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-client-registration-authorization', transactionDetail, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
           });
+          setIsLoading(false);
           if (transactionDetailResponse.data.status != 200) {
             toast.error(transactionDetailResponse.data.message, {
               theme: 'colored',

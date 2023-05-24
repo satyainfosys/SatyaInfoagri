@@ -177,7 +177,7 @@ export const User = () => {
 
     const updateUserCallback = (isAddUser = false) => {
 
-        $("#UserDetailsForm").data("changed", false);
+        setModalShow(false);
         if (!isAddUser) {
             var country = $('#txtCountry').val();
             var state = $('#txtState').val();
@@ -185,6 +185,7 @@ export const User = () => {
         $('#UserDetailsForm').get(0).reset();
 
         dispatch(userDetailsErrorAction(undefined));
+        dispatch(formChangedAction(undefined));
 
         if (!isAddUser) {
             toast.success("User details updated successfully!", {

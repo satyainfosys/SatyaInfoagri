@@ -59,9 +59,6 @@ export const CompanyMaster = () => {
     const companyDetailsReducer = useSelector((state) => state.rootReducer.companyDetailsReducer)
     const companyData = companyDetailsReducer.companyDetails;
 
-    const commonContactChanged = useSelector((state) => state.rootReducer.commonContactDetailChangedReducer)
-    let commonContactDetailChanged = commonContactChanged.commonContactDetailChanged;
-
     const commonContactDetailListReducer = useSelector((state) => state.rootReducer.commonContactDetailsListReducer)
     const commonContactDetailList = commonContactDetailListReducer.commonContactDetailsList;
 
@@ -251,16 +248,13 @@ export const CompanyMaster = () => {
     }
 
     const updateCompanyCallback = (isAddCompany = false) => {
+
+        setModalShow(false);
         $("#AddCompanyDetailsForm").data("changed", false);
         $('#AddCompanyDetailsForm').get(0).reset();
 
         dispatch(companyDetailsErrorAction(undefined));
-
-        commonContactDetailChanged = {
-            commonContactDetailChanged: false
-        }
-
-        dispatch(commonContactDetailChangedAction(commonContactDetailChanged));
+        dispatch(formChangedAction(undefined));
 
         localStorage.removeItem("DeleteCommonContactDetailsId");
 
@@ -287,7 +281,7 @@ export const CompanyMaster = () => {
             .then(res => {
                 setIsLoading(false);
                 if (res.data.status == 200) {
-                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd) {
+                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd && !formChangedData.commonContactDetailDelete) {
                         updateCompanyCallback();
                     }
                     else if (!isUpdate) {
@@ -323,7 +317,7 @@ export const CompanyMaster = () => {
                         ...companyData,
                         isRemoved: false
                     }))
-                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd) {
+                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd && !formChangedData.commonContactDetailDelete) {
                         updateCompanyCallback();
                     }
                 } else {

@@ -30,7 +30,6 @@ const AdvanceTable = ({
       $("#clientChkBoxRow").hide();
       $('[data-rr-ui-event-key*="Maintenance"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Maintenance"]').trigger('click');
-      $("#AddCompanyDetailsForm").trackChanges();
       $('#btnSave').attr('disabled', true);
       getCommonContactDetailsList(rowData.encryptedCompanyCode);
       localStorage.setItem('EncryptedResponseCompanyCode', rowData.encryptedCompanyCode);
@@ -40,7 +39,6 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="User Detail"]').trigger('click');
       localStorage.setItem('EncryptedResponseSecurityUserId', rowData.encryptedSecurityUserId);
-      $("#UserDetailsForm").trackChanges();
       $('#btnSave').attr('disabled', true);
       getClientDetail(rowData.clientName);
     }
@@ -48,7 +46,6 @@ const AdvanceTable = ({
       dispatch(productDetailsAction(rowData))
       $('[data-rr-ui-event-key*="Product Detail"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Product Detail"]').trigger('click');
-      $("#AddProductDetailsForm").trackChanges();
       $('#btnSave').attr('disabled', true);
       localStorage.setItem('EncryptedResponseModuleCode', rowData.encryptedModuleCode);
     }
@@ -57,14 +54,12 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
       getFarmerDetail(rowData.encryptedFarmerCode);
-      $("#AddFarmersDetailForm").trackChanges();
       $('#btnSave').attr('disabled', true);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Details"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Customer Details"]').trigger('click');
-      $("#AddClientDetailsForm").trackChanges();
       $('#btnSave').attr('disabled', true);
       localStorage.setItem('EncryptedResponseClientCode', rowData.encryptedClientCode);
       $("#AddContactDetailsForm").hide();
