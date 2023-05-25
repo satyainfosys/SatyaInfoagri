@@ -11,6 +11,7 @@ const tabArray = ['Farmers', 'Add Farmer', 'Family', 'Bank', 'Land', 'Cattle', '
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
+    { accessor: 'farmerCode', Header: 'Farmer Code' },
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Father Name' },
     { accessor: 'village', Header: 'Village' },

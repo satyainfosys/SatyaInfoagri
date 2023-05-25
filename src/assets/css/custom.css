@@ -138,3 +138,8 @@
 .tab-page-table>:not(caption)>*>*{
     padding: 0.4rem !important;
 }
+
+.p3px
+{
+    padding: 3px !important;
+}

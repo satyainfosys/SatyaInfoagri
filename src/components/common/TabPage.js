@@ -341,12 +341,7 @@ const TabPage = ({
               )}
               {index == 2 && module == 'Farmers' && (
                 <>
-
-                  <FalconComponentCard id="FamilyMemberTableDetails" className="tab-page-button-table-card mb-2">
-                    <FalconComponentCard.Body language="jsx">
-                      <FamilyTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FamilyTable />
 
                   <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
                     <FalconComponentCard.Body language="jsx">
