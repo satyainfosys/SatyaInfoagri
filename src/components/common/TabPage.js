@@ -343,62 +343,34 @@ const TabPage = ({
                 <>
                   <FamilyTable />
 
-                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmerContactInformationTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmerContactInformationTable />
                 </>
               )}
               {index == 3 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="BankDetailsTable">
-                    <FalconComponentCard.Body language="jsx">
-                      <BankDetailsTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <BankDetailsTable />
                 </>
               )}
 
               {index == 4 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersLandDetailsTable" className="tab-page-button-table-card mb-2">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersLandTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmersLandTable />
 
-                  <FalconComponentCard id="FarmersIrrigrationDetailsTable" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersIrrigrationTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmersIrrigrationTable />
                 </>
               )}
 
               {index == 5 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersLiveStockTable" className="tab-page-button-table-card mb-2">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersLiveStockTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmersLiveStockTable />
 
-                  <FalconComponentCard id="FarmersMachinaryTable" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersMachinaryDetailsTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmersMachinaryDetailsTable />
                 </>
               )}
 
               {index == 6 && module == 'Farmers' && (
                 <>
-                  <FalconComponentCard id="FarmersDocumentDetailsFrom" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <FarmersDocumentDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <FarmersDocumentDetails />
                 </>
               )}
 
