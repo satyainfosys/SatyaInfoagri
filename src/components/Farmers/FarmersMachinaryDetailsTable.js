@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerMachineryDetailsAction, formChangedAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmersMachinaryDetailsTable = () => {
   const dispatch = useDispatch();
@@ -157,120 +159,140 @@ export const FarmersMachinaryDetailsTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button id="btnAddFarmersMachinaryTable" className="mb-2" onClick={handleAddRow}>
-          Add Machinery Details
-        </Button>
-      </div>
 
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.machineryDetailErr && farmerError.machineryDetailErr.invalidMachineryDetail)}
-        className="details-form"
-        id="AddFarmersMachinaryTableDetailsForm"
-      >
-        {
-          farmerMachineryDetailsData && farmerMachineryDetailsData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((farmerMachineryDetailsData, idx) => (
-                <tr key={idx}>
-                  <td>
-                    {idx + 1}
-                  </td>
-                  <td key={idx}>
-                    <Form.Select
-                      type="text"
-                      id="txtEquipment"
-                      name="machineryCategory"
-                      className="form-control"
-                      onChange={(e) => handleFieldChange(e, idx)}
-                      value={farmerMachineryDetailsData.machineryCategory}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value="HIRED">HIRED</option>
-                      <option value="OWNED">OWNED</option>
-                    </Form.Select>
-                  </td>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Machinery Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.machineryDetailErr && farmerError.machineryDetailErr.invalidMachineryDetail)}
+            className="details-form"
+            id="AddFarmersMachinaryTableDetailsForm"
+          >
+            {
+              farmerMachineryDetailsData && farmerMachineryDetailsData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((farmerMachineryDetailsData, idx) => (
+                    <tr key={idx}>
+                      <td>
+                        {idx + 1}
+                      </td>
+                      <td key={idx}>
+                        <Form.Select
+                          type="text"
+                          id="txtEquipment"
+                          name="machineryCategory"
+                          className="form-control"
+                          onChange={(e) => handleFieldChange(e, idx)}
+                          value={farmerMachineryDetailsData.machineryCategory}
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value="HIRED">HIRED</option>
+                          <option value="OWNED">OWNED</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={idx}>
-                    <Form.Select
-                      type="text"
-                      id="txtequipmentType"
-                      name="machineryType"
-                      value={farmerMachineryDetailsData.machineryType}
-                      placeholder="Equipment Type"
-                      className="form-control"
-                      onChange={(e) => handleFieldChange(e, idx)}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Tractor'>Tractor</option>
-                      <option value='Leveller'>Leveller</option>
-                      <option value='Biogas'>Biogas</option>
-                      <option value='Vermi Compost'>Vermi Compost</option>
-                      <option value='Polyhouse'>Polyhouse</option>
-                      <option value='NetHouse'>NetHouse</option>
-                      <option value='Solar Light'>Solar Light</option>
-                      <option value='Spray Pump'>Spray Pump</option>
-                      <option value='Vegetable Crates'>Vegetable Crates</option>
-                      <option value='Tillerweeder'>Tillerweeder</option>
-                      <option value='Irregation Pump'>Irregation Pump</option>
-                      <option value='Weeder'>Weeder</option>
-                      <option value='Tiller'>Tiller</option>
-                    </Form.Select>
-                  </td>
+                      <td key={idx}>
+                        <Form.Select
+                          type="text"
+                          id="txtequipmentType"
+                          name="machineryType"
+                          value={farmerMachineryDetailsData.machineryType}
+                          placeholder="Equipment Type"
+                          className="form-control"
+                          onChange={(e) => handleFieldChange(e, idx)}
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='Tractor'>Tractor</option>
+                          <option value='Leveller'>Leveller</option>
+                          <option value='Biogas'>Biogas</option>
+                          <option value='Vermi Compost'>Vermi Compost</option>
+                          <option value='Polyhouse'>Polyhouse</option>
+                          <option value='NetHouse'>NetHouse</option>
+                          <option value='Solar Light'>Solar Light</option>
+                          <option value='Spray Pump'>Spray Pump</option>
+                          <option value='Vegetable Crates'>Vegetable Crates</option>
+                          <option value='Tillerweeder'>Tillerweeder</option>
+                          <option value='Irregation Pump'>Irregation Pump</option>
+                          <option value='Weeder'>Weeder</option>
+                          <option value='Tiller'>Tiller</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={idx}>
-                    <EnlargableTextbox
-                      id="txtQuantity"
-                      name="machineryQty"
-                      value={farmerMachineryDetailsData.machineryQty}
-                      placeholder="Quantity"
-                      onChange={(e) => handleFieldChange(e, idx)}
-                      onKeyPress={(e) => {
-                        const regex = /[0-9]|\./;
-                        const key = String.fromCharCode(e.charCode);
-                        if (!regex.test(key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      maxLength={3}
-                      required={true}
-                    />
-                  </td>
+                      <td key={idx}>
+                        <EnlargableTextbox
+                          id="txtQuantity"
+                          name="machineryQty"
+                          value={farmerMachineryDetailsData.machineryQty}
+                          placeholder="Quantity"
+                          onChange={(e) => handleFieldChange(e, idx)}
+                          onKeyPress={(e) => {
+                            const regex = /[0-9]|\./;
+                            const key = String.fromCharCode(e.charCode);
+                            if (!regex.test(key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          maxLength={3}
+                          required={true}
+                        />
+                      </td>
 
-                  <td key={idx}>
-                    <Form.Select
-                      id="txtStatus"
-                      name="activeStatus"
-                      className="form-control"
-                      onChange={(e) => handleFieldChange(e, idx)}
-                      value={farmerMachineryDetailsData.activeStatus}
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Suspended">Suspended</option>
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
-      </Form>
+                      <td key={idx}>
+                        <Form.Select
+                          id="txtStatus"
+                          name="activeStatus"
+                          className="form-control"
+                          onChange={(e) => handleFieldChange(e, idx)}
+                          value={farmerMachineryDetailsData.activeStatus}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Suspended">Suspended</option>
+                        </Form.Select>
+                      </td>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   )
 }

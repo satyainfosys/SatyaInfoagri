@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { bankDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const BankDetailsTable = () => {
   const dispatch = useDispatch();
@@ -196,139 +198,155 @@ export const BankDetailsTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddBankNameTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
-          Add Bank Details
-        </Button>
-      </div>
 
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
-        className="details-form"
-        id="AddFarmersBankTableDetailsForm"
-      >
-        {
-          bankDetailData && bankDetailData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((bankDetailData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)} required>
-                      <option value=''>Select Bank</option>
-                      {bankList.map((option, index) => (
-                        <option key={index} value={option.value}>{option.key}</option>
-                      ))}
-                    </Form.Select>
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtBankAddress"
-                      name="bankAddress"
-                      value={bankDetailData.bankAddress}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Bank Address"
-                      className="form-control"
-                      maxLength={60}
-                      required={true}
-                    />
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtbankBranch"
-                      name="bankBranch"
-                      value={bankDetailData.bankBranch}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Branch Name"
-                      className="form-control"
-                      maxLength={45}
-                      required={true}
-                    />
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="numAccountNumber"
-                      name="bankAccount"
-                      value={bankDetailData.bankAccount}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Account Number"
-                      className="form-control"
-                      maxLength={16}
-                      onKeyPress={(e) => {
-                        const regex = /[0-9]|\./;
-                        const key = String.fromCharCode(e.charCode);
-                        if (!regex.test(key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      required={true}
-                    />
-                  </td>
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtAccountType"
-                      name="accountType"
-                      value={bankDetailData.accountType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select Account Type</option>
-                      <option value='Saving'>Saving</option>
-                      <option value='Current'>Current</option>
-                    </Form.Select>
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtBankIfscCode"
-                      name="bankIfscCode"
-                      value={bankDetailData.bankIfscCode}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="IFSC Code"
-                      className="form-control"
-                      maxLength={20}
-                      required={true}
-                    />
-                  </td>
-                  <td key={index}>
-                    <Form.Select
-                      id="txtStatus"
-                      name="activeStatus"
-                      className="form-control"
-                      value={bankDetailData.activeStatus}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value='Active'>Active</option>
-                      <option value='Suspended'>Suspended</option>
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
-      </Form>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Bank Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
+            className="details-form"
+            id="AddFarmersBankTableDetailsForm"
+          >
+            {
+              bankDetailData && bankDetailData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((bankDetailData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <Form.Select id="txtBankName" name="bankCode" value={bankDetailData.bankCode} onChange={(e) => handleFieldChange(e, index)} required>
+                          <option value=''>Select Bank</option>
+                          {bankList.map((option, index) => (
+                            <option key={index} value={option.value}>{option.key}</option>
+                          ))}
+                        </Form.Select>
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtBankAddress"
+                          name="bankAddress"
+                          value={bankDetailData.bankAddress}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Bank Address"
+                          className="form-control"
+                          maxLength={60}
+                          required={true}
+                        />
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtbankBranch"
+                          name="bankBranch"
+                          value={bankDetailData.bankBranch}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Branch Name"
+                          className="form-control"
+                          maxLength={45}
+                          required={true}
+                        />
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="numAccountNumber"
+                          name="bankAccount"
+                          value={bankDetailData.bankAccount}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Account Number"
+                          className="form-control"
+                          maxLength={16}
+                          onKeyPress={(e) => {
+                            const regex = /[0-9]|\./;
+                            const key = String.fromCharCode(e.charCode);
+                            if (!regex.test(key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          required={true}
+                        />
+                      </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtAccountType"
+                          name="accountType"
+                          value={bankDetailData.accountType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select Account Type</option>
+                          <option value='Saving'>Saving</option>
+                          <option value='Current'>Current</option>
+                        </Form.Select>
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtBankIfscCode"
+                          name="bankIfscCode"
+                          value={bankDetailData.bankIfscCode}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="IFSC Code"
+                          className="form-control"
+                          maxLength={20}
+                          required={true}
+                        />
+                      </td>
+                      <td key={index}>
+                        <Form.Select
+                          id="txtStatus"
+                          name="activeStatus"
+                          className="form-control"
+                          value={bankDetailData.activeStatus}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value='Active'>Active</option>
+                          <option value='Suspended'>Suspended</option>
+                        </Form.Select>
+                      </td>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

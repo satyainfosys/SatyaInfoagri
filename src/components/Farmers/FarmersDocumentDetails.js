@@ -1,9 +1,11 @@
 import { farmerDetailsAction, farmerDocumentDetailsAction, formChangedAction } from 'actions';
 import React, { useState, useEffect } from 'react';
-import { Form, Button, Table, Modal, InputGroup } from 'react-bootstrap';
+import { Form, Button, Table, Modal, InputGroup, Card } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmersDocumentDetails = () => {
   const dispatch = useDispatch();
@@ -213,115 +215,130 @@ export const FarmersDocumentDetails = () => {
           </div>
         )
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddFarmersDocumentTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
-          Add Document Details
-        </Button>
-      </div>
 
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.documentDetailErr && farmerError.documentDetailErr.invalidDocumentDetail)}
-        className="details-form"
-        id="AddFarmersDocumentTableDetailsForm"
-      >
-        {
-          farmerDocumentDetailsData && farmerDocumentDetailsData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-            <thead className='custom-bg-200'>
-              {rowData && <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>}
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((farmerDocumentDetailsData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtDocumentType"
-                      name="documentType"
-                      value={farmerDocumentDetailsData.documentType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Document Type"
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Driving License'>Driving License</option>
-                      <option value='Farmer Photo'>Farmer Photo</option>
-                      <option value='Land Document'>Land Document</option>
-                      <option value='PAN Card'>PAN Card</option>
-                      <option value='Ration Card'>Ration Card</option>
-                      <option value='Registration Form'>Registration Form</option>
-                      <option value='Voter ID'>Voter ID</option>
-                      <option value='Others'>Others</option>
-                    </Form.Select>
-                  </td>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Document Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.documentDetailErr && farmerError.documentDetailErr.invalidDocumentDetail)}
+            className="details-form"
+            id="AddFarmersDocumentTableDetailsForm"
+          >
+            {
+              farmerDocumentDetailsData && farmerDocumentDetailsData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                <thead className='custom-bg-200'>
+                  {rowData && <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>}
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((farmerDocumentDetailsData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtDocumentType"
+                          name="documentType"
+                          value={farmerDocumentDetailsData.documentType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Document Type"
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='Driving License'>Driving License</option>
+                          <option value='Farmer Photo'>Farmer Photo</option>
+                          <option value='Land Document'>Land Document</option>
+                          <option value='PAN Card'>PAN Card</option>
+                          <option value='Ration Card'>Ration Card</option>
+                          <option value='Registration Form'>Registration Form</option>
+                          <option value='Voter ID'>Voter ID</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtDocumentNo"
-                      name="documentNo"
-                      value={farmerDocumentDetailsData.documentNo}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Document No"
-                      className="form-control"
-                      maxLength={30}
-                    />
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtDocumentNo"
+                          name="documentNo"
+                          value={farmerDocumentDetailsData.documentNo}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Document No"
+                          className="form-control"
+                          maxLength={30}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    {
-                      farmerDocumentDetailsData.documentURL ?
-                        <InputGroup>
-                          <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Change</Button>
-                          {farmerDocumentDetailsData && farmerDocumentDetailsData.documentURL ? (
-                            <InputGroup.Text>
-                              <a
-                                href={farmerDocumentDetailsData.documentURL}
-                                target="_blank"
-                              >
-                                <i className="fa-solid fa-eye" />
-                              </a>
-                            </InputGroup.Text>
-                          ) : null
-                          }
-                        </InputGroup>
-                        :
-                        <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Upload</Button>
-                    }
-                    <Form.Control
-                      type="file"
-                      id={'documentFile_' + index}
-                      name='farmerDocument'
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      accept='.jpg,.jpeg,.bmp,.doc,.docx,application/pdf'
-                      hidden
-                    />
-                  </td>
+                      <td key={index}>
+                        {
+                          farmerDocumentDetailsData.documentURL ?
+                            <InputGroup>
+                              <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Change</Button>
+                              {farmerDocumentDetailsData && farmerDocumentDetailsData.documentURL ? (
+                                <InputGroup.Text>
+                                  <a
+                                    href={farmerDocumentDetailsData.documentURL}
+                                    target="_blank"
+                                  >
+                                    <i className="fa-solid fa-eye" />
+                                  </a>
+                                </InputGroup.Text>
+                              ) : null
+                              }
+                            </InputGroup>
+                            :
+                            <Button onClick={() => { document.getElementById(`documentFile_${index}`).click(); }}>Upload</Button>
+                        }
+                        <Form.Control
+                          type="file"
+                          id={'documentFile_' + index}
+                          name='farmerDocument'
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          accept='.jpg,.jpeg,.bmp,.doc,.docx,application/pdf'
+                          hidden
+                        />
+                      </td>
 
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerDocumentDetailsData.encryptedFarmerDocumentId) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
-      </Form>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerDocumentDetailsData.encryptedFarmerDocumentId) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

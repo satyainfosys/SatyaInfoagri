@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { commonContactDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmerContactInformationTable = () => {
   const dispatch = useDispatch();
@@ -63,7 +65,6 @@ export const FarmerContactInformationTable = () => {
     if (isValid) {
       setFormError(false)
     }
-
     return isValid;
   }
 
@@ -156,15 +157,6 @@ export const FarmerContactInformationTable = () => {
         </Modal>
       }
 
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddBankNameTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
-          Add Contact Details
-        </Button>
-      </div>
       {
         farmerError.contactErr && farmerError.contactErr.contactEmpty &&
         (
@@ -173,88 +165,113 @@ export const FarmerContactInformationTable = () => {
           </div>
         )
       }
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
-        className="details-form"
-        id="AddCommonContactDetailsForm"
-      >
-        {
-          commonContactDetailData && commonContactDetailData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((commonContactDetailData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtContactPerson"
-                      name="contactPerson"
-                      maxLength={45}
-                      value={commonContactDetailData.contactPerson}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Contact Person Name"
-                      className="form-control"
-                      required={true}
-                    />
-                  </td>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Contact Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
+            className="details-form"
+            id="AddCommonContactDetailsForm"
+          >
+            {
+              commonContactDetailData && commonContactDetailData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((commonContactDetailData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtContactPerson"
+                          name="contactPerson"
+                          maxLength={45}
+                          value={commonContactDetailData.contactPerson}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Contact Person Name"
+                          className="form-control"
+                          required={true}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtContactType"
-                      name="contactType"
-                      value={commonContactDetailData.contactType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select Contact Type</option>
-                      <option value="OFE">Office Email Id</option>
-                      <option value="OFM">Office Mobile No</option>
-                      <option value="OFL">Office Land Line No</option>
-                      <option value="OFX">Office Ext No</option>
-                      <option value="OFF">Office Fax No</option>
-                      <option value="PPP">PP No</option>
-                      <option value="PMN">Personal Mobile No</option>
-                      <option value="PRL">Personal Land Line No</option>
-                      <option value="PRS">Spouse Mob No</option>
-                      <option value="PRE">Personal Mail</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtContactType"
+                          name="contactType"
+                          value={commonContactDetailData.contactType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select Contact Type</option>
+                          <option value="OFE">Office Email Id</option>
+                          <option value="OFM">Office Mobile No</option>
+                          <option value="OFL">Office Land Line No</option>
+                          <option value="OFX">Office Ext No</option>
+                          <option value="OFF">Office Fax No</option>
+                          <option value="PPP">PP No</option>
+                          <option value="PMN">Personal Mobile No</option>
+                          <option value="PRL">Personal Land Line No</option>
+                          <option value="PRS">Spouse Mob No</option>
+                          <option value="PRE">Personal Mail</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtContactDetails"
-                      name="contactDetails"
-                      maxLength={30}
-                      value={commonContactDetailData.contactDetails}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Contact Details"
-                      className="form-control"
-                      required={true}
-                    />
-                  </td>
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
-      </Form>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtContactDetails"
+                          name="contactDetails"
+                          maxLength={30}
+                          value={commonContactDetailData.contactDetails}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Contact Details"
+                          className="form-control"
+                          required={true}
+                        />
+                      </td>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

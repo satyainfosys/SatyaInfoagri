@@ -145,6 +145,7 @@ export const Farmers = () => {
         localStorage.removeItem("DeleteFarmerLandCodes");
         localStorage.removeItem("DeleteFarmerLandGeoDetailCodes");
         localStorage.removeItem("DeleteFarmerDocumentIds");
+        // localStorage.removeItem("EncryptedFarmerCode")
     }
 
     const newDetails = () => {
@@ -192,7 +193,7 @@ export const Farmers = () => {
         }
     })
 
-    $('[data-rr-ui-event-key*="Add Farmer"]').click(function () {
+    $('[data-rr-ui-event-key*="Add Farmer"]').off('click').on('click', function () {
         setActiveTabName("Add Farmer");
         $("#btnNew").hide();
         $("#btnSave").show();
@@ -202,51 +203,55 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Land"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
+
+        if (farmerData.encryptedFarmerCode) {
+            getFarmerDetail();
+        }
     })
 
     $('[data-rr-ui-event-key*="Family"]').off('click').on('click', function () {
         setActiveTabName("Family");
-        if (farmerFamilyDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerFamilyCodes"))) {
+        if (farmerFamilyDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerFamilyCodes")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerFamilyDetail();
         }
 
-        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
+        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerContactDetail();
         }
     })
 
     $('[data-rr-ui-event-key*="Bank"]').off('click').on('click', function () {
         setActiveTabName("Bank");
-        if (bankDetailList.length <= 0 && !(localStorage.getItem("DeleteFarmerBankDetailIds"))) {
+        if (bankDetailList.length <= 0 && !(localStorage.getItem("DeleteFarmerBankDetailIds")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getBankDetail();
         }
     })
 
     $('[data-rr-ui-event-key*="Land"]').off('click').on('click', function () {
         setActiveTabName("Land");
-        if (farmerLandDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerLandCodes"))) {
+        if (farmerLandDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerLandCodes")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerLandList();
         }
 
-        if (farmerIrrigationDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerIrrigationCodes"))) {
+        if (farmerIrrigationDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerIrrigationCodes")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerIrrigationDetail();
         }
     })
 
     $('[data-rr-ui-event-key*="Cattle"]').off('click').on('click', function () {
         setActiveTabName("Cattle");
-        if (farmerLiveStockCattleList.length <= 0 && !(localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds"))) {
+        if (farmerLiveStockCattleList.length <= 0 && !(localStorage.getItem("DeleteFarmerLiveStockCattleDetailIds")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerLiveStockCattleList();
         }
 
-        if (farmerMachineryDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerMachineryDetailCodes"))) {
+        if (farmerMachineryDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerMachineryDetailCodes")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerMachineryList();
         }
     })
 
     $('[data-rr-ui-event-key*="Documents"]').off('click').on('click', function () {
         setActiveTabName("Documents");
-        if (farmerDocumentDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerDocumentIds"))) {
+        if (farmerDocumentDetailsList.length <= 0 && !(localStorage.getItem("DeleteFarmerDocumentIds")) && (localStorage.getItem("EncryptedFarmerCode") || farmerData.encryptedFarmerCode)) {
             getFarmerDocumentDetailList();
         }
     })
@@ -440,10 +445,6 @@ export const Farmers = () => {
 
             if (isFarmerValid) {
                 $('[data-rr-ui-event-key*="Family"]').trigger('click');
-
-                setTimeout(() => {
-                    document.getElementById("ContactDetailsTable").scrollIntoView({ behavior: 'smooth' });
-                }, 500)
             }
             setFormError(true);
         }
@@ -691,7 +692,11 @@ export const Farmers = () => {
 
         fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 
-        $('[data-rr-ui-event-key*="Farmers"]').click();
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+        dispatch(farmerDetailsAction({
+            ...farmerData,
+            encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }))
     }
 
     const addFarmerDetails = () => {
@@ -723,7 +728,7 @@ export const Farmers = () => {
                 postOfficeCode: farmerData.postOfficeCode ? farmerData.postOfficeCode : "",
                 villageCode: farmerData.villageCode ? farmerData.villageCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
-                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : "D",
                 addUser: localStorage.getItem("LoginUserName"),
                 familyDetails: farmerFamilyDetailsList,
                 commonContactDetails: commonContactDetailList,
@@ -879,12 +884,18 @@ export const Farmers = () => {
                 .then(res => {
                     if (res.data.status == 200) {
                         setIsLoading(false);
+                        setTimeout(function () {
+                            dispatch(farmerDetailsAction({
+                                encryptedFarmerCode: res.data.data.encryptedFarmerCode
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedFarmerCode", res.data.data.encryptedFarmerCode)
+
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
                         })
                         updateFarmerCallback(true);
-
                     } else {
                         setIsLoading(false);
                         toast.error(res.data.message, {
@@ -1032,6 +1043,22 @@ export const Farmers = () => {
         }
     }
 
+    const getFarmerDetail = async () => {
+        const request = {
+            EncryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+        }
+
+        let farmerResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-master-detail', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (farmerResponse.data.status == 200) {
+            if (farmerResponse.data.data) {
+                dispatch(farmerDetailsAction(farmerResponse.data.data));
+            }
+        }
+    }
+
     const updateFarmerDetails = async () => {
 
         if (farmerValidation()) {
@@ -1048,8 +1075,8 @@ export const Farmers = () => {
 
             const updateFarmerData = {
                 encryptedFarmerCode: farmerData.encryptedFarmerCode,
-                encryptedClientCode: farmerData.encryptedClientCode,
-                encryptedCompanyCode: farmerData.encryptedCompanyCode,
+                encryptedClientCode: farmerData.encryptedClientCode ? farmerData.encryptedClientCode : localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: farmerData.encryptedCompanyCode ? farmerData.encryptedCompanyCode : localStorage.getItem("EncryptedCompanyCode"),
                 farmerFirstName: farmerData.firstName,
                 farmerMiddleName: farmerData.middleName,
                 farmerLastName: farmerData.lastName,
@@ -1073,7 +1100,7 @@ export const Farmers = () => {
                 blockCode: farmerData.blockCode ? farmerData.blockCode : "",
                 postOfficeCode: farmerData.postOfficeCode ? farmerData.postOfficeCode : "",
                 villageCode: farmerData.villageCode ? farmerData.villageCode : "",
-                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : farmerData.approvalStatus == "Suspended" ? "S" : "D",
+                approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : "D",
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }
@@ -1713,6 +1740,34 @@ export const Farmers = () => {
 
             //FarmerDocumentDetail Add, Update, Delete
             if (!hasError && (formChangedData.documentDetailUpdate || formChangedData.documentDetailAdd || formChangedData.documentDetailDelete)) {
+                if (!hasError && formChangedData.documentDetailDelete) {
+                    var deleteFarmerDocumentDetailList = deleteFarmerDocumentIds ? deleteFarmerDocumentIds.split(',') : null;
+
+                    if (deleteFarmerDocumentDetailList) {
+                        var deleteFarmerDocumentDetailIndex = 1;
+
+                        for (let i = 0; i < deleteFarmerDocumentDetailList.length; i++) {
+                            const deleteFarmerDocumentId = deleteFarmerDocumentDetailList[i];
+                            if (!hasError) {
+                                const data = {
+                                    encryptedFarmerDocumentId: deleteFarmerDocumentId,
+                                    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+                                }
+                                const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                                const deleteFarmerDocumentResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-document-detail', { headers, data });
+                                if (deleteFarmerDocumentResponse.data.status != 200) {
+                                    toast.error(deleteFarmerDocumentResponse.data.message, {
+                                        theme: 'colored',
+                                        autoClose: 10000
+                                    });
+                                    hasError = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+
                 for (let i = 0; i < farmerDocumentDetailsList.length; i++) {
 
                     const farmerDocumentDetail = farmerDocumentDetailsList[i];
@@ -1775,37 +1830,10 @@ export const Farmers = () => {
                     }
                     farmerDocumentDetailIndex++;
                 }
-
-                if (!hasError && formChangedData.documentDetailDelete) {
-                    var deleteFarmerDocumentDetailList = deleteFarmerDocumentIds ? deleteFarmerDocumentIds.split(',') : null;
-
-                    if (deleteFarmerDocumentDetailList) {
-                        var deleteFarmerDocumentDetailIndex = 1;
-
-                        for (let i = 0; i < deleteFarmerDocumentDetailList.length; i++) {
-                            const deleteFarmerDocumentId = deleteFarmerDocumentDetailList[i];
-                            if (!hasError) {
-                                const data = {
-                                    encryptedFarmerDocumentId: deleteFarmerDocumentId,
-                                    encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
-                                }
-                                const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                                const deleteFarmerDocumentResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-farmer-document-detail', { headers, data });
-                                if (deleteFarmerDocumentResponse.data.status != 200) {
-                                    toast.error(deleteFarmerDocumentResponse.data.message, {
-                                        theme: 'colored',
-                                        autoClose: 10000
-                                    });
-                                    hasError = true;
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
             }
 
             if (!hasError) {
+                clearFarmerReducers();
                 updateFarmerCallback();
             }
         }

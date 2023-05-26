@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerLiveStockCattleDetailsAction, formChangedAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmersLiveStockTable = () => {
 
@@ -202,137 +204,152 @@ export const FarmersLiveStockTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddFarmersLiveStockTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
-          Add Live Stock Details
-        </Button>
-      </div>
 
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.cattleStockErr && farmerError.cattleStockErr.invalidCattleDetail)}
-        className="details-form"
-        id="AddFarmersLiveStockTableDetailsForm"
-      >
-        {
-          farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((farmerLiveStockCattleData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <Form.Select id="txtCattleCode" name="cattleCode" value={farmerLiveStockCattleData.cattleCode} onChange={(e) => handleFieldChange(e, index)} required>
-                      <option value=''>Select Cattle</option>
-                      {cattleTypeList.map((option, index) => (
-                        <option key={index} value={option.value}>{option.key}</option>
-                      ))}
-                    </Form.Select>
-                  </td>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Live Stock Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.cattleStockErr && farmerError.cattleStockErr.invalidCattleDetail)}
+            className="details-form"
+            id="AddFarmersLiveStockTableDetailsForm"
+          >
+            {
+              farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((farmerLiveStockCattleData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <Form.Select id="txtCattleCode" name="cattleCode" value={farmerLiveStockCattleData.cattleCode} onChange={(e) => handleFieldChange(e, index)} required>
+                          <option value=''>Select Cattle</option>
+                          {cattleTypeList.map((option, index) => (
+                            <option key={index} value={option.value}>{option.key}</option>
+                          ))}
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="numNoOfCattle"
-                      name="noOfCattle"
-                      value={farmerLiveStockCattleData.noOfCattle}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="No Of Cattle"
-                      className="form-control"
-                      onKeyPress={handleKeyPress}
-                      maxLength={5}
-                      required={true}
-                    />
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="numNoOfCattle"
+                          name="noOfCattle"
+                          value={farmerLiveStockCattleData.noOfCattle}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="No Of Cattle"
+                          className="form-control"
+                          onKeyPress={handleKeyPress}
+                          maxLength={5}
+                          required={true}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="numProduction"
-                      name="production"
-                      value={farmerLiveStockCattleData.production}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Production"
-                      onKeyPress={handleKeyPress}
-                      maxLength={5}
-                      className="form-control"
-                    />
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="numProduction"
+                          name="production"
+                          value={farmerLiveStockCattleData.production}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Production"
+                          onKeyPress={handleKeyPress}
+                          maxLength={5}
+                          className="form-control"
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="numRatePerLiter"
-                      name="rate"
-                      value={farmerLiveStockCattleData.rate}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Rate Per Liter"
-                      onKeyPress={handleKeyPress}
-                      maxLength={7}
-                    />
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="numRatePerLiter"
+                          name="rate"
+                          value={farmerLiveStockCattleData.rate}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Rate Per Liter"
+                          onKeyPress={handleKeyPress}
+                          maxLength={7}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="numAge"
-                      name="cattleAge"
-                      value={farmerLiveStockCattleData.cattleAge}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Age"
-                      onKeyPress={handleKeyPress}
-                      maxLength={2}
-                    />
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="numAge"
+                          name="cattleAge"
+                          value={farmerLiveStockCattleData.cattleAge}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Age"
+                          onKeyPress={handleKeyPress}
+                          maxLength={2}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtMilkType"
-                      name="milkType"
-                      className="form-control"
-                      value={farmerLiveStockCattleData.milkType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value='Yes'>Yes</option>
-                      <option value='No'>No</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtMilkType"
+                          name="milkType"
+                          className="form-control"
+                          value={farmerLiveStockCattleData.milkType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value='Yes'>Yes</option>
+                          <option value='No'>No</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      id="txtStatus"
-                      name="activeStatus"
-                      className="form-control"
-                      value={farmerLiveStockCattleData.activeStatus}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Suspended">Suspended</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          id="txtStatus"
+                          name="activeStatus"
+                          className="form-control"
+                          value={farmerLiveStockCattleData.activeStatus}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Suspended">Suspended</option>
+                        </Form.Select>
+                      </td>
 
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
-
-      </Form>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

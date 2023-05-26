@@ -509,9 +509,22 @@ const AddFarmer = () => {
 
                 <Form noValidate validated={formHasError} className="details-form micro-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
                     <Row className="g-3">
-                        <Col sm={4} lg={3} className="no-pd-card">
+                        <Col sm={10} lg={8} className="no-pd-card">
                             <FalconComponentCard>
-                                <FalconComponentCard.Header title="Farmer Information" light={false} />
+                                <FalconComponentCard.Header title={`Company : ${localStorage.getItem("CompanyName")}`} light={false} />
+                            </FalconComponentCard>
+                        </Col>
+                        <Col sm={6} lg={4} className="no-pd-card">
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title={farmerData.farmerName} light={false} />
+                            </FalconComponentCard>
+                        </Col>
+                    </Row>
+
+                    <Row className="g-3">
+                        <Col sm={6} lg={4} className="no-pd-card">
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title="Farmer Personal Info" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
@@ -556,29 +569,6 @@ const AddFarmer = () => {
                                                     })}
                                                 </Col>
                                             </Form.Group>
-                                        </Col>
-                                    </Row>
-                                </FalconComponentCard.Body>
-                            </FalconComponentCard>
-                        </Col>
-
-                        <Col sm={4} lg={3} className="no-pd-card">
-                            <FalconComponentCard>
-                                <FalconComponentCard.Header title="Information" light={false} />
-                                <FalconComponentCard.Body language="jsx">
-                                    <Row>
-                                        <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Farmer DOB<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
-                                                    {Object.keys(farmerError.farmerDobErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.farmerDobErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
 
                                             <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
@@ -596,138 +586,6 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Father Name<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
-                                                    {Object.keys(farmerError.farmerFatherNameErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.farmerFatherNameErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                </FalconComponentCard.Body>
-                            </FalconComponentCard>
-                        </Col>
-
-                        <Col sm={4} lg={3} className='no-pd-card'>
-                            <FalconComponentCard>
-                                <FalconComponentCard.Header title="Status" light={false} />
-                                <FalconComponentCard.Body language="jsx">
-                                    <Row>
-                                        <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Approval Status<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Select id="txtApprovalStatus" name="approvalStatus" onChange={handleFieldChange} value={farmerData.approvalStatus}>
-                                                        <option value="Draft">Draft</option>
-                                                        <option value="Approved">Approved</option>
-                                                        <option value="Send for Verification">Send for Verification</option>
-                                                        <option value="Suspended">Suspended</option>
-                                                    </Form.Select>
-                                                </Col>
-                                            </Form.Group>
-
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Active Status<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={farmerData.status}>
-                                                        <option value="Active">Active</option>
-                                                        <option value="Suspended">Suspended</option>
-                                                    </Form.Select>
-                                                </Col>
-                                            </Form.Group>
-
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Address<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Control as="textarea" placeholder="Address" id='txtAddress' maxLength={50} name='address' onChange={handleFieldChange} value={farmerData.address} />
-                                                    {Object.keys(farmerError.addressErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.addressErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
-                                        </Col>
-                                    </Row>
-                                </FalconComponentCard.Body>
-                            </FalconComponentCard>
-                        </Col>
-
-                        <Col sm={4} lg={3} className='no-pd-card'>
-                            <FalconComponentCard>
-                                <FalconComponentCard.Header title="Photo" light={false} />
-                                <FalconComponentCard.Body language="jsx">
-                                    <Row>
-                                        <Col className="ms-2 no-padding">
-                                            <>
-                                                {
-                                                    farmerData && farmerData.profilePhotoURL ? (
-                                                        <img height={100} width={100} src={farmerData.profilePhotoURL} alt='Farmer'></img>
-                                                    ) : null
-                                                }
-                                            </>
-                                        </Col>
-                                    </Row>
-                                </FalconComponentCard.Body>
-                            </FalconComponentCard>
-                        </Col>
-                    </Row>
-
-                    <Row className="g-3">
-                        <Col sm={4} lg={12}>
-                            <FalconComponentCard>
-                                <FalconComponentCard.Header title="Other Information" light={false} />
-                                <FalconComponentCard.Body language="jsx">
-                                    <Row>
-                                        <Col sm={6} lg={4}>
-                                            <Form.Group as={Row} className="mb-2">
-                                                <Form.Label column sm={4}>
-                                                    Educational Status
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Select id="txtEducationalStatus" name='educationalStatus' onChange={handleFieldChange} value={farmerData.educationalStatus}>
-                                                        <option value=''>Select Education</option>
-                                                        <option value='Primary School'>Primary School</option>
-                                                        <option value='High School'>High School</option>
-                                                        <option value='Inter'>Inter</option>
-                                                        <option value='Graduate'>Graduate</option>
-                                                        <option value='Post Graduate'>Post Graduate</option>
-                                                        <option value='Illiterate'>Illiterate</option>
-                                                        <option value='Doctrate'>Doctrate</option>
-                                                    </Form.Select>
-                                                </Col>
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col sm={6} lg={4}>
-                                            <Form.Group as={Row} className="mb-2">
-                                                <Form.Label column sm={4}>
-                                                    Marital Status<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Select id="txtMaritalStatus" name="maritalStatus" onChange={handleFieldChange} value={farmerData.maritalStatus}>
-                                                        <option value="">Select Marital Status</option>
-                                                        <option value="Married">Married</option>
-                                                        <option value="Unmarried">Unmarried</option>
-                                                        <option value="Divorced">Divorced</option>
-                                                    </Form.Select>
-                                                    {Object.keys(farmerError.maritalStatusErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.maritalStatusErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
-                                        </Col>
-
-                                        <Col sm={6} lg={4}>
                                             <Form.Group as={Row} className="mb-2">
                                                 <Form.Label column sm={4}>
                                                     Social Category<span className="text-danger">*</span>
@@ -746,7 +604,119 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
                                         </Col>
+                                    </Row>
+                                </FalconComponentCard.Body>
+                            </FalconComponentCard>
+                        </Col>
 
+                        <Col sm={6} lg={4} className="no-pd-card">
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title="Contact Information" light={false} />
+                                <FalconComponentCard.Body language="jsx">
+                                    <Row>
+                                        <Col className="ms-2">
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Address<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control as="textarea" placeholder="Address" id='txtAddress' maxLength={50} name='address' onChange={handleFieldChange} value={farmerData.address} />
+                                                    {Object.keys(farmerError.addressErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.addressErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Father Name<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
+                                                    {Object.keys(farmerError.farmerFatherNameErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerFatherNameErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Marital Status<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtMaritalStatus" name="maritalStatus" onChange={handleFieldChange} value={farmerData.maritalStatus}>
+                                                        <option value="">Select Marital Status</option>
+                                                        <option value="Married">Married</option>
+                                                        <option value="Unmarried">Unmarried</option>
+                                                        <option value="Divorced">Divorced</option>
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.maritalStatusErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.maritalStatusErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Educational Status
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtEducationalStatus" name='educationalStatus' onChange={handleFieldChange} value={farmerData.educationalStatus}>
+                                                        <option value=''>Select Education</option>
+                                                        <option value='Primary School'>Primary School</option>
+                                                        <option value='High School'>High School</option>
+                                                        <option value='Inter'>Inter</option>
+                                                        <option value='Graduate'>Graduate</option>
+                                                        <option value='Post Graduate'>Post Graduate</option>
+                                                        <option value='Illiterate'>Illiterate</option>
+                                                        <option value='Doctrate'>Doctrate</option>
+                                                    </Form.Select>
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </FalconComponentCard.Body>
+                            </FalconComponentCard>
+                        </Col>
+
+                        <Col sm={6} lg={4} className='no-pd-card'>
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title="Farmer Photo" light={false} />
+                                <FalconComponentCard.Body language="jsx">
+                                    <Row>
+                                        <Col className="ms-2">
+                                            <>
+                                                {
+                                                    farmerData && farmerData.profilePhotoURL ? (
+                                                        <img height={100} width={100} src={farmerData.profilePhotoURL} alt='Farmer'></img>
+                                                    ) : null
+                                                }
+                                            </>
+
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Total Land
+                                                </Form.Label>
+                                                <Col sm={4}>
+                                                    <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
+                                                </Col>
+                                                <Col sm={4}>
+                                                    <Form.Control name="unitName" className="mb-1" placeholder="Unit" value={farmerData.unitName} disabled />
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Farmer DOB<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
+                                                    {Object.keys(farmerError.farmerDobErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerDobErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
                             </FalconComponentCard>
@@ -884,32 +854,20 @@ const AddFarmer = () => {
                             </FalconComponentCard>
                         </Col>
 
-                        <Col sm={6} lg={5} className='no-pd-card'>
+                        <Col sm={6} lg={4} className='no-pd-card'>
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title="Operational Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Total Land
-                                                </Form.Label>
-                                                <Col sm={4}>
-                                                    <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
-                                                </Col>
-                                                <Col sm={4}>
-                                                    <Form.Control name="unitName" className="mb-1" placeholder="Unit" value={farmerData.unitName} disabled />
-                                                </Col>
-                                            </Form.Group>
-
-                                            <Form.Group as={Row} className="mb-2">
+                                            {/* <Form.Group as={Row} className="mb-2">
                                                 <Form.Label column sm={4}>
                                                     FPC/FPO
                                                 </Form.Label>
                                                 <Col sm={8}>
                                                     <Form.Control id="txtFPCFPO" name="FPC/FPO" className="mb-1" value={localStorage.getItem("CompanyName")} placeholder="FPC/FPO" disabled />
                                                 </Col>
-                                            </Form.Group>
+                                            </Form.Group> */}
 
                                             <Form.Group as={Row} className="mb-2">
                                                 <Form.Label column sm={4}>
@@ -962,6 +920,42 @@ const AddFarmer = () => {
                                                                 <option key={index} value={option.value}>{option.key}</option>
                                                             ))
                                                         }
+                                                    </Form.Select>
+                                                </Col>
+                                            </Form.Group>
+                                        </Col>
+                                    </Row>
+                                </FalconComponentCard.Body>
+                            </FalconComponentCard>
+                        </Col>
+
+                        <Col sm={6} lg={4} className='no-pd-card'>
+                            <FalconComponentCard>
+                                <FalconComponentCard.Header title='Status' light={false} />
+                                <FalconComponentCard.Body language="jsx">
+                                    <Row>
+                                        <Col className="ms-2">
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Approval Status<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtApprovalStatus" name="approvalStatus" onChange={handleFieldChange} value={farmerData.approvalStatus}>
+                                                        <option value="Draft">Draft</option>
+                                                        <option value="Approved">Approved</option>
+                                                        <option value="Send for Verification">Send for Verification</option>
+                                                    </Form.Select>
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Active Status<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={farmerData.status}>
+                                                        <option value="Active">Active</option>
+                                                        <option value="Suspended">Suspended</option>
                                                     </Form.Select>
                                                 </Col>
                                             </Form.Group>

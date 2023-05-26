@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { farmerIrrigationDetailsAction, formChangedAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmersIrrigrationTable = () => {
   const dispatch = useDispatch();
@@ -148,130 +150,146 @@ export const FarmersIrrigrationTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddFarmerIrrigationTable"
-          className="mb-2"
-          onClick={handleAddRow}
-        >
-          Add Irrigation Details
-        </Button>
-      </div>
 
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.irrigationDetailErr.invalidIrrigationDetail)}
-        className="details-form"
-        id="AddFarmersIrrigationTableDetailsForm"
-      >
-        {
-          farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((farmerIrrigationDetailData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtIrrigationOwner"
-                      name="irrigationOwner"
-                      value={farmerIrrigationDetailData.irrigationOwner}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='OWNED'>OWNED</option>
-                      <option value='HIRED'>HIRED</option>
-                    </Form.Select>
-                  </td>
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Irrigation Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.irrigationDetailErr.invalidIrrigationDetail)}
+            className="details-form"
+            id="AddFarmersIrrigationTableDetailsForm"
+          >
+            {
+              farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((farmerIrrigationDetailData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtIrrigationOwner"
+                          name="irrigationOwner"
+                          value={farmerIrrigationDetailData.irrigationOwner}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='OWNED'>OWNED</option>
+                          <option value='HIRED'>HIRED</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtIrrigationDetails"
-                      name="irrigationType"
-                      value={farmerIrrigationDetailData.irrigationType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Bore Well'>Bore Well</option>
-                      <option value='Canal'>Canal</option>
-                      <option value='Disel Engine'>Disel Engine</option>
-                      <option value='Drip'>Drip</option>
-                      <option value='Flood'>Flood</option>
-                      <option value='Jharna'>Jharna</option>
-                      <option value='Pump'>Pump</option>
-                      <option value='River'>River</option>
-                      <option value='Shallow'>Shallow</option>
-                      <option value='Sprinkle'>Sprinkle</option>
-                      <option value='TubeWell'>TubeWell</option>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtIrrigationDetails"
+                          name="irrigationType"
+                          value={farmerIrrigationDetailData.irrigationType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='Bore Well'>Bore Well</option>
+                          <option value='Canal'>Canal</option>
+                          <option value='Disel Engine'>Disel Engine</option>
+                          <option value='Drip'>Drip</option>
+                          <option value='Flood'>Flood</option>
+                          <option value='Jharna'>Jharna</option>
+                          <option value='Pump'>Pump</option>
+                          <option value='River'>River</option>
+                          <option value='Shallow'>Shallow</option>
+                          <option value='Sprinkle'>Sprinkle</option>
+                          <option value='TubeWell'>TubeWell</option>
 
-                    </Form.Select>
-                  </td>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtSourceOfWater"
-                      name="irrigationSource"
-                      className="form-control"
-                      value={farmerIrrigationDetailData.irrigationSource}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Bore Well'>Bore Well</option>
-                      <option value='Bhada'>Bhada</option>
-                      <option value='Canal'>Canal</option>
-                      <option value='Electric Motor'>Electric Motor</option>
-                      <option value='Ground Water'>Ground Water</option>
-                      <option value='Nalkup'>Nalkup</option>
-                      <option value='Pump'>Pump</option>
-                      <option value='Pond'>Pond</option>
-                      <option value='River'>River</option>
-                      <option value='Shallow'>Shallow</option>
-                      <option value='Tubewell'>Tubewell</option>
-                      <option value='Well'>Well</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtSourceOfWater"
+                          name="irrigationSource"
+                          className="form-control"
+                          value={farmerIrrigationDetailData.irrigationSource}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='Bore Well'>Bore Well</option>
+                          <option value='Bhada'>Bhada</option>
+                          <option value='Canal'>Canal</option>
+                          <option value='Electric Motor'>Electric Motor</option>
+                          <option value='Ground Water'>Ground Water</option>
+                          <option value='Nalkup'>Nalkup</option>
+                          <option value='Pump'>Pump</option>
+                          <option value='Pond'>Pond</option>
+                          <option value='River'>River</option>
+                          <option value='Shallow'>Shallow</option>
+                          <option value='Tubewell'>Tubewell</option>
+                          <option value='Well'>Well</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      id="txtStatus"
-                      name="activeStatus"
-                      className="form-control"
-                      value={farmerIrrigationDetailData.activeStatus}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Suspended">Suspended</option>
-                    </Form.Select>
-                  </td>
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </Table>
-        }
+                      <td key={index}>
+                        <Form.Select
+                          id="txtStatus"
+                          name="activeStatus"
+                          className="form-control"
+                          value={farmerIrrigationDetailData.activeStatus}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Suspended">Suspended</option>
+                        </Form.Select>
+                      </td>
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </Table>
+            }
 
-      </Form>
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

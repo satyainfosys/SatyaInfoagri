@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal, Row } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Row, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { farmerLandDetailsAction, farmerDetailsAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
@@ -7,6 +7,8 @@ import axios from 'axios';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import 'leaflet/dist/leaflet.css';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const FarmersLandTable = () => {
   const dispatch = useDispatch();
@@ -97,17 +99,17 @@ export const FarmersLandTable = () => {
       totalLand: sumOfLandArea
     }))
 
-    if (sumOfLandArea > 0 && localStorage.getItem("EncryptedFarmerCode")) {
-      dispatch(formChangedAction({
-        ...formChangedData,
-        farmerUpdate: true
-      }))
-    } else if (sumOfLandArea > 0) {
-      dispatch(formChangedAction({
-        ...formChangedData,
-        farmerAdd: true
-      }))
-    }
+    // if (sumOfLandArea > 0 && localStorage.getItem("EncryptedFarmerCode")) {
+    //   dispatch(formChangedAction({
+    //     ...formChangedData,
+    //     farmerUpdate: true
+    //   }))
+    // } else if (sumOfLandArea > 0) {
+    //   dispatch(formChangedAction({
+    //     ...formChangedData,
+    //     farmerAdd: true
+    //   }))
+    // }
   }, [farmerLandDetailsData, farmerLandDetailsReducer]);
 
   const validateFarmerLandDetailsForm = () => {
@@ -136,7 +138,11 @@ export const FarmersLandTable = () => {
     let isUnitValid = true;
 
     if (!unitCode) {
-      unitError.empty = "Select unit";
+      // unitError.empty = "Select unit";
+      toast.error("Select unit", {
+        theme: 'colored',
+        autoClose: 10000
+      });
       isUnitValid = false;
     }
 
@@ -149,7 +155,19 @@ export const FarmersLandTable = () => {
     if (farmerLandDetailsData && farmerLandDetailsData.length > 0) {
       for (let i = 0; i < farmerLandDetailsData.length; i++) {
         farmerLandDetailsData[i].unitCode = e.target.value;
-        dispatch(farmerLandDetailsAction(farmerLandDetailsData))
+        dispatch(farmerLandDetailsAction(farmerLandDetailsData));
+
+        if (farmerLandDetailsData[i].encryptedFarmerLandCode) {
+          dispatch(formChangedAction({
+            ...formChangedData,
+            landDetailUpdate: true
+          }))
+        } else {
+          dispatch(formChangedAction({
+            ...formChangedData,
+            landDetailUpdate: true
+          }))
+        }
       }
     }
 
@@ -160,7 +178,7 @@ export const FarmersLandTable = () => {
       unitName: selectedKey
     }))
 
-    if(localStorage.getItem("EncryptedFarmerCode")){
+    if (localStorage.getItem("EncryptedFarmerCode")) {
       dispatch(formChangedAction({
         ...formChangedData,
         landDetailUpdate: true
@@ -187,15 +205,22 @@ export const FarmersLandTable = () => {
     })
     dispatch(farmerLandDetailsAction(farmerLandDetails))
 
-    if (farmerLandDetails[index].encryptedFarmerLandCode) {
+    if (farmerLandDetails[index].encryptedFarmerLandCode && localStorage.getItem("EncryptedFarmerCode")) {
       dispatch(formChangedAction({
         ...formChangedData,
-        landDetailUpdate: true
+        landDetailUpdate: true,
+        farmerUpdate: true
+      }))
+    } else if (!farmerLandDetails[index].encryptedFarmerLandCode && localStorage.getItem("EncryptedFarmerCode")) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        landDetailAdd: true,
+        farmerUpdate: true
       }))
     } else {
       dispatch(formChangedAction({
         ...formChangedData,
-        landDetailAdd: true
+        landDetailAdd: true,
       }))
     }
   }
@@ -565,193 +590,202 @@ export const FarmersLandTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      <Row>
-        <div style={{ display: 'flex', justifyContent: 'left' }}>
-          <Form.Group className="mb-3" controlId="exampleForm.ControlInput1">
-            <Form.Label>Unit<span className="text-danger">*</span></Form.Label><br />
-            <Form.Select
-              type="text"
-              id="txtUnit"
-              className="form-control"
-              onChange={handleUnitChange}
-              name='unitCode'
-              value={unitCode}
-            >
-              <option value=''>Select Unit</option>
-              {unitList.map((option, index) => (
-                <option key={index} value={option.value}>{option.key}</option>
-              ))}
-            </Form.Select>
-            {Object.keys(unitError).map((key) => {
-              return <span className="error-message">{unitError[key]}</span>
-            })}
-          </Form.Group>
-        </div>
-        <div style={{ display: 'flex', justifyContent: 'end' }}>
-          <Button
-            id="btnAddFarmersLandTable"
-            className="mb-2"
-            onClick={handleAddRow}
-          >
-            Add Land Details
-          </Button>
-        </div>
-      </Row>
-      <Form
-        noValidate
-        validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
-        className="details-form"
-        id="AddFarmersLiveStockTableDetailsForm"
-      >
-        {
-          farmerLandDetailsData && farmerLandDetailsData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap many-column-table tab-page-table">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
+
+      <Card className="h-100 mb-2">
+        <FalconCardHeader
+          title="Land Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <Form.Select
+                size="sm"
+                type="text"
+                id="txtUnit"
+                className="me-2"
+                onChange={handleUnitChange}
+                name='unitCode'
+                value={unitCode}
+              >
+                <option value=''>Select Unit</option>
+                {unitList.map((option, index) => (
+                  <option key={index} value={option.value}>{option.key}</option>
                 ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((farmerLandDetailsData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtKhasraNo"
-                      name="khasraNo"
-                      value={farmerLandDetailsData.khasraNo}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Khasra No"
-                      className="form-control"
-                      required={true}
-                      maxLength={10}
-                    />
-                  </td>
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtLandMark"
-                      name="landMark"
-                      value={farmerLandDetailsData.landMark}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Land Mark"
-                      className="form-control"
-                      maxLength={100}
-                    />
-                  </td>
+              </Form.Select>
+              {Object.keys(unitError).map((key) => {
+                return <span className="error-message">{unitError[key]}</span>
+              })}
+              <Button
+                variant="primary"
+                size="sm"
+                className="btn-reveal"
+                type="button"
+                onClick={handleAddRow}
+              >
+                <i className="fa-solid fa-plus" />
+              </Button>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          <Form
+            noValidate
+            validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
+            className="details-form"
+            id="AddFarmersLiveStockTableDetailsForm"
+          >
+            {
+              farmerLandDetailsData && farmerLandDetailsData.length > 0 &&
+              <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
+                <thead className='custom-bg-200'>
+                  <tr>
+                    {columnsArray.map((column, index) => (
+                      <th className="text-left" key={index}>
+                        {column}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody id="tbody" className="details-form">
+                  {rowData.map((farmerLandDetailsData, index) => (
+                    <tr key={index}>
+                      <td>
+                        {index + 1}
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtKhasraNo"
+                          name="khasraNo"
+                          value={farmerLandDetailsData.khasraNo}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Khasra No"
+                          className="form-control"
+                          required={true}
+                          maxLength={10}
+                        />
+                      </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtLandMark"
+                          name="landMark"
+                          value={farmerLandDetailsData.landMark}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Land Mark"
+                          className="form-control"
+                          maxLength={100}
+                        />
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtOwnerShip"
-                      name="ownerShip"
-                      className="form-control"
-                      value={farmerLandDetailsData.ownerShip}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value='Owned'>Owned</option>
-                      <option value='Leased'>Leased</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtOwnerShip"
+                          name="ownerShip"
+                          className="form-control"
+                          value={farmerLandDetailsData.ownerShip}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value='Owned'>Owned</option>
+                          <option value='Leased'>Leased</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtUsage"
-                      name="usage"
-                      className="form-control"
-                      value={farmerLandDetailsData.usage}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value=''>Select</option>
-                      <option value='Irrigated'>Irrigated</option>
-                      <option value='Unirrigated'>Unirrigated</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtUsage"
+                          name="usage"
+                          className="form-control"
+                          value={farmerLandDetailsData.usage}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value=''>Select</option>
+                          <option value='Irrigated'>Irrigated</option>
+                          <option value='Unirrigated'>Unirrigated</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtCroppingType"
-                      name="croppingType"
-                      value={farmerLandDetailsData.croppingType}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      className="form-control"
-                      required
-                    >
-                      <option value=''>Select</option>
-                      <option value="Organic">Organic</option>
-                      <option value="Inorganic">Inorganic</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <Form.Select
+                          type="text"
+                          id="txtCroppingType"
+                          name="croppingType"
+                          value={farmerLandDetailsData.croppingType}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          className="form-control"
+                          required
+                        >
+                          <option value=''>Select</option>
+                          <option value="Organic">Organic</option>
+                          <option value="Inorganic">Inorganic</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtLandArea"
-                      name="landArea"
-                      value={farmerLandDetailsData.landArea}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Cultivated Land"
-                      onKeyPress={(e) => {
-                        const regex = /[0-9]|\./;
-                        const key = String.fromCharCode(e.charCode);
-                        if (!regex.test(key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                      maxLength={6}
-                      required={true}
-                    />
-                  </td>
-                  <td key={index}>
-                    <Form.Select
-                      id="txtStatus"
-                      name="activeStatus"
-                      className="form-control"
-                      value={farmerLandDetailsData.activeStatus}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value="Active">Active</option>
-                      <option value="Suspended">Suspended</option>
-                    </Form.Select>
-                  </td>
+                      <td key={index}>
+                        <EnlargableTextbox
+                          id="txtLandArea"
+                          name="landArea"
+                          value={farmerLandDetailsData.landArea}
+                          onChange={(e) => handleFieldChange(e, index)}
+                          placeholder="Cultivated Land"
+                          onKeyPress={(e) => {
+                            const regex = /[0-9]|\./;
+                            const key = String.fromCharCode(e.charCode);
+                            if (!regex.test(key)) {
+                              e.preventDefault();
+                            }
+                          }}
+                          maxLength={6}
+                          required={true}
+                        />
+                      </td>
+                      <td key={index}>
+                        <Form.Select
+                          id="txtStatus"
+                          name="activeStatus"
+                          className="form-control"
+                          value={farmerLandDetailsData.activeStatus}
+                          onChange={(e) => handleFieldChange(e, index)}
+                        >
+                          <option value="Active">Active</option>
+                          <option value="Suspended">Suspended</option>
+                        </Form.Select>
+                      </td>
 
-                  <td key={index}>
-                    <Button style={{ fontSize: '10px' }}
-                      variant="success"
-                      onClick={() => { locationModalPreview(index, farmerLandDetailsData.encryptedFarmerLandCode) }} >
-                      Google Location
-                    </Button>
-                  </td>
+                      <td key={index}>
+                        <Button style={{ fontSize: '10px' }}
+                          variant="success"
+                          onClick={() => { locationModalPreview(index, farmerLandDetailsData.encryptedFarmerLandCode) }} >
+                          Google Location
+                        </Button>
+                      </td>
 
-                  <td key={index}>
-                    <Button style={{ fontSize: '10px' }}
-                      variant="info"
-                      onClick={() => { showOnMap(index) }}
-                      disabled={farmerLandDetailsData && farmerLandDetailsData.farmerGeofancingLand && farmerLandDetailsData.farmerGeofancingLand.length > 0 ? false : true}
-                    >
-                      Show On Map
-                    </Button>
-                  </td>
+                      <td key={index}>
+                        <Button style={{ fontSize: '10px' }}
+                          variant="info"
+                          onClick={() => { showOnMap(index) }}
+                          disabled={farmerLandDetailsData && farmerLandDetailsData.farmerGeofancingLand && farmerLandDetailsData.farmerGeofancingLand.length > 0 ? false : true}
+                        >
+                          Show On Map
+                        </Button>
+                      </td>
 
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
-                  </td>
-                </tr>
-              ))
-              }
+                      <td>
+                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
+                      </td>
+                    </tr>
+                  ))
+                  }
 
-            </tbody>
-          </Table>
-        }
-      </Form>
+                </tbody>
+              </Table>
+            }
+          </Form>
+        </Card.Body>
+      </Card>
     </>
   );
 };

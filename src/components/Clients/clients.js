@@ -82,7 +82,7 @@ export const Client = () => {
     dispatch(transactionDetailsAction(undefined));
     dispatch(clientDetailsErrorAction(undefined));
     dispatch(contactDetailChangedAction(undefined));
-    dispatch(transactionDetailChangedAction(undefined));
+    // dispatch(transactionDetailChangedAction(undefined));
     localStorage.removeItem("DeleteContactDetailsId")
     dispatch(formChangedAction(undefined));
   }
@@ -109,21 +109,24 @@ export const Client = () => {
     }
   })
 
-  $('[data-rr-ui-event-key*="Customer Details"]').click(function () {
+  $('[data-rr-ui-event-key*="Customer Details"]').off('click').on('click', function () {
     setActiveTabName("Customer Details")
     $("#btnNew").hide();
     $("#btnSave").show();
     $("#btnCancel").show();
-    $("#AddContactDetailsForm").hide();
-    $("#btnUpdateClientDetail").hide();
-    $("#ContactDetailsTable").show();
+    if (contactDetailData.length <= 0 && !(localStorage.getItem("DeleteContactDetailsId")) && (localStorage.getItem("EncryptedResponseClientCode") || clientData.encryptedClientCode)) {
+      getContactDetailsList()
+    }
   })
 
-  $('[data-rr-ui-event-key*="Transaction Details"]').click(function () {
+  $('[data-rr-ui-event-key*="Transaction Details"]').off('click').on('click', function () {
     setActiveTabName("Transaction Details")
     $("#btnNew").hide();
     $("#btnSave").show();
     $("#btnCancel").show();
+    if (transactionDetailData.length <= 0 && (localStorage.getItem("EncryptedResponseClientCode") || clientData.encryptedClientCode)) {
+      getTransactionDetailsList();
+    }
   })
 
   const newDetails = () => {
@@ -384,13 +387,14 @@ export const Client = () => {
         .then(res => {
           setIsLoading(false);
           if (res.data.status == 200) {
+            localStorage.setItem("EncryptedResponseClientCode", res.data.data.encryptedClientCode)
             toast.success(res.data.message, {
               theme: 'colored',
               autoClose: 10000
             });
             updateCallback(true);
             // To-do: Do not redirect to List, instead change Save button click function to updateClient after successfully add
-            $('[data-rr-ui-event-key*="List"]').click();
+            // $('[data-rr-ui-event-key*="List"]').click();
           } else {
             toast.error(res.data.message, {
               theme: 'colored',
@@ -402,6 +406,7 @@ export const Client = () => {
   }
 
   const updateCallback = (isAddClient = false) => {
+    debugger
     setModalShow(false);
 
     if (clientData.gstNumber === localStorage.getItem("GSTNumber")) {
@@ -417,10 +422,15 @@ export const Client = () => {
       });
     }
 
+    dispatch(clientContactListAction([]))
+    dispatch(transactionDetailsAction(undefined));
+
     $('#btnSave').attr('disabled', true)
     // clearClientReducers();
 
     fetchUsers(1);
+
+    $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
   }
 
   const updateClientDetails = async () => {
@@ -594,6 +604,61 @@ export const Client = () => {
     setModalShow(false);
   }
 
+  const getContactDetailsList = async () => {
+
+    const requestParams = {
+      EncryptedClientCode: localStorage.getItem("EncryptedResponseClientCode") ? localStorage.getItem("EncryptedResponseClientCode") : clientData.encryptedClientCode
+    }
+
+    axios
+      .post(process.env.REACT_APP_API_URL + '/get-client-contact-detail-list', requestParams, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      })
+      .then(res => {
+
+        if (res.data.status == 200) {
+          let contactDetailsData = [];
+          contactDetailsData = res.data.data;
+          dispatch(clientContactListAction(contactDetailsData));
+        }
+        else {
+          $("#ClientContactDetailsTable").hide();
+        }
+      });
+  }
+
+  const getTransactionDetailsList = async () => {
+    const requestParams = {
+      EncryptedClientCode: localStorage.getItem("EncryptedResponseClientCode") ? localStorage.getItem("EncryptedResponseClientCode") : clientData.encryptedClientCode
+    }
+
+    axios
+      .post(process.env.REACT_APP_API_URL + '/client-registration-authorization-list', requestParams, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      })
+      .then(res => {
+
+        if ($('#TransactionDetailsTable tbody tr').length > 1) {
+          $('#TransactionDetailsTable tbody tr').remove();
+        }
+        let transactionDetailsData = [];
+        transactionDetailsData = res.data.data.length > 0 ? res.data.data : [];
+        dispatch(transactionDetailsAction(transactionDetailsData));
+
+        if (res.data.status == 200) {
+          if (res.data && res.data.data.length > 0) {
+            $("#TransactionDetailsTable").show();
+            $("#TransactionDetailsListCard").show();
+          } else {
+            $("#TransactionDetailsTable").hide();
+            $("#TransactionDetailsListCard").hide();
+          }
+        }
+        else {
+          $("#TransactionDetailsTable").hide();
+        }
+      });
+  }
   return (
     <>
       {isLoading ? (
@@ -630,7 +695,7 @@ export const Client = () => {
         listColumnArray={listColumnArray}
         tabArray={tabArray}
         module="Client"
-        saveDetails={!clientData.encryptedClientCode ? addClientDetails : updateClientDetails}
+        saveDetails={(clientData.encryptedClientCode || localStorage.getItem("EncryptedResponseClientCode")) ? updateClientDetails : addClientDetails}
         newDetails={newDetails}
         cancelClick={cancelClick}
         exitModule={exitModule}
