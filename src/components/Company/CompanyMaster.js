@@ -245,7 +245,7 @@ export const CompanyMaster = () => {
         return isValid;
     }
 
-    const updateCompanyCallback = (isAddCompany = false) => {
+    const updateCompanyCallback = (isAddCompany = false, encryptedCompanyCode = '') => {
 
         setModalShow(false);
         $("#AddCompanyDetailsForm").data("changed", false);
@@ -261,11 +261,47 @@ export const CompanyMaster = () => {
                 theme: 'colored'
             });
         }
+        else{
+            dispatch(companyDetailsAction({
+                ...companyData,
+                encryptedCompanyCode: encryptedCompanyCode,
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode")
+            }))
+
+            $("#contactListChkBoxRow").hide();
+            $("#clientChkBoxRow").hide();
+            localStorage.setItem('EncryptedResponseCompanyCode', encryptedCompanyCode);
+            getCommonContactDetailsList(encryptedCompanyCode);
+        }
 
         $('#btnSave').attr('disabled', true)
 
         fetchCompanyList(1);
     }
+
+    const getCommonContactDetailsList = async (encryptedCompanyCode) => {
+        const request = {
+          EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+          EncryptedCompanyCode: encryptedCompanyCode,
+          OriginatedFrom: "CM"
+        }
+    
+        axios
+          .post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+          })
+          .then(res => {
+    
+            if (res.data.status == 200) {
+              if(res.data.data && res.data.data.length > 0){
+                dispatch(commonContactDetailsAction(res.data.data))
+              }
+            }
+            else {
+              $("#CompanyContactDetailsTable").hide();
+            }
+          });
+      }
 
     const uploadCompanyLogo = async (companyLogo, encryptedCompanyCode, isUpdate, isRemoved) => {
         var formData = new FormData();
@@ -287,8 +323,7 @@ export const CompanyMaster = () => {
                             theme: 'colored',
                             autoClose: 10000
                         });
-                        updateCompanyCallback(true);
-                        $('[data-rr-ui-event-key*="Company List"]').click();
+                        updateCompanyCallback(true, encryptedCompanyCode);
                     }
                 } else {
                     toast.error(res.data.message, {
@@ -387,8 +422,7 @@ export const CompanyMaster = () => {
                                 autoClose: 10000
                             });
 
-                            updateCompanyCallback(true);
-                            $('[data-rr-ui-event-key*="Company List"]').click();
+                            updateCompanyCallback(true, res.data.data.encryptedCompanyCode);
                         }
 
                     } else {
