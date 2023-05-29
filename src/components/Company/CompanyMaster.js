@@ -319,10 +319,6 @@ export const CompanyMaster = () => {
                         updateCompanyCallback();
                     }
                     else if (!isUpdate) {
-                        toast.success(res.data.message, {
-                            theme: 'colored',
-                            autoClose: 10000
-                        });
                         updateCompanyCallback(true, encryptedCompanyCode);
                     }
                 } else {
@@ -350,9 +346,6 @@ export const CompanyMaster = () => {
                         ...companyData,
                         isRemoved: false
                     }))
-                    if (!formChangedData.commonContactDetailUpdate && !formChangedData.commonContactDetailAdd && !formChangedData.commonContactDetailDelete) {
-                        updateCompanyCallback();
-                    }
                 } else {
                     toast.error(res.data.message, {
                         theme: 'colored',
@@ -494,7 +487,7 @@ export const CompanyMaster = () => {
                     })
             }
 
-            if (companyData.isRemoved) {
+            if (!formChangedData.companyDetailUpdate && companyData.isRemoved) {
                 deleteCompanyLogo(companyData.encryptedCompanyCode, companyData.isRemoved)
             }
 

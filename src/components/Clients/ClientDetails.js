@@ -277,7 +277,7 @@ export const ClientDetails = () => {
                 })}
               </Row>
               <Row className="mb-3">
-                <Form.Label>Role</Form.Label>
+                <Form.Label>Role<span className="text-danger">*</span></Form.Label>
                 <Form.Select id="txtRole" name="role" value={clientData.role} onChange={handleFieldChange}>
                   <option value="">Select Role</option>
                   <option value="Super Admin">Super Admin</option>

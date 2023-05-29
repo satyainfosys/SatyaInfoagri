@@ -392,9 +392,7 @@ export const Client = () => {
               theme: 'colored',
               autoClose: 10000
             });
-            updateCallback(true);
-            // To-do: Do not redirect to List, instead change Save button click function to updateClient after successfully add
-            // $('[data-rr-ui-event-key*="List"]').click();
+            updateCallback(true, res.data.data.encryptedClientCode);
           } else {
             toast.error(res.data.message, {
               theme: 'colored',
@@ -405,8 +403,8 @@ export const Client = () => {
     }
   }
 
-  const updateCallback = (isAddClient = false) => {
-    debugger
+  const updateCallback = (isAddClient = false, encryptedClientCode) => {
+    
     setModalShow(false);
 
     if (clientData.gstNumber === localStorage.getItem("GSTNumber")) {
@@ -416,14 +414,24 @@ export const Client = () => {
     dispatch(clientDetailsErrorAction(undefined));
     dispatch(formChangedAction(undefined));
 
+    dispatch(clientContactListAction([]))
+    dispatch(transactionDetailsAction(undefined));
+
     if (!isAddClient) {
       toast.success("Client details updated successfully!", {
         theme: 'colored'
       });
     }
+    else
+    {
+      dispatch(clientDetailsAction({
+        ...clientData,
+        encryptedClientCode: encryptedClientCode
+      }));
 
-    dispatch(clientContactListAction([]))
-    dispatch(transactionDetailsAction(undefined));
+      getContactDetailsList();
+      getTransactionDetailsList();
+    }
 
     $('#btnSave').attr('disabled', true)
     // clearClientReducers();
