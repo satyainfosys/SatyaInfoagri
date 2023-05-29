@@ -688,7 +688,6 @@ export const Farmers = () => {
         $('#btnSave').attr('disabled', true)
 
         clearFarmerReducers();
-        clearFarmerLocalStorages();
 
         fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 

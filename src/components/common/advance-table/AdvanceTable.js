@@ -153,7 +153,7 @@ const AdvanceTable = ({
   }
 
   const getClientDetail = (clientName) => {
-    if (clientUserData) {
+    if (clientUserData && clientUserData.length > 0) {
       const clientDetail = clientUserData.find(x => x.customerName == clientName);
       $('#txtCountry').val(clientDetail.country);
       $('#txtState').val(clientDetail.state);

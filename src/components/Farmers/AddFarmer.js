@@ -507,7 +507,7 @@ const AddFarmer = () => {
 
             {farmerData &&
 
-                <Form noValidate validated={formHasError} className="details-form micro-form" onSubmit={e => { handleSubmit(e) }} id='AddFarmersDetailForm'>
+                <Form noValidate validated={formHasError} className="details-form micro-form" id='AddFarmersDetailForm'>
                     <Row className="g-3">
                         <Col sm={10} lg={8} className="no-pd-card">
                             <FalconComponentCard>

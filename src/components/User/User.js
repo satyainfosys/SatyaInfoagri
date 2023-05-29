@@ -175,7 +175,7 @@ export const User = () => {
         return isValid;
     }
 
-    const updateUserCallback = (isAddUser = false) => {
+    const updateUserCallback = (isAddUser = false, encryptedSecurityUserId = '') => {
 
         setModalShow(false);
         if (!isAddUser) {
@@ -195,10 +195,16 @@ export const User = () => {
             $('#txtCountry').val(country);
             $('#txtState').val(state);
         }
-
+        else{
+            dispatch(userDetailsAction({
+                ...userData,
+                encryptedSecurityUserId: encryptedSecurityUserId
+            }))
+        }
         $('#btnSave').attr('disabled', true)
 
         fetchUsersList(1);
+ 
     }
 
     const addUserDetails = () => {
@@ -223,13 +229,13 @@ export const User = () => {
             })
                 .then(res => {
                     if (res.data.status == 200) {
+
                         setIsLoading(false);
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
                         })
-                        updateUserCallback(true);
-                        $('[data-rr-ui-event-key*="User List"]').click();
+                        updateUserCallback(true, res.data.data.encryptedSecurityUserId);
                     } else {
                         setIsLoading(false);
                         toast.error(res.data.message, {
