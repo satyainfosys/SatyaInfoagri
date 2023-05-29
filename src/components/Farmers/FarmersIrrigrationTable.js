@@ -173,6 +173,8 @@ export const FarmersIrrigrationTable = () => {
             </Flex>
           }
         />
+        {
+              farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0 &&
         <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
           <Form
             noValidate
@@ -180,8 +182,6 @@ export const FarmersIrrigrationTable = () => {
             className="details-form"
             id="AddFarmersIrrigationTableDetailsForm"
           >
-            {
-              farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0 &&
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -285,10 +285,9 @@ export const FarmersIrrigrationTable = () => {
                   ))}
                 </tbody>
               </Table>
-            }
-
           </Form>
         </Card.Body>
+}
       </Card>
     </>
   );

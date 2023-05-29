@@ -227,6 +227,8 @@ export const FarmersLiveStockTable = () => {
             </Flex>
           }
         />
+        {
+              farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
         <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
           <Form
             noValidate
@@ -234,8 +236,7 @@ export const FarmersLiveStockTable = () => {
             className="details-form"
             id="AddFarmersLiveStockTableDetailsForm"
           >
-            {
-              farmerLiveStockCattleData && farmerLiveStockCattleData.length > 0 &&
+
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -346,9 +347,10 @@ export const FarmersLiveStockTable = () => {
                   ))}
                 </tbody>
               </Table>
-            }
+            
           </Form>
         </Card.Body>
+        }
       </Card>
     </>
   );

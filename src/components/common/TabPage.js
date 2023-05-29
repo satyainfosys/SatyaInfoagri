@@ -209,7 +209,7 @@ const TabPage = ({
               className={
                 index == 0
                   ? 'border p-1'
-                  : tab != 'Transaction Details'
+                  : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -269,11 +269,7 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <ContactDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <ContactDetails />
                 </>
               )}
               {index == 2 && module == 'Client' && (
@@ -305,11 +301,7 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FalconComponentCard id="ContactDetailsTable" className="tab-page-button-table-card">
-                    <FalconComponentCard.Body language="jsx">
-                      <CommonContactDetailsTable />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <CommonContactDetailsTable />
                 </>
               )}
               {index == 1 && module == 'User' && (

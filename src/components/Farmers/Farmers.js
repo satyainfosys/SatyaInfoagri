@@ -1125,6 +1125,12 @@ export const Farmers = () => {
                             });
                             hasError = true;
                         }
+                        else{
+                            dispatch(farmerDetailsAction({
+                                ...farmerData,
+                                farmerName: farmerData.firstName + ' ' + farmerData.middleName + ' ' + farmerData.lastName
+                            }))
+                        }
                     })
             }
 

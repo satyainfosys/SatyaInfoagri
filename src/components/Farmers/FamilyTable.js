@@ -188,6 +188,8 @@ export const FamilyTable = () => {
             </Flex>
           }
         />
+        {
+              familyDetailData && familyDetailData.length > 0 &&
         <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
           <Form
             noValidate
@@ -195,8 +197,6 @@ export const FamilyTable = () => {
             className="details-form"
             id="AddFarmersFamilyTableDetailsForm"
           >
-            {
-              familyDetailData && familyDetailData.length > 0 &&
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   {rowData && <tr>
@@ -311,9 +311,9 @@ export const FamilyTable = () => {
                   ))}
                 </tbody>
               </Table>
-            }
           </Form>
         </Card.Body>
+        }
       </Card>
     </>
   );

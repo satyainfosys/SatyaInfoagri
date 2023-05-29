@@ -63,6 +63,15 @@
         max-height: 295px;
         overflow-y: scroll;
     }
+
+    .tab-page-button-table-card{
+        min-height: 180px;
+        overflow-y: scroll;
+    }
+
+    .full-tab-card-body{
+        min-height: 426px;
+    }
 }
 
 @media (min-width:1280px) {
@@ -99,7 +108,8 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 210px;
+        max-height: 187px;
+        min-height: 187px;
         overflow-y: scroll;
     }
 
@@ -125,6 +135,10 @@
     .many-column-table .form-control {
         width: 105px !important;
     }
+
+    .full-tab-card-body{
+        min-height: 426px;
+    }
 }
 
 @media (min-width:1400px) {
@@ -145,6 +159,7 @@
     }
 
     .tab-page-button-table-card {
+        min-height: 220px;
         max-height: 210px;
         overflow-y: scroll;
     }
@@ -156,6 +171,22 @@
 
     .many-column-table .form-control {
         width: 135px !important;
+    }
+
+    .full-tab-card-body{
+        min-height: 494px;
+    }
+}
+
+@media (min-width:1600px) {
+    .tab-page-button-table-card {
+        min-height: 262px;
+        max-height: 262px;
+        overflow-y: scroll;
+    }
+
+    .full-tab-card-body{
+        min-height: 577px;
     }
 }
 
@@ -185,7 +216,8 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 180px;
+        min-height: 287px;
+        max-height: 287px;
         overflow-y: scroll;
     }
 
@@ -196,5 +228,9 @@
 
     .many-column-table .form-control {
         width: 160px !important;
+    }
+
+    .full-tab-card-body{
+        min-height: 628px;
     }
 }

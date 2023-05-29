@@ -491,9 +491,6 @@ const AddFarmer = () => {
                 farmerAdd: true
             }))
         }
-
-        // if ($("#btnSave").attr('disabled'))
-        //     $("#btnSave").attr('disabled', false);
     };
 
     return (
@@ -509,16 +506,17 @@ const AddFarmer = () => {
 
                 <Form noValidate validated={formHasError} className="details-form micro-form" id='AddFarmersDetailForm'>
                     <Row className="g-3">
-                        <Col sm={10} lg={8} className="no-pd-card">
+                        <Col sm={farmerData.encryptedFarmerCode ? 10 : 12} lg={farmerData.encryptedFarmerCode ? 8 : 12} className="no-pd-card">
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title={`Company : ${localStorage.getItem("CompanyName")}`} light={false} />
                             </FalconComponentCard>
                         </Col>
+                        {farmerData.encryptedFarmerCode && 
                         <Col sm={6} lg={4} className="no-pd-card">
                             <FalconComponentCard>
                                 <FalconComponentCard.Header title={farmerData.farmerName} light={false} />
                             </FalconComponentCard>
-                        </Col>
+                        </Col>}
                     </Row>
 
                     <Row className="g-3">

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Table, Form, Modal, Row, Col, Spinner } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Row, Col, Card } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { commonContactDetailsAction, clientContactListAction, formChangedAction } from 'actions';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const CommonContactDetailsTable = () => {
     const dispatch = useDispatch();
@@ -220,16 +222,30 @@ export const CommonContactDetailsTable = () => {
                 </Modal>
             }
 
-            <div style={{ display: 'flex', justifyContent: 'end' }}>
+<Card className="h-100 mb-2" id='ContactDetailsTable'>
+        <FalconCardHeader
+          title="Contact Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
                 <Button
-                    id="btnAddBankNameTable"
-                    className="mb-2"
-                    onClick={handleAddRow}
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
                 >
-                    Add Contact Details
+                  <i className="fa-solid fa-plus" />
                 </Button>
-            </div>
-
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+        
             <div>
                 <Row className="justify-content-between align-items-center" id="contactListChkBoxRow">
                     <Col xs="auto">
@@ -350,6 +366,8 @@ export const CommonContactDetailsTable = () => {
                     </Table>
                 }
             </Form>
+            </Card.Body>
+        </Card>
         </>
     );
 };

@@ -143,3 +143,7 @@
 {
     padding: 3px !important;
 }
+
+.card-header {
+    padding: 0.75rem 1rem !important;
+}

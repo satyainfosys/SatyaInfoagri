@@ -1,10 +1,12 @@
 import React, { useState } from 'react'
 import { clientContactListAction, formChangedAction } from 'actions'
 import { useSelector, useDispatch } from 'react-redux';
-import { Button, Table, Form, Modal } from 'react-bootstrap';
+import { Button, Table, Form, Modal, Card } from 'react-bootstrap';
 import { useEffect } from 'react';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import { toast } from 'react-toastify';
+import FalconCardHeader from 'components/common/FalconCardHeader';
+import Flex from 'components/common/Flex';
 
 export const ContactDetails = () => {
   const [formHasError, setFormError] = useState(false);
@@ -167,123 +169,141 @@ export const ContactDetails = () => {
           </Modal.Footer>
         </Modal>
       }
-      <div style={{ display: 'flex', justifyContent: 'end' }}>
-        <Button
-          id="btnAddClientContactDetailsTable"
-          className="mb-2"
-          onClick={handleAddRow}
+      <Card className="h-100 mb-2" id='ContactDetailsTable'>
+        <FalconCardHeader
+          title="Contact Details"
+          titleTag="h6"
+          className="py-2"
+          light
+          endEl={
+            <Flex>
+              <div >
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="btn-reveal"
+                  type="button"
+                  onClick={handleAddRow}
+                >
+                  <i className="fa-solid fa-plus" />
+                </Button>
+              </div>
+            </Flex>
+          }
+        />
+        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+          
+        <Form
+          noValidate
+          // validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
+          validated={formHasError}
+          className="details-form"
+          id="AddClientContactDetailsForm"
         >
-          Add Contact Details
-        </Button>
-      </div>
-      <Form
-        noValidate
-        // validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
-        validated={formHasError}
-        className="details-form"
-        id="AddClientContactDetailsForm"
-      >
-        {
-          clientContactListData && clientContactListData.length > 0 &&
-          <Table striped bordered responsive id="TableList" className="no-pb text-nowrap">
-            <thead className='custom-bg-200'>
-              <tr>
-                {columnsArray.map((column, index) => (
-                  <th className="text-left" key={index}>
-                    {column}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody id="tbody" className="details-form">
-              {rowData.map((clientContactListData, index) => (
-                <tr key={index}>
-                  <td>
-                    {index + 1}
-                  </td>
-
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtContactPerson"
-                      name="contactPerson"
-                      value={clientContactListData.contactPerson}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Contact Person Name"
-                      className="form-control"
-                      required={true}
-                      maxLength={50}
-                    />
-                  </td>
-
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtMobileno"
-                      name="mobileNo"
-                      value={clientContactListData.mobileNo}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Mobile No"
-                      className="form-control"
-                      maxLength={10}
-                      required={true}
-                      onKeyPress={(e) => {
-                        const regex = /[0-9]|\./;
-                        const key = String.fromCharCode(e.charCode);
-                        if (!regex.test(key)) {
-                          e.preventDefault();
-                        }
-                      }}
-                    />
-                  </td>
-
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtEmailId"
-                      name="emailId"
-                      value={clientContactListData.emailId}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Email Id"
-                      className="form-control"
-                      maxLength={50}
-                    />
-                  </td>
-
-                  <td key={index}>
-                    <EnlargableTextbox
-                      id="txtDesignation"
-                      name="designation"
-                      value={clientContactListData.designation}
-                      onChange={(e) => handleFieldChange(e, index)}
-                      placeholder="Designation"
-                      className="form-control"
-                      maxLength={50}
-                    />
-                  </td>
-
-                  <td key={index}>
-                    <Form.Select
-                      type="text"
-                      id="txtSendMail"
-                      name="sendMail"
-                      className="form-control"
-                      value={clientContactListData.sendMail}
-                      onChange={(e) => handleFieldChange(e, index)}
-                    >
-                      <option value=''>Select</option>
-                      <option value="Y">Yes</option>
-                      <option value="N">No</option>
-                    </Form.Select>
-                  </td>
-
-                  <td>
-                    <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(clientContactListData.encryptedClientContactDetailsId, clientContactListData.mobileNo) }} />
-                  </td>
+          {
+            clientContactListData && clientContactListData.length > 0 &&
+            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+              <thead className='custom-bg-200'>
+                <tr>
+                  {columnsArray.map((column, index) => (
+                    <th className="text-left" key={index}>
+                      {column}
+                    </th>
+                  ))}
                 </tr>
-              ))
-              }
-            </tbody>
-          </Table>
-        }
-      </Form>
+              </thead>
+              <tbody id="tbody" className="details-form">
+                {rowData.map((clientContactListData, index) => (
+                  <tr key={index}>
+                    <td>
+                      {index + 1}
+                    </td>
+
+                    <td key={index}>
+                      <EnlargableTextbox
+                        id="txtContactPerson"
+                        name="contactPerson"
+                        value={clientContactListData.contactPerson}
+                        onChange={(e) => handleFieldChange(e, index)}
+                        placeholder="Contact Person Name"
+                        className="form-control"
+                        required={true}
+                        maxLength={50}
+                      />
+                    </td>
+
+                    <td key={index}>
+                      <EnlargableTextbox
+                        id="txtMobileno"
+                        name="mobileNo"
+                        value={clientContactListData.mobileNo}
+                        onChange={(e) => handleFieldChange(e, index)}
+                        placeholder="Mobile No"
+                        className="form-control"
+                        maxLength={10}
+                        required={true}
+                        onKeyPress={(e) => {
+                          const regex = /[0-9]|\./;
+                          const key = String.fromCharCode(e.charCode);
+                          if (!regex.test(key)) {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    </td>
+
+                    <td key={index}>
+                      <EnlargableTextbox
+                        id="txtEmailId"
+                        name="emailId"
+                        value={clientContactListData.emailId}
+                        onChange={(e) => handleFieldChange(e, index)}
+                        placeholder="Email Id"
+                        className="form-control"
+                        maxLength={50}
+                      />
+                    </td>
+
+                    <td key={index}>
+                      <EnlargableTextbox
+                        id="txtDesignation"
+                        name="designation"
+                        value={clientContactListData.designation}
+                        onChange={(e) => handleFieldChange(e, index)}
+                        placeholder="Designation"
+                        className="form-control"
+                        maxLength={50}
+                      />
+                    </td>
+
+                    <td key={index}>
+                      <Form.Select
+                        type="text"
+                        id="txtSendMail"
+                        name="sendMail"
+                        className="form-control"
+                        value={clientContactListData.sendMail}
+                        onChange={(e) => handleFieldChange(e, index)}
+                      >
+                        <option value=''>Select</option>
+                        <option value="Y">Yes</option>
+                        <option value="N">No</option>
+                      </Form.Select>
+                    </td>
+
+                    <td>
+                      <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(clientContactListData.encryptedClientContactDetailsId, clientContactListData.mobileNo) }} />
+                    </td>
+                  </tr>
+                ))
+                }
+              </tbody>
+            </Table>
+          }
+        </Form>
+
+      </Card.Body>
+      </Card>
     </>
   )
 }

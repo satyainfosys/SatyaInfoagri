@@ -221,15 +221,15 @@ export const BankDetailsTable = () => {
             </Flex>
           }
         />
-        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+        {
+              bankDetailData && bankDetailData.length > 0 &&
+        <Card.Body className="position-relative pb-0 p3px full-tab-card-body">
           <Form
             noValidate
             validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
             className="details-form"
             id="AddFarmersBankTableDetailsForm"
           >
-            {
-              bankDetailData && bankDetailData.length > 0 &&
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -343,9 +343,9 @@ export const BankDetailsTable = () => {
                   ))}
                 </tbody>
               </Table>
-            }
           </Form>
         </Card.Body>
+        }
       </Card>
     </>
   );
