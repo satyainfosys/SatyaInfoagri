@@ -39,7 +39,7 @@ const TransactionDetailList = () => {
         transactionDetailReducer.transactionDetails &&
         transactionDetailReducer.transactionDetails.length > 0 &&
 
-        <Table striped bordered responsive id="TransactionDetailsTable" className="no-pb text-nowrap">
+        <Table striped bordered responsive id="TransactionDetailsTable" className="no-pb text-nowrap tab-page-table">
           <thead className='custom-bg-200'>
             <tr>
               <th>S. No</th>

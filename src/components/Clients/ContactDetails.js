@@ -192,6 +192,8 @@ export const ContactDetails = () => {
             </Flex>
           }
         />
+        {
+            clientContactListData && clientContactListData.length > 0 &&
         <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
           
         <Form
@@ -201,8 +203,6 @@ export const ContactDetails = () => {
           className="details-form"
           id="AddClientContactDetailsForm"
         >
-          {
-            clientContactListData && clientContactListData.length > 0 &&
             <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
               <thead className='custom-bg-200'>
                 <tr>
@@ -300,10 +300,10 @@ export const ContactDetails = () => {
                 }
               </tbody>
             </Table>
-          }
         </Form>
 
       </Card.Body>
+      }
       </Card>
     </>
   )

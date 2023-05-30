@@ -245,6 +245,8 @@ export const CommonContactDetailsTable = () => {
             </Flex>
           }
         />
+        {
+                    commonContactDetailData && commonContactDetailData.length > 0 &&
         <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
         
             <div>
@@ -277,8 +279,7 @@ export const CommonContactDetailsTable = () => {
                 className="details-form"
                 id="AddCommonContactDetailsForm"
             >
-                {
-                    commonContactDetailData && commonContactDetailData.length > 0 &&
+                
                     <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                         <thead className='custom-bg-200'>
                             <tr>
@@ -365,9 +366,10 @@ export const CommonContactDetailsTable = () => {
                             ))}
                         </tbody>
                     </Table>
-                }
+                
             </Form>
             </Card.Body>
+            }
         </Card>
         </>
     );
