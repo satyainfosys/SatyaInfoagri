@@ -151,6 +151,14 @@
     .full-tab-card-body{
         min-height: 426px;
     }
+
+    .farmer-card-row1{
+        min-height: 301px;
+    }
+
+    .farmer-card-row2{
+        min-height: 326px;
+    }
 }
 
 @media (min-width:1400px) {

@@ -139,6 +139,10 @@
     padding: 0.4rem !important;
 }
 
+.tab-page-table td:first-child {
+    text-align: center;
+}
+
 .p3px
 {
     padding: 3px !important;

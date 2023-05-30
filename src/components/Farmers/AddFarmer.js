@@ -507,21 +507,21 @@ const AddFarmer = () => {
                 <Form noValidate validated={formHasError} className="details-form micro-form" id='AddFarmersDetailForm'>
                     <Row className="g-3">
                         <Col sm={farmerData.encryptedFarmerCode ? 10 : 12} lg={farmerData.encryptedFarmerCode ? 8 : 12} className="no-pd-card">
-                            <FalconComponentCard>
+                            <FalconComponentCard className="mb-2">
                                 <FalconComponentCard.Header title={`Company : ${localStorage.getItem("CompanyName")}`} light={false} />
                             </FalconComponentCard>
                         </Col>
                         {farmerData.encryptedFarmerCode && 
                         <Col sm={6} lg={4} className="no-pd-card">
-                            <FalconComponentCard>
+                            <FalconComponentCard className="mb-2">
                                 <FalconComponentCard.Header className="info-card-header" title={farmerData.farmerName} light={false} />
                             </FalconComponentCard>
                         </Col>}
                     </Row>
 
-                    <Row className="g-3">
+                    <Row className="g-3 mb-2">
                         <Col sm={6} lg={4} className="no-pd-card">
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row1">
                                 <FalconComponentCard.Header title="Farmer Personal Info" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
@@ -608,7 +608,7 @@ const AddFarmer = () => {
                         </Col>
 
                         <Col sm={6} lg={4} className="no-pd-card">
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row1">
                                 <FalconComponentCard.Header title="Contact Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
@@ -678,7 +678,7 @@ const AddFarmer = () => {
                         </Col>
 
                         <Col sm={6} lg={4} className='no-pd-card'>
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row1">
                                 <FalconComponentCard.Header title="Farmer Photo" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
@@ -686,7 +686,7 @@ const AddFarmer = () => {
                                             <>
                                                 {
                                                     farmerData && farmerData.profilePhotoURL ? (
-                                                        <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
+                                                        <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
                                                             <Col sm={12} className='no-padding'>
                                                                 <img src={farmerData.profilePhotoURL} alt='Farmer Photo' className="img-thumbnail shadow-sm passport-sized-photo" />
                                                             </Col>
@@ -724,7 +724,7 @@ const AddFarmer = () => {
 
                     <Row className="g-3">
                         <Col sm={6} lg={4} className='no-pd-card'>
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row2">
                                 <FalconComponentCard.Header title="GEO Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
@@ -854,7 +854,7 @@ const AddFarmer = () => {
                         </Col>
 
                         <Col sm={6} lg={4} className='no-pd-card'>
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row2">
                                 <FalconComponentCard.Header title="Operational Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
@@ -929,7 +929,7 @@ const AddFarmer = () => {
                         </Col>
 
                         <Col sm={6} lg={4} className='no-pd-card'>
-                            <FalconComponentCard>
+                            <FalconComponentCard className="farmer-card-row2">
                                 <FalconComponentCard.Header title='Status' light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
