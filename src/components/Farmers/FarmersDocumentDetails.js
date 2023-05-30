@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FarmersDocumentDetails = () => {
   const dispatch = useDispatch();
@@ -329,7 +330,7 @@ export const FarmersDocumentDetails = () => {
                       </td>
 
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerDocumentDetailsData.encryptedFarmerDocumentId) }} />
+                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerDocumentDetailsData.encryptedFarmerDocumentId) }} />
                       </td>
                     </tr>
                   ))}

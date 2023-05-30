@@ -7,6 +7,7 @@ import axios from 'axios';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FarmersLiveStockTable = () => {
 
@@ -341,7 +342,7 @@ export const FarmersLiveStockTable = () => {
                       </td>
 
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
+                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerLiveStockCattleData.encryptedFarmerCattleCode) }} />
                       </td>
                     </tr>
                   ))}

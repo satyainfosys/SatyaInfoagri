@@ -5,6 +5,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FarmersIrrigrationTable = () => {
   const dispatch = useDispatch();
@@ -279,7 +280,7 @@ export const FarmersIrrigrationTable = () => {
                         </Form.Select>
                       </td>
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
+                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerIrrigationDetailData.encryptedFarmerIrrigationCode) }} />
                       </td>
                     </tr>
                   ))}

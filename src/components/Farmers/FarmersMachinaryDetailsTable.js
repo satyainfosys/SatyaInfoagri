@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FarmersMachinaryDetailsTable = () => {
   const dispatch = useDispatch();
@@ -283,7 +284,7 @@ export const FarmersMachinaryDetailsTable = () => {
                         </Form.Select>
                       </td>
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
+                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
                       </td>
                     </tr>
                   ))}

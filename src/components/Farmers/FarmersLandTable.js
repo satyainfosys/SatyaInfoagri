@@ -9,6 +9,7 @@ import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import 'leaflet/dist/leaflet.css';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FarmersLandTable = () => {
   const dispatch = useDispatch();
@@ -539,7 +540,7 @@ export const FarmersLandTable = () => {
                           />
                         </td>
                         <td>
-                          <i className="fa fa-trash fa-2x" onClick={() => deleteLocationDetails(index, row)} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => deleteLocationDetails(index, row)} />
                         </td>
                       </tr>
                     ))}
@@ -774,7 +775,7 @@ export const FarmersLandTable = () => {
                       </td>
 
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
+                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
                       </td>
                     </tr>
                   ))

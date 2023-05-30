@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const FamilyTable = () => {
   const [formHasError, setFormError] = useState(false);
@@ -305,7 +306,7 @@ export const FamilyTable = () => {
                         </Form.Select>
                       </td>
                       <td>
-                        <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName) }} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(familyDetailData.encryptedFarmerFamilyCode, familyDetailData.familyMemberName)}} />
                       </td>
                     </tr>
                   ))}

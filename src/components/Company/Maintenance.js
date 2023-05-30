@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const Maintenance = () => {
 
@@ -368,7 +369,7 @@ export const Maintenance = () => {
                                                 <InputGroup className="mb-1 no-padding mt-1">
                                                     <Button onClick={() => { document.getElementById('logoFile').click(); }}>Change</Button>
                                                     <InputGroup.Text>
-                                                        <i className="fa fa-trash"
+                                                    <FontAwesomeIcon icon={'trash'}
                                                             onClick={() => { removeLogo() }}
                                                         />
                                                     </InputGroup.Text>

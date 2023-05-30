@@ -7,6 +7,7 @@ import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import { toast } from 'react-toastify';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export const ContactDetails = () => {
   const [formHasError, setFormError] = useState(false);
@@ -292,7 +293,7 @@ export const ContactDetails = () => {
                     </td>
 
                     <td>
-                      <i className="fa fa-trash fa-2x" onClick={() => { ModalPreview(clientContactListData.encryptedClientContactDetailsId, clientContactListData.mobileNo) }} />
+                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(clientContactListData.encryptedClientContactDetailsId, clientContactListData.mobileNo) }} />
                     </td>
                   </tr>
                 ))
