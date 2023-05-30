@@ -514,7 +514,7 @@ const AddFarmer = () => {
                         {farmerData.encryptedFarmerCode && 
                         <Col sm={6} lg={4} className="no-pd-card">
                             <FalconComponentCard>
-                                <FalconComponentCard.Header title={farmerData.farmerName} light={false} />
+                                <FalconComponentCard.Header className="info-card-header" title={farmerData.farmerName} light={false} />
                             </FalconComponentCard>
                         </Col>}
                     </Row>

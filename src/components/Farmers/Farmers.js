@@ -692,9 +692,13 @@ export const Farmers = () => {
         fetchFarmerList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 
         $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+
+        let farmerFullName = farmerData.firstName + ' ' + farmerData.middleName + ' ' + farmerData.lastName;
+
         dispatch(farmerDetailsAction({
             ...farmerData,
-            encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode")
+            encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode"),
+            farmerName: farmerFullName
         }))
     }
 
@@ -1124,12 +1128,6 @@ export const Farmers = () => {
                                 autoClose: 10000
                             });
                             hasError = true;
-                        }
-                        else{
-                            dispatch(farmerDetailsAction({
-                                ...farmerData,
-                                farmerName: farmerData.firstName + ' ' + farmerData.middleName + ' ' + farmerData.lastName
-                            }))
                         }
                     })
             }
