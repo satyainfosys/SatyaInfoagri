@@ -141,6 +141,7 @@
 
 .tab-page-table td:first-child {
     text-align: center;
+    width: 40px;
 }
 
 .p3px
