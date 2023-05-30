@@ -48,6 +48,12 @@
         overflow-y: scroll;
     }
 
+    .list-tab-card{
+        min-height: 367px;
+        max-height: 367px;
+        overflow-y: scroll;
+    }
+
     .max-five-rows {
         max-height: 291px;
         overflow-y: scroll;
@@ -102,6 +108,12 @@
         overflow-y: scroll;
     }
 
+    .list-tab-card{
+        min-height: 367px;
+        max-height: 367px;
+        overflow-y: scroll;
+    }
+
     .tab-page-table-card {
         max-height: 170px;
         overflow-y: scroll;
@@ -153,6 +165,12 @@
         overflow-y: scroll;
     }
 
+    .list-tab-card{
+        min-height: 433px;
+        max-height: 433px;
+        overflow-y: scroll;
+    }
+
     .tab-page-table-card {
         max-height: 215px;
         overflow-y: scroll;
@@ -188,6 +206,18 @@
     .full-tab-card-body{
         min-height: 577px;
     }
+
+    .list-card{
+        min-height: 475px;
+        max-height: 475px;
+        overflow-y: scroll;
+    }
+
+    .list-tab-card{
+        min-height: 515px;
+        max-height: 515px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width:1680px) {
@@ -205,8 +235,14 @@
     }
 
     .list-card {
-        min-height: 725px;
-        max-height: 725px;
+        min-height: 525px;
+        max-height: 525px;
+        overflow-y: scroll;
+    }
+
+    .list-tab-card{
+        min-height: 568px;
+        max-height: 568px;
         overflow-y: scroll;
     }
 

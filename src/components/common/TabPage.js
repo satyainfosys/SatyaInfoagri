@@ -91,9 +91,10 @@ const TabPage = ({
     setModalShow(false);
   };
 
-  const data = `const columns = 
-  ${JSON.stringify(listColumnArray)};
-  const data = ${JSON.stringify(listData)};`;
+  const data = `
+  const columns = ${JSON.stringify(listColumnArray)};
+  const data = ${JSON.stringify(listData)};
+  const moduleName = '${module}';`;
 
   const searchableTableCode = `${data}
 
@@ -118,7 +119,7 @@ const TabPage = ({
             </FalconComponentCard.Body>
         </FalconComponentCard>
 
-        <FalconComponentCard className="list-card mb-1">
+        <FalconComponentCard className={moduleName == 'Farmers' ? "list-card mb-1" : "list-tab-card mb-1" }>
           <FalconComponentCard.Body>
 
             <AdvanceTable
