@@ -147,3 +147,15 @@
 .card-header {
     padding: 0.75rem 1rem !important;
 }
+
+.passport-sized-photo
+{
+    height: 110px !important;
+    width: 100px !important;
+}
+
+.logo-photo
+{
+    height: 125px !important;
+    width: 125px !important;
+}

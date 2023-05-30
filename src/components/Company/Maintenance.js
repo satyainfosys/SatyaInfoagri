@@ -364,8 +364,8 @@ export const Maintenance = () => {
                                     (companyData && companyData.companyLogoURL) ?
                                         (
                                             <>
-                                                <img src={companyData.companyLogoURL} id='imgCompanyLogo' width="60px" height="100px" />
-                                                <InputGroup className="mb-1">
+                                                <img src={companyData.companyLogoURL} id='imgCompanyLogo' className='img-thumbnail shadow-sm logo-photo p3px' />
+                                                <InputGroup className="mb-1 no-padding mt-1">
                                                     <Button onClick={() => { document.getElementById('logoFile').click(); }}>Change</Button>
                                                     <InputGroup.Text>
                                                         <i className="fa fa-trash"

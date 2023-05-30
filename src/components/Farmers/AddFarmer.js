@@ -686,7 +686,11 @@ const AddFarmer = () => {
                                             <>
                                                 {
                                                     farmerData && farmerData.profilePhotoURL ? (
-                                                        <img height={100} width={100} src={farmerData.profilePhotoURL} alt='Farmer'></img>
+                                                        <Form.Group as={Row} className="mb-3" controlId="formHorizontalEmail">
+                                                            <Col sm={12} className='no-padding'>
+                                                                <img src={farmerData.profilePhotoURL} alt='Farmer Photo' className="img-thumbnail shadow-sm passport-sized-photo" />
+                                                            </Col>
+                                                        </Form.Group>
                                                     ) : null
                                                 }
                                             </>
@@ -695,11 +699,8 @@ const AddFarmer = () => {
                                                 <Form.Label column sm={4}>
                                                     Total Land
                                                 </Form.Label>
-                                                <Col sm={4}>
-                                                    <Form.Control id="txtTotalLand" name="totalLand" onChange={handleFieldChange} value={farmerData.totalLand} className="mb-1" placeholder="Total Land" disabled />
-                                                </Col>
-                                                <Col sm={4}>
-                                                    <Form.Control name="unitName" className="mb-1" placeholder="Unit" value={farmerData.unitName} disabled />
+                                                <Col sm={8}>
+                                                    <Form.Control name="totalLand" value={farmerData.totalLand + ' ' + farmerData.unitName} className="mb-1" placeholder="Total Land" disabled />
                                                 </Col>
                                             </Form.Group>
 
