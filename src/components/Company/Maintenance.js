@@ -341,7 +341,7 @@ export const Maintenance = () => {
                             <Row className="mb-3">
                                 <Form.Label>Company Type<span className="text-danger">*</span></Form.Label>
                                 <Form.Select id="txtCompanyType" name="companyType" value={companyData.companyType} onChange={handleFieldChange} required>
-                                    <option value=''>Select company type</option>
+                                    <option value=''>Select Company Type</option>
                                     <option value="FPO">FPO</option>
                                     <option value="FPC">FPC</option>
                                     <option value="CTF">Contract Farming</option>

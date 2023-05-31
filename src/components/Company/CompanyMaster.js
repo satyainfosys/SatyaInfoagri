@@ -12,7 +12,7 @@ const tabArray = ['Company List', 'Maintenance'];
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'companyName', Header: 'Company Name' },
-    { accessor: 'companyType', Header: 'Company Type' },
+    { accessor: 'companyTypeFullName', Header: 'Company Type' },
     { accessor: 'state', Header: 'State' },
     { accessor: 'country', Header: 'Country' },
     { accessor: 'status', Header: 'Status' }
