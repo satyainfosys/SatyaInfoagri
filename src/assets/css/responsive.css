@@ -71,12 +71,12 @@
     }
 
     .tab-page-button-table-card{
-        min-height: 180px;
+        min-height: 155px;
         overflow-y: scroll;
     }
 
     .full-tab-card-body{
-        min-height: 426px;
+        min-height: 376px;
     }
 }
 
@@ -120,8 +120,8 @@
     }
 
     .tab-page-button-table-card {
-        max-height: 187px;
-        min-height: 187px;
+        max-height: 162px;
+        min-height: 162px;
         overflow-y: scroll;
     }
 
@@ -149,7 +149,7 @@
     }
 
     .full-tab-card-body{
-        min-height: 426px;
+        min-height: 376px;
     }
 
     .farmer-card-row1{
@@ -185,8 +185,8 @@
     }
 
     .tab-page-button-table-card {
-        min-height: 220px;
-        max-height: 210px;
+        min-height: 196px;
+        max-height: 196px;
         overflow-y: scroll;
     }
 
@@ -200,19 +200,19 @@
     }
 
     .full-tab-card-body{
-        min-height: 494px;
+        min-height: 444px;
     }
 }
 
 @media (min-width:1600px) {
     .tab-page-button-table-card {
-        min-height: 262px;
-        max-height: 262px;
+        min-height: 237px;
+        max-height: 237px;
         overflow-y: scroll;
     }
 
     .full-tab-card-body{
-        min-height: 577px;
+        min-height: 527px;
     }
 
     .list-card{
@@ -260,8 +260,8 @@
     }
 
     .tab-page-button-table-card {
-        min-height: 287px;
-        max-height: 287px;
+        min-height: 262px;
+        max-height: 262px;
         overflow-y: scroll;
     }
 
@@ -275,6 +275,6 @@
     }
 
     .full-tab-card-body{
-        min-height: 628px;
+        min-height: 578px;
     }
 }

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Col, Form, Row } from 'react-bootstrap';
-import FalconComponentCard from 'components/common/FalconComponentCard';
 import { useDispatch, useSelector } from 'react-redux';
 import { farmerDetailsAction, formChangedAction } from 'actions';
 import axios from 'axios';
 import Moment from "moment";
 import $ from "jquery";
+
+import FalconComponentCard from 'components/common/FalconComponentCard';
 
 const AddFarmer = () => {
 
@@ -505,20 +506,6 @@ const AddFarmer = () => {
             {farmerData &&
 
                 <Form noValidate validated={formHasError} className="details-form micro-form" id='AddFarmersDetailForm'>
-                    <Row className="g-3">
-                        <Col sm={farmerData.encryptedFarmerCode ? 10 : 12} lg={farmerData.encryptedFarmerCode ? 8 : 12} className="no-pd-card">
-                            <FalconComponentCard className="mb-2">
-                                <FalconComponentCard.Header title={`Company : ${localStorage.getItem("CompanyName")}`} light={false} />
-                            </FalconComponentCard>
-                        </Col>
-                        {farmerData.encryptedFarmerCode && 
-                        <Col sm={6} lg={4} className="no-pd-card">
-                            <FalconComponentCard className="mb-2">
-                                <FalconComponentCard.Header className="info-card-header" title={farmerData.farmerName} light={false} />
-                            </FalconComponentCard>
-                        </Col>}
-                    </Row>
-
                     <Row className="g-3 mb-2">
                         <Col sm={6} lg={4} className="no-pd-card">
                             <FalconComponentCard className="farmer-card-row1">

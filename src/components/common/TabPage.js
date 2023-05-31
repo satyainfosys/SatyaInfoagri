@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { Tabs, Row, Col, Form, Tab, Button, Modal } from 'react-bootstrap';
 import TabPageMainMenu from 'components/navbar/top/TabPageMainMenu';
 import { useSelector } from 'react-redux';
+import $ from 'jquery';
 
 //Datatable Modules
 import FalconComponentCard from 'components/common/FalconComponentCard';
@@ -23,7 +24,6 @@ import UserDetails from 'components/User/UserDetails';
 
 import ProductDetails from 'components/Product/ProductDetails';
 
-import $ from 'jquery';
 import AddFarmer from 'components/Farmers/AddFarmer';
 import FarmersDocumentDetails from 'components/Farmers/FarmersDocumentDetails';
 import FarmersLiveStockTable from 'components/Farmers/FarmersLiveStockTable';
@@ -33,7 +33,7 @@ import FarmersIrrigrationTable from 'components/Farmers/FarmersIrrigrationTable'
 import BankDetailsTable from 'components/Farmers/BankDetailsTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
 import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
-
+import FarmerInfoRow from 'components/Farmers/FarmerInfoRow';
 
 const TabPage = ({
   listData,
@@ -327,6 +327,7 @@ const TabPage = ({
                 <>
                   <FalconComponentCard className="add-farmer-card">
                     <FalconComponentCard.Body language="jsx" className="add-farmer-card-body">
+                      <FarmerInfoRow />
                       <AddFarmer />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
@@ -334,35 +335,37 @@ const TabPage = ({
               )}
               {index == 2 && module == 'Farmers' && (
                 <>
+                  <FarmerInfoRow />
                   <FamilyTable />
-
                   <FarmerContactInformationTable />
                 </>
               )}
               {index == 3 && module == 'Farmers' && (
                 <>
+                  <FarmerInfoRow />
                   <BankDetailsTable />
                 </>
               )}
 
               {index == 4 && module == 'Farmers' && (
                 <>
+                  <FarmerInfoRow />
                   <FarmersLandTable />
-
                   <FarmersIrrigrationTable />
                 </>
               )}
 
               {index == 5 && module == 'Farmers' && (
                 <>
+                  <FarmerInfoRow />
                   <FarmersLiveStockTable />
-
                   <FarmersMachinaryDetailsTable />
                 </>
               )}
 
               {index == 6 && module == 'Farmers' && (
                 <>
+                  <FarmerInfoRow />
                   <FarmersDocumentDetails />
                 </>
               )}
