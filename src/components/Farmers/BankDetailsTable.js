@@ -308,7 +308,7 @@ export const BankDetailsTable = () => {
                           className="form-control"
                           required
                         >
-                          <option value=''>Select Account Type</option>
+                          <option value=''>Select</option>
                           <option value='Saving'>Saving</option>
                           <option value='Current'>Current</option>
                         </Form.Select>

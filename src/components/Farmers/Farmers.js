@@ -16,7 +16,8 @@ const listColumnArray = [
     { accessor: 'farmerFatherName', Header: 'Father Name' },
     { accessor: 'village', Header: 'Village' },
     { accessor: 'districtName', Header: 'District' },
-    { accessor: 'figName', Header: 'FIG' },
+    { accessor: 'stateName', Header: 'State' },
+    { accessor: 'countryName', Header: 'Country' },
     { accessor: 'approvalStatus', Header: 'Approval Status' }
 ];
 

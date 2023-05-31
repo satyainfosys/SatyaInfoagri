@@ -570,24 +570,6 @@ const AddFarmer = () => {
                                                     })}
                                                 </Col>
                                             </Form.Group>
-
-                                            <Form.Group as={Row} className="mb-2">
-                                                <Form.Label column sm={4}>
-                                                    Social Category<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Select id="txtSocialCategory" name="socialCategory" onChange={handleFieldChange} value={farmerData.socialCategory}>
-                                                        <option value=''>Select Category</option>
-                                                        <option value='SC'>SC</option>
-                                                        <option value='ST'>ST</option>
-                                                        <option value='OBC'>OBC</option>
-                                                        <option value='General'>General</option>
-                                                    </Form.Select>
-                                                    {Object.keys(farmerError.socailCategoryErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.socailCategoryErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
@@ -656,6 +638,24 @@ const AddFarmer = () => {
                                                         <option value='Illiterate'>Illiterate</option>
                                                         <option value='Doctrate'>Doctrate</option>
                                                     </Form.Select>
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-2">
+                                                <Form.Label column sm={4}>
+                                                    Social Category<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Select id="txtSocialCategory" name="socialCategory" onChange={handleFieldChange} value={farmerData.socialCategory}>
+                                                        <option value=''>Select Category</option>
+                                                        <option value='SC'>SC</option>
+                                                        <option value='ST'>ST</option>
+                                                        <option value='OBC'>OBC</option>
+                                                        <option value='General'>General</option>
+                                                    </Form.Select>
+                                                    {Object.keys(farmerError.socailCategoryErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.socailCategoryErr[key]}</span>
+                                                    })}
                                                 </Col>
                                             </Form.Group>
                                         </Col>
