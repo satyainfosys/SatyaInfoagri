@@ -11,7 +11,6 @@ import FalconComponentCard from '../FalconComponentCard';
 const AdvanceTableComponent = ({
   columns,
   data,
-  moduleName,
   filterOptions,
   filterName,
   handleFilterChange
@@ -43,7 +42,7 @@ const AdvanceTableComponent = ({
             </FalconComponentCard.Body>
         </FalconComponentCard>
 
-        <FalconComponentCard className={moduleName == 'Farmers' ? "list-card mb-1" : "list-tab-card mb-1" }>
+        <FalconComponentCard className='list-tab-card mb-1'>
           <FalconComponentCard.Body>
 
             <AdvanceTable

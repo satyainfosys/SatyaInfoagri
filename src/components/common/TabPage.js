@@ -155,7 +155,6 @@ const TabPage = ({
                       <AdvanceTableComponent 
                         columns={listColumnArray}
                         data={listData}
-                        moduleName={module}
                         filterOptions={tableFilterOptions}
                         filterName={tableFilterName}
                         handleFilterChange={supportingMethod1} />
