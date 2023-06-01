@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Tabs, Row, Col, Form, Tab, Button, Modal } from 'react-bootstrap';
+import { Tabs, Tab, Button, Modal } from 'react-bootstrap';
 import TabPageMainMenu from 'components/navbar/top/TabPageMainMenu';
 import { useSelector } from 'react-redux';
 import $ from 'jquery';
@@ -12,10 +12,7 @@ import ContactDetails from '../Clients/ContactDetails';
 import TransactionDetails from '../Clients/TransactionDetails';
 import TransactionDetailList from '../Clients/TransactionDetailList';
 
-import AdvanceTableWrapper from 'components/common/advance-table/AdvanceTableWrapper';
-import AdvanceTable from 'components/common/advance-table/AdvanceTable';
-import AdvanceTableFooter from 'components/common/advance-table/AdvanceTableFooter';
-import AdvanceTableSearchBox from 'components/common/advance-table/AdvanceTableSearchBox';
+import AdvanceTableComponent from 'components/common/advance-table/AdvanceTableComponent';
 
 import CommonContactDetailsTable from 'components/Company/CommonContactDetailsTable';
 import Maintenance from 'components/Company/Maintenance';
@@ -44,7 +41,8 @@ const TabPage = ({
   newDetails,
   cancelClick,
   exitModule,
-  companyList,
+  tableFilterOptions,
+  tableFilterName,
   supportingMethod1
 }) => {
   $.fn.extend({
@@ -90,72 +88,6 @@ const TabPage = ({
 
     setModalShow(false);
   };
-
-  const data = `
-  const columns = ${JSON.stringify(listColumnArray)};
-  const data = ${JSON.stringify(listData)};
-  const moduleName = '${module}';`;
-
-  const searchableTableCode = `${data}
-
-  function AdvanceTableExample() {
-  
-    return (
-      <AdvanceTableWrapper
-        columns={columns}
-        data={data}
-        sortable
-        pagination
-        perPage={10}
-      >
-
-        <FalconComponentCard id='TableSearchPanelCard' className="no-pad mb-1">
-            <FalconComponentCard.Body>
-            <Row className="flex-end-center  mt-1 mb-1">
-              <Col xs="auto" className="me-1" sm={6} lg={4}>
-                <AdvanceTableSearchBox table/>
-              </Col>
-            </Row>
-            </FalconComponentCard.Body>
-        </FalconComponentCard>
-
-        <FalconComponentCard className={moduleName == 'Farmers' ? "list-card mb-1" : "list-tab-card mb-1" }>
-          <FalconComponentCard.Body>
-
-            <AdvanceTable
-              table
-              headerClassName="custom-bg-200 text-900 text-nowrap align-middle"
-              style = "padding-top : 0px"
-              rowClassName="align-middle white-space-nowrap"
-              tableProps={{
-                bordered: true,
-                striped: true,
-                className: 'mb-0 overflow-hidden tab-page-table',
-                responsive: true
-              }}
-            />
-
-          </FalconComponentCard.Body>
-        </FalconComponentCard>
-
-        <FalconComponentCard id='TableFooterPanel'>
-          <FalconComponentCard.Body className="footer-pagination">
-            <div className="mt-3 advance-table-footer">
-              <AdvanceTableFooter
-                rowCount={data.length}
-                table
-                rowInfo
-                navButtons
-                rowsPerPageSelection
-              />
-            </div>
-          </FalconComponentCard.Body>
-        </FalconComponentCard>
-      </AdvanceTableWrapper>
-    );
-  }
-  
-  render(<AdvanceTableExample />)`;
 
   const [modalShow, setModalShow] = React.useState(false);
 
@@ -217,48 +149,17 @@ const TabPage = ({
             >
               {index == 0 && listData && (
                 <>
-                  {module === "Farmers" &&
-                    <FalconComponentCard className="mb-1">
-                      <FalconComponentCard.Body language="jsx" className="no-padding mt-1 mb-1 ms-1">
-                        <Row>
-                          <Col sm={6} lg={4}>
-                            {companyList.length > 1 ?
-                              <>
-                                {<Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1}>
-                                  <option value=''>Select Company</option>
-                                  {companyList.map((option, index) => (
-                                    <option key={index} value={option.value}>{option.key}</option>
-                                  ))}
-                                </Form.Select>}
-                              </> :
-                              <>
-                                <Form.Select id="txtCompany" name="encryptedCompanyCode" onChange={supportingMethod1} disabled>
-                                  {companyList.map((option, index) => (
-                                    <option key={index} value={option.value}>{option.key}</option>
-                                  ))}
-                                </Form.Select>
-                              </>}
-
-                          </Col>
-                        </Row>
-                      </FalconComponentCard.Body>
-                    </FalconComponentCard>
-                  }
 
                   <FalconComponentCard className="tab-page-list-card">
-                    <FalconComponentCard.Body
-                      code={searchableTableCode}
-                      scope={{
-                        AdvanceTableWrapper,
-                        AdvanceTable,
-                        AdvanceTableFooter,
-                        AdvanceTableSearchBox,
-                        FalconComponentCard
-                      }}
-                      language="jsx"
-                      noInline
-                      noLight
-                    />
+                    <FalconComponentCard.Body>
+                      <AdvanceTableComponent 
+                        columns={listColumnArray}
+                        data={listData}
+                        moduleName={module}
+                        filterOptions={tableFilterOptions}
+                        filterName={tableFilterName}
+                        handleFilterChange={supportingMethod1} />
+                    </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>
               )}

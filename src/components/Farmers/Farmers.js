@@ -1907,7 +1907,8 @@ export const Farmers = () => {
                 newDetails={newDetails}
                 saveDetails={farmerData.encryptedFarmerCode ? updateFarmerDetails : addFarmerDetails}
                 exitModule={exitModule}
-                companyList={companyList}
+                tableFilterOptions={companyList}
+                tableFilterName={'Company'}
                 cancelClick={cancelClick}
                 supportingMethod1={handleFieldChange}
             />

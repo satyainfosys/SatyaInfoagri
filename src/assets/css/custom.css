@@ -164,3 +164,12 @@
     height: 125px !important;
     width: 125px !important;
 }
+
+.space-between-row{
+    display: flex;
+    justify-content: space-between;
+}
+
+.flex-col {
+    flex: 1;
+}
