@@ -146,7 +146,7 @@ export const FarmersDocumentDetails = () => {
 
   const handleAddRow = async () => {
     if (validateFarmerDocumentDetailsForm()) {
-      farmerDocumentDetailsData.push(emptyRow);
+      farmerDocumentDetailsData.unshift(emptyRow);
       dispatch(farmerDocumentDetailsAction(farmerDocumentDetailsData));
     }
   };

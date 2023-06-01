@@ -422,25 +422,25 @@ export const Farmers = () => {
         if (farmerFamilyDetailsList && farmerFamilyDetailsList.length > 0) {
             farmerFamilyDetailsList.forEach((row, index) => {
                 if (!row.familyMemberName || !row.memberAge || !row.memberSex || !row.farmerMemberRelation || !row.memberEducation) {
-                    familyErr.invalidFamilyDetail = 'All fields are required';
+                    familyErr.invalidFamilyDetail = 'All fields are required in family details';
                     isValid = false;
                     isFamilyTabValid = false;
 
                     if (isFarmerValid) {
+                        toast.error(familyErr.invalidFamilyDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Family"]').trigger('click');
                     }
                 }
             });
         }
 
-        //To-do: Will open this validation once first two tabs are completed
         if (commonContactDetailList.length < 1) {
             contactErr.contactEmpty = "At least one contact detail required";
-            setTimeout(() => {
-                toast.error(contactErr.contactEmpty, {
-                    theme: 'colored'
-                });
-            }, 500);
+            toast.error(contactErr.contactEmpty, {
+                theme: 'colored'
+            });
             isValid = false;
             isFamilyTabValid = false;
 
@@ -452,20 +452,29 @@ export const Farmers = () => {
         else if (commonContactDetailList && commonContactDetailList.length > 0) {
             commonContactDetailList.forEach((row, index) => {
                 if (!row.contactPerson || !row.contactType || !row.contactDetails) {
-                    contactErr.invalidContactDetail = "All fields are required";
+                    contactErr.invalidContactDetail = "All fields are required in contact details";
                     isValid = false
                 }
-
             });
+            if(isFarmerValid && contactErr.invalidContactDetail)
+            {
+                toast.error(contactErr.invalidContactDetail, {
+                    theme: 'colored'
+                });
+                $('[data-rr-ui-event-key*="Family"]').trigger('click');
+            }
         }
 
         if (bankDetailList && bankDetailList.length > 0) {
             bankDetailList.forEach((row, index) => {
                 if (!row.bankCode || !row.bankAddress || !row.bankBranch || !row.bankAccount || !row.accountType || !row.bankIfscCode) {
-                    bankDetailErr.invalidBankDetail = "All fields are required";
+                    bankDetailErr.invalidBankDetail = "All fields are required in bank details";
                     isValid = false;
                     isBankValid = false;
                     if (isFarmerValid && isFamilyTabValid) {
+                        toast.error(bankDetailErr.invalidBankDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Bank"]').trigger('click');
                     }
                 }
@@ -475,11 +484,14 @@ export const Farmers = () => {
         if (farmerLandDetailsList && farmerLandDetailsList.length > 0) {
             farmerLandDetailsList.forEach((row, index) => {
                 if (!row.khasraNo || !row.ownerShip || !row.croppingType || !row.landArea) {
-                    landDetailErr.invalidLandDetail = "Enter the required fields";
+                    landDetailErr.invalidLandDetail = "Fill the required fields in land details";
                     isValid = false;
                     isLandTabValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                        toast.error(landDetailErr.invalidLandDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Land"]').trigger('click');
                     }
                 }
@@ -488,16 +500,14 @@ export const Farmers = () => {
 
         if (farmerLandDetailsList && farmerLandDetailsList.length > 0) {
             if (!farmerData.unitName) {
-                unitErr.invalidUnit = "Select unit";
-                setTimeout(() => {
-                    toast.error(unitErr.invalidUnit, {
-                        theme: 'colored'
-                    });
-                }, 500);
+                unitErr.invalidUnit = "Please select unit";
                 isValid = false;
                 isLandTabValid = false;
                 setFormError(true);
                 if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                    toast.error(unitErr.invalidUnit, {
+                        theme: 'colored'
+                    });
                     $('[data-rr-ui-event-key*="Land"]').trigger('click');
                 }
             }
@@ -506,11 +516,14 @@ export const Farmers = () => {
         if (farmerIrrigationDetailsList && farmerIrrigationDetailsList.length > 0) {
             farmerIrrigationDetailsList.forEach((row, index) => {
                 if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
-                    irrigationDetailErr.invalidIrrigationDetail = "All fields are required"
+                    irrigationDetailErr.invalidIrrigationDetail = "All fields are required in irrigation details"
                     isValid = false;
                     isLandTabValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                        toast.error(irrigationDetailErr.invalidIrrigationDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Land"]').trigger('click');
                     }
                 }
@@ -520,11 +533,14 @@ export const Farmers = () => {
         if (farmerLiveStockCattleList && farmerLiveStockCattleList.length > 0) {
             farmerLiveStockCattleList.forEach((row, index) => {
                 if (!row.cattleCode || !row.noOfCattle) {
-                    cattleStockErr.invalidCattleDetail = "Fill the required fields"
+                    cattleStockErr.invalidCattleDetail = "Fill the required fields in live stock details"
                     isValid = false;
                     isCattleTabValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid) {
+                        toast.error(cattleStockErr.invalidCattleDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Cattle"]').trigger('click');
                     }
                 }
@@ -534,11 +550,14 @@ export const Farmers = () => {
         if (farmerMachineryDetailsList && farmerMachineryDetailsList.length > 0) {
             farmerMachineryDetailsList.forEach((row, index) => {
                 if (!row.machineryCategory || !row.machineryType || !row.machineryQty) {
-                    machineryDetailErr.invalidMachineryDetail = "Fill the required fields"
+                    machineryDetailErr.invalidMachineryDetail = "Fill the required fields machinery details"
                     isValid = false;
                     isCattleTabValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid) {
+                        toast.error(machineryDetailErr.invalidMachineryDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Cattle"]').trigger('click');
                     }
                 }
@@ -548,20 +567,26 @@ export const Farmers = () => {
         if (farmerDocumentDetailsList && farmerDocumentDetailsList.length > 0) {
             farmerDocumentDetailsList.forEach((row, index) => {
                 if (!row.documentType) {
-                    documentDetailErr.invalidDocumentDetail = "Fill the required fields"
+                    documentDetailErr.invalidDocumentDetail = "Fill the required fields in document details"
                     isValid = false;
                     isDocumentValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                        toast.error(documentDetailErr.invalidDocumentDetail, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Documents"]').trigger('click');
                     }
                 }
                 if ((!row.farmerDocument && !row.documentURL)) {
-                    documentDetailErr.empty = "Upload file"
+                    documentDetailErr.empty = "Please upload file"
                     isValid = false;
                     isDocumentValid = false;
 
                     if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                        toast.error(documentDetailErr.empty, {
+                            theme: 'colored'
+                        });
                         $('[data-rr-ui-event-key*="Documents"]').trigger('click');
                     }
                 }
@@ -572,12 +597,12 @@ export const Farmers = () => {
                         isValid = false;
                         isDocumentValid = false;
                         setFormError(true);
-                        toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .jpeg, .jpg", {
-                            theme: 'colored',
-                            autoClose: 5000
-                        })
 
                         if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                            toast.error("Selected file type is invalid, file type accepted are .pdf, .doc, .docx, .jpeg, .jpg", {
+                                theme: 'colored',
+                                autoClose: 5000
+                            })
                             $('[data-rr-ui-event-key*="Documents"]').trigger('click');
                         }
                     }
@@ -586,12 +611,12 @@ export const Farmers = () => {
                         isValid = false;
                         isDocumentValid = false;
                         setFormError(true);
-                        toast.error("File size must be under 500 KB", {
-                            theme: 'colored',
-                            autoClose: 5000
-                        })
 
                         if (isFarmerValid && isFamilyTabValid && isBankValid && isLandTabValid && isCattleTabValid) {
+                            toast.error("File size must be under 500 KB", {
+                                theme: 'colored',
+                                autoClose: 5000
+                            })
                             $('[data-rr-ui-event-key*="Documents"]').trigger('click');
                         }
                     }

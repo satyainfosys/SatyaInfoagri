@@ -176,7 +176,7 @@ export const FarmersLandTable = () => {
     const selectedKey = selectedOption.dataset.key || selectedOption.label;
     dispatch(farmerDetailsAction({
       ...farmerData,
-      unitName: selectedKey
+      unitName: selectedKey != "Select Unit" ? selectedKey : ""
     }))
 
     if (localStorage.getItem("EncryptedFarmerCode")) {
