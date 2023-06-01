@@ -654,7 +654,7 @@ export const FarmersLandTable = () => {
                       <td>
                         {index + 1}
                       </td>
-                      <td key={index}>
+                      <td key={index} width="155px">
                         <EnlargableTextbox
                           id="txtKhasraNo"
                           name="khasraNo"
@@ -666,7 +666,7 @@ export const FarmersLandTable = () => {
                           maxLength={10}
                         />
                       </td>
-                      <td key={index}>
+                      <td key={index} width="155px">
                         <EnlargableTextbox
                           id="txtLandMark"
                           name="landMark"
@@ -678,7 +678,7 @@ export const FarmersLandTable = () => {
                         />
                       </td>
 
-                      <td key={index}>
+                      <td key={index} width="155px">
                         <Form.Select
                           type="text"
                           id="txtOwnerShip"
@@ -694,7 +694,7 @@ export const FarmersLandTable = () => {
                         </Form.Select>
                       </td>
 
-                      <td key={index}>
+                      <td key={index} width="155px">
                         <Form.Select
                           type="text"
                           id="txtUsage"
@@ -709,7 +709,7 @@ export const FarmersLandTable = () => {
                         </Form.Select>
                       </td>
 
-                      <td key={index}>
+                      <td key={index} width="155px">
                         <Form.Select
                           type="text"
                           id="txtCroppingType"
@@ -725,7 +725,7 @@ export const FarmersLandTable = () => {
                         </Form.Select>
                       </td>
 
-                      <td key={index}>
+                      <td key={index} width="60px">
                         <EnlargableTextbox
                           id="txtLandArea"
                           name="landArea"

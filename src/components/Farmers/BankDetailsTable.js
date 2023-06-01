@@ -279,8 +279,8 @@ export const BankDetailsTable = () => {
                           required={true}
                         />
                       </td>
-                      <td key={index}>
-                        <EnlargableTextbox
+                      <td key={index} width="170px">
+                        <Form.Control
                           id="numAccountNumber"
                           name="bankAccount"
                           value={bankDetailData.bankAccount}
@@ -313,7 +313,7 @@ export const BankDetailsTable = () => {
                           <option value='Current'>Current</option>
                         </Form.Select>
                       </td>
-                      <td key={index}>
+                      <td key={index} width="115px">
                         <EnlargableTextbox
                           id="txtBankIfscCode"
                           name="bankIfscCode"
