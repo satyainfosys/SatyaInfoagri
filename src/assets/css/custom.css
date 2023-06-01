@@ -173,3 +173,8 @@
 .flex-col {
     flex: 1;
 }
+
+.row-content-pt5px .card-body {
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
+}

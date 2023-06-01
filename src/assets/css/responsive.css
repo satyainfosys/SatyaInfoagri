@@ -153,11 +153,11 @@
     }
 
     .farmer-card-row1{
-        min-height: 301px;
+        min-height: 237px;
     }
 
     .farmer-card-row2{
-        min-height: 326px;
+        min-height: 267px;
     }
 }
 
@@ -205,6 +205,11 @@
 }
 
 @media (min-width:1600px) {
+    .tab-page-tab {
+        max-height: 594px;
+        overflow-y: scroll;
+    }
+
     .tab-page-button-table-card {
         min-height: 237px;
         max-height: 237px;

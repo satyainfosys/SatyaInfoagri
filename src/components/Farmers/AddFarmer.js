@@ -506,14 +506,14 @@ const AddFarmer = () => {
             {farmerData &&
 
                 <Form noValidate validated={formHasError} className="details-form micro-form" id='AddFarmersDetailForm'>
-                    <Row className="g-3 mb-2">
+                    <Row className="g-3 mb-2 row-content-pt5px">
                         <Col sm={6} lg={4} className="no-pd-card">
                             <FalconComponentCard className="farmer-card-row1">
                                 <FalconComponentCard.Header title="Farmer Personal Info" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Farmer Code
                                                 </Form.Label>
@@ -522,40 +522,40 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     First Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtFirstName" name="firstName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
+                                                    <Form.Control id="txtFirstName" name="firstName" maxLength={30} onChange={handleFieldChange} value={farmerData.firstName} placeholder="First Name" />
                                                     {Object.keys(farmerError.firstNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.firstNameErr[key]}</span>
                                                     })}
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Middle Name
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtMiddleName" name="middleName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
+                                                    <Form.Control id="txtMiddleName" name="middleName" maxLength={30} onChange={handleFieldChange} value={farmerData.middleName} placeholder="Middle Name" />
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Last Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtLastName" name="lastName" className="mb-1" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
+                                                    <Form.Control id="txtLastName" name="lastName" maxLength={30} onChange={handleFieldChange} value={farmerData.lastName} placeholder="Last Name" />
                                                     {Object.keys(farmerError.lastNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.lastNameErr[key]}</span>
                                                     })}
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Farmer Gender<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -567,6 +567,18 @@ const AddFarmer = () => {
                                                     </Form.Select>
                                                     {Object.keys(farmerError.farmerGenderErr).map((key) => {
                                                         return <span className="error-message">{farmerError.farmerGenderErr[key]}</span>
+                                                    })}
+                                                </Col>
+                                            </Form.Group>
+
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Farmer DOB<span className="text-danger">*</span>
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
+                                                    {Object.keys(farmerError.farmerDobErr).map((key) => {
+                                                        return <span className="error-message">{farmerError.farmerDobErr[key]}</span>
                                                     })}
                                                 </Col>
                                             </Form.Group>
@@ -582,7 +594,7 @@ const AddFarmer = () => {
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Address<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -594,19 +606,19 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Father Name<span className="text-danger">*</span>
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} className="mb-1" placeholder="Father Name" />
+                                                    <Form.Control id="txtFatherName" name="fatherName" maxLength={45} onChange={handleFieldChange} value={farmerData.fatherName} placeholder="Father Name" />
                                                     {Object.keys(farmerError.farmerFatherNameErr).map((key) => {
                                                         return <span className="error-message">{farmerError.farmerFatherNameErr[key]}</span>
                                                     })}
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Marital Status<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -623,7 +635,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Educational Status
                                                 </Form.Label>
@@ -641,7 +653,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Social Category<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -682,26 +694,15 @@ const AddFarmer = () => {
                                                 }
                                             </>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Total Land
                                                 </Form.Label>
                                                 <Col sm={8}>
-                                                    <Form.Control name="totalLand" value={farmerData.totalLand + ' ' + farmerData.unitName} className="mb-1" placeholder="Total Land" disabled />
+                                                    <Form.Control name="totalLand" value={farmerData.totalLand + ' ' + farmerData.unitName} placeholder="Total Land" disabled />
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
-                                                <Form.Label column sm={4}>
-                                                    Farmer DOB<span className="text-danger">*</span>
-                                                </Form.Label>
-                                                <Col sm={8}>
-                                                    <Form.Control type='date' id="dtFarmerDOB" name="farmerDOB" value={farmerData.farmerDOB ? Moment(farmerData.farmerDOB).format("YYYY-MM-DD") : ""} onChange={handleFieldChange} />
-                                                    {Object.keys(farmerError.farmerDobErr).map((key) => {
-                                                        return <span className="error-message">{farmerError.farmerDobErr[key]}</span>
-                                                    })}
-                                                </Col>
-                                            </Form.Group>
                                         </Col>
                                     </Row>
                                 </FalconComponentCard.Body>
@@ -709,14 +710,14 @@ const AddFarmer = () => {
                         </Col>
                     </Row>
 
-                    <Row className="g-3">
+                    <Row className="g-3 row-content-pt5px">
                         <Col sm={6} lg={4} className='no-pd-card'>
                             <FalconComponentCard className="farmer-card-row2">
                                 <FalconComponentCard.Header title="GEO Information" light={false} />
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Country Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -733,7 +734,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     State Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -750,7 +751,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     District Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -767,7 +768,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Tehsil Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -784,7 +785,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Block Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -801,7 +802,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Post Office Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -818,7 +819,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Village Name<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -855,7 +856,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group> */}
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Distribution Centre<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -874,7 +875,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     Collection Centre<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -893,7 +894,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2">
+                                            <Form.Group as={Row} className="mb-1">
                                                 <Form.Label column sm={4}>
                                                     FIG Name
                                                 </Form.Label>
@@ -921,7 +922,7 @@ const AddFarmer = () => {
                                 <FalconComponentCard.Body language="jsx">
                                     <Row>
                                         <Col className="ms-2">
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Approval Status<span className="text-danger">*</span>
                                                 </Form.Label>
@@ -934,7 +935,7 @@ const AddFarmer = () => {
                                                 </Col>
                                             </Form.Group>
 
-                                            <Form.Group as={Row} className="mb-2" controlId="formHorizontalEmail">
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
                                                 <Form.Label column sm={4}>
                                                     Active Status<span className="text-danger">*</span>
                                                 </Form.Label>
