@@ -436,6 +436,31 @@ export const FarmersLandTable = () => {
     localStorage.removeItem("DeleteFarmerLandGeoDetailCodes")
   }
 
+  const getCurrentLatLongs = (index) => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          var locationDetails = [...locationRowData];
+          locationDetails[index] = { ...locationDetails[index],
+            ['latitude']: position.coords.latitude.toString(),
+            ['longitude']: position.coords.longitude.toString() };
+
+          setLocationRowData(locationDetails);
+
+          if (landCode) {
+            dispatch(formChangedAction({
+              ...formChangedData,
+              landDetailUpdate: true
+            }))
+          }
+        },
+        (error) => {
+          console.log(error);
+        }
+      );
+    }
+  }
+
   return (
     <>
       {modalShow && paramsData &&
@@ -540,6 +565,7 @@ export const FarmersLandTable = () => {
                           />
                         </td>
                         <td>
+                        <FontAwesomeIcon icon={'location-crosshairs'} className="fa-2x me-2" onClick={() => getCurrentLatLongs(index)}/>
                         <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => deleteLocationDetails(index, row)} />
                         </td>
                       </tr>
