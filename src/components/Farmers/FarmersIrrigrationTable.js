@@ -56,10 +56,24 @@ export const FarmersIrrigrationTable = () => {
     let isValid = true;
 
     if (farmerIrrigationDetailData && farmerIrrigationDetailData.length > 0) {
+      const seenCombination = {};
       farmerIrrigationDetailData.forEach((row, index) => {
         if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
           isValid = false;
           setFormError(true);
+        }
+        else{
+          const combinationString = `${row.irrigationOwner},${row.irrigationType},${row.irrigationSource}`;
+          if (seenCombination[combinationString]) {
+            toast.error("Irrigation details can not be duplicate", {
+              theme: 'colored',
+              autoClose: 10000
+            });
+            isValid = false;
+            setFormError(true);
+          } else {
+            seenCombination[combinationString] = true;
+          }
         }
       });
     }

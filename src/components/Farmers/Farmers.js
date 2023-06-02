@@ -514,6 +514,7 @@ export const Farmers = () => {
         }
 
         if (farmerIrrigationDetailsList && farmerIrrigationDetailsList.length > 0) {
+            const seenCombination = {};
             farmerIrrigationDetailsList.forEach((row, index) => {
                 if (!row.irrigationOwner || !row.irrigationType || !row.irrigationSource) {
                     irrigationDetailErr.invalidIrrigationDetail = "All fields are required in irrigation details"
@@ -525,6 +526,22 @@ export const Farmers = () => {
                             theme: 'colored'
                         });
                         $('[data-rr-ui-event-key*="Land"]').trigger('click');
+                    }
+                }
+                else{
+                    const combinationString = `${row.irrigationOwner},${row.irrigationType},${row.irrigationSource}`;
+                    if (seenCombination[combinationString]) {
+                        isValid = false;
+                        isLandTabValid = false;
+                        if (isFarmerValid && isFamilyTabValid && isBankValid) {
+                            toast.error("Irrigation details can not be duplicate", {
+                            theme: 'colored',
+                            autoClose: 10000
+                            });
+                            $('[data-rr-ui-event-key*="Land"]').trigger('click');
+                        }
+                    } else {
+                        seenCombination[combinationString] = true;
                     }
                 }
             })
