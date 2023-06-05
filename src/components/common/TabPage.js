@@ -31,6 +31,9 @@ import BankDetailsTable from 'components/Farmers/BankDetailsTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
 import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
 import FarmerInfoRow from 'components/Farmers/FarmerInfoRow';
+import AddCollectionCentre from 'components/CollectionCentre/AddCollectionCentre';
+import AddFig from 'components/CollectionCentre/AddFig';
+import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
 
 const TabPage = ({
   listData,
@@ -142,7 +145,7 @@ const TabPage = ({
               className={
                 index == 0
                   ? 'border p-1'
-                  : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer'
+                  : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -152,7 +155,7 @@ const TabPage = ({
 
                   <FalconComponentCard className="tab-page-list-card">
                     <FalconComponentCard.Body>
-                      <AdvanceTableComponent 
+                      <AdvanceTableComponent
                         columns={listColumnArray}
                         data={listData}
                         filterOptions={tableFilterOptions}
@@ -270,10 +273,39 @@ const TabPage = ({
                 </>
               )}
 
+              {index == 1 && module == 'CollectionCentre' && (
+                <>
+                  <FalconComponentCard className="no-pb mb-2">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddCollectionCentre />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <FarmerContactInformationTable />
+                </>
+              )}
+
+              {index == 2 && module == 'CollectionCentre' && (
+                <>
+                  <AddFig />
+                </>
+              )}
+
+              {index == 1 && module == 'DistributionCentre' && (
+                <>
+                  <FalconComponentCard className="no-pb mb-2">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddDistributionCentre />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <FarmerContactInformationTable />
+                </>
+              )}
             </Tab>
           );
         })}
-      </Tabs>
+      </Tabs >
     </>
   );
 };

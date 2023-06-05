@@ -23,6 +23,8 @@ import CompanyMaster from 'components/Company/CompanyMaster';
 import User from 'components/User/User';
 import Product from 'components/Product/Product';
 import Farmers from 'components/Farmers/Farmers';
+import CollectionCentre from 'components/CollectionCentre/CollectionCentre';
+import DistributionCentre from 'components/DistributionCentre/DistributionCentre';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -71,6 +73,12 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/farmers" element={<Farmers />} />
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/collection-centre" element={<CollectionCentre />} />
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/distribution-centre" element={<DistributionCentre />} />
         </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
