@@ -75,10 +75,10 @@ const Layout = () => {
           <Route path="/farmers" element={<Farmers />} />
         </Route>
         <Route element={<MainLayout />}>
-          <Route path="/collection-centre" element={<CollectionCentre />} />
+          <Route path="/collection-centres" element={<CollectionCentre />} />
         </Route>
         <Route element={<MainLayout />}>
-          <Route path="/distribution-centre" element={<DistributionCentre />} />
+          <Route path="/distribution-centres" element={<DistributionCentre />} />
         </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />

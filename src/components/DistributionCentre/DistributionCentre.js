@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
+import { Spinner, Modal, Button } from 'react-bootstrap';
 
 const tabArray = ['Distribution List', 'Add New Distribution'];
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
-    { accessor: 'distributionCode', Header: 'Distribution Code' },
+    { accessor: 'distributionCentreCode', Header: 'Distribution Code' },
     { accessor: 'distributionName', Header: 'Distribution Name' },
     { accessor: 'fpcCode', Header: 'FPC Code' },
     { accessor: 'stateCode', Header: 'State Code' },
@@ -19,6 +20,7 @@ export const DistributionCentre = () => {
 
     const [isLoading, setIsLoading] = useState(false);
     const [listData, setListData] = useState([]);
+    const [perPage, setPerPage] = useState(15);
     const [companyList, setCompanyList] = useState([]);
 
     useEffect(() => {
@@ -76,7 +78,7 @@ export const DistributionCentre = () => {
         const selectedOption = e.target.options[e.target.selectedIndex];
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
-        fetchDistributionCentreList(e.target.value);
+        fetchDistributionCentreList(1, perPage, e.target.value);
     }
 
     const fetchDistributionCentreList = async (page, size = perPage, encryptedCompanyCode) => {
@@ -97,7 +99,7 @@ export const DistributionCentre = () => {
 
         if (response.data.status == 200) {
             setIsLoading(false);
-            setListData(res.data.data);
+            setListData(response.data.data);
         } else {
             setIsLoading(false);
             setListData([])
