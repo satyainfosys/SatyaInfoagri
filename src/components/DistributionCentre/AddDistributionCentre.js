@@ -1,75 +1,211 @@
+import { distributionCentreDetailsAction, formChangedAction } from 'actions';
 import React, { useEffect, useState } from 'react'
 import { Col, Form, Row } from 'react-bootstrap';
+import { useDispatch, useSelector } from 'react-redux';
+import axios from 'axios';
+import $ from "jquery";
 
 export const AddDistributionCentre = () => {
 
     const [formHasError, setFormError] = useState(false);
+    const dispatch = useDispatch();
+
+    const resetDistributionDetailsData = () => {
+        dispatch(distributionCentreDetailsAction({
+            "encryptedCompanyCode": "",
+            "distributionCentreCode": "",
+            "distributionName": "",
+            "distributionShortName": "",
+            "countryCode": "",
+            "countryName": "",
+            "stateCode": "",
+            "stateName": "",
+            "address": "",
+            "coldStorage": "",
+            "processingUnit": "",
+            "status": "Active",
+        }))
+    }
+
+    const distributionCentreDetailsReducer = useSelector((state) => state.rootReducer.distributionCentreDetailsReducer)
+    var distirbutionCentreData = distributionCentreDetailsReducer.distributionCentreDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const distributionCentreDetailsErrorReducer = useSelector((state) => state.rootReducer.distributionCentreDetailsErrorReducer)
+    const distributionError = distributionCentreDetailsErrorReducer.distributionCentreDetailsError;
+
+    const [countryList, setCountryList] = useState([]);
+    const [stateList, setStateList] = useState([]);
+
+    useEffect(() => {
+        getCountries();
+    }, []);
+
+    if (!distributionCentreDetailsReducer.distributionCentreDetails ||
+        Object.keys(distributionCentreDetailsReducer.distributionCentreDetails).length <= 0) {
+        resetDistributionDetailsData();
+    }
+
+    const getCountries = async () => {
+        axios
+            .get(process.env.REACT_APP_API_URL + '/country-list')
+            .then(res => {
+                if (res.data.status == 200) {
+                    let countryData = [];
+                    if (res.data && res.data.data.length > 0)
+                        res.data.data.forEach(country => {
+                            countryData.push({
+                                key: country.countryName,
+                                value: country.countryCode
+                            });
+                        });
+                    setCountryList(countryData);
+                }
+            });
+    }
+
+    const getStates = async (countryCode) => {
+        const stateRequest = {
+            CountryCode: countryCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
+        let stateData = [];
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(state => {
+                    stateData.push({
+                        key: state.stateName,
+                        value: state.stateCode
+                    });
+                });
+            }
+            setStateList(stateData);
+        } else {
+            setStateList([]);
+        }
+    }
+
+    if (distirbutionCentreData.stateCode &&
+        !$('#txtStateName').val()) {
+        getStates(distirbutionCentreData.countryCode);
+    }
+
+    const handleFieldChange = e => {
+        if (e.target.name == "countryCode") {
+            dispatch(distributionCentreDetailsAction({
+                ...distirbutionCentreData,
+                countryCode: e.target.value
+            }))
+
+            e.target.value && getStates(e.target.value);
+        } else {
+            dispatch(distributionCentreDetailsAction({
+                ...distirbutionCentreData,
+                [e.target.name]: e.target.value
+            }))
+        }
+
+        if (distirbutionCentreData.encryptedDistributionCentreCode) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                distirbutionCentreUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                distirbutionCentreAdd: true
+            }))
+        }
+    }
 
     return (
         <>
-            <Form noValidate validated={formHasError} className="details-form" id='AddCollectionCentreDetails'>
-                <Row>
-                    <Col className="me-3 ms-3">
-                        <Row className="mb-3">
-                            <Form.Label>Distribution Centre Code</Form.Label>
-                            <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Distribution Centre Code" disabled />
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Distribution Centre Name</Form.Label>
-                            <Form.Control id="txtDistributionCentreName" name="distributionCentreName" placeholder="Distribution Centre Name" />
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Distribution Centre Short Name</Form.Label>
-                            <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" placeholder="Distribution Centre Short Name" />
-                        </Row>
-                    </Col>
+            {
+                distirbutionCentreData &&
 
-                    <Col className="me-3 ms-3">
-                        <Row className="mb-3">
-                            <Form.Label>Country Name</Form.Label>
-                            <Form.Select id="txtCountry" name="country" >
-                                <option value="">Select Country</option>
-                            </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>State Name</Form.Label>
-                            <Form.Select id="txtState" name="state" >
-                                <option value="">Select State</option>
-                            </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Address</Form.Label>
-                            <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows="1" />
-                        </Row>
-                    </Col>
+                <Form noValidate validated={formHasError} className="details-form" id='AddCollectionCentreDetails'>
+                    <Row>
+                        <Col className="me-3 ms-3">
+                            <Row className="mb-3">
+                                <Form.Label>Distribution Centre Code</Form.Label>
+                                <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Distribution Centre Code" value={distirbutionCentreData.distributionCentreCode} disabled />
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>Distribution Centre Name<span className="text-danger">*</span></Form.Label>
+                                <Form.Control id="txtDistributionCentreName" name="distributionName" maxLength={50} onChange={handleFieldChange} value={distirbutionCentreData.distributionName} placeholder="Distribution Centre Name" />
+                                {Object.keys(distributionError.distributionNameErr).map((key) => {
+                                    return <span className="error-message">{distributionError.distributionNameErr[key]}</span>
+                                })}
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>Distribution Centre Short Name</Form.Label>
+                                <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" maxLength={20} onChange={handleFieldChange} value={distirbutionCentreData.distributionShortName} placeholder="Distribution Centre Short Name" />
+                            </Row>
+                        </Col>
 
-                    <Col className="me-3 ms-3">
-                        <Row className="mb-3">
-                            <Form.Label>Cold Storage</Form.Label>
-                            <Form.Select id="txtColdStorage" name="coldStorage" >
-                                <option value="">Select</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Processing Unit</Form.Label>
-                            <Form.Select id="txtProcessingUnit" name="processingUnit" >
-                                <option value="">Select</option>
-                                <option value="Yes">Yes</option>
-                                <option value="No">No</option>
-                            </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Status</Form.Label>
-                            <Form.Select id="txtStatus" name="status" >
-                                <option value="Active">Active</option>
-                                <option value="Suspended">Suspended</option>
-                            </Form.Select>
-                        </Row>
-                    </Col>
-                </Row>
-            </Form>
+                        <Col className="me-3 ms-3">
+                            <Row className="mb-3">
+                                <Form.Label>Country<span className="text-danger">*</span></Form.Label>
+                                <Form.Select id="txtCountry" name="countryCode" value={distirbutionCentreData.countryCode} onChange={handleFieldChange} required>
+                                    <option value=''>Select country</option>
+                                    {countryList.map((option, index) => (
+                                        <option key={index} value={option.value}>{option.key}</option>
+                                    ))}
+                                </Form.Select>
+                                {Object.keys(distributionError.countryErr).map((key) => {
+                                    return <span className="error-message">{distributionError.countryErr[key]}</span>
+                                })}
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>State Name<span className="text-danger">*</span></Form.Label>
+                                <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={distirbutionCentreData.stateCode} >
+                                    <option value="">Select State</option>
+                                    {stateList.map((option, index) => (
+                                        <option key={index} value={option.value}>{option.key}</option>
+                                    ))}
+                                </Form.Select>
+                                {Object.keys(distributionError.stateErr).map((key) => {
+                                    return <span className="error-message">{distributionError.stateErr[key]}</span>
+                                })}
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>Address</Form.Label>
+                                <Form.Control id="txtAddress" as='textarea' name="address" maxLength={60} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="1" />
+                            </Row>
+                        </Col>
+
+                        <Col className="me-3 ms-3">
+                            <Row className="mb-3">
+                                <Form.Label>Cold Storage</Form.Label>
+                                <Form.Select id="txtColdStorage" name="coldStorage" onChange={handleFieldChange} value={distirbutionCentreData.coldStorage} >
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>Processing Unit</Form.Label>
+                                <Form.Select id="txtProcessingUnit" name="processingUnit" onChange={handleFieldChange} value={distirbutionCentreData.processingUnit} >
+                                    <option value="">Select</option>
+                                    <option value="Yes">Yes</option>
+                                    <option value="No">No</option>
+                                </Form.Select>
+                            </Row>
+                            <Row className="mb-3">
+                                <Form.Label>Status</Form.Label>
+                                <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={distirbutionCentreData.status} >
+                                    <option value="Active">Active</option>
+                                    <option value="Suspended">Suspended</option>
+                                </Form.Select>
+                            </Row>
+                        </Col>
+                    </Row>
+                </Form>
+            }
         </>
     )
 }

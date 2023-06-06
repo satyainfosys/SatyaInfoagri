@@ -31,8 +31,10 @@ import BankDetailsTable from 'components/Farmers/BankDetailsTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
 import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
 import FarmerInfoRow from 'components/Farmers/FarmerInfoRow';
+
 import AddCollectionCentre from 'components/CollectionCentre/AddCollectionCentre';
 import AddFig from 'components/CollectionCentre/AddFig';
+
 import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
 import DistributionCentreInfo from 'components/DistributionCentre/DistributionCentreInfo';
 import CollectionCentreInfo from 'components/CollectionCentre/CollectionCentreInfo';

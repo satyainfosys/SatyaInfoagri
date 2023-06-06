@@ -242,3 +242,17 @@ export const formChangedAction = (payload) => {
     payload
   };
 };
+
+export const distributionCentreDetailsAction = (payload) => {
+  return {
+    type: 'DISTRIBUTIONCENTREDETAILS',
+    payload
+  };
+};
+
+export const distributionCentreDetailsErrorAction = (payload) => {
+  return {
+    type: 'DISTRIBUTIONCENTREDETAILSERROR',
+    payload
+  };
+};

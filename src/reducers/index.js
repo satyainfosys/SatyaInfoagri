@@ -26,6 +26,8 @@ import figMasterDetailReducer from './figMasterDetailReducer'
 import distributionCentreListReducer from './distributionCentreListReducer'
 import farmerDocumentDetailsReducer from './farmerDocumentDetailsReducer'
 import formChangedReducer from './formChangedReducer'
+import distributionCentreDetailsReducer from './distributionCentreDetailsReducer'
+import distributionCentreDetailsErrorReducer from './distributionCentreDetailsErrorReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -54,7 +56,9 @@ const rootReducer = combineReducers({
   figMasterDetailReducer,
   distributionCentreListReducer,
   farmerDocumentDetailsReducer,
-  formChangedReducer
+  formChangedReducer,
+  distributionCentreDetailsReducer,
+  distributionCentreDetailsErrorReducer
 });
 
 export default rootReducer;
