@@ -9,8 +9,7 @@ const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'distributionCentreCode', Header: 'Distribution Code' },
     { accessor: 'distributionName', Header: 'Distribution Name' },
-    { accessor: 'fpcCode', Header: 'FPC Code' },
-    { accessor: 'stateCode', Header: 'State Code' },
+    { accessor: 'stateName', Header: 'State' },
     { accessor: 'processingUnit', Header: 'Processing Unit' },
     { accessor: 'coldStorage', Header: 'Cold Storage' },
     { accessor: 'status', Header: 'Status' }

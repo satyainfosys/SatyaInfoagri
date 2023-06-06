@@ -8,8 +8,7 @@ const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'collectionCentreCode', Header: 'Collection Centre Code' },
     { accessor: 'collectionCentreName', Header: 'Collection Centre Name' },
-    { accessor: 'fpcCode', Header: 'FPC Code' },
-    { accessor: 'stateCode', Header: 'State Code' },
+    { accessor: 'stateName', Header: 'State' },
     { accessor: 'ccType', Header: 'CC Type' },
     { accessor: 'status', Header: 'Status' }
 ];
