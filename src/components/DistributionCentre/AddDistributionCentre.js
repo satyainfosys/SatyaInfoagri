@@ -26,6 +26,12 @@ export const AddDistributionCentre = () => {
 
                     <Col className="me-3 ms-3">
                         <Row className="mb-3">
+                            <Form.Label>Country Name</Form.Label>
+                            <Form.Select id="txtCountry" name="country" >
+                                <option value="">Select Country</option>
+                            </Form.Select>
+                        </Row>
+                        <Row className="mb-3">
                             <Form.Label>State Name</Form.Label>
                             <Form.Select id="txtState" name="state" >
                                 <option value="">Select State</option>
@@ -33,7 +39,7 @@ export const AddDistributionCentre = () => {
                         </Row>
                         <Row className="mb-3">
                             <Form.Label>Address</Form.Label>
-                            <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows="5" />
+                            <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows="1" />
                         </Row>
                     </Col>
 
@@ -41,6 +47,7 @@ export const AddDistributionCentre = () => {
                         <Row className="mb-3">
                             <Form.Label>Cold Storage</Form.Label>
                             <Form.Select id="txtColdStorage" name="coldStorage" >
+                                <option value="">Select</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
                             </Form.Select>
@@ -48,6 +55,7 @@ export const AddDistributionCentre = () => {
                         <Row className="mb-3">
                             <Form.Label>Processing Unit</Form.Label>
                             <Form.Select id="txtProcessingUnit" name="processingUnit" >
+                                <option value="">Select</option>
                                 <option value="Yes">Yes</option>
                                 <option value="No">No</option>
                             </Form.Select>

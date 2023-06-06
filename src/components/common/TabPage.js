@@ -34,6 +34,8 @@ import FarmerInfoRow from 'components/Farmers/FarmerInfoRow';
 import AddCollectionCentre from 'components/CollectionCentre/AddCollectionCentre';
 import AddFig from 'components/CollectionCentre/AddFig';
 import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
+import DistributionCentreInfo from 'components/DistributionCentre/DistributionCentreInfo';
+import CollectionCentreInfo from 'components/CollectionCentre/CollectionCentreInfo';
 
 const TabPage = ({
   listData,
@@ -275,6 +277,8 @@ const TabPage = ({
 
               {index == 1 && module == 'CollectionCentre' && (
                 <>
+                  <CollectionCentreInfo />
+
                   <FalconComponentCard className="no-pb mb-2">
                     <FalconComponentCard.Body language="jsx">
                       <AddCollectionCentre />
@@ -287,12 +291,16 @@ const TabPage = ({
 
               {index == 2 && module == 'CollectionCentre' && (
                 <>
+                  <CollectionCentreInfo />
+
                   <AddFig />
                 </>
               )}
 
               {index == 1 && module == 'DistributionCentre' && (
                 <>
+                  <DistributionCentreInfo />
+
                   <FalconComponentCard className="no-pb mb-2">
                     <FalconComponentCard.Body language="jsx">
                       <AddDistributionCentre />

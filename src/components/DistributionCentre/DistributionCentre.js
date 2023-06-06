@@ -76,6 +76,32 @@ export const DistributionCentre = () => {
         const selectedOption = e.target.options[e.target.selectedIndex];
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
+        fetchDistributionCentreList(e.target.value);
+    }
+
+    const fetchDistributionCentreList = async (page, size = perPage, encryptedCompanyCode) => {
+
+        let token = localStorage.getItem('Token');
+
+        const listFilter = {
+            pageNumber: page,
+            pageSize: size,
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedCompanyCode: encryptedCompanyCode
+        };
+
+        setIsLoading(true);
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', listFilter, {
+            headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+        })
+
+        if (response.data.status == 200) {
+            setIsLoading(false);
+            setListData(res.data.data);
+        } else {
+            setIsLoading(false);
+            setListData([])
+        }
     }
 
     return (

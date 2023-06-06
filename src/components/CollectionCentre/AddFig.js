@@ -22,6 +22,7 @@ export const AddFig = () => {
         'S.No',
         'Fig Name',
         'Fig Short Name',
+        'Country',
         'State',
         'Address',
         'Status',
@@ -59,7 +60,7 @@ export const AddFig = () => {
                     }
                 />
 
-                <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                <Card.Body className="position-relative pb-0 p3px full-tab-card-body">
                     <Form
                         noValidate
                         // validated={formHasError || (farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail)}
@@ -101,6 +102,20 @@ export const AddFig = () => {
                                                 className="form-control"
                                                 maxLength={20}
                                             />
+                                        </td>
+
+                                        <td key={index}>
+                                            <Form.Select
+                                                type="text"
+                                                id="txtCountry"
+                                                name="countryCode"
+                                                className="form-control"
+                                            // onChange={(e) => handleFieldChange(e, index)}
+                                            // value={familyDetailData.farmerMemberRelation}
+                                            // required
+                                            >
+                                                <option value=''>Select Country</option>
+                                            </Form.Select>
                                         </td>
 
                                         <td key={index}>

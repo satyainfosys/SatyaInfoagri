@@ -25,6 +25,25 @@ export const AddCollectionCentre = () => {
 
                     <Col className="me-3 ms-3">
                         <Row className="mb-3">
+                            <Form.Label>Country Name</Form.Label>
+                            <Form.Select id="txtCountry" name="country" >
+                                <option value="">Select Country</option>
+                            </Form.Select>
+                        </Row>
+                        <Row className="mb-3">
+                            <Form.Label>State Name</Form.Label>
+                            <Form.Select id="txtState" name="state" >
+                                <option value="">Select State</option>
+                            </Form.Select>
+                        </Row>
+                        <Row className="mb-3">
+                            <Form.Label>Address</Form.Label>
+                            <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows={1} />
+                        </Row>
+                    </Col>
+
+                    <Col className="me-3 ms-3">
+                        <Row className="mb-3">
                             <Form.Label>Distribution Centre</Form.Label>
                             <Form.Select id="txtDistributionCentre" name="distributionCentreCode" >
                                 <option value=''>Select Distribution</option>
@@ -37,27 +56,6 @@ export const AddCollectionCentre = () => {
                                 <option value="Owned">Owned</option>
                                 <option value="Franchise">Franchise</option>
                             </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Collection Type</Form.Label>
-                            <Form.Select id="txtCollectionType" name="collectionType" >
-                                <option value=''>Select</option>
-                                <option value="Online">Online</option>
-                                <option value="Offline">Offline</option>
-                            </Form.Select>
-                        </Row>
-                    </Col>
-
-                    <Col className="me-3 ms-3">
-                        <Row className="mb-3">
-                            <Form.Label>State Name</Form.Label>
-                            <Form.Select id="txtState" name="state" >
-                                <option value="">Select State</option>
-                            </Form.Select>
-                        </Row>
-                        <Row className="mb-3">
-                            <Form.Label>Address</Form.Label>
-                            <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows={1} />
                         </Row>
                         <Row className="mb-3">
                             <Form.Label>Status</Form.Label>
