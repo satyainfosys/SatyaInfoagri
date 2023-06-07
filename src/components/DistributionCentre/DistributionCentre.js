@@ -3,7 +3,7 @@ import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
-import { commonContactDetailsAction, distributionCentreDetailsAction, distributionCentreDetailsErrorAction, formChangedAction } from 'actions';
+import { commonContactDetailsAction, commonContactDetailsErrorAction, distributionCentreDetailsAction, distributionCentreDetailsErrorAction, formChangedAction, tabInfoAction } from 'actions';
 import { toast } from 'react-toastify';
 import $ from "jquery";
 
@@ -33,6 +33,7 @@ export const DistributionCentre = () => {
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', true);
         getCompany();
+        localStorage.removeItem("DeleteCommonContactDetailsIds");
     }, []);
 
     const distributionCentreDetailsReducer = useSelector((state) => state.rootReducer.distributionCentreDetailsReducer)
@@ -51,6 +52,8 @@ export const DistributionCentre = () => {
         dispatch(distributionCentreDetailsAction(undefined));
         dispatch(commonContactDetailsAction([]));
         dispatch(formChangedAction(undefined));
+        dispatch(tabInfoAction(undefined));
+        dispatch(commonContactDetailsErrorAction(undefined));
     }
 
     const newDetails = () => {
@@ -60,6 +63,8 @@ export const DistributionCentre = () => {
             $('#btnSave').attr('disabled', false);
             clearDistributionCentreReducers();
             localStorage.removeItem("EncryptedDistributionCentreCode");
+            localStorage.removeItem("DeleteCommonContactDetailsIds");
+            dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -68,23 +73,67 @@ export const DistributionCentre = () => {
         }
     }
 
+    const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else {
+            $('[data-rr-ui-event-key*="Distribution List"]').trigger('click');
+        }
+
+        setModalShow(false);
+    }
+
+    const cancelClick = () => {
+        $('#btnExit').attr('isExit', 'false');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            $('[data-rr-ui-event-key*="Distribution List"]').trigger('click');
+        }
+    }
+
+    const exitModule = () => {
+        $('#btnExit').attr('isExit', 'true');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+            // clearDistributionCentreReducers();
+            // localStorage.removeItem("EncryptedDistributionCentreCode");
+        }
+    }
+
     $('[data-rr-ui-event-key*="Add New Distribution"]').off('click').on('click', function () {
         setActiveTabName("Add New Distribution");
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
-       
+
         getDistributionCentreDetail();
         getContactDetail();
+
+
     });
 
     $('[data-rr-ui-event-key*="Distribution List"]').off('click').on('click', function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', true);
-        clearDistributionCentreReducers();
-        localStorage.removeItem("EncryptedDistributionCentreCode");
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        }
+        else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', true);
+            $("#btnDiscard").attr("isDiscard", false)
+            clearDistributionCentreReducers();
+            localStorage.removeItem("EncryptedDistributionCentreCode");
+            localStorage.removeItem("DeleteCommonContactDetailsIds");
+        }
     })
 
     const getCompany = async () => {
@@ -193,10 +242,14 @@ export const DistributionCentre = () => {
             var errorObject = {
                 distributionNameErr,
                 countryErr,
-                stateErr,
-                contactErr
+                stateErr
             }
             dispatch(distributionCentreDetailsErrorAction(errorObject));
+
+            var contactErrorObject = {
+                contactErr
+            }
+            dispatch(commonContactDetailsErrorAction(contactErrorObject));
         }
 
         return isValid;
@@ -206,6 +259,7 @@ export const DistributionCentre = () => {
         setModalShow(false);
 
         dispatch(distributionCentreDetailsErrorAction(undefined));
+        localStorage.removeItem("DeleteCommonContactDetailsIds");
 
         if (!isAddDistributionCentre) {
             toast.success("Distribution centre details updated successfully!", {
@@ -228,10 +282,10 @@ export const DistributionCentre = () => {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
                 distributionName: distirbutionCentreData.distributionName,
-                distributionShortName: distirbutionCentreData.distributionShortName,
+                distributionShortName: distirbutionCentreData.distributionShortName ? distirbutionCentreData.distributionShortName : "",
                 coldStorage: distirbutionCentreData.coldStorage == null || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
                 processingUnit: distirbutionCentreData.processingUnit == null || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
-                address: distirbutionCentreData.address,
+                address: distirbutionCentreData.address ? distirbutionCentreData.address : "",
                 stateCode: distirbutionCentreData.stateCode,
                 activeStatus: distirbutionCentreData.status == null || distirbutionCentreData.status == "Active" ? "A" : "S",
                 addUser: localStorage.getItem("LoginUserName"),
@@ -287,6 +341,144 @@ export const DistributionCentre = () => {
 
     const updateDistributionCentreDetails = async () => {
 
+        if (distributionCentreValidation()) {
+            var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
+
+            const updatedDistributionCentreData = {
+                encryptedDistributionCentreCode: distirbutionCentreData.encryptedDistributionCentreCode,
+                encryptedCompanyCode: distirbutionCentreData.encryptedCompanyCode ? distirbutionCentreData.encryptedCompanyCode : localStorage.getItem("EcnryptedCompanyCode"),
+                encryptedClientCode: distirbutionCentreData.encryptedClientCode ? distirbutionCentreData.encryptedClientCode : localStorage.getItem("EncryptedClientCode"),
+                distributionName: distirbutionCentreData.distributionName,
+                distributionShortName: distirbutionCentreData.distributionShortName ? distirbutionCentreData.distributionShortName : "",
+                address: distirbutionCentreData.address ? distirbutionCentreData.address : "",
+                stateCode: distirbutionCentreData.stateCode,
+                coldStorage: distirbutionCentreData.coldStorage == null || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
+                processingUnit: distirbutionCentreData.processingUnit == null || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
+                activeStatus: distirbutionCentreData.status == null || distirbutionCentreData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            const keys = ["distributionName", "distributionShortName", "address", "modifyUser"]
+            for (const key of Object.keys(updatedDistributionCentreData).filter((key) => keys.includes(key))) {
+                updatedDistributionCentreData[key] = updatedDistributionCentreData[key] ? updatedDistributionCentreData[key].toUpperCase() : '';
+            }
+
+            var hasError = false;
+
+            if (formChangedData.distirbutionCentreUpdate) {
+                setIsLoading(true)
+                await axios.post(process.env.REACT_APP_API_URL + '/update-distribution-centre', updatedDistributionCentreData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status != 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            setModalShow(false);
+                        }
+                    })
+            }
+
+            var commonContactDetailIndex = 1;
+
+            //ContactDetail Add, Update, Delete
+            if (!hasError && ((formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete))) {
+
+                if (!hasError && formChangedData.contactDetailDelete) {
+                    var deleteCommonContactDetailsList = deleteCommonContactDetailsId ? deleteCommonContactDetailsId.split(',') : null;
+                    if (deleteCommonContactDetailsList) {
+                        var deleteCommonContactDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteCommonContactDetailsList.length; i++) {
+                            const deleteDistributionContactDetailId = deleteCommonContactDetailsList[i];
+                            const data = { encryptedCommonContactDetailsId: deleteDistributionContactDetailId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
+                            if (deleteCommContactDetailResponse.data.status != 200) {
+                                toast.error(deleteCommContactDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteCommonContactDetailsIndex++
+                    }
+                }
+
+                for (let i = 0; i < commonContactDetailList.length; i++) {
+                    const distributionContactDetails = commonContactDetailList[i];
+
+                    const keys = ['contactPerson', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(distributionContactDetails).filter((key) => keys.includes(key))) {
+                        distributionContactDetails[key] = distributionContactDetails[key] ? distributionContactDetails[key].toUpperCase() : '';
+                    }
+
+                    if (!hasError && formChangedData.contactDetailUpdate && distributionContactDetails.encryptedCommonContactDetailsId) {
+                        const contactRequestData = {
+                            encryptedCommonContactDetailsId: distributionContactDetails.encryptedCommonContactDetailsId,
+                            contactPerson: distributionContactDetails.contactPerson,
+                            contactType: distributionContactDetails.contactType,
+                            contactDetails: distributionContactDetails.contactDetails,
+                            originatedFrom: "DC",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+
+                        setIsLoading(true);
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', contactRequestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateContactDetailResponse.data.status != 200) {
+                            toast.error(updateContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.contactDetailAdd && !distributionContactDetails.encryptedCommonContactDetailsId) {
+                        const contactRequestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedConnectingCode: localStorage.getItem("EncryptedDistributionCentreCode"),
+                            contactPerson: distributionContactDetails.contactPerson,
+                            contactType: distributionContactDetails.contactType,
+                            contactDetails: distributionContactDetails.contactDetails,
+                            originatedFrom: "DC",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addFarmerContactDetailsResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', contactRequestData, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addFarmerContactDetailsResponse.data.status != 200) {
+                            toast.error(addFarmerContactDetailsResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    commonContactDetailIndex++
+                }
+            }
+
+            if (!hasError) {
+                clearDistributionCentreReducers();
+                updateDistributionCentreCallback();
+            }
+
+        }
     }
 
     const getDistributionCentreDetail = async () => {
@@ -301,6 +493,10 @@ export const DistributionCentre = () => {
         if (distributionCentreResponse.data.status == 200) {
             if (distributionCentreResponse.data.data) {
                 dispatch(distributionCentreDetailsAction(distributionCentreResponse.data.data))
+                dispatch(tabInfoAction({
+                    title1: `Company: ${localStorage.getItem("CompanyName")}`,
+                    title2: distributionCentreResponse.data.data.distributionName
+                }))
             }
         }
     }
@@ -332,6 +528,28 @@ export const DistributionCentre = () => {
                 />
             ) : null}
 
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Do you want to save changes?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={formChangedData.distirbutionCentreUpdate ? updateDistributionCentreDetails : addDistributionCentreDetails}>Save</Button>
+                        <Button id="btnDiscard" variant="danger" onClick={() => discardChanges()}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}
@@ -339,8 +557,8 @@ export const DistributionCentre = () => {
                 module="DistributionCentre"
                 saveDetails={distirbutionCentreData.encryptedDistributionCentreCode ? updateDistributionCentreDetails : addDistributionCentreDetails}
                 newDetails={newDetails}
-                // cancelClick={cancelClick}
-                // exitModule={exitModule}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
                 tableFilterOptions={companyList}
                 tableFilterName={'Company'}
                 supportingMethod1={handleFieldChange}

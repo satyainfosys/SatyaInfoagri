@@ -29,15 +29,13 @@ import FarmersLandTable from 'components/Farmers/FarmersLandTable';
 import FarmersIrrigrationTable from 'components/Farmers/FarmersIrrigrationTable';
 import BankDetailsTable from 'components/Farmers/BankDetailsTable';
 import FamilyTable from 'components/Farmers/FamilyTable';
-import FarmerContactInformationTable from 'components/Farmers/FarmerContactInformationTable';
-import FarmerInfoRow from 'components/Farmers/FarmerInfoRow';
 
 import AddCollectionCentre from 'components/CollectionCentre/AddCollectionCentre';
 import AddFig from 'components/CollectionCentre/AddFig';
 
 import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
-import DistributionCentreInfo from 'components/DistributionCentre/DistributionCentreInfo';
-import CollectionCentreInfo from 'components/CollectionCentre/CollectionCentreInfo';
+import CommonContactTable from './CommonContactTable';
+import TabInfoRow from './TabInfoRow';
 
 const TabPage = ({
   listData,
@@ -234,7 +232,7 @@ const TabPage = ({
                 <>
                   <FalconComponentCard className="add-farmer-card">
                     <FalconComponentCard.Body language="jsx" className="add-farmer-card-body">
-                      <FarmerInfoRow />
+                      <TabInfoRow />
                       <AddFarmer />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
@@ -242,21 +240,21 @@ const TabPage = ({
               )}
               {index == 2 && module == 'Farmers' && (
                 <>
-                  <FarmerInfoRow />
+                  <TabInfoRow />
                   <FamilyTable />
-                  <FarmerContactInformationTable />
+                  <CommonContactTable />
                 </>
               )}
               {index == 3 && module == 'Farmers' && (
                 <>
-                  <FarmerInfoRow />
+                  <TabInfoRow />
                   <BankDetailsTable />
                 </>
               )}
 
               {index == 4 && module == 'Farmers' && (
                 <>
-                  <FarmerInfoRow />
+                  <TabInfoRow />
                   <FarmersLandTable />
                   <FarmersIrrigrationTable />
                 </>
@@ -264,7 +262,7 @@ const TabPage = ({
 
               {index == 5 && module == 'Farmers' && (
                 <>
-                  <FarmerInfoRow />
+                  <TabInfoRow />
                   <FarmersLiveStockTable />
                   <FarmersMachinaryDetailsTable />
                 </>
@@ -272,14 +270,14 @@ const TabPage = ({
 
               {index == 6 && module == 'Farmers' && (
                 <>
-                  <FarmerInfoRow />
+                  <TabInfoRow />
                   <FarmersDocumentDetails />
                 </>
               )}
 
               {index == 1 && module == 'CollectionCentre' && (
                 <>
-                  <CollectionCentreInfo />
+                  <TabInfoRow />
 
                   <FalconComponentCard className="no-pb mb-2">
                     <FalconComponentCard.Body language="jsx">
@@ -287,13 +285,13 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FarmerContactInformationTable />
+                  <CommonContactTable />
                 </>
               )}
 
               {index == 2 && module == 'CollectionCentre' && (
                 <>
-                  <CollectionCentreInfo />
+                  <TabInfoRow />
 
                   <AddFig />
                 </>
@@ -301,7 +299,7 @@ const TabPage = ({
 
               {index == 1 && module == 'DistributionCentre' && (
                 <>
-                  <DistributionCentreInfo />
+                  <TabInfoRow />
 
                   <FalconComponentCard className="no-pb mb-2">
                     <FalconComponentCard.Body language="jsx">
@@ -309,7 +307,7 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <FarmerContactInformationTable />
+                  <CommonContactTable />
                 </>
               )}
             </Tab>

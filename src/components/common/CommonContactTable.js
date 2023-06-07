@@ -8,7 +8,7 @@ import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-export const FarmerContactInformationTable = () => {
+export const CommonContactTable = () => {
   const dispatch = useDispatch();
   const [modalShow, setModalShow] = useState(false);
   const [paramsData, setParamsData] = useState({});
@@ -24,11 +24,10 @@ export const FarmerContactInformationTable = () => {
 
   const emptyRow = {
     id: rowData.length + 1,
-    encryptedConnectingCode: localStorage.getItem("EncryptedFarmerCode") ? localStorage.getItem("EncryptedFarmerCode") : '',
     contactPerson: '',
     contactType: '',
     contactDetails: '',
-    originatedFrom: 'FR',
+    originatedFrom: '',
     encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
     addUser: localStorage.getItem("LoginUserName"),
     modifyUser: localStorage.getItem("LoginUserName")
@@ -37,8 +36,8 @@ export const FarmerContactInformationTable = () => {
   let commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
   let commonContactDetailData = commonContactDetailsReducer.commonContactDetails;
 
-  const farmerDetailsErrorReducer = useSelector((state) => state.rootReducer.farmerDetailsErrorReducer)
-  const farmerError = farmerDetailsErrorReducer.farmerDetailsError;
+  const commonContactDetailErrorReducer = useSelector((state) => state.rootReducer.commonContactDetailErrorReducer)
+  const contactDetailError = commonContactDetailErrorReducer.commonContactDetailsError;
 
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
@@ -106,7 +105,7 @@ export const FarmerContactInformationTable = () => {
     setParamsData({ encryptedCommonContactDetailsId, contactDetailsToDelete });
   }
 
-  const deleteFarmerContactDetails = () => {
+  const deleteCommonContactDetails = () => {
     if (!paramsData)
       return false;
 
@@ -116,8 +115,8 @@ export const FarmerContactInformationTable = () => {
     var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
     if (paramsData.encryptedCommonContactDetailsId) {
-      var deleteFarmerCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
-      localStorage.setItem("DeleteCommonContactDetailsIds", deleteFarmerCommonContactDetails);
+      var deleteCommonContactDetails = deleteCommonContactDetailsId ? deleteCommonContactDetailsId + "," + paramsData.encryptedCommonContactDetailsId : paramsData.encryptedCommonContactDetailsId;
+      localStorage.setItem("DeleteCommonContactDetailsIds", deleteCommonContactDetails);
     }
 
     toast.success("Contact details deleted successfully", {
@@ -153,16 +152,16 @@ export const FarmerContactInformationTable = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
-            <Button variant="danger" onClick={() => deleteFarmerContactDetails()}>Delete</Button>
+            <Button variant="danger" onClick={() => deleteCommonContactDetails()}>Delete</Button>
           </Modal.Footer>
         </Modal>
       }
-
+      
       {
-        farmerError.contactErr && farmerError.contactErr.contactEmpty &&
+        contactDetailError.contactErr && contactDetailError.contactErr.contactEmpty &&
         (
           <div className='mb-2'>
-            <span className="error-message">{farmerError.contactErr.contactEmpty}</span>
+            <span className="error-message">{contactDetailError.contactErr.contactEmpty}</span>
           </div>
         )
       }
@@ -189,14 +188,15 @@ export const FarmerContactInformationTable = () => {
           }
         />
         {
-              commonContactDetailData && commonContactDetailData.length > 0 &&
-        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-          <Form
-            noValidate
-            validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
-            className="details-form"
-            id="AddCommonContactDetailsForm"
-          >
+          commonContactDetailData && commonContactDetailData.length > 0 &&
+          <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+            <Form
+              noValidate
+              // validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
+              validated={formHasError}
+              className="details-form"
+              id="AddCommonContactDetailsForm"
+            >
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -263,18 +263,18 @@ export const FarmerContactInformationTable = () => {
                         />
                       </td>
                       <td>
-                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-          </Form>
-        </Card.Body>
+            </Form>
+          </Card.Body>
         }
       </Card>
     </>
   );
 };
 
-export default FarmerContactInformationTable;
+export default CommonContactTable;

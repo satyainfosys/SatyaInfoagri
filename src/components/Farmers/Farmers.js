@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { bankDetailsAction, commonContactDetailsAction, distributionCentreListAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction, formChangedAction } from 'actions';
+import { bankDetailsAction, commonContactDetailsAction, commonContactDetailsErrorAction, distributionCentreListAction, farmerDetailsAction, farmerDetailsErrorAction, farmerDocumentDetailsAction, farmerFamilyDetailsAction, farmerIrrigationDetailsAction, farmerLandDetailsAction, farmerLiveStockCattleDetailsAction, farmerMachineryDetailsAction, figMasterListAction, formChangedAction, tabInfoAction } from 'actions';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { toast } from 'react-toastify';
 import $ from "jquery";
@@ -133,6 +133,7 @@ export const Farmers = () => {
         dispatch(farmerMachineryDetailsAction([]));
         dispatch(farmerDocumentDetailsAction([]));
         dispatch(formChangedAction(undefined));
+        dispatch(commonContactDetailsErrorAction(undefined));
     }
 
     const clearFarmerLocalStorages = () => {
@@ -162,6 +163,7 @@ export const Farmers = () => {
             $("#AddFarmerDetailsForm").data("changed", false);
             localStorage.removeItem("EncryptedFarmerCode");
             clearFarmerReducers();
+            dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -456,8 +458,7 @@ export const Farmers = () => {
                     isValid = false
                 }
             });
-            if(isFarmerValid && contactErr.invalidContactDetail)
-            {
+            if (isFarmerValid && contactErr.invalidContactDetail) {
                 toast.error(contactErr.invalidContactDetail, {
                     theme: 'colored'
                 });
@@ -528,15 +529,15 @@ export const Farmers = () => {
                         $('[data-rr-ui-event-key*="Land"]').trigger('click');
                     }
                 }
-                else{
+                else {
                     const combinationString = `${row.irrigationOwner},${row.irrigationType},${row.irrigationSource}`;
                     if (seenCombination[combinationString]) {
                         isValid = false;
                         isLandTabValid = false;
                         if (isFarmerValid && isFamilyTabValid && isBankValid) {
                             toast.error("Irrigation details can not be duplicate", {
-                            theme: 'colored',
-                            autoClose: 10000
+                                theme: 'colored',
+                                autoClose: 10000
                             });
                             $('[data-rr-ui-event-key*="Land"]').trigger('click');
                         }
@@ -660,7 +661,6 @@ export const Farmers = () => {
                 villageErr,
                 ditributionErr,
                 collectionErr,
-                contactErr,
                 familyErr,
                 bankDetailErr,
                 irrigationDetailErr,
@@ -671,6 +671,10 @@ export const Farmers = () => {
                 documentDetailErr
             }
             dispatch(farmerDetailsErrorAction(errorObject))
+            var contactErrorObject = {
+                contactErr
+            }
+            dispatch(commonContactDetailsErrorAction(contactErrorObject));
         }
         return isValid;
     }
@@ -1100,7 +1104,10 @@ export const Farmers = () => {
 
         if (farmerResponse.data.status == 200) {
             if (farmerResponse.data.data) {
-                dispatch(farmerDetailsAction(farmerResponse.data.data));
+                dispatch(farmerDetailsAction(farmerResponse.data.data)); dispatch(tabInfoAction({
+                    title1: `Company: ${localStorage.getItem("CompanyName")}`,
+                    title2: farmerResponse.data.data.farmerName
+                }))
             }
         }
     }
@@ -1279,8 +1286,17 @@ export const Farmers = () => {
                     }
 
                     if (formChangedData.contactDetailUpdate && farmerContactDetails.encryptedCommonContactDetailsId) {
+                        const contactRequestData = {
+                            encryptedCommonContactDetailsId: farmerContactDetails.encryptedCommonContactDetailsId,
+                            contactPerson: farmerContactDetails.contactPerson,
+                            contactType: farmerContactDetails.contactType,
+                            contactDetails: farmerContactDetails.contactDetails,
+                            originatedFrom: "FR",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+
                         setIsLoading(true);
-                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', farmerContactDetails, {
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', contactRequestData, {
                             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         });
                         setIsLoading(false);
@@ -1294,9 +1310,20 @@ export const Farmers = () => {
                         }
                     }
                     else if (formChangedData.contactDetailAdd && !farmerContactDetails.encryptedCommonContactDetailsId) {
+
+                        const contactRequestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedConnectingCode: localStorage.getItem("EncryptedFarmerCode"),
+                            contactPerson: farmerContactDetails.contactPerson,
+                            contactType: farmerContactDetails.contactType,
+                            contactDetails: farmerContactDetails.contactDetails,
+                            originatedFrom: "FR",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+
                         setIsLoading(true);
                         const addFarmerContactDetailsResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', farmerContactDetails, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', contactRequestData, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);

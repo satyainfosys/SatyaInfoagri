@@ -2,8 +2,7 @@ const initialState = {
   distributionCentreDetailsError: {
     distributionNameErr: {},
     countryErr: {},
-    stateErr: {},
-    contactErr: {}
+    stateErr: {}
   }
 };
 

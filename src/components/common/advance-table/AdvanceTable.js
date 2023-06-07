@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -55,12 +55,20 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
       getFarmerDetail(rowData.encryptedFarmerCode);
       $('#btnSave').attr('disabled', true);
+      dispatch(tabInfoAction({
+        title1: `Company: ${localStorage.getItem("CompanyName")}`,
+        title2: rowData.farmerName
+      }))
     }
     else if (rowData.hasOwnProperty('encryptedDistributionCentreCode')) {
-      localStorage.setItem("EncryptedDistributionCentreCode", rowData.encryptedDistributionCentreCode);      
+      localStorage.setItem("EncryptedDistributionCentreCode", rowData.encryptedDistributionCentreCode);
       $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add New Distribution"]').trigger('click');
       $('#btnSave').attr('disabled', true);
+      dispatch(tabInfoAction({
+        title1: `Company: ${localStorage.getItem("CompanyName")}`,
+        title2: rowData.distributionName
+      }))
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));

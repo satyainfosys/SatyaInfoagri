@@ -114,8 +114,6 @@ const AddFarmer = () => {
                             });
                         });
                     setCountryList(countryData);
-                } else {
-                    setCountryList([]);
                 }
             });
     }

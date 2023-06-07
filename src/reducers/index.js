@@ -28,6 +28,8 @@ import farmerDocumentDetailsReducer from './farmerDocumentDetailsReducer'
 import formChangedReducer from './formChangedReducer'
 import distributionCentreDetailsReducer from './distributionCentreDetailsReducer'
 import distributionCentreDetailsErrorReducer from './distributionCentreDetailsErrorReducer'
+import commonContactDetailErrorReducer from './commonContactDetailErrorReducer'
+import tabInfoReducer from './tabInfoReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -58,7 +60,9 @@ const rootReducer = combineReducers({
   farmerDocumentDetailsReducer,
   formChangedReducer,
   distributionCentreDetailsReducer,
-  distributionCentreDetailsErrorReducer
+  distributionCentreDetailsErrorReducer,
+  commonContactDetailErrorReducer,
+  tabInfoReducer
 });
 
 export default rootReducer;

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
+import { useDispatch } from 'react-redux';
+import { Spinner, Modal, Button } from 'react-bootstrap';
 
 const tabArray = ['Collection Centre List', 'Add Collection Centre', 'Add FIGs'];
 
@@ -15,9 +17,14 @@ const listColumnArray = [
 
 export const CollectionCentre = () => {
 
+    const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
     const [listData, setListData] = useState([]);
+    const [perPage, setPerPage] = useState(15);
     const [companyList, setCompanyList] = useState([]);
+    const [modalShow, setModalShow] = useState(false);
+    const [formHasError, setFormError] = useState(false);
+    const [activeTabName, setActiveTabName] = useState();
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Collection Centre"]').attr('disabled', true);
@@ -33,6 +40,7 @@ export const CollectionCentre = () => {
     }
 
     $('[data-rr-ui-event-key*="Add Collection Centre"]').off('click').on('click', function () {
+        setActiveTabName("Add Collectin Centre")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -47,6 +55,7 @@ export const CollectionCentre = () => {
     })
 
     $('[data-rr-ui-event-key*="Add FIGs"]').off('click').on('click', function () {
+        setActiveTabName("Add FIGs")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -83,6 +92,33 @@ export const CollectionCentre = () => {
         const selectedOption = e.target.options[e.target.selectedIndex];
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
+        fetchCollectionCentreList(1, perPage, e.target.value)
+    }
+
+    const fetchCollectionCentreList = async (page, size = perPage, encryptedCompanyCode) => {
+
+        let token = localStorage.getItem('Token');
+
+        const listFilter = {
+            pageNumber: page,
+            pageSize: size,
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedCompanyCode: encryptedCompanyCode
+        };
+
+        setIsLoading(true);
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-master-list', listFilter, {
+            headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+        })
+
+        if (response.data.status == 200) {
+            setIsLoading(false);
+            setListData(response.data.data);
+        } else {
+            setIsLoading(false);
+            setListData([])
+        }
+
     }
 
     return (

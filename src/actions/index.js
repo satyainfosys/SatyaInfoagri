@@ -256,3 +256,17 @@ export const distributionCentreDetailsErrorAction = (payload) => {
     payload
   };
 };
+
+export const commonContactDetailsErrorAction = (payload) => {
+  return {
+    type: 'COMMONCONTACTDETAILSERROR',
+    payload
+  };
+};
+
+export const tabInfoAction = (payload) => {
+  return {
+    type: 'TABINFO',
+    payload
+  };
+};
