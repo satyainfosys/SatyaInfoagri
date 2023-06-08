@@ -270,3 +270,24 @@ export const tabInfoAction = (payload) => {
     payload
   };
 };
+
+export const collectionCentreDetailsAction = (payload) => {
+  return {
+    type: 'COLLECTIONCENTREDETAILS',
+    payload
+  };
+};
+
+export const figDetailsAction = (payload) => {
+  return {
+    type: 'FIGDETAILS',
+    payload
+  };
+};
+
+export const collectionCentreDetailsErrorAction = (payload) => {
+  return {
+    type: 'COLLECTIONCENTREDETAILSERROR',
+    payload
+  };
+};

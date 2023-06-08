@@ -127,7 +127,7 @@ export const AddDistributionCentre = () => {
             {
                 distirbutionCentreData &&
 
-                <Form noValidate validated={formHasError} className="details-form" id='AddCollectionCentreDetails'>
+                <Form noValidate validated={formHasError} className="details-form" id='AddDistributionDetails'>
                     <Row>
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
@@ -174,7 +174,7 @@ export const AddDistributionCentre = () => {
                             </Row>
                             <Row className="mb-3">
                                 <Form.Label>Address</Form.Label>
-                                <Form.Control id="txtAddress" as='textarea' name="address" maxLength={60} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="1" />
+                                <Form.Control id="txtAddress" as='textarea' name="address" maxLength={250} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="1" />
                             </Row>
                         </Col>
 

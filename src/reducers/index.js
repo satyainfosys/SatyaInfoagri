@@ -30,6 +30,9 @@ import distributionCentreDetailsReducer from './distributionCentreDetailsReducer
 import distributionCentreDetailsErrorReducer from './distributionCentreDetailsErrorReducer'
 import commonContactDetailErrorReducer from './commonContactDetailErrorReducer'
 import tabInfoReducer from './tabInfoReducer'
+import collectionCentreDetailsReducer from './collectionCentreDetailsReducer'
+import figDetailsReducer from './figDetailsReducer'
+import collectionCentreDetailsErrorReducer from './collectionCentreDetailsErrorReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -62,7 +65,10 @@ const rootReducer = combineReducers({
   distributionCentreDetailsReducer,
   distributionCentreDetailsErrorReducer,
   commonContactDetailErrorReducer,
-  tabInfoReducer
+  tabInfoReducer,
+  collectionCentreDetailsReducer,
+  figDetailsReducer,
+  collectionCentreDetailsErrorReducer
 });
 
 export default rootReducer;
