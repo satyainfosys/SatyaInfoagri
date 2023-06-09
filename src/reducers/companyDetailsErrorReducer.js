@@ -8,7 +8,8 @@ const initialState = {
     gstNoErr:{},
     panNoErr:{},
     regDateErr:{},
-    imageTypeErr:{}
+    imageTypeErr:{},
+    contactErr:{}
   }
 };
 

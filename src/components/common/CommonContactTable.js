@@ -54,10 +54,24 @@ export const CommonContactTable = () => {
     let isValid = true;
 
     if (commonContactDetailData && commonContactDetailData.length > 0) {
+      const seenCombination = {};
       commonContactDetailData.forEach((row, index) => {
         if (!row.contactPerson || !row.contactDetails || !row.contactType) {
           isValid = false;
           setFormError(true);
+        }
+        else {
+          const combinationString = `${row.contactDetails},${row.contactType}`;
+          if (seenCombination[combinationString]) {
+            toast.error("Contact details can not be duplicate", {
+              theme: 'colored',
+              autoClose: 10000
+            });
+            isValid = false;
+            setFormError(true);
+          } else {
+            seenCombination[combinationString] = true;
+          }
         }
       });
     }

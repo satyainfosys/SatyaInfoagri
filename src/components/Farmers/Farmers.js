@@ -452,11 +452,23 @@ export const Farmers = () => {
             setFormError(true);
         }
         else if (commonContactDetailList && commonContactDetailList.length > 0) {
+            const seenCombination = {};
             commonContactDetailList.forEach((row, index) => {
                 if (!row.contactPerson || !row.contactType || !row.contactDetails) {
                     contactErr.invalidContactDetail = "All fields are required in contact details";
                     isValid = false
-                    isFamilyTabValid = false;
+                    isFamilyTabValid = false
+                }
+                else {
+                    const combinationString = `${row.contactDetails},${row.contactType}`;
+                    if (seenCombination[combinationString]) {
+                        contactErr.invalidContactDetail = "Contact details can not be duplicate";                       
+                        isValid = false;
+                        isFamilyTabValid = false
+                        setFormError(true);
+                    } else {
+                        seenCombination[combinationString] = true;
+                    }
                 }
             });
             if (isFarmerValid && contactErr.invalidContactDetail) {

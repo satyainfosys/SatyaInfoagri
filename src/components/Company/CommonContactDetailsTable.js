@@ -48,6 +48,9 @@ export const CommonContactDetailsTable = () => {
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
+    const companyDetailsErrorReducer = useSelector((state) => state.rootReducer.companyDetailsErrorReducer)
+    const companyError = companyDetailsErrorReducer.companyDetailsError;
+
     useEffect(() => {
         setRowDataValue(commonContactDetailsReducer, commonContactDetailData);
     }, [commonContactDetailData, commonContactDetailsReducer]);
@@ -60,10 +63,24 @@ export const CommonContactDetailsTable = () => {
         let isValid = true;
 
         if (commonContactDetailData && commonContactDetailData.length > 0) {
+            const seenCombination = {};
             commonContactDetailData.forEach((row, index) => {
                 if (!row.contactPerson || !row.contactDetails || !row.contactType) {
                     isValid = false;
                     setFormError(true);
+                }
+                else {
+                    const combinationString = `${row.contactDetails},${row.contactType}`;
+                    if (seenCombination[combinationString]) {
+                        toast.error("Contact details can not be duplicate", {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                        isValid = false;
+                        setFormError(true);
+                    } else {
+                        seenCombination[combinationString] = true;
+                    }
                 }
             });
         }
@@ -223,154 +240,146 @@ export const CommonContactDetailsTable = () => {
                 </Modal>
             }
 
-<Card className="h-100 mb-2" id='ContactDetailsTable'>
-        <FalconCardHeader
-          title="Contact Details"
-          titleTag="h6"
-          className="py-2"
-          light
-          endEl={
-            <Flex>
-              <div >
-                <Button
-                  variant="primary"
-                  size="sm"
-                  className="btn-reveal"
-                  type="button"
-                  onClick={handleAddRow}
-                >
-                  <i className="fa-solid fa-plus" />
-                </Button>
-              </div>
-            </Flex>
-          }
-        />
-        {
+            <Card className="h-100 mb-2" id='ContactDetailsTable'>
+                <FalconCardHeader
+                    title="Contact Details"
+                    titleTag="h6"
+                    className="py-2"
+                    light
+                    endEl={
+                        <Flex>
+                            <div >
+                                <Button
+                                    variant="primary"
+                                    size="sm"
+                                    className="btn-reveal"
+                                    type="button"
+                                    onClick={handleAddRow}
+                                >
+                                    <i className="fa-solid fa-plus" />
+                                </Button>
+                            </div>
+                        </Flex>
+                    }
+                />
+                {
                     commonContactDetailData && commonContactDetailData.length > 0 &&
-        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-        
-            <div>
-                <Row className="justify-content-between align-items-center" id="contactListChkBoxRow">
-                    <Col xs="auto">
-                        <Form.Check type="checkbox" id="contactListChkBox" className="mb-1">
-                            <Form.Check.Input
-                                type="checkbox"
-                                name="Same as client"
-                                onChange={contactSameAsClientChanged}
-                            />
-                            <Form.Check.Label className="mb-0 text-700">
-                                Same as client
-                            </Form.Check.Label>
-                        </Form.Check>
-                    </Col>
-                </Row>
-            </div>
-            {/* {
-        farmerError.contactErr && farmerError.contactErr.contactEmpty &&
-        (
-          <div className='mb-2'>
-            <span className="error-message">{farmerError.contactErr.contactEmpty}</span>
-          </div>
-        )
-      } */}
-            <Form
-                noValidate
-                validated={formHasError}
-                className="details-form"
-                id="AddCommonContactDetailsForm"
-            >
-                
-                    <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                        <thead className='custom-bg-200'>
-                            <tr>
-                                {columnsArray.map((column, index) => (
-                                    <th className="text-left" key={index}>
-                                        {column}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody id="tbody" className="details-form">
-                            {rowData.map((commonContactDetailData, index) => (
-                                <tr key={index}>
-                                    <td>
-                                        {index + 1}
-                                    </td>
-                                    <td key={index}>
-                                        <EnlargableTextbox
-                                            id="txtContactPerson"
-                                            name="contactPerson"
-                                            maxLength={45}
-                                            value={commonContactDetailData.contactPerson}
-                                            onChange={(e) => handleFieldChange(e, index)}
-                                            placeholder="Contact Person Name"
-                                            className="form-control"
-                                            required={true}
-                                        />
-                                    </td>
+                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
 
-                                    <td key={index}>
-                                        <Form.Select
-                                            type="text"
-                                            id="txtContactType"
-                                            name="contactType"
-                                            value={commonContactDetailData.contactType}
-                                            onChange={(e) => handleFieldChange(e, index)}
-                                            className="form-control"
-                                            required
-                                        >
-                                            <option value=''>Select Contact Type</option>
-                                            <option value="OFE">Office Email Id</option>
-                                            <option value="OFM">Office Mobile No</option>
-                                            <option value="OFL">Office Land Line No</option>
-                                            <option value="OFX">Office Ext No</option>
-                                            <option value="OFF">Office Fax No</option>
-                                            <option value="PPP">PP No</option>
-                                            <option value="PMN">Personal Mobile No</option>
-                                            <option value="PRL">Personal Land Line No</option>
-                                            <option value="PRS">Spouse Mob No</option>
-                                            <option value="PRE">Personal Mail</option>
-                                        </Form.Select>
-                                    </td>
-
-                                    <td key={index}>
-                                        <EnlargableTextbox
-                                            id="txtContactDetails"
-                                            name="contactDetails"
-                                            maxLength={30}
-                                            value={commonContactDetailData.contactDetails}
-                                            onChange={(e) => handleFieldChange(e, index)}
-                                            placeholder="Contact Details"
-                                            className="form-control"
-                                            required={true}
+                        <div>
+                            <Row className="justify-content-between align-items-center" id="contactListChkBoxRow">
+                                <Col xs="auto">
+                                    <Form.Check type="checkbox" id="contactListChkBox" className="mb-1">
+                                        <Form.Check.Input
+                                            type="checkbox"
+                                            name="Same as client"
+                                            onChange={contactSameAsClientChanged}
                                         />
-                                    </td>
-                                    <td key={index}>
-                                        <Form.Select
-                                            type="text"
-                                            id="txtFlag"
-                                            name="flag"
-                                            value={commonContactDetailData.flag}
-                                            onChange={(e) => handleFieldChange(e, index)}
-                                            className="form-control"
-                                        >
-                                            <option value=''>Select</option>
-                                            <option value="1">Yes</option>
-                                            <option value="0">No</option>
-                                        </Form.Select>
-                                    </td>
-                                    <td>
-                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                
-            </Form>
-            </Card.Body>
-            }
-        </Card>
+                                        <Form.Check.Label className="mb-0 text-700">
+                                            Same as client
+                                        </Form.Check.Label>
+                                    </Form.Check>
+                                </Col>
+                            </Row>
+                        </div>
+                        <Form
+                            noValidate
+                            validated={formHasError || (companyError.contactErr.invalidContactDetail)}
+                            className="details-form"
+                            id="AddCommonContactDetailsForm"
+                        >
+
+                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                <thead className='custom-bg-200'>
+                                    <tr>
+                                        {columnsArray.map((column, index) => (
+                                            <th className="text-left" key={index}>
+                                                {column}
+                                            </th>
+                                        ))}
+                                    </tr>
+                                </thead>
+                                <tbody id="tbody" className="details-form">
+                                    {rowData.map((commonContactDetailData, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                {index + 1}
+                                            </td>
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    id="txtContactPerson"
+                                                    name="contactPerson"
+                                                    maxLength={45}
+                                                    value={commonContactDetailData.contactPerson}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="Contact Person Name"
+                                                    className="form-control"
+                                                    required={true}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    id="txtContactType"
+                                                    name="contactType"
+                                                    value={commonContactDetailData.contactType}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    className="form-control"
+                                                    required
+                                                >
+                                                    <option value=''>Select Contact Type</option>
+                                                    <option value="OFE">Office Email Id</option>
+                                                    <option value="OFM">Office Mobile No</option>
+                                                    <option value="OFL">Office Land Line No</option>
+                                                    <option value="OFX">Office Ext No</option>
+                                                    <option value="OFF">Office Fax No</option>
+                                                    <option value="PPP">PP No</option>
+                                                    <option value="PMN">Personal Mobile No</option>
+                                                    <option value="PRL">Personal Land Line No</option>
+                                                    <option value="PRS">Spouse Mob No</option>
+                                                    <option value="PRE">Personal Mail</option>
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    id="txtContactDetails"
+                                                    name="contactDetails"
+                                                    maxLength={30}
+                                                    value={commonContactDetailData.contactDetails}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="Contact Details"
+                                                    className="form-control"
+                                                    required={true}
+                                                />
+                                            </td>
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    id="txtFlag"
+                                                    name="flag"
+                                                    value={commonContactDetailData.flag}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    className="form-control"
+                                                >
+                                                    {/* <option value=''>Select</option> */}
+                                                    <option value="1">Yes</option>
+                                                    <option value="0">No</option>
+                                                </Form.Select>
+                                            </td>
+                                            <td>
+                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(commonContactDetailData.encryptedCommonContactDetailsId, commonContactDetailData.contactDetails) }} />
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+
+                        </Form>
+                    </Card.Body>
+                }
+            </Card>
         </>
     );
 };

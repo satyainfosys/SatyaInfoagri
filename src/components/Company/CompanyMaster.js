@@ -163,6 +163,7 @@ export const CompanyMaster = () => {
         const gstNoErr = {};
         const regDateErr = {};
         let imageTypeErr = {};
+        let contactErr = {};
 
         let isValid = true;
         if (!companyData.companyName) {
@@ -214,7 +215,7 @@ export const CompanyMaster = () => {
         }
 
         if (companyData.companyLogo && companyData.companyLogo.type) {
-            var imageType = ['image/jpeg', 'image/jpg','image/bmp'];
+            var imageType = ['image/jpeg', 'image/jpg', 'image/bmp'];
             if (imageType.indexOf(companyData.companyLogo.type) === -1) {
                 imageTypeErr.invalidImage = "Selected image is invalid";
                 isValid = false;
@@ -228,6 +229,31 @@ export const CompanyMaster = () => {
             }
         }
 
+        if (commonContactDetailList && commonContactDetailList.length > 0) {
+            const seenCombination = {};
+            commonContactDetailList.forEach((row, index) => {
+                if (!row.contactPerson || !row.contactType || !row.contactDetails) {
+                    contactErr.invalidContactDetail = "All fields are required in contact details";
+                    isValid = false
+                }
+                else {
+                    const combinationString = `${row.contactDetails},${row.contactType}`;
+                    if (seenCombination[combinationString]) {
+                        contactErr.invalidContactDetail = "Contact details can not be duplicate";
+                        isValid = false;
+                        setFormError(true);
+                    } else {
+                        seenCombination[combinationString] = true;
+                    }
+                }
+            });
+            if (contactErr.invalidContactDetail) {
+                toast.error(contactErr.invalidContactDetail, {
+                    theme: 'colored'
+                });
+            }
+        }
+
         if (!isValid) {
             var errorObject = {
                 companyNameErr,
@@ -238,7 +264,8 @@ export const CompanyMaster = () => {
                 panNoErr,
                 gstNoErr,
                 regDateErr,
-                imageTypeErr
+                imageTypeErr,
+                contactErr
             }
             dispatch(companyDetailsErrorAction(errorObject))
         }
@@ -261,7 +288,7 @@ export const CompanyMaster = () => {
                 theme: 'colored'
             });
         }
-        else{
+        else {
             dispatch(companyDetailsAction({
                 ...companyData,
                 encryptedCompanyCode: encryptedCompanyCode,
@@ -281,27 +308,27 @@ export const CompanyMaster = () => {
 
     const getCommonContactDetailsList = async (encryptedCompanyCode) => {
         const request = {
-          EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-          EncryptedCompanyCode: encryptedCompanyCode,
-          OriginatedFrom: "CM"
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedCompanyCode: encryptedCompanyCode,
+            OriginatedFrom: "CM"
         }
-    
+
         axios
-          .post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-          })
-          .then(res => {
-    
-            if (res.data.status == 200) {
-              if(res.data.data && res.data.data.length > 0){
-                dispatch(commonContactDetailsAction(res.data.data))
-              }
-            }
-            else {
-              $("#CompanyContactDetailsTable").hide();
-            }
-          });
-      }
+            .post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+            .then(res => {
+
+                if (res.data.status == 200) {
+                    if (res.data.data && res.data.data.length > 0) {
+                        dispatch(commonContactDetailsAction(res.data.data))
+                    }
+                }
+                else {
+                    $("#CompanyContactDetailsTable").hide();
+                }
+            });
+    }
 
     const uploadCompanyLogo = async (companyLogo, encryptedCompanyCode, isUpdate, isRemoved) => {
         var formData = new FormData();
