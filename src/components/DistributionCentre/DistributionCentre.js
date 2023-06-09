@@ -111,7 +111,15 @@ export const DistributionCentre = () => {
         $("#btnSave").show();
         $("#btnCancel").show();
 
-        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedDistributionCentreCode") || distirbutionCentreData.encryptedDistributionCentreCode)) {
+        if(!modalShow && distirbutionCentreData.encryptedDistributionCentreCode)
+        {
+            getDistributionCentreDetail();
+        }
+
+        if (commonContactDetailList.length <= 0 && 
+           !(localStorage.getItem("DeleteCommonContactDetailsIds")) &&
+            (localStorage.getItem("EncryptedDistributionCentreCode") || 
+             distirbutionCentreData.encryptedDistributionCentreCode)) {
             getContactDetail();
         }
     });
@@ -336,7 +344,7 @@ export const DistributionCentre = () => {
                                 encryptedDistributionCentreCode: res.data.data.encryptedDistributionCentreCode
                             }))
                         }, 50);
-                        localStorage.setItem("EncryptedDistributionCentreCode", res.data.data.encryptedDistributionCentreCode)
+                        localStorage.setItem("EncryptedDistributionCentreCode", res.data.data.encryptedDistributionCentreCode);
 
                         toast.success(res.data.message, {
                             theme: 'colored',
@@ -357,6 +365,13 @@ export const DistributionCentre = () => {
     const updateDistributionCentreDetails = async () => {
 
         if (distributionCentreValidation()) {
+
+            if (!formChangedData.distirbutionCentreUpdate && 
+                !(formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) 
+            {
+                return;    
+            }
+
             var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
             const updatedDistributionCentreData = {
