@@ -62,6 +62,7 @@ const AdvanceTable = ({
     }
     else if (rowData.hasOwnProperty('encryptedDistributionCentreCode')) {
       localStorage.setItem("EncryptedDistributionCentreCode", rowData.encryptedDistributionCentreCode);
+      dispatch(distributionCentreDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add New Distribution"]').trigger('click');
       $('#btnSave').attr('disabled', true);

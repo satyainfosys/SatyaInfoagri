@@ -207,9 +207,9 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
 
-        if (farmerData.encryptedFarmerCode && !farmerData) {
-            getFarmerDetail();
-        }
+        // if (farmerData.encryptedFarmerCode) {
+        //     getFarmerDetail();
+        // }
     })
 
     $('[data-rr-ui-event-key*="Family"]').off('click').on('click', function () {
@@ -456,6 +456,7 @@ export const Farmers = () => {
                 if (!row.contactPerson || !row.contactType || !row.contactDetails) {
                     contactErr.invalidContactDetail = "All fields are required in contact details";
                     isValid = false
+                    isFamilyTabValid = false;
                 }
             });
             if (isFarmerValid && contactErr.invalidContactDetail) {

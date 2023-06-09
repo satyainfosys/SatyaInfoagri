@@ -49,7 +49,7 @@ export const DistributionCentre = () => {
 
     const clearDistributionCentreReducers = () => {
         dispatch(distributionCentreDetailsErrorAction(undefined));
-        dispatch(distributionCentreDetailsAction(undefined));
+        // dispatch(distributionCentreDetailsAction(undefined));
         dispatch(commonContactDetailsAction([]));
         dispatch(formChangedAction(undefined));
         dispatch(tabInfoAction(undefined));
@@ -62,6 +62,7 @@ export const DistributionCentre = () => {
             $('[data-rr-ui-event-key*="Add New Distribution"]').trigger('click');
             $('#btnSave').attr('disabled', false);
             clearDistributionCentreReducers();
+            dispatch(distributionCentreDetailsAction(undefined));
             localStorage.removeItem("EncryptedDistributionCentreCode");
             localStorage.removeItem("DeleteCommonContactDetailsIds");
             dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
@@ -109,11 +110,10 @@ export const DistributionCentre = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
-
-        getDistributionCentreDetail();
-        getContactDetail();
-
-
+        
+        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedDistributionCentreCode") || distirbutionCentreData.encryptedDistributionCentreCode)) {
+            getContactDetail();
+        }
     });
 
     $('[data-rr-ui-event-key*="Distribution List"]').off('click').on('click', function () {
@@ -131,6 +131,7 @@ export const DistributionCentre = () => {
             $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', true);
             $("#btnDiscard").attr("isDiscard", false)
             clearDistributionCentreReducers();
+            dispatch(distributionCentreDetailsAction(undefined));
             localStorage.removeItem("EncryptedDistributionCentreCode");
             localStorage.removeItem("DeleteCommonContactDetailsIds");
         }
@@ -283,8 +284,8 @@ export const DistributionCentre = () => {
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
                 distributionName: distirbutionCentreData.distributionName,
                 distributionShortName: distirbutionCentreData.distributionShortName ? distirbutionCentreData.distributionShortName : "",
-                coldStorage: distirbutionCentreData.coldStorage == null || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
-                processingUnit: distirbutionCentreData.processingUnit == null || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
+                coldStorage: !distirbutionCentreData.coldStorage || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
+                processingUnit: !distirbutionCentreData.processingUnit || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
                 address: distirbutionCentreData.address ? distirbutionCentreData.address : "",
                 stateCode: distirbutionCentreData.stateCode,
                 activeStatus: distirbutionCentreData.status == null || distirbutionCentreData.status == "Active" ? "A" : "S",
@@ -346,15 +347,15 @@ export const DistributionCentre = () => {
 
             const updatedDistributionCentreData = {
                 encryptedDistributionCentreCode: distirbutionCentreData.encryptedDistributionCentreCode,
-                encryptedCompanyCode: distirbutionCentreData.encryptedCompanyCode ? distirbutionCentreData.encryptedCompanyCode : localStorage.getItem("EcnryptedCompanyCode"),
+                encryptedCompanyCode: distirbutionCentreData.encryptedCompanyCode ? distirbutionCentreData.encryptedCompanyCode : localStorage.getItem("EncryptedCompanyCode"),
                 encryptedClientCode: distirbutionCentreData.encryptedClientCode ? distirbutionCentreData.encryptedClientCode : localStorage.getItem("EncryptedClientCode"),
                 distributionName: distirbutionCentreData.distributionName,
                 distributionShortName: distirbutionCentreData.distributionShortName ? distirbutionCentreData.distributionShortName : "",
                 address: distirbutionCentreData.address ? distirbutionCentreData.address : "",
                 stateCode: distirbutionCentreData.stateCode,
-                coldStorage: distirbutionCentreData.coldStorage == null || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
-                processingUnit: distirbutionCentreData.processingUnit == null || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
-                activeStatus: distirbutionCentreData.status == null || distirbutionCentreData.status == "Active" ? "A" : "S",
+                coldStorage: !distirbutionCentreData.coldStorage || distirbutionCentreData.coldStorage == "No" ? "N" : "Y",
+                processingUnit: !distirbutionCentreData.processingUnit || distirbutionCentreData.processingUnit == "No" ? "N" : "Y",
+                activeStatus: !distirbutionCentreData.status || distirbutionCentreData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }
 

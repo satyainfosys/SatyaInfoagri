@@ -156,7 +156,7 @@ export const CommonContactTable = () => {
           </Modal.Footer>
         </Modal>
       }
-      
+
       {
         contactDetailError.contactErr && contactDetailError.contactErr.contactEmpty &&
         (
@@ -192,8 +192,7 @@ export const CommonContactTable = () => {
           <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
             <Form
               noValidate
-              // validated={formHasError || (farmerError.contactErr.invalidContactDetail)}
-              validated={formHasError}
+              validated={formHasError || (contactDetailError.contactErr.invalidContactDetail)}
               className="details-form"
               id="AddCommonContactDetailsForm"
             >
