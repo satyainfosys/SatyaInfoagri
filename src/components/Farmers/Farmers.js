@@ -760,6 +760,11 @@ export const Farmers = () => {
             encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode"),
             farmerName: farmerFullName
         }))
+
+        dispatch(tabInfoAction({
+            title1: `Company: ${localStorage.getItem("CompanyName")}`,
+            title2: farmerFullName
+        }))
     }
 
     const addFarmerDetails = () => {
@@ -1117,7 +1122,8 @@ export const Farmers = () => {
 
         if (farmerResponse.data.status == 200) {
             if (farmerResponse.data.data) {
-                dispatch(farmerDetailsAction(farmerResponse.data.data)); dispatch(tabInfoAction({
+                dispatch(farmerDetailsAction(farmerResponse.data.data)); 
+                dispatch(tabInfoAction({
                     title1: `Company: ${localStorage.getItem("CompanyName")}`,
                     title2: farmerResponse.data.data.farmerName
                 }))
