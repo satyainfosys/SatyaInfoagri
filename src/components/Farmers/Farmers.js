@@ -207,7 +207,7 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
 
-        if (farmerData.encryptedFarmerCode) {
+        if (!modalShow && farmerData.encryptedFarmerCode) {
             getFarmerDetail();
         }
     })
