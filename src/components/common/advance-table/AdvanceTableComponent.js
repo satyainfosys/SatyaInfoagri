@@ -42,7 +42,7 @@ const AdvanceTableComponent = ({
             </FalconComponentCard.Body>
         </FalconComponentCard>
 
-        <FalconComponentCard className='list-tab-card mb-1'>
+        <FalconComponentCard className='list-card mb-1'>
           <FalconComponentCard.Body>
 
             <AdvanceTable

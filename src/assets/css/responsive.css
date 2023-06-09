@@ -48,12 +48,6 @@
         overflow-y: scroll;
     }
 
-    .list-tab-card{
-        min-height: 363px;
-        max-height: 363px;
-        overflow-y: scroll;
-    }
-
     .max-five-rows {
         max-height: 291px;
         overflow-y: scroll;
@@ -103,14 +97,8 @@
     }
 
     .list-card {
-        min-height: 320px;
-        max-height: 320px;
-        overflow-y: scroll;
-    }
-
-    .list-tab-card{
-        min-height: 363px;
-        max-height: 363px;
+        min-height: 362px;
+        max-height: 362px;
         overflow-y: scroll;
     }
 
@@ -168,14 +156,8 @@
     }
 
     .list-card {
-        min-height: 390px;
-        max-height: 390px;
-        overflow-y: scroll;
-    }
-
-    .list-tab-card{
-        min-height: 429px;
-        max-height: 429px;
+        min-height: 430px;
+        max-height: 430px;
         overflow-y: scroll;
     }
 
@@ -221,14 +203,8 @@
     }
 
     .list-card{
-        min-height: 475px;
-        max-height: 475px;
-        overflow-y: scroll;
-    }
-
-    .list-tab-card{
-        min-height: 511px;
-        max-height: 511px;
+        min-height: 512px;
+        max-height: 512px;
         overflow-y: scroll;
     }
 }
@@ -248,14 +224,8 @@
     }
 
     .list-card {
-        min-height: 525px;
-        max-height: 525px;
-        overflow-y: scroll;
-    }
-
-    .list-tab-card{
-        min-height: 564px;
-        max-height: 564px;
+        min-height: 562px;
+        max-height: 562px;
         overflow-y: scroll;
     }
 
