@@ -163,7 +163,7 @@ export const Farmers = () => {
             $("#AddFarmerDetailsForm").data("changed", false);
             localStorage.removeItem("EncryptedFarmerCode");
             clearFarmerReducers();
-            dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -1118,7 +1118,7 @@ export const Farmers = () => {
         if (farmerResponse.data.status == 200) {
             if (farmerResponse.data.data) {
                 dispatch(farmerDetailsAction(farmerResponse.data.data)); dispatch(tabInfoAction({
-                    title1: `Company: ${localStorage.getItem("CompanyName")}`,
+                    title1: `${localStorage.getItem("CompanyName")}`,
                     title2: farmerResponse.data.data.farmerName
                 }))
             }

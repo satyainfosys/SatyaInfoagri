@@ -63,7 +63,7 @@ export const CollectionCentre = () => {
             $('[data-rr-ui-event-key*="Add Collection Centre"]').trigger('click');
             $('[data-rr-ui-event-key*="Add FIGs"]').attr('disabled', false);
             $('#btnSave').attr('disabled', false);
-            dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
             clearCollectionCentreReducers();
             localStorage.removeItem("EncryptedCollectionCentreCode");
         }
@@ -442,7 +442,7 @@ export const CollectionCentre = () => {
             if (collectionCentreResponse.data.data) {
                 dispatch(collectionCentreDetailsAction(collectionCentreResponse.data.data))
                 dispatch(tabInfoAction({
-                    title1: `Company: ${localStorage.getItem("CompanyName")}`,
+                    title1: `${localStorage.getItem("CompanyName")}`,
                     title2: collectionCentreResponse.data.data.collectionCentreName
                 }))
             }

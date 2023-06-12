@@ -56,7 +56,7 @@ const AdvanceTable = ({
       getFarmerDetail(rowData.encryptedFarmerCode);
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
-        title1: `Company: ${localStorage.getItem("CompanyName")}`,
+        title1: `${localStorage.getItem("CompanyName")}`,
         title2: rowData.farmerName
       }))
     }
@@ -67,7 +67,7 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="Add New Distribution"]').trigger('click');
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
-        title1: `Company: ${localStorage.getItem("CompanyName")}`,
+        title1: `${localStorage.getItem("CompanyName")}`,
         title2: rowData.distributionName
       }))
     }

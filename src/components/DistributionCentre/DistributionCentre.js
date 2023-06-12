@@ -65,7 +65,7 @@ export const DistributionCentre = () => {
             dispatch(distributionCentreDetailsAction(undefined));
             localStorage.removeItem("EncryptedDistributionCentreCode");
             localStorage.removeItem("DeleteCommonContactDetailsIds");
-            dispatch(tabInfoAction({ title1: `Company: ${localStorage.getItem("CompanyName")}` }))
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -509,7 +509,7 @@ export const DistributionCentre = () => {
             if (distributionCentreResponse.data.data) {
                 dispatch(distributionCentreDetailsAction(distributionCentreResponse.data.data))
                 dispatch(tabInfoAction({
-                    title1: `Company: ${localStorage.getItem("CompanyName")}`,
+                    title1: `${localStorage.getItem("CompanyName")}`,
                     title2: distributionCentreResponse.data.data.distributionName
                 }))
             }
