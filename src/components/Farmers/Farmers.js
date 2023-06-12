@@ -207,9 +207,9 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', false);
 
-        // if (farmerData.encryptedFarmerCode) {
-        //     getFarmerDetail();
-        // }
+        if (!modalShow && farmerData.encryptedFarmerCode) {
+            getFarmerDetail();
+        }
     })
 
     $('[data-rr-ui-event-key*="Family"]').off('click').on('click', function () {
@@ -759,6 +759,11 @@ export const Farmers = () => {
             ...farmerData,
             encryptedFarmerCode: localStorage.getItem("EncryptedFarmerCode"),
             farmerName: farmerFullName
+        }))
+
+        dispatch(tabInfoAction({
+            title1: `Company: ${localStorage.getItem("CompanyName")}`,
+            title2: farmerFullName
         }))
     }
 

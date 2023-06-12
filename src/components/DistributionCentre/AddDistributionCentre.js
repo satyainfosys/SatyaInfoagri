@@ -151,7 +151,7 @@ export const AddDistributionCentre = () => {
                             <Row className="mb-3">
                                 <Form.Label>Country<span className="text-danger">*</span></Form.Label>
                                 <Form.Select id="txtCountry" name="countryCode" value={distirbutionCentreData.countryCode} onChange={handleFieldChange} required>
-                                    <option value=''>Select country</option>
+                                    <option value=''>Select Country</option>
                                     {countryList.map((option, index) => (
                                         <option key={index} value={option.value}>{option.key}</option>
                                     ))}
