@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { figDetailsAction, formChangedAction } from 'actions';
 import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export const AddFig = () => {
 
@@ -14,6 +15,8 @@ export const AddFig = () => {
     const [formHasError, setFormError] = useState(false);
     const [countryList, setCountryList] = useState([]);
     const [stateList, setStateList] = useState([]);
+    const [modalShow, setModalShow] = useState(false);
+    const [paramsData, setParamsData] = useState({});
 
     const emptyRow = {
         id: rowData.length + 1,
@@ -25,7 +28,7 @@ export const AddFig = () => {
         countryCode: '',
         stateCode: '',
         address: '',
-        activeStatus:'Active',
+        activeStatus: 'Active',
         addUser: localStorage.getItem("LoginUserName"),
         modifyUser: localStorage.getItem("LoginUserName")
     }
@@ -128,6 +131,14 @@ export const AddFig = () => {
         }
     };
 
+    // figDetailsData.forEach(obj => {
+    //     if (obj.stateCode &&
+    //         !$('txtStateName').val()) {
+    //         // stateFunction(obj.stateName);
+    //         getStates(obj.countryCode);
+    //     }
+    // });
+
     const handleFieldChange = (e, index) => {
         const { name, value } = e.target;
         var figDetails = [...rowData];
@@ -154,8 +165,63 @@ export const AddFig = () => {
         }
     }
 
+    const ModalPreview = (encryptedFigCode, figNameToDelete, figDetailData) => {
+        setModalShow(true);
+        setParamsData({ encryptedFigCode, figNameToDelete, figDetailData });
+    }
+
+    const deleteFigDetails = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = figDetailsReducer.figDetails.findIndex(x => x.figName == paramsData.figNameToDelete);
+        figDetailsReducer.figDetails.splice(objectIndex, 1)
+
+        var deleteFigCode = localStorage.getItem("DeleteFigCodes");
+
+        if (paramsData.encryptedFigCode) {
+            var deleteFigDetail = deleteFigCode ? deleteFigCode + "," + paramsData.encryptedFigCode : paramsData.encryptedFigCode;
+            localStorage.setItem("DeleteFigCodes", deleteFigDetail);
+        }
+
+        toast.success("Fig detail deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(figDetailsAction(figDetailsData));
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            figDelete: true
+        }))
+
+        setModalShow(false);
+    }
+
     return (
         <>
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this family detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteFigDetails()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <Card className="h-100 mb-2">
                 <FalconCardHeader
                     title="Fig Details"
@@ -287,8 +353,8 @@ export const AddFig = () => {
                                                 </Form.Select>
                                             </td>
 
-                                            <td>
-                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" />
+                                            <td key={index}>
+                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(figData.encryptedFigCode, figData.figName) }} />
                                             </td>
                                         </tr>
                                     ))}
@@ -302,4 +368,4 @@ export const AddFig = () => {
     )
 }
 
-export default AddFig
+export default AddFig;

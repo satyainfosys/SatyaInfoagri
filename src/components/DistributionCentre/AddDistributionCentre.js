@@ -129,79 +129,113 @@ export const AddDistributionCentre = () => {
 
                 <Form noValidate validated={formHasError} className="details-form" id='AddDistributionDetails'>
                     <Row>
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Distribution Centre Code</Form.Label>
-                                <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Distribution Centre Code" value={distirbutionCentreData.distributionCentreCode} disabled />
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Distribution Centre Name<span className="text-danger">*</span></Form.Label>
-                                <Form.Control id="txtDistributionCentreName" name="distributionName" maxLength={50} onChange={handleFieldChange} value={distirbutionCentreData.distributionName} placeholder="Distribution Centre Name" />
-                                {Object.keys(distributionError.distributionNameErr).map((key) => {
-                                    return <span className="error-message">{distributionError.distributionNameErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Distribution Centre Short Name</Form.Label>
-                                <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" maxLength={20} onChange={handleFieldChange} value={distirbutionCentreData.distributionShortName} placeholder="Distribution Centre Short Name" />
-                            </Row>
+                        <Col className="me-3 ms-3" md="7">
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Distribution Name
+                                </Form.Label>
+                                <Col sm="2">
+                                    <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Distribution Centre Code" value={distirbutionCentreData.distributionCentreCode} disabled />
+                                </Col>
+                                <Col sm="7">
+                                    <Form.Control id="txtDistributionCentreName" name="distributionName" maxLength={50} onChange={handleFieldChange} value={distirbutionCentreData.distributionName} placeholder="Distribution Centre Name" />
+                                    {Object.keys(distributionError.distributionNameErr).map((key) => {
+                                        return <span className="error-message">{distributionError.distributionNameErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Address
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtAddress" as='textarea' name="address" maxLength={250} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="4" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Country
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtCountry" name="countryCode" value={distirbutionCentreData.countryCode} onChange={handleFieldChange} required>
+                                        <option value=''>Select Country</option>
+                                        {countryList.map((option, index) => (
+                                            <option key={index} value={option.value}>{option.key}</option>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(distributionError.countryErr).map((key) => {
+                                        return <span className="error-message">{distributionError.countryErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    State
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={distirbutionCentreData.stateCode} >
+                                        <option value="">Select State</option>
+                                        {stateList.map((option, index) => (
+                                            <option key={index} value={option.value}>{option.key}</option>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(distributionError.stateErr).map((key) => {
+                                        return <span className="error-message">{distributionError.stateErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
                         </Col>
 
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Country<span className="text-danger">*</span></Form.Label>
-                                <Form.Select id="txtCountry" name="countryCode" value={distirbutionCentreData.countryCode} onChange={handleFieldChange} required>
-                                    <option value=''>Select Country</option>
-                                    {countryList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(distributionError.countryErr).map((key) => {
-                                    return <span className="error-message">{distributionError.countryErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>State Name<span className="text-danger">*</span></Form.Label>
-                                <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={distirbutionCentreData.stateCode} >
-                                    <option value="">Select State</option>
-                                    {stateList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(distributionError.stateErr).map((key) => {
-                                    return <span className="error-message">{distributionError.stateErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Address</Form.Label>
-                                <Form.Control id="txtAddress" as='textarea' name="address" maxLength={250} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="1" />
-                            </Row>
-                        </Col>
+                        <Col className="me-3 ms-3" md="4">
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Short Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" maxLength={20} onChange={handleFieldChange} value={distirbutionCentreData.distributionShortName} placeholder="Distribution Centre Short Name" />
+                                </Col>
+                            </Form.Group>
 
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Cold Storage</Form.Label>
-                                <Form.Select id="txtColdStorage" name="coldStorage" onChange={handleFieldChange} value={distirbutionCentreData.coldStorage} >
-                                    <option value="">Select</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Processing Unit</Form.Label>
-                                <Form.Select id="txtProcessingUnit" name="processingUnit" onChange={handleFieldChange} value={distirbutionCentreData.processingUnit} >
-                                    <option value="">Select</option>
-                                    <option value="Yes">Yes</option>
-                                    <option value="No">No</option>
-                                </Form.Select>
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={distirbutionCentreData.status} >
-                                    <option value="Active">Active</option>
-                                    <option value="Suspended">Suspended</option>
-                                </Form.Select>
-                            </Row>
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Cold Storage
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtColdStorage" name="coldStorage" onChange={handleFieldChange} value={distirbutionCentreData.coldStorage} >
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Processing Unit
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtProcessingUnit" name="processingUnit" onChange={handleFieldChange} value={distirbutionCentreData.processingUnit} >
+                                        <option value="">Select</option>
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Status
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={distirbutionCentreData.status} >
+                                        <option value="Active">Active</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
                         </Col>
                     </Row>
                 </Form>

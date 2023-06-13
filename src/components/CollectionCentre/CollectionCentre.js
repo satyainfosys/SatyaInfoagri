@@ -13,7 +13,7 @@ const listColumnArray = [
     { accessor: 'collectionCentreCode', Header: 'Collection Centre Code' },
     { accessor: 'collectionCentreName', Header: 'Collection Centre Name' },
     { accessor: 'stateName', Header: 'State' },
-    { accessor: 'ccType', Header: 'CC Type' },
+    { accessor: 'collectionCentreType', Header: 'CC Type' },
     { accessor: 'status', Header: 'Status' }
 ];
 
@@ -128,9 +128,9 @@ export const CollectionCentre = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('[data-rr-ui-event-key*="Add FIGs"]').attr('disabled', false);
 
-        getCollectionCentreDetail();
-        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedFarmerCode") || collectionCentreData.encryptedCollectionCentreCode)){
+        if (commonContactDetailList.length <= 0 && !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedCollectionCentreCode") || collectionCentreData.encryptedCollectionCentreCode)) {
             getContactDetail();
         }
     });
@@ -140,6 +140,13 @@ export const CollectionCentre = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if (figDetailsList.length <= 0 &&
+            !(localStorage.getItem("DeleteFigCodes")) &&
+            (localStorage.getItem("EncryptedCollectionCentreCode") ||
+                collectionCentreData.encryptedCollectionCentreCode)) {
+            getFigDetail();
+        }
     });
 
     const getCompany = async () => {
@@ -425,10 +432,6 @@ export const CollectionCentre = () => {
         }
     }
 
-    const updateCollectionCentreDetails = () => {
-
-    }
-
     const getCollectionCentreDetail = async () => {
         const request = {
             encryptedCollectionCentreCode: localStorage.getItem("EncryptedCollectionCentreCode")
@@ -467,9 +470,191 @@ export const CollectionCentre = () => {
         }
     }
 
-    // const getFigDetail = async () => {
+    const getFigDetail = async () => {
+        const request = {
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            EncryptedCollectionCentreCode: localStorage.getItem("EncryptedCollectionCentreCode")
+        }
 
-    // }
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-fig-master-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(figDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    const updateCollectionCentreDetails = async () => {
+        if (collectionCentreValidation()) {
+            var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
+            var deleteFigCodes = localStorage.getItem("DeleteFigCodes");
+
+            const updateCollectionCentreDetails = {
+                encryptedCollectionCentreCode: collectionCentreData.encryptedCollectionCentreCode,
+                encryptedClientCode: collectionCentreData.encryptedClientCode,
+                encryptedCompanyCode: collectionCentreData.encryptedCompanyCode,
+                distributionCentreCode: collectionCentreData.distributionCentreCode,
+                collectionCentreName: collectionCentreData.collectionCentreName,
+                collectionCentreShortName: collectionCentreData.collectionCentreShortName,
+                collectionCentreType: collectionCentreData.collectionCentreType == "Owned" ? "O" : "F",
+                address: collectionCentreData.address ? collectionCentreData.address : "",
+                stateCode: collectionCentreData.stateCode,
+                activeStatus: collectionCentreData.status == null || collectionCentreData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['collectionCentreName', 'collectionCentreShortName', 'address', 'modifyUser']
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            }
+
+            var hasError = false;
+
+            if (formChangedData.collectionCentreUpdate) {
+                setIsLoading(true)
+                await axios.post(process.env.REACT_APP_API_URL + '/update-collection-centre-details', updatedDistributionCentreData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status != 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            setModalShow(false);
+                        }
+                    })
+            }
+
+            var commonContactDetailIndex = 1;
+            var figDetailIndex = 1;
+
+            //CommonContactDetail add, update and delete
+            if (!hasError && ((formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete))) {
+
+                if (!hasError && formChangedData.contactDetailDelete) {
+                    var deleteCommonContactDetailsList = deleteCommonContactDetailsId ? deleteCommonContactDetailsId.split(',') : null;
+                    if (deleteCommonContactDetailsList) {
+                        var deleteCommonContactDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteCommonContactDetailsList.length; i++) {
+                            const deleteCommonContactDetailId = deleteCommonContactDetailsList[i];
+                            const data = { encryptedCommonContactDetailsId: deleteCommonContactDetailId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
+                            if (deleteCommContactDetailResponse.data.status != 200) {
+                                toast.error(deleteCommContactDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteCommonContactDetailsIndex++
+                    }
+                }
+
+                for (let i = 0; i < commonContactDetailList.length; i++) {
+                    const contactDetail = commonContactDetailList[i];
+
+                    const keys = ['contactPerson', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(contactDetail).filter((key) => keys.includes(key))) {
+                        contactDetail[key] = contactDetail[key] ? contactDetail[key].toUpperCase() : '';
+                    }
+
+                    if (!hasError && formChangedData.contactDetailUpdate && contactDetail.encryptedCommonContactDetailsId) {
+                        const contactRequestData = {
+                            encryptedCommonContactDetailsId: contactDetail.encryptedCommonContactDetailsId,
+                            contactPerson: contactDetail.contactPerson,
+                            contactType: contactDetail.contactType,
+                            contactDetails: contactDetail.contactDetails,
+                            originatedFrom: "CC",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+
+                        setIsLoading(true);
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', contactRequestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateContactDetailResponse.data.status != 200) {
+                            toast.error(updateContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.contactDetailAdd && !contactDetail.encryptedCommonContactDetailsId) {
+                        const contactRequestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedConnectingCode: localStorage.getItem("EncryptedDistributionCentreCode"),
+                            contactPerson: contactDetail.contactPerson,
+                            contactType: contactDetail.contactType,
+                            contactDetails: contactDetail.contactDetails,
+                            originatedFrom: "CC",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addFarmerContactDetailsResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', contactRequestData, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addFarmerContactDetailsResponse.data.status != 200) {
+                            toast.error(addFarmerContactDetailsResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    commonContactDetailIndex++
+                }
+            }
+
+            //FigDetail add, update and delete
+            if (!hasError && ((formChangedData.figDelete || formChangedData.figDetailAdd || formChangedData.figDetailUpdate))) {
+
+                if (!hasError && formChangedData.figDelete) {
+                    var deleteFigDetailsList = deleteFigCodes ? deleteFigCodes.split(',') : null;
+                    if (deleteFigDetailsList) {
+                        var deleteFigDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteFigDetailsList.length; i++) {
+                            const deleteFigDetailCode = deleteFigDetailsList[i];
+                            const data = { encryptedFigCode: deleteFigDetailCode }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteFigDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-fig-details', { headers, data });
+                            if (deleteFigDetailResponse.data.status != 200) {
+                                toast.error(deleteFigDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteFigDetailsIndex++
+                    }
+                }
+
+                for(let i =0; i < figDetailsList.length; i++){
+                    const figDetail = figDetailsList[i]
+                }
+            }
+        }
+    }
 
     return (
         <>
@@ -479,6 +664,28 @@ export const CollectionCentre = () => {
                     animation="border"
                 />
             ) : null}
+
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Do you want to save changes?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={formChangedData.collectoinCentreUpdate ? updateCollectionCentreDetails : addCollectionCentreDetails}>Save</Button>
+                        <Button id="btnDiscard" variant="danger" onClick={() => discardChanges()}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
 
             <TabPage
                 listData={listData}
