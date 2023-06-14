@@ -341,6 +341,7 @@ export const DistributionCentre = () => {
                         setIsLoading(false)
                         setTimeout(function () {
                             dispatch(distributionCentreDetailsAction({
+                                ...distirbutionCentreData,
                                 encryptedDistributionCentreCode: res.data.data.encryptedDistributionCentreCode
                             }))
                         }, 50);

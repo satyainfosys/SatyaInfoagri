@@ -128,90 +128,123 @@ export const AddCollectionCentre = () => {
                 collectionCentreData &&
                 <Form noValidate validated={formHasError} className="details-form" id='AddCollectionCentreDetails'>
                     <Row>
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Collection Centre Code</Form.Label>
-                                <Form.Control id="txtCollectionCentreCode" name="collectionCentreCode" placeholder="Collection Centre Code" value={collectionCentreData.collectionCentreCode} disabled />
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Collection Centre Name</Form.Label>
-                                <Form.Control id="txtCollectionCentreName" name="collectionCentreName" placeholder="Collection Centre Name" onChange={handleFieldChange} value={collectionCentreData.collectionCentreName} />
-                                {Object.keys(collectionCentreErr.collectionCentreNameErr).map((key) => {
-                                    return <span className="error-message">{collectionCentreErr.collectionCentreNameErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Collection Centre Short Name</Form.Label>
-                                <Form.Control id="txtCollectionCentreShortName" name="collectionCentreShortName" placeholder="Collection Centre Short Name" onChange={handleFieldChange} value={collectionCentreData.collectionCentreShortName} />
-                            </Row>
-                        </Col>
+                        <Col className="me-3 ms-3" md="7">
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Collection Centre Name
+                                </Form.Label>
+                                <Col sm="2">
+                                    <Form.Control id="txtCollectionCentreCode" name="collectionCentreCode" placeholder="Collection Centre Code" value={collectionCentreData.collectionCentreCode} disabled />
+                                </Col>
+                                <Col sm="7">
+                                    <Form.Control id="txtCollectionCentreName" name="collectionCentreName" placeholder="Collection Centre Name" onChange={handleFieldChange} value={collectionCentreData.collectionCentreName} />
+                                    {Object.keys(collectionCentreErr.collectionCentreNameErr).map((key) => {
+                                        return <span className="error-message">{collectionCentreErr.collectionCentreNameErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
 
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Country Name</Form.Label>
-                                <Form.Select id="txtCountry" name="countryCode" onChange={handleFieldChange} value={collectionCentreData.countryCode} >
-                                    <option value="">Select Country</option>
-                                    {countryList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(collectionCentreErr.countryErr).map((key) => {
-                                    return <span className="error-message">{collectionCentreErr.countryErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>State Name</Form.Label>
-                                <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={collectionCentreData.stateCode} >
-                                    <option value="">Select State</option>
-                                    {stateList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(collectionCentreErr.stateErr).map((key) => {
-                                    return <span className="error-message">{collectionCentreErr.stateErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Address</Form.Label>
-                                <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows={1} onChange={handleFieldChange} value={collectionCentreData.address} />
-                            </Row>
-                        </Col>
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Address
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtAddress" as='textarea' name="address" placeholder="Address" rows={3} onChange={handleFieldChange} value={collectionCentreData.address} />
+                                </Col>
+                            </Form.Group>
 
-                        <Col className="me-3 ms-3">
-                            <Row className="mb-3">
-                                <Form.Label>Distribution Centre</Form.Label>
-                                <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={collectionCentreData.distributionCentreCode} >
-                                    <option value=''>Select Distribution</option>
-                                    {distributionList &&
-                                        distributionList.map((option, index) => (
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Country Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtCountry" name="countryCode" onChange={handleFieldChange} value={collectionCentreData.countryCode} >
+                                        <option value="">Select Country</option>
+                                        {countryList.map((option, index) => (
                                             <option key={index} value={option.value}>{option.key}</option>
-                                        ))
-                                    }
-                                </Form.Select>
-                                {Object.keys(collectionCentreErr.distributionCentreErr).map((key) => {
-                                    return <span className="error-message">{collectionCentreErr.distributionCentreErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Collection Centre Type</Form.Label>
-                                <Form.Select id="txtCollectionCentreType" name="collectionCentreType" onChange={handleFieldChange} value={collectionCentreData.collectionCentreType} >
-                                    <option value=''>Select</option>
-                                    <option value="Owned">Owned</option>
-                                    <option value="Franchise">Franchise</option>
-                                </Form.Select>
-                                {Object.keys(collectionCentreErr.collectionCentreTypeErr).map((key) => {
-                                    return <span className="error-message">{collectionCentreErr.collectionCentreTypeErr[key]}</span>
-                                })}
-                            </Row>
-                            <Row className="mb-3">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={collectionCentreData.status} >
-                                    <option value="Active">Active</option>
-                                    <option value="Suspended">Suspended</option>
-                                </Form.Select>
-                            </Row>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(collectionCentreErr.countryErr).map((key) => {
+                                        return <span className="error-message">{collectionCentreErr.countryErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    State Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={collectionCentreData.stateCode} >
+                                        <option value="">Select State</option>
+                                        {stateList.map((option, index) => (
+                                            <option key={index} value={option.value}>{option.key}</option>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(collectionCentreErr.stateErr).map((key) => {
+                                        return <span className="error-message">{collectionCentreErr.stateErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
                         </Col>
 
+                        <Col className="me-3 ms-3" md="4">
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Short Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtCollectionCentreShortName" name="collectionCentreShortName" placeholder="Collection Centre Short Name" onChange={handleFieldChange} value={collectionCentreData.collectionCentreShortName} />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Distribution Centre
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={collectionCentreData.distributionCentreCode} >
+                                        <option value=''>Select Distribution</option>
+                                        {distributionList &&
+                                            distributionList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))
+                                        }
+                                    </Form.Select>
+                                    {Object.keys(collectionCentreErr.distributionCentreErr).map((key) => {
+                                        return <span className="error-message">{collectionCentreErr.distributionCentreErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Collection Centre Type
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtCollectionCentreType" name="collectionCentreType" onChange={handleFieldChange} value={collectionCentreData.collectionCentreType} >
+                                        <option value=''>Select</option>
+                                        <option value="Owned">Owned</option>
+                                        <option value="Franchise">Franchise</option>
+                                    </Form.Select>
+                                    {Object.keys(collectionCentreErr.collectionCentreTypeErr).map((key) => {
+                                        return <span className="error-message">{collectionCentreErr.collectionCentreTypeErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Status
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStatus" name="status" onChange={handleFieldChange} value={collectionCentreData.status} >
+                                        <option value="Active">Active</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+                        </Col>
                     </Row>
                 </Form>
             }

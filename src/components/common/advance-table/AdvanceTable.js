@@ -79,7 +79,7 @@ const AdvanceTable = ({
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
         title1: `${localStorage.getItem("CompanyName")}`,
-        title2: rowData.distributionName
+        title2: rowData.collectionCentreName
       }))
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
