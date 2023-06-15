@@ -12,6 +12,7 @@ const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'collectionCentreCode', Header: 'Collection Centre Code' },
     { accessor: 'collectionCentreName', Header: 'Collection Centre Name' },
+    { accessor: 'distributionCentreName', Header: 'Distribution Centre Name' },
     { accessor: 'stateName', Header: 'State' },
     { accessor: 'collectionCentreType', Header: 'CC Type' },
     { accessor: 'status', Header: 'Status' }
@@ -48,13 +49,39 @@ export const CollectionCentre = () => {
 
     let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
+    const getContactDetail = async () => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedConnectingCode: localStorage.getItem("EncryptedCollectionCentreCode"),
+            OriginatedFrom: "CC"
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(commonContactDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    if ((localStorage.getItem("EncryptedCollectionCentreCode") || collectionCentreData.encryptedCollectionCentreCode)
+        && commonContactDetailList.length <= 0
+        && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
+        getContactDetail();
+    }
+
     const clearCollectionCentreReducers = () => {
         dispatch(collectionCentreDetailsErrorAction(undefined));
-        dispatch(collectionCentreDetailsAction(undefined));
         dispatch(commonContactDetailsAction([]));
         dispatch(commonContactDetailsErrorAction(undefined))
         dispatch(figDetailsAction([]));
         dispatch(formChangedAction(undefined));
+        localStorage.removeItem('DeleteCommonContactDetailsIds');
+        localStorage.removeItem('DeleteFigCodes');
+        localStorage.removeItem('EncryptedDistributionCentreCode')
     }
 
     const newDetails = () => {
@@ -65,7 +92,7 @@ export const CollectionCentre = () => {
             $('#btnSave').attr('disabled', false);
             dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
             clearCollectionCentreReducers();
-            localStorage.removeItem("EncryptedCollectionCentreCode");
+            dispatch(collectionCentreDetailsAction(undefined));
         }
         else {
             toast.error("Please select company first", {
@@ -91,7 +118,7 @@ export const CollectionCentre = () => {
         if (isFormChanged) {
             setModalShow(true);
         } else {
-            $('[data-rr-ui-event-key*="Distribution List"]').trigger('click');
+            $('[data-rr-ui-event-key*="Collection Centre List"]').trigger('click');
         }
     }
 
@@ -120,6 +147,8 @@ export const CollectionCentre = () => {
             $('[data-rr-ui-event-key*="Add FIGs"]').attr('disabled', true);
             $("#btnDiscard").attr("isDiscard", false)
             clearCollectionCentreReducers();
+            dispatch(collectionCentreDetailsAction(undefined));
+            localStorage.removeItem('EncryptedCollectionCentreCode');
         }
     })
 
@@ -234,6 +263,7 @@ export const CollectionCentre = () => {
     }
 
     const collectionCentreValidation = () => {
+        setModalShow(false);
         const collectionCentreNameErr = {};
         const distributionCentreErr = {};
         const countryErr = {};
@@ -411,6 +441,7 @@ export const CollectionCentre = () => {
                         setIsLoading(false)
                         setTimeout(function () {
                             dispatch(collectionCentreDetailsAction({
+                                ...collectionCentreData,
                                 encryptedCollectionCentreCode: res.data.data.encryptedCollectionCentreCode
                             }))
                         }, 50);
@@ -452,24 +483,6 @@ export const CollectionCentre = () => {
         }
     }
 
-    const getContactDetail = async () => {
-        const request = {
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-            EncryptedConnectingCode: localStorage.getItem("EncryptedCollectinCentreCode"),
-            OriginatedFrom: "CC"
-        }
-
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
-
-        if (response.data.status == 200) {
-            if (response.data.data && response.data.data.length > 0) {
-                dispatch(commonContactDetailsAction(response.data.data));
-            }
-        }
-    }
-
     const getFigDetail = async () => {
         const request = {
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
@@ -494,8 +507,8 @@ export const CollectionCentre = () => {
 
             const updateCollectionCentreDetails = {
                 encryptedCollectionCentreCode: collectionCentreData.encryptedCollectionCentreCode,
-                encryptedClientCode: collectionCentreData.encryptedClientCode,
-                encryptedCompanyCode: collectionCentreData.encryptedCompanyCode,
+                encryptedClientCode: localStorage.getItem('EncryptedClientCode'),
+                encryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode'),
                 distributionCentreCode: collectionCentreData.distributionCentreCode,
                 collectionCentreName: collectionCentreData.collectionCentreName,
                 collectionCentreShortName: collectionCentreData.collectionCentreShortName,
@@ -507,15 +520,15 @@ export const CollectionCentre = () => {
             }
 
             const keys = ['collectionCentreName', 'collectionCentreShortName', 'address', 'modifyUser']
-            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
-                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            for (const key of Object.keys(updateCollectionCentreDetails).filter((key) => keys.includes(key))) {
+                updateCollectionCentreDetails[key] = updateCollectionCentreDetails[key] ? updateCollectionCentreDetails[key].toUpperCase() : '';
             }
 
             var hasError = false;
 
             if (formChangedData.collectionCentreUpdate) {
                 setIsLoading(true)
-                await axios.post(process.env.REACT_APP_API_URL + '/update-collection-centre-details', updatedDistributionCentreData, {
+                await axios.post(process.env.REACT_APP_API_URL + '/update-collection-centre-details', updateCollectionCentreDetails, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                 })
                     .then(res => {
@@ -570,7 +583,7 @@ export const CollectionCentre = () => {
                     }
 
                     if (!hasError && formChangedData.contactDetailUpdate && contactDetail.encryptedCommonContactDetailsId) {
-                        const contactRequestData = {
+                        const requestData = {
                             encryptedCommonContactDetailsId: contactDetail.encryptedCommonContactDetailsId,
                             contactPerson: contactDetail.contactPerson,
                             contactType: contactDetail.contactType,
@@ -580,7 +593,7 @@ export const CollectionCentre = () => {
                         }
 
                         setIsLoading(true);
-                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', contactRequestData, {
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', requestData, {
                             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         });
                         setIsLoading(false);
@@ -594,9 +607,9 @@ export const CollectionCentre = () => {
                         }
                     }
                     else if (!hasError && formChangedData.contactDetailAdd && !contactDetail.encryptedCommonContactDetailsId) {
-                        const contactRequestData = {
+                        const requestData = {
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            encryptedConnectingCode: localStorage.getItem("EncryptedDistributionCentreCode"),
+                            encryptedConnectingCode: localStorage.getItem("EncryptedCollectionCentreCode"),
                             contactPerson: contactDetail.contactPerson,
                             contactType: contactDetail.contactType,
                             contactDetails: contactDetail.contactDetails,
@@ -605,7 +618,7 @@ export const CollectionCentre = () => {
                         }
                         setIsLoading(true);
                         const addFarmerContactDetailsResponse =
-                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', contactRequestData, {
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', requestData, {
                                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                             });
                         setIsLoading(false);
@@ -649,9 +662,75 @@ export const CollectionCentre = () => {
                     }
                 }
 
-                for(let i =0; i < figDetailsList.length; i++){
-                    const figDetail = figDetailsList[i]
+                for (let i = 0; i < figDetailsList.length; i++) {
+                    const figDetail = figDetailsList[i];
+
+                    const keys = ['figName', 'figShortName', 'address', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(figDetail).filter((key) => keys.includes(key))) {
+                        figDetail[key] = figDetail[key] ? figDetail[key].toUpperCase() : '';
+                    }
+
+                    if (!hasError && formChangedData.figDetailUpdate && figDetail.encryptedFigCode) {
+                        const figRequestData = {
+                            encryptedFigCode: figDetail.encryptedFigCode,
+                            encryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode'),
+                            encryptedClientCode: localStorage.getItem('EncryptedClientCode'),
+                            encryptedCollectionCentreCode: localStorage.getItem('EncryptedCollectionCentreCode'),
+                            figName: figDetail.figName,
+                            figShortName: figDetail.figShortName ? figDetail.figShortName : '',
+                            address: figDetail.address ? figDetail.address : '',
+                            stateCode: figDetail.stateCode,
+                            activeStatus: figDetail.activeStatus,
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+
+                        setIsLoading(true);
+                        const updateFigDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-fig-details', figRequestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateFigDetailResponse.data.status != 200) {
+                            toast.error(updateFigDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.figDetailAdd && !figDetail.encryptedFigCode) {
+                        const figRequestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedCollectionCentreCode: localStorage.getItem("EncryptedCollectionCentreCode"),
+                            figName: figDetail.figName,
+                            figShortName: figDetail.figShortName,
+                            address: figDetail.address,
+                            stateCode: figDetail.stateCode,
+                            activeStatus: figDetail.activeStatus,
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addFigDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-fig-details', figRequestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addFigDetailResponse.data.status != 200) {
+                            toast.error(addFigDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    figDetailIndex++
                 }
+            }
+
+            if (!hasError) {
+                clearCollectionCentreReducers();
+                updateCollectionCentreCallback();
             }
         }
     }
