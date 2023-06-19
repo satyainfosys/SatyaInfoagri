@@ -64,7 +64,7 @@ const TreeviewListItem = ({
       selectedItem => children.indexOf(selectedItem) === -1
     );
     if (e.target.checked) {
-      setSelectedItems([...filteredItems, ...children]);
+      setSelectedItems([...filteredItems, item.id, ...children]);
     } else {
       setSelectedItems(filteredItems);
     }
@@ -90,9 +90,20 @@ const TreeviewListItem = ({
     );
     if (childrenSelected && checkRef.current) {
       checkRef.current.indeterminate = true;
+      if(selectedItems.indexOf(item.id) === -1)
+      {
+        setSelectedItems([...selectedItems, item.id]);
+      }
     }
     if (!childrenSelected && checkRef.current) {
       checkRef.current.indeterminate = false;
+      if(selectedItems.indexOf(item.id) != -1)
+      {
+        const filteredItems = selectedItems.filter(
+          selectedItem => children.indexOf(item.id) != -1
+        );
+        setSelectedItems(filteredItems);
+      }
     }
     if (allChildrenSelected && checkRef.current) {
       checkRef.current.indeterminate = false;
@@ -105,7 +116,7 @@ const TreeviewListItem = ({
 
   return (
     <li className="treeview-list-item">
-      {Object.prototype.hasOwnProperty.call(item, 'children') ? (
+      {Object.prototype.hasOwnProperty.call(item, 'children') && item.children.length > 0 ? (
         <>
           <div className="toggle-container">
             {selection && (

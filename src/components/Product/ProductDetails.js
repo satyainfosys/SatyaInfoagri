@@ -11,12 +11,7 @@ export const ProductDetails = () => {
   const [treeViewItems, setTreeViewItems] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-  var selectedItems = [];
-  
-  const setSelectedItems = (seletedTreeViewItems) => {
-    dispatch(selectedProductsAction(seletedTreeViewItems));
-    selectedItems = seletedTreeViewItems;
-  }
+  const [selectedItems, setSelectedItems] = useState([]);
 
   const fetchMenuTree = async () => {
     let token = localStorage.getItem('Token');
@@ -41,6 +36,10 @@ export const ProductDetails = () => {
   useEffect(() => {
     fetchMenuTree();
   }, []);
+
+  useEffect(() => {
+    dispatch(selectedProductsAction(selectedItems));
+  }, [selectedItems]);
 
   const resetProductDetail = () => {
     dispatch(productDetailsAction({

@@ -58,7 +58,6 @@ export const Product = () => {
     const productDetailsReducer = useSelector((state) => state.rootReducer.productDetailsReducer)
     const productData = productDetailsReducer.productDetails;
 
-
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
@@ -172,11 +171,13 @@ export const Product = () => {
     }
 
     const addProductDetails = () => {
+        
         if (productValidation()) {
             const requestData = {
                 moduleName: productData.moduleName,
                 moduleStatus: productData.status == null || productData.status == "Active" ? "A" : "S",
-                addUser: localStorage.getItem("LoginUserName")
+                addUser: localStorage.getItem("LoginUserName"),
+                treeIds: selectedProductItems
             }
 
             const keys = ['moduleName', 'addUser']
