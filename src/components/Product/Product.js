@@ -2,7 +2,7 @@ import TabPage from 'components/common/TabPage';
 import { toast } from 'react-toastify';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { productDetailsAction, productDetailsErrorAction } from 'actions';
+import { formChangedAction, productDetailsAction, productDetailsErrorAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
@@ -22,10 +22,11 @@ export const Product = () => {
     const [modalShow, setModalShow] = useState(false);
     const [formHasError, setFormError] = useState(false);
     const dispatch = useDispatch();
+    const [activeTabName, setActiveTabName] = useState();
 
-    
-  const selectedProductsReducer = useSelector((state) => state.rootReducer.selectedProductsReducer)
-  var selectedProductItems = selectedProductsReducer.selectedProducts;
+
+    const selectedProductsReducer = useSelector((state) => state.rootReducer.selectedProductsReducer)
+    var selectedProductItems = selectedProductsReducer.selectedProducts;
 
     const fetchProductsList = async (page, size = perPage) => {
         let token = localStorage.getItem('Token');
@@ -57,57 +58,57 @@ export const Product = () => {
     const productDetailsReducer = useSelector((state) => state.rootReducer.productDetailsReducer)
     const productData = productDetailsReducer.productDetails;
 
-    $.fn.extend({
-        trackChanges: function () {
-            $(":input", this).change(function () {
-                $(this.form).data("changed", true);
-            });
-        }
-        ,
-        isChanged: function () {
-            return this.data("changed");
-        }
-    });
 
-    $("#AddProductDetailsForm").trackChanges();
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const clearProductDetailsReducer = () => {
         dispatch(productDetailsAction(undefined));
         dispatch(productDetailsErrorAction(undefined));
-        $("#AddProductDetailsForm").data("changed", false);
+        dispatch(formChangedAction(undefined));
     }
 
-    $(document).on('click', '[data-rr-ui-event-key*="Product List"]', function () {
-        $('#btnExit').attr('isExit', 'false');
-        if ($("#AddProductDetailsForm").isChanged()) {
+    $('[data-rr-ui-event-key*="Product List"]').off('click').on('click', function () {
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
             setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
         }
+        else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Product Detail"]').attr('disabled', true);
+            $('#AddProductDetailsForm').get(0).reset();
+            localStorage.removeItem("EncryptedResponseModuleCode");
+            $("#btnDiscard").attr("isDiscard", false)
+            clearProductDetailsReducer();
+        }
+    })
 
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Product Detail"]').attr('disabled', true);
-        $('#AddProductDetailsForm').get(0).reset();
-        clearProductDetailsReducer();
-    });
-
-    $(document).on('click', '[data-rr-ui-event-key*="Product Detail"]', function () {
+    $('[data-rr-ui-event-key*="Product Detail"]').off('click').on('click', function () {
+        setActiveTabName("Product Detail")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
         $('[data-rr-ui-event-key*="Product Detail"]').attr('disabled', false);
-    });
+    })
 
     const newDetails = () => {
         $('[data-rr-ui-event-key*="Product Detail"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="Product Detail"]').trigger('click');
         $('#btnSave').attr('disabled', false);
+        clearProductDetailsReducer();
     };
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        if ($("#AddProductDetailsForm").isChanged()) {
-            setModalShow(true);
+        if (isFormChanged) {
+            setModalShow(true)
         } else {
             $('[data-rr-ui-event-key*="Product List"]').trigger('click');
         }
@@ -115,18 +116,19 @@ export const Product = () => {
 
     const exitModule = () => {
         $('#btnExit').attr('isExit', 'true');
-        if ($("#AddProductDetailsForm").isChanged()) {
-            setModalShow(true);
+        if (isFormChanged) {
+            setModalShow(true)
         } else {
             window.location.href = '/dashboard';
         }
     }
 
     const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
         if ($('#btnExit').attr('isExit') == 'true')
             window.location.href = '/dashboard';
         else
-            $('[data-rr-ui-event-key*="Product List"]').trigger('click');
+            $('[data-rr-ui-event-key*="List"]').trigger('click');
 
         setModalShow(false);
     }
@@ -152,11 +154,10 @@ export const Product = () => {
 
     const updateProductCallback = (isAddUser = false) => {
 
-        $("#AddProductDetailsForm").data("changed", false);
-        $('#AddProductDetailsForm').get(0).reset();
+        setModalShow(false);
 
         dispatch(productDetailsErrorAction(undefined));
-
+        dispatch(formChangedAction(undefined));
 
         if (!isAddUser) {
             toast.success("Product details updated successfully!", {
@@ -167,6 +168,7 @@ export const Product = () => {
         $('#btnSave').attr('disabled', true)
 
         fetchProductsList(1);
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
     }
 
     const addProductDetails = () => {
@@ -215,22 +217,12 @@ export const Product = () => {
                 ModifyUser: localStorage.getItem("LoginUserName")
             }
 
-            var updateRequired = $("#AddProductDetailsForm").isChanged();
-
-            if (!updateRequired) {
-                toast.warning("Nothing to change!", {
-                    theme: 'colored'
-                });
-
-                return;
-            }
-
             const keys = ['moduleName', 'ModifyUser']
             for (const key of Object.keys(updatedProductData).filter((key) => keys.includes(key))) {
                 updatedProductData[key] = updatedProductData[key] ? updatedProductData[key].toUpperCase() : '';
             }
 
-            if ($("#AddProductDetailsForm").isChanged()) {
+            if (formChangedData.productUpdate) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-security-module-master', updatedProductData, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -247,6 +239,7 @@ export const Product = () => {
                         else {
                             // addModuleDetail();
                             //deleteModuleDetail();
+                            updateProductCallback();
                         }
                     })
             }
@@ -329,7 +322,7 @@ export const Product = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={!productData.encryptedModuleCode ? addProductDetails : updateProductDetails}>Save</Button>
-                        <Button variant="danger" onClick={discardChanges}>Discard</Button>
+                        <Button variant="danger" id="btnDiscard" onClick={() => discardChanges()}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
             }

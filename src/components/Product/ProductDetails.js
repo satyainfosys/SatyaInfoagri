@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Col, Form, Row } from 'react-bootstrap';
 import Treeview from 'components/common/Treeview';
-import { productDetailsAction, selectedProductsAction } from '../../actions/index';
+import { formChangedAction, productDetailsAction, selectedProductsAction } from '../../actions/index';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 
@@ -55,6 +55,9 @@ export const ProductDetails = () => {
   const productDetailsErrorReducer = useSelector((state) => state.rootReducer.productDetailsErrorReducer)
   const productError = productDetailsErrorReducer.productDetailsError;
 
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
   if (!productDetailsReducer.productDetails ||
     productDetailsReducer.productDetails.length <= 0) {
     resetProductDetail();
@@ -65,6 +68,18 @@ export const ProductDetails = () => {
       ...productData,
       [e.target.name]: e.target.value
     }));
+
+    if(productData.encryptedModuleCode){
+      dispatch(formChangedAction({
+        ...formChangedData,
+        productUpdate: true
+      }))
+    }else{
+      dispatch(formChangedAction({
+        ...formChangedData,
+        productAdd: true
+      }))
+    }
   }
 
   return (
