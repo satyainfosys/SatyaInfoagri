@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import { Collapse } from 'react-bootstrap';
+import { formChangedAction } from 'actions';
+import { useSelector, useDispatch } from 'react-redux';
 
 const TreeviewListItem = ({
   item,
@@ -12,11 +14,15 @@ const TreeviewListItem = ({
   setSelectedItems,
   selection
 }) => {
+  const dispatch = useDispatch();
   const [open, setOpen] = useState(openedItems.indexOf(item.id) !== -1);
   const [children, setChildren] = useState([]);
   const [firstChildren, setFirstChildren] = useState([]);
   const [childrenOpen, setChildrenOpen] = useState(false);
   const checkRef = useRef();
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
 
   const getChildrens = item => {
     function flatInnter(item) {
@@ -52,10 +58,18 @@ const TreeviewListItem = ({
   const handleSingleCheckboxChange = e => {
     if (e.target.checked) {
       setSelectedItems([...selectedItems, item.id]);
+      dispatch(formChangedAction({
+        ...formChangedData,
+        moduleDetailAdd: true
+      }));
     } else {
       setSelectedItems(
         selectedItems.filter(selectedItem => selectedItem !== item.id)
       );
+      dispatch(formChangedAction({
+        ...formChangedData,
+        moduleDetailDelete: true
+      }));
     }
   };
 
@@ -65,8 +79,16 @@ const TreeviewListItem = ({
     );
     if (e.target.checked) {
       setSelectedItems([...filteredItems, item.id, ...children]);
+      dispatch(formChangedAction({
+        ...formChangedData,
+        moduleDetailAdd: true
+      }));      
     } else {
       setSelectedItems(filteredItems);
+      dispatch(formChangedAction({
+        ...formChangedData,
+        moduleDetailDelete: true
+      }));
     }
   };
 
@@ -99,9 +121,7 @@ const TreeviewListItem = ({
       checkRef.current.indeterminate = false;
       if(selectedItems.indexOf(item.id) != -1)
       {
-        const filteredItems = selectedItems.filter(
-          selectedItem => children.indexOf(item.id) != -1
-        );
+        const filteredItems = selectedItems.filter(element => element !== item.id);
         setSelectedItems(filteredItems);
       }
     }

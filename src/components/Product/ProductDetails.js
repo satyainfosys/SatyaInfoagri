@@ -46,6 +46,7 @@ export const ProductDetails = () => {
       "moduleName": "",
       "status": "Active"
     }))
+    setSelectedItems([]);
   }  
 
   const productDetailsReducer = useSelector((state) => state.rootReducer.productDetailsReducer)
@@ -57,10 +58,18 @@ export const ProductDetails = () => {
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
-  if (!productDetailsReducer.productDetails ||
-    productDetailsReducer.productDetails.length <= 0) {
+  const handleSelectedItems = () => {
+    if(productDetailsReducer.productDetails && productData.treeIds && productData.treeIds.length > 0){
+      setSelectedItems(productData.treeIds)
+    } 
+  }
+
+  if (Object.keys(productDetailsReducer.productDetails).length == 0 && !productDetailsReducer.productDetails.encryptedModuleCode) {
     resetProductDetail();
   }
+  else if(productDetailsReducer.productDetails.encryptedModuleCode && (!selectedItems || selectedItems.length <= 0) && (!formChangedData.moduleDetailAdd && !formChangedData.moduleDetailDelete)){
+    handleSelectedItems();
+  }   
 
   const handleFieldChange = e => {
     dispatch(productDetailsAction({

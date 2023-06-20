@@ -2,7 +2,7 @@ import TabPage from 'components/common/TabPage';
 import { toast } from 'react-toastify';
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { formChangedAction, productDetailsAction, productDetailsErrorAction } from 'actions';
+import { formChangedAction, productDetailsAction, productDetailsErrorAction, selectedProductsAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
@@ -67,6 +67,7 @@ export const Product = () => {
         dispatch(productDetailsAction(undefined));
         dispatch(productDetailsErrorAction(undefined));
         dispatch(formChangedAction(undefined));
+        dispatch(selectedProductsAction([]));
     }
 
     $('[data-rr-ui-event-key*="Product List"]').off('click').on('click', function () {
@@ -133,11 +134,22 @@ export const Product = () => {
     }
 
     const productValidation = () => {
-        const moduleNameErr = {}
+        const moduleNameErr = {};
+        const selectModuleErr = {};
 
         let isValid = true;
         if (!productData.moduleName) {
             moduleNameErr.empty = "Enter product name";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (selectedProductItems.length < 1) {
+            selectModuleErr.empty = "Please select atleast one module";
+            toast.error(selectModuleErr.empty, {
+                theme: 'colored',
+                autoClose: 10000
+            });
             isValid = false;
             setFormError(true);
         }
@@ -171,13 +183,15 @@ export const Product = () => {
     }
 
     const addProductDetails = () => {
-        
         if (productValidation()) {
+
+            let uniqueTreeIds = [...new Set(selectedProductItems)]
+
             const requestData = {
                 moduleName: productData.moduleName,
                 moduleStatus: productData.status == null || productData.status == "Active" ? "A" : "S",
                 addUser: localStorage.getItem("LoginUserName"),
-                treeIds: selectedProductItems
+                treeIds: uniqueTreeIds
             }
 
             const keys = ['moduleName', 'addUser']
@@ -210,7 +224,29 @@ export const Product = () => {
     }
 
     const updateProductDetails = async () => {
+        let addModuleDetailIds = [];
+        let deleteModuleDetailIds = [];
+
         if (productValidation()) {
+            
+            let uniqueTreeIds = [...new Set(selectedProductItems)]
+
+            if (productData.treeIds && productData.treeIds.length > 0) {
+                for (let i = 0; i < uniqueTreeIds.length; i++) {
+                    if (!productData.treeIds.includes(uniqueTreeIds[i])) {
+                        addModuleDetailIds.push(uniqueTreeIds[i]);
+                    }
+                }
+
+                for (let i = 0; i < productData.treeIds.length; i++) {
+                    if (!uniqueTreeIds.includes(productData.treeIds[i])) {
+                        deleteModuleDetailIds.push(productData.treeIds[i]);
+                    }
+                }
+            }else if(uniqueTreeIds.length > 0){
+                addModuleDetailIds = uniqueTreeIds;
+            }
+
             const updatedProductData = {
                 encryptedModuleCode: productData.encryptedModuleCode,
                 moduleName: productData.moduleName,
@@ -222,6 +258,8 @@ export const Product = () => {
             for (const key of Object.keys(updatedProductData).filter((key) => keys.includes(key))) {
                 updatedProductData[key] = updatedProductData[key] ? updatedProductData[key].toUpperCase() : '';
             }
+
+            var hasError = false;
 
             if (formChangedData.productUpdate) {
                 setIsLoading(true);
@@ -235,65 +273,71 @@ export const Product = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                        }
-                        // if (!clientContactDetailChanged.contactDetailsChanged && !transactionDetailChanged.transactionDetailChanged)
-                        else {
-                            // addModuleDetail();
-                            //deleteModuleDetail();
-                            updateProductCallback();
+                            hasError = true;
                         }
                     })
             }
-        }
-    }
 
-    const addModuleDetail = async () => {
-        if (productData.encryptedModuleCode) {
-            var loopBreaked = false;
+            if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
+                if (!hasError && formChangedData.moduleDetailDelete) {
+                    if (deleteModuleDetailIds) {
+                        var deleteModuleDetailIndex = 1;
 
-            const moduleDetails = {
-                encryptedModuleCode: localStorage.getItem('EncryptedResponseModuleCode'),
-                encryptedTreeId: "CfDJ8Eep9uQzpLJDkIGqUwlCnuMS7sa2zXWxSqLNw7o1nHE_6lxa0ODVBQsL3quadCye52biD5W_RhSkHH3ED0kM7K8ZiP32aUmj2hWRbgdAcXH3Bf2ZnGhf2zV94WbaeLEGyw",
-                addUser: localStorage.getItem('LoginUserName')
-            }
-            if (!loopBreaked) {
-                const keys = ['addUser']
-                for (const key of Object.keys(moduleDetails).filter((key) => keys.includes(key))) {
-                    moduleDetails[key] = moduleDetails[key] ? moduleDetails[key].toUpperCase() : '';
+                        for (let i = 0; i < deleteModuleDetailIds.length; i++) {
+                            const deleteModuleDetailId = deleteModuleDetailIds[i]
+                            const data = {
+                                encryptedModuleCode: localStorage.getItem("EncryptedResponseModuleCode"),
+                                treeId: deleteModuleDetailId
+                            }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            const deleteModuleDetailResponse =
+                                await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-module-detail', { headers, data });
+                            if (deleteModuleDetailResponse.data.status != 200) {
+                                toast.error(deleteModuleDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteModuleDetailIndex++
+                    }
                 }
-                const addSecurityModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-module-detail', moduleDetails, {
-                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                });
 
-                if (addSecurityModuleDetailResponse.data.status != 200) {
-                    toast.error(addSecurityModuleDetailResponse.data.message, {
-                        theme: 'colored',
-                        autoClose: 10000
-                    });
-                    loopBreaked = true;
-                } else {
-                    updateProductCallback();
+                var moduleDetailIndex = 1;
+                for (let i = 0; i < addModuleDetailIds.length; i++) {
+
+                    const treeId = addModuleDetailIds[i];
+
+                    if (formChangedData.moduleDetailAdd) {
+                        const requestData = {
+                            encryptedModuleCode: localStorage.getItem("EncryptedResponseModuleCode"),
+                            treeId: treeId,
+                            addUser: localStorage.getItem("LoginUserName").toUpperCase()
+                        }
+
+                        setIsLoading(true);
+                        const addModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-module-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addModuleDetailResponse.data.status != 200) {
+                            toast.error(addModuleDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    moduleDetailIndex++
                 }
             }
-        }
-    }
 
-    const deleteModuleDetail = async () => {
-        var loopBreaked = false;
-        const deleteContactDetailId = ["CfDJ8Eep9uQzpLJDkIGqUwlCnuM8GoKjUZKztSgfulk-V2dNORIMZ4AcNjN0OJ6IfWoEC8RKBV8kinVJErNsJQcI1NqPxMRuDBl7ChJqXuDslQBPnV9bALJVdfg_Zu1BpLxN2w"];
-        const data = { encryptedModuleDetailIds: deleteContactDetailId }
-        const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-
-        const deleteModuleDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-module-detail', { headers, data });
-
-        if (deleteModuleDetailResponse.data.status != 200) {
-            toast.error(deleteModuleDetailResponse.data.message, {
-                theme: 'colored',
-                autoClose: 10000
-            });
-            loopBreaked = true;
-        } else {
-            updateProductCallback();
+            if (!hasError) {
+                updateProductCallback();
+            }
         }
     }
 
