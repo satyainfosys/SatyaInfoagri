@@ -279,7 +279,7 @@ const TabPage = ({
                 <>
                   <TabInfoRow />
 
-                  <FalconComponentCard className="no-pb mb-2">
+                  <FalconComponentCard className="no-pb mb-1">
                     <FalconComponentCard.Body language="jsx">
                       <AddCollectionCentre />
                     </FalconComponentCard.Body>
@@ -301,7 +301,7 @@ const TabPage = ({
                 <>
                   <TabInfoRow />
 
-                  <FalconComponentCard className="no-pb mb-2">
+                  <FalconComponentCard className="no-pb mb-1">
                     <FalconComponentCard.Body language="jsx">
                       <AddDistributionCentre />
                     </FalconComponentCard.Body>

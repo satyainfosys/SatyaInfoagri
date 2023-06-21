@@ -130,12 +130,12 @@ export const AddDistributionCentre = () => {
                 <Form noValidate validated={formHasError} className="details-form" id='AddDistributionDetails'>
                     <Row>
                         <Col className="me-3 ms-3" md="7">
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Distribution Name
                                 </Form.Label>
                                 <Col sm="2">
-                                    <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Distribution Centre Code" value={distirbutionCentreData.distributionCentreCode} disabled />
+                                    <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Code" value={distirbutionCentreData.distributionCentreCode} disabled />
                                 </Col>
                                 <Col sm="7">
                                     <Form.Control id="txtDistributionCentreName" name="distributionName" maxLength={50} onChange={handleFieldChange} value={distirbutionCentreData.distributionName} placeholder="Distribution Centre Name" />
@@ -145,16 +145,16 @@ export const AddDistributionCentre = () => {
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Address
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtAddress" as='textarea' name="address" maxLength={250} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Address" rows="4" />
+                                    <Form.Control id="txtAddress" as='textarea' name="address" maxLength={250} onChange={handleFieldChange} value={distirbutionCentreData.address} placeholder="Distribution Address" rows="4" />
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Country
                                 </Form.Label>
@@ -171,7 +171,7 @@ export const AddDistributionCentre = () => {
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     State
                                 </Form.Label>
@@ -190,16 +190,16 @@ export const AddDistributionCentre = () => {
                         </Col>
 
                         <Col className="me-3 ms-3" md="4">
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Short Name
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" maxLength={20} onChange={handleFieldChange} value={distirbutionCentreData.distributionShortName} placeholder="Distribution Centre Short Name" />
+                                    <Form.Control id="txtDistributionCentreShortName" name="distributionShortName" maxLength={20} onChange={handleFieldChange} value={distirbutionCentreData.distributionShortName} placeholder="Short Name" />
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Cold Storage
                                 </Form.Label>
@@ -212,7 +212,7 @@ export const AddDistributionCentre = () => {
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Processing Unit
                                 </Form.Label>
@@ -225,7 +225,7 @@ export const AddDistributionCentre = () => {
                                 </Col>
                             </Form.Group>
 
-                            <Form.Group as={Row} className="mb-3" controlId="formPlaintextPassword">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Status
                                 </Form.Label>

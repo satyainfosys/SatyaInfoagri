@@ -211,6 +211,7 @@ export const User = () => {
         if (userValidation()) {
             const requestData = {
                 encryptedClientCode: userData.encryptedClientCode,
+                clientName: userData.clientName,
                 loginUserEmailId: userData.loginUserEmailId,
                 loginUserMobileNumber: userData.loginUserMobileNumber,
                 loginUserName: userData.loginUserName,

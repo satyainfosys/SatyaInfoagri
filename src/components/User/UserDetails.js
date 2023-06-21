@@ -110,6 +110,7 @@ export const UserDetails = () => {
                 dispatch(userDetailsAction({
                     ...userData,
                     encryptedClientCode: client.encryptedClientCode,
+                    clientName: client.customerName,
                     loginUserEmailId: client.emailId,
                     loginUserMobileNumber: client.mobileNo,
                     noOfUser: client.noOfCreatedUser

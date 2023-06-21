@@ -19,6 +19,7 @@ export const FarmersLandTable = () => {
   const [reducerIndex, setReducerIndex] = useState();
   const [modalError, setModalError] = useState(false);
   const [landCode, setLandCode] = useState(false);
+  const [activeLayer, setActiveLayer] = useState('street-view');
 
   const columnsArray = [
     'S.No',
@@ -330,6 +331,7 @@ export const FarmersLandTable = () => {
       setShowLocationModal(false);
       setLocationRowData([]);
       setLocationErr({});
+      calculateLandArea();
 
       if (localStorage.getItem("DeleteFarmerLandGeoDetailCodes")) {
         dispatch(formChangedAction({
@@ -441,9 +443,11 @@ export const FarmersLandTable = () => {
       navigator.geolocation.getCurrentPosition(
         (position) => {
           var locationDetails = [...locationRowData];
-          locationDetails[index] = { ...locationDetails[index],
+          locationDetails[index] = {
+            ...locationDetails[index],
             ['latitude']: position.coords.latitude.toString(),
-            ['longitude']: position.coords.longitude.toString() };
+            ['longitude']: position.coords.longitude.toString()
+          };
 
           setLocationRowData(locationDetails);
 
@@ -460,6 +464,81 @@ export const FarmersLandTable = () => {
       );
     }
   }
+
+  const degreesToRadians = (degrees) => {
+    return degrees * (Math.PI / 180);
+  }
+
+  const calculateLandArea = () => {
+    const coordinates = locationRowData.map(coord => [
+      parseFloat(coord.latitude),
+      parseFloat(coord.longitude)
+    ]);
+
+    const radius = 6371; // Earth's radius in kilometers
+
+    let totalArea = 0;
+    const numPoints = coordinates.length;
+
+    if (numPoints > 2) {
+      for (let i = 0; i < numPoints; i++) {
+        const p1 = coordinates[i];
+        const p2 = coordinates[(i + 1) % numPoints];
+
+        const lat1 = p1[0];
+        const lon1 = p1[1];
+        const lat2 = p2[0];
+        const lon2 = p2[1];
+
+        const dLat = degreesToRadians(lat2 - lat1);
+        const dLon = degreesToRadians(lon2 - lon1);
+
+        const a =
+          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+          Math.cos(degreesToRadians(lat1)) *
+          Math.cos(degreesToRadians(lat2)) *
+          Math.sin(dLon / 2) *
+          Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = radius * c;
+
+        const height = distance;
+        const width = distance;
+
+        const area = height * width;
+        totalArea += area;
+      }
+      const convertToAcres = (totalArea * 247.105).toFixed(2);
+      farmerLandDetailsData[reducerIndex].landArea = convertToAcres;
+      dispatch(farmerLandDetailsAction(farmerLandDetailsData));
+    }
+  };
+
+  const handleLayerToggle = () => {
+    setActiveLayer(activeLayer == 'street-view' ? 'satellite-view' : 'street-view');
+  };
+
+  const renderMapContainer = () => {
+    return (
+      <MapContainer
+        key={activeLayer}
+        center={locationCoordinates[0] ? locationCoordinates[0] : [28.6139, 77.2090]}
+        zoom={19}
+        style={{ height: '400px', width: '100%' }}
+      >
+        <TileLayer
+          url={
+            activeLayer == 'street-view' ?
+              "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+              :
+              "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+          }
+          maxZoom={100}
+        />
+        <Polygon positions={locationCoordinates} />
+      </MapContainer>
+    );
+  };
 
   return (
     <>
@@ -565,8 +644,8 @@ export const FarmersLandTable = () => {
                           />
                         </td>
                         <td>
-                        <FontAwesomeIcon icon={'location-crosshairs'} className="fa-2x me-2" onClick={() => getCurrentLatLongs(index)}/>
-                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => deleteLocationDetails(index, row)} />
+                          <FontAwesomeIcon icon={'location-crosshairs'} className="fa-2x me-2" onClick={() => getCurrentLatLongs(index)} />
+                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => deleteLocationDetails(index, row)} />
                         </td>
                       </tr>
                     ))}
@@ -598,21 +677,14 @@ export const FarmersLandTable = () => {
           </Modal.Header>
           <Modal.Body>
             <div>
-              <MapContainer
-                center={locationCoordinates[0] ? locationCoordinates[0] : [28.6139, 77.2090]}
-                zoom={19}
-                style={{ height: '400px', width: '100%' }}
-              >
-                <TileLayer
-                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  attribution="Map data &copy; <a href=&quot;https://www.openstreetmap.org/&quot; target=&quot;_blank&quot; rel=&quot;noopener noreferrer&quot;>OpenStreetMap</a> contributors"
-                  maxZoom={100}
-                />
-                <Polygon positions={locationCoordinates} />
-              </MapContainer>
+              {renderMapContainer()}
             </div>
           </Modal.Body>
           <Modal.Footer>
+            <Button variant="info" onClick={() => handleLayerToggle()}>
+              {
+                activeLayer == 'street-view' ? 'Satellite' : 'Street'} View
+            </Button>
             <Button variant="danger" onClick={() => { setShowMapModal(false) }}>Cancel</Button>
           </Modal.Footer>
         </Modal>
@@ -656,14 +728,14 @@ export const FarmersLandTable = () => {
           }
         />
         {
-              farmerLandDetailsData && farmerLandDetailsData.length > 0 &&
-        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-          <Form
-            noValidate
-            validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
-            className="details-form"
-            id="AddFarmersLiveStockTableDetailsForm"
-          >
+          farmerLandDetailsData && farmerLandDetailsData.length > 0 &&
+          <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+            <Form
+              noValidate
+              validated={formHasError || (farmerError.landDetailErr.invalidLandDetail)}
+              className="details-form"
+              id="AddFarmersLiveStockTableDetailsForm"
+            >
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -801,7 +873,7 @@ export const FarmersLandTable = () => {
                       </td>
 
                       <td>
-                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerLandDetailsData.encryptedFarmerLandCode) }} />
                       </td>
                     </tr>
                   ))
@@ -809,8 +881,8 @@ export const FarmersLandTable = () => {
 
                 </tbody>
               </Table>
-          </Form>
-        </Card.Body>
+            </Form>
+          </Card.Body>
         }
       </Card>
     </>
