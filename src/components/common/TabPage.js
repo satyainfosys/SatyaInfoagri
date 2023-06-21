@@ -222,7 +222,7 @@ const TabPage = ({
               {index == 1 && module == 'Product' && (
                 <>
                   <FalconComponentCard>
-                    <FalconComponentCard.Body language="jsx">
+                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
                       <ProductDetails />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>

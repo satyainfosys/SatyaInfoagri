@@ -72,6 +72,10 @@
     .full-tab-card-body{
         min-height: 376px;
     }
+
+    .full-tab-page-card-body{
+        min-height: 450px;
+    }
 }
 
 @media (min-width:1280px) {
@@ -147,6 +151,10 @@
     .farmer-card-row2{
         min-height: 267px;
     }
+
+    .full-tab-page-card-body{
+        min-height: 450px;
+    }
 }
 
 @media (min-width:1400px) {
@@ -184,6 +192,10 @@
     .full-tab-card-body{
         min-height: 444px;
     }
+
+    .full-tab-page-card-body{
+        min-height: 520px;
+    }
 }
 
 @media (min-width:1600px) {
@@ -206,6 +218,10 @@
         min-height: 512px;
         max-height: 512px;
         overflow-y: scroll;
+    }
+
+    .full-tab-page-card-body{
+        min-height: 565px;
     }
 }
 
@@ -251,5 +267,9 @@
 
     .full-tab-card-body{
         min-height: 578px;
+    }
+
+    .full-tab-page-card-body{
+        min-height: 650px;
     }
 }
