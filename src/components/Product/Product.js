@@ -206,12 +206,19 @@ export const Product = () => {
                 .then(res => {
                     if (res.data.status == 200) {
                         setIsLoading(false);
+                        setTimeout(function () {
+                            dispatch(productDetailsAction({
+                                ...productData,
+                                encryptedModuleCode: res.data.data.encryptedModuleCode,
+                                treeIds: uniqueTreeIds
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedResponseModuleCode", res.data.data.encryptedModuleCode)
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
                         })
                         updateProductCallback(true);
-                        $('[data-rr-ui-event-key*="Product List"]').click();
                     } else {
                         setIsLoading(false);
                         toast.error(res.data.message, {
@@ -337,6 +344,10 @@ export const Product = () => {
 
             if (!hasError) {
                 updateProductCallback();
+                dispatch(productDetailsAction({
+                    ...productData,
+                    treeIds: uniqueTreeIds
+                }))                
             }
         }
     }

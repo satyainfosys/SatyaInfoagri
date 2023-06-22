@@ -760,7 +760,7 @@ export const CollectionCentre = () => {
                         <h4>Do you want to save changes?</h4>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" onClick={formChangedData.collectoinCentreUpdate ? updateCollectionCentreDetails : addCollectionCentreDetails}>Save</Button>
+                        <Button variant="success" onClick={collectionCentreData.encryptedCollectionCentreCode ? updateCollectionCentreDetails : addCollectionCentreDetails}>Save</Button>
                         <Button id="btnDiscard" variant="danger" onClick={() => discardChanges()}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
