@@ -291,3 +291,17 @@ export const collectionCentreDetailsErrorAction = (payload) => {
     payload
   };
 };
+
+export const productLineDetailsAction = (payload) => {
+  return {
+    type: 'PRODUCTLINEDETAILS',
+    payload
+  };
+};
+
+export const productLineDetailsErrorAction = (payload) => {
+  return {
+    type: 'PRODUCTLINEDETAILSERROR',
+    payload
+  };
+};

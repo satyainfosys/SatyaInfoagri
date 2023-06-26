@@ -36,6 +36,7 @@ import AddFig from 'components/CollectionCentre/AddFig';
 import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
 import CommonContactTable from './CommonContactTable';
 import TabInfoRow from './TabInfoRow';
+import AddProduct from 'components/ProductLine/AddProduct';
 
 const TabPage = ({
   listData,
@@ -148,6 +149,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
+                    || tab == 'Add Product'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -308,6 +310,16 @@ const TabPage = ({
                   </FalconComponentCard>
 
                   <CommonContactTable />
+                </>
+              )}
+
+              {index == 1 && module == 'ProductLine' && (
+                <>
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddProduct />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
                 </>
               )}
             </Tab>

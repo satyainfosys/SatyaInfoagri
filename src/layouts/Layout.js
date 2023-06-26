@@ -25,6 +25,7 @@ import Product from 'components/Product/Product';
 import Farmers from 'components/Farmers/Farmers';
 import CollectionCentre from 'components/CollectionCentre/CollectionCentre';
 import DistributionCentre from 'components/DistributionCentre/DistributionCentre';
+import ProductLine from 'components/ProductLine/ProductLine';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -79,6 +80,9 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/distribution-centres" element={<DistributionCentre />} />
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/product-lines" element={<ProductLine />} />
         </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />

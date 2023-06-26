@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -81,6 +81,12 @@ const AdvanceTable = ({
         title1: `${localStorage.getItem("CompanyName")}`,
         title2: rowData.collectionCentreName
       }))
+    }
+    else if(rowData.hasOwnProperty('encryptedProductCode')){
+      dispatch(productLineDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Product"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Product"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));
