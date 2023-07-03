@@ -305,3 +305,10 @@ export const productLineDetailsErrorAction = (payload) => {
     payload
   };
 };
+
+export const productCategoryDetailAction = (payload) => {
+  return {
+    type: 'PRODUCTCATEGORYDETAILS',
+    payload
+  };
+};

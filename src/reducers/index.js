@@ -35,6 +35,7 @@ import figDetailsReducer from './figDetailsReducer'
 import collectionCentreDetailsErrorReducer from './collectionCentreDetailsErrorReducer'
 import productLineDetailsReducer from './productLineDetailsReducer'
 import productLineDetailsErrorReducer from './productLineDetailsErrorReducer'
+import productCategoryDetailReducer from './productCategoryDetailReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -72,7 +73,8 @@ const rootReducer = combineReducers({
   figDetailsReducer,
   collectionCentreDetailsErrorReducer,
   productLineDetailsReducer,
-  productLineDetailsErrorReducer
+  productLineDetailsErrorReducer,
+  productCategoryDetailReducer
 });
 
 export default rootReducer;

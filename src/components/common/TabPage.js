@@ -37,6 +37,7 @@ import AddDistributionCentre from 'components/DistributionCentre/AddDistribution
 import CommonContactTable from './CommonContactTable';
 import TabInfoRow from './TabInfoRow';
 import AddProduct from 'components/ProductLine/AddProduct';
+import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
 
 const TabPage = ({
   listData,
@@ -316,10 +317,12 @@ const TabPage = ({
               {index == 1 && module == 'ProductLine' && (
                 <>
                   <FalconComponentCard className="no-pb mb-1">
-                    <FalconComponentCard.Body language="jsx" className='full-tab-page-card-body'>
+                    <FalconComponentCard.Body language="jsx">
                       <AddProduct />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
+                  <AddProductCategoryDetail />
                 </>
               )}
             </Tab>

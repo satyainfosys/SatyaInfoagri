@@ -1,6 +1,7 @@
 const initialState = {
     productLineDetailsError: {
         productNameErr: {},
+        productCategoryNameErr: {}
     }
 };
 
