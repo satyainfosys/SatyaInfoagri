@@ -76,6 +76,11 @@
     .full-tab-page-card-body{
         min-height: 450px;
     }
+
+    .half-screen-card{
+        min-height: 225px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width:1280px) {
@@ -155,6 +160,11 @@
     .full-tab-page-card-body{
         min-height: 450px;
     }
+
+    .half-screen-card{
+        min-height: 225px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width:1400px) {
@@ -196,6 +206,11 @@
     .full-tab-page-card-body{
         min-height: 520px;
     }
+
+    .half-screen-card{
+        min-height: 260px;
+        overflow-y: scroll;
+    }
 }
 
 @media (min-width:1600px) {
@@ -222,6 +237,11 @@
 
     .full-tab-page-card-body{
         min-height: 565px;
+    }
+
+    .half-screen-card{
+        min-height: 286px;
+        overflow-y: scroll;
     }
 }
 
@@ -271,5 +291,10 @@
 
     .full-tab-page-card-body{
         min-height: 650px;
+    }
+
+    .half-screen-card{
+        min-height: 329px;
+        overflow-y: scroll;
     }
 }

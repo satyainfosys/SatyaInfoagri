@@ -159,7 +159,7 @@ export const AddProductCategoryDetail = () => {
                     </Modal.Footer>
                 </Modal>
             }
-            <Card className="h-100 mb-2">
+            <Card className="h-100 mb-2 half-screen-card">
                 <FalconCardHeader
                     title="Product Category Details"
                     titleTag="h6"
