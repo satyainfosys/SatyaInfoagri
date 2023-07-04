@@ -241,13 +241,12 @@ export const AddProductCategoryDetail = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     className="form-control"
                                                 >
-                                                    <option value=''>Select Crop Type</option>
+                                                    <option value=''>Crop Type</option>
                                                     <option value="Cash Crop">Cash Crop</option>
                                                     <option value="Food Crops">Food Crops</option>
                                                     <option value="Horticulture Crop">Horticulture Crop</option>
                                                     <option value="Plantation Crop">Plantation Crop</option>
                                                     <option value="Fertilizer">Fertilizer</option>
-                                                    <option value="Others">Others</option>
                                                 </Form.Select>
                                             </td>
 
@@ -260,7 +259,7 @@ export const AddProductCategoryDetail = () => {
                                                     value={productCategoryDetailData.season}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                 >
-                                                    <option value=''>Select Season</option>
+                                                    <option value=''>Season</option>
                                                     <option value='Rabi'>Rabi</option>
                                                     <option value='Kharif'>Kharif</option>
                                                     <option value='Zaid'>Zaid</option>

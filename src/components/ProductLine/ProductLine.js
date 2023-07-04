@@ -340,7 +340,7 @@ export const ProductLine = () => {
                             encryptedProductCategoryCode: productCategoryDetails.encryptedProductCategoryCode,
                             productCategoryName: productCategoryDetails.productCategoryName,
                             productCategoryShortName: productCategoryDetails.productCategoryShortName ? productCategoryDetails.productCategoryShortName : "",
-                            cropType: productCategoryDetails.cropType ? productCategoryDetails.cropType : "Others",
+                            cropType: productCategoryDetails.cropType ? productCategoryDetails.cropType : "",
                             season: productCategoryDetails.season ? productCategoryDetails.season : "",
                             activeStatus: productCategoryDetails.activeStatus,
                             modifyUser: localStorage.getItem("LoginUserName")
@@ -365,7 +365,7 @@ export const ProductLine = () => {
                             encryptedProductCode: localStorage.getItem("EncryptedProductCode"),
                             productCategoryName: productCategoryDetails.productCategoryName,
                             productCategoryShortName: productCategoryDetails.productCategoryShortName ? productCategoryDetails.productCategoryShortName : "",
-                            cropType: productCategoryDetails.cropType ? productCategoryDetails.cropType : "Others",
+                            cropType: productCategoryDetails.cropType ? productCategoryDetails.cropType : "",
                             season: productCategoryDetails.season ? productCategoryDetails.season : "",
                             activeStatus: productCategoryDetails.activeStatus,
                             addUser: localStorage.getItem("LoginUserName")
