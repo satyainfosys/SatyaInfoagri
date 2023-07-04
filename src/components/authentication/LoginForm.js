@@ -66,7 +66,14 @@ const LoginForm = ({ hasLabel }) => {
               setTimeout(() => {
                 window.location.href = "/dashboard";
               }, 1000);
-            } else {
+            } 
+            else if(res.data.data.emailSent){
+              toast.warning(res.data.message, {
+                theme: 'colored',
+                autoClose: 10000
+              });
+            }
+            else {
               toast.error(res.data.message, {
                 theme: 'colored',
                 autoClose: 10000

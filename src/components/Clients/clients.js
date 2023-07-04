@@ -117,6 +117,9 @@ export const Client = () => {
     if (contactDetailData.length <= 0 && !(localStorage.getItem("DeleteContactDetailsId")) && (localStorage.getItem("EncryptedResponseClientCode") || clientData.encryptedClientCode)) {
       getContactDetailsList()
     }
+    if (transactionDetailData.length <= 0 && (localStorage.getItem("EncryptedResponseClientCode") || clientData.encryptedClientCode)) {
+      getTransactionDetailsList();
+    }
   })
 
   $('[data-rr-ui-event-key*="Transaction Details"]').off('click').on('click', function () {
@@ -404,7 +407,6 @@ export const Client = () => {
   }
 
   const updateCallback = (isAddClient = false, encryptedClientCode) => {
-    
     setModalShow(false);
 
     if (clientData.gstNumber === localStorage.getItem("GSTNumber")) {
