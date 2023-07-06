@@ -159,7 +159,7 @@ export const AddProductCategoryDetail = () => {
                     </Modal.Footer>
                 </Modal>
             }
-            <Card className="h-100 mb-2 half-screen-card">
+            <Card className="h-100 big-card-body">
                 <FalconCardHeader
                     title="Product Category Details"
                     titleTag="h6"
@@ -183,7 +183,7 @@ export const AddProductCategoryDetail = () => {
                 />
                 {
                     productCategoryDetailData && productCategoryDetailData.length > 0 &&
-                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                    <Card.Body className="position-relative pb-0 p3px big-card-table">
                         <Form
                             noValidate
                             validated={formHasError || (productLineError.productCategoryNameErr && productLineError.productCategoryNameErr.invalidProductCategory)}

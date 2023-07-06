@@ -316,7 +316,7 @@ const TabPage = ({
 
               {index == 1 && module == 'ProductLine' && (
                 <>
-                  <FalconComponentCard className="no-pb mb-1 half-screen-card">
+                  <FalconComponentCard className="no-pb mb-1">
                     <FalconComponentCard.Body language="jsx">
                       <AddProduct />
                     </FalconComponentCard.Body>

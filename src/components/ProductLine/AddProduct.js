@@ -62,8 +62,8 @@ export const AddProduct = () => {
                     <Row>
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
-                                <Form.Label>Product Code</Form.Label>
-                                <Form.Control id="txtProductCode" name="productcode" placeholder="Code" value={productLineData.productCode} disabled />
+                                <Form.Label>Product Line Code</Form.Label>
+                                <Form.Control id="txtProductCode" name="productcode" placeholder="Product Line Code" value={productLineData.productCode} disabled />
                             </Row>
                         </Col>
                         <Col className="me-3 ms-3">
