@@ -191,7 +191,7 @@ export const AddProductCategoryDetail = () => {
                             id="AddProductCategoryDetailsForm"
                         >
 
-                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
+                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                 <thead className='custom-bg-200'>
                                     <tr>
                                         {columnsArray.map((column, index) => (
