@@ -159,7 +159,7 @@ export const AddProductCategoryDetail = () => {
                     </Modal.Footer>
                 </Modal>
             }
-            <Card className="h-100 mb-2 half-screen-card">
+            <Card className="h-100 big-card-body">
                 <FalconCardHeader
                     title="Product Category Details"
                     titleTag="h6"
@@ -183,7 +183,7 @@ export const AddProductCategoryDetail = () => {
                 />
                 {
                     productCategoryDetailData && productCategoryDetailData.length > 0 &&
-                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                    <Card.Body className="position-relative pb-0 p3px big-card-table">
                         <Form
                             noValidate
                             validated={formHasError || (productLineError.productCategoryNameErr && productLineError.productCategoryNameErr.invalidProductCategory)}
@@ -191,7 +191,7 @@ export const AddProductCategoryDetail = () => {
                             id="AddProductCategoryDetailsForm"
                         >
 
-                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table many-column-table">
+                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                 <thead className='custom-bg-200'>
                                     <tr>
                                         {columnsArray.map((column, index) => (

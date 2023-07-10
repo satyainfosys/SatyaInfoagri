@@ -33,7 +33,7 @@ const AuthCardLayout = ({ leftSideContent, children, footer = true }) => {
             <Card.Body className="p-0">
               <Row className="h-100 g-0">
                 <Col md={5} className="text-white text-center bg-card-gradient">
-                  <div className="position-relative p-4 pt-md-5 pb-md-7">
+                  <div className="position-relative p-4 pt-md-3 pb-md-4">
                     <Background
                       image={halfCircle}
                       className="bg-auth-card-shape"
@@ -48,11 +48,11 @@ const AuthCardLayout = ({ leftSideContent, children, footer = true }) => {
                       <Logo width={200} />
                     </div>
                   </div>
-                  <div className="mt-3 mb-4 mt-md-4 mb-md-5 light">
+                  <div className="mt-2 mb-4 mt-md-2 mb-md-5 light">
                     {leftSideContent}
 
                     {footer && (
-                      <p className="mb-0 mt-4 mt-md-5 fs--1 fw-semi-bold text-white opacity-75">
+                      <p className="mb-0 mt-2 mt-md-3 fs--1 fw-semi-bold text-white opacity-75">
                         Read our{' '}
                         <Link
                           className="text-decoration-underline text-white"
