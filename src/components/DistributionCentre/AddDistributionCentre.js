@@ -98,8 +98,10 @@ export const AddDistributionCentre = () => {
         if (e.target.name == "countryCode") {
             dispatch(distributionCentreDetailsAction({
                 ...distirbutionCentreData,
-                countryCode: e.target.value
+                countryCode: e.target.value,
+                stateCode: null
             }))
+            setStateList([]);
 
             e.target.value && getStates(e.target.value);
         } else {

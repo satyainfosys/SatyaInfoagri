@@ -54,10 +54,23 @@ export const AddFig = () => {
     const collectionCentreErr = collectionCentreDetailsErrorReducer.collectionCentreDetailsError
 
     useEffect(() => {
-        setRowDataValue(figDetailsReducer, figDetailsData);
-        if (countryList.length <= 0)
+        if (figDetailsReducer.figDetails.length > 0) {
+            setRowData(figDetailsData);
+            setTimeout(function () {
+                setStateValue();
+            }, 50);
+        }
+
+        if (countryList.length <= 0) {
             getCountries();
+        }
     }, [figDetailsData, figDetailsReducer]);
+
+    const setStateValue = () => {
+        figDetailsData.map((row, index) => {
+            getStates(row.countryCode, index);
+        })
+    };
 
     const getCountries = async () => {
         axios
@@ -77,13 +90,13 @@ export const AddFig = () => {
             });
     }
 
-    const getStates = async (countryCode) => {
+    const getStates = async (countryCode, index) => {
         const stateRequest = {
             CountryCode: countryCode
         }
-
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
         let stateData = [];
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/state-list', stateRequest)
+
 
         if (response.data.status == 200) {
             if (response.data && response.data.data.length > 0) {
@@ -94,15 +107,19 @@ export const AddFig = () => {
                     });
                 });
             }
-            setStateList(stateData);
+            setStateList(prevStateList => {
+                const newStateList = [...prevStateList];
+                newStateList[index] = stateData;
+                return newStateList;
+            });
         } else {
-            setStateList([]);
+            setStateList(prevStateList => {
+                const newStateList = [...prevStateList];
+                newStateList[index] = [];
+                return newStateList;
+            });
         }
     }
-
-    const setRowDataValue = (figDetailsReducer, figDetailsData) => {
-        setRowData(figDetailsReducer.figDetails.length > 0 ? figDetailsData : []);
-    };
 
     const validateFigDetailForm = () => {
         let isValid = true;
@@ -131,14 +148,6 @@ export const AddFig = () => {
         }
     };
 
-    // figDetailsData.forEach(obj => {
-    //     if (obj.stateCode &&
-    //         !$('txtStateName').val()) {
-    //         // stateFunction(obj.stateName);
-    //         getStates(obj.countryCode);
-    //     }
-    // });
-
     const handleFieldChange = (e, index) => {
         const { name, value } = e.target;
         var figDetails = [...rowData];
@@ -146,11 +155,13 @@ export const AddFig = () => {
         figDetails = Object.keys(rowData).map(key => {
             return rowData[key];
         })
-        dispatch(figDetailsAction(figDetails))
 
         if (name == 'countryCode') {
-            value && getStates(value);
+            figDetails[index].stateCode = '';
+            value && getStates(value, index);
         }
+
+        dispatch(figDetailsAction(figDetails))
 
         if (figDetails[index].encryptedFigCode) {
             dispatch(formChangedAction({
@@ -298,7 +309,6 @@ export const AddFig = () => {
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtCountry"
                                                     name="countryCode"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
@@ -315,7 +325,6 @@ export const AddFig = () => {
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtState"
                                                     name="stateCode"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
@@ -323,8 +332,8 @@ export const AddFig = () => {
                                                     required
                                                 >
                                                     <option value=''>Select State</option>
-                                                    {stateList.map((option, index) => (
-                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    {stateList[index] && stateList[index].map((option, mapIndex) => (
+                                                        <option key={mapIndex} value={option.value}>{option.key}</option>
                                                     ))}
                                                 </Form.Select>
                                             </td>

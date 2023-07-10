@@ -150,7 +150,7 @@ export const UserDetails = () => {
                         <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Client<span className="text-danger">*</span></Form.Label>
-                                <Form.Select id="txtClient" name="encryptedClientCode" onChange={handleFieldChange} required>
+                                <Form.Select id="txtClient" name="encryptedClientCode" onChange={handleFieldChange} required disabled={userData.encryptedSecurityUserId}>
                                     <option value=''>Select Client</option>
                                     {clientList.map((option, index) => (
                                         <option key={index} value={option.value}>{option.key}</option>
