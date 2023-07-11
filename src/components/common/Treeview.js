@@ -3,8 +3,9 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import { Collapse } from 'react-bootstrap';
-import { formChangedAction } from 'actions';
+import { formChangedAction, menuDetailAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 
 const TreeviewListItem = ({
   item,
@@ -82,7 +83,7 @@ const TreeviewListItem = ({
       dispatch(formChangedAction({
         ...formChangedData,
         moduleDetailAdd: true
-      }));      
+      }));
     } else {
       setSelectedItems(filteredItems);
       dispatch(formChangedAction({
@@ -112,15 +113,13 @@ const TreeviewListItem = ({
     );
     if (childrenSelected && checkRef.current) {
       checkRef.current.indeterminate = true;
-      if(selectedItems.indexOf(item.id) === -1)
-      {
+      if (selectedItems.indexOf(item.id) === -1) {
         setSelectedItems([...selectedItems, item.id]);
       }
     }
     if (!childrenSelected && checkRef.current) {
       checkRef.current.indeterminate = false;
-      if(selectedItems.indexOf(item.id) != -1)
-      {
+      if (selectedItems.indexOf(item.id) != -1) {
         const filteredItems = selectedItems.filter(element => element !== item.id);
         setSelectedItems(filteredItems);
       }
@@ -133,6 +132,20 @@ const TreeviewListItem = ({
       checkRef.current.checked = false;
     }
   }, [selectedItems, checkRef.current]);
+
+  const viewMenuDetail = async (item) => {
+    const requestData = {
+      EncryptedTreeId: item.encryptedTreeId
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/view-menu-tree-detail', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+      dispatch(menuDetailAction(response.data.data));
+    }
+  }
 
   return (
     <li className="treeview-list-item">
@@ -151,11 +164,11 @@ const TreeviewListItem = ({
               className={classNames('collapse-toggle', {
                 collapsed: open || item.expanded
               })}
-              href="javascript:void(0);"
-              onClick={() => setOpen(!open)}
+              href="javascript:void(0);"              
             >
               <p
                 className={classNames('treeview-text', { 'ms-2': !selection })}
+                onClick={() => { setOpen(!open), viewMenuDetail(item) }}
               >
                 {item.name}
               </p>
@@ -199,7 +212,7 @@ const TreeviewListItem = ({
             />
           )}
           <a href="javascript:void(0);" className="flex-1">
-            <p className="treeview-text">
+            <p className="treeview-text" onClick={() => viewMenuDetail(item)}>
               <FontAwesomeIcon
                 icon={item.icon}
                 className={classNames('me-2', item.iconClass)}

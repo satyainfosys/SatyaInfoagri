@@ -312,3 +312,24 @@ export const productCategoryDetailAction = (payload) => {
     payload
   };
 };
+
+export const menuDetailAction = (payload) => {
+  return {
+    type: 'MENUDETAILS',
+    payload
+  };
+};
+
+export const menuDetailsErrorAction = (payload) => {
+  return {
+    type: 'MENUDETAILSERROR',
+    payload
+  };
+};
+
+export const treeViewAction = (payload) => {
+  return {
+    type: 'TREEVIEWDETAILS',
+    payload
+  };
+};

@@ -36,6 +36,9 @@ import collectionCentreDetailsErrorReducer from './collectionCentreDetailsErrorR
 import productLineDetailsReducer from './productLineDetailsReducer'
 import productLineDetailsErrorReducer from './productLineDetailsErrorReducer'
 import productCategoryDetailReducer from './productCategoryDetailReducer'
+import menuDetailsReducer from './menuDetailsReducer'
+import menuDetailsErrorReducer from './menuDetailsErrorReducer'
+import treeViewReducer from './treeViewReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -74,7 +77,10 @@ const rootReducer = combineReducers({
   collectionCentreDetailsErrorReducer,
   productLineDetailsReducer,
   productLineDetailsErrorReducer,
-  productCategoryDetailReducer
+  productCategoryDetailReducer,
+  menuDetailsReducer,
+  menuDetailsErrorReducer,
+  treeViewReducer
 });
 
 export default rootReducer;

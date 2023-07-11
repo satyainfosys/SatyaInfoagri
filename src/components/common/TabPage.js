@@ -38,6 +38,7 @@ import CommonContactTable from './CommonContactTable';
 import TabInfoRow from './TabInfoRow';
 import AddProduct from 'components/ProductLine/AddProduct';
 import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
+import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
 
 const TabPage = ({
   listData,
@@ -155,9 +156,19 @@ const TabPage = ({
                     : ''
               }
             >
+
+              {index == 0 && module == 'AddMenu' && (
+                <>
+                  <FalconComponentCard>
+                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
+                      <AddMenuDetails />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+                </>
+              )}
+
               {index == 0 && listData && (
                 <>
-
                   <FalconComponentCard className="tab-page-list-card">
                     <FalconComponentCard.Body>
                       <AdvanceTableComponent
@@ -170,6 +181,7 @@ const TabPage = ({
                   </FalconComponentCard>
                 </>
               )}
+
               {index == 1 && module == 'Client' && (
                 <>
                   <FalconComponentCard className="mb-2 no-pb">
@@ -325,6 +337,17 @@ const TabPage = ({
                   <AddProductCategoryDetail />
                 </>
               )}
+
+              {/* {index == 1 && module == 'AddMenu' && (
+                <>
+                  <FalconComponentCard >
+                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
+                      <AddMenuDetails />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+                </>
+              )} */}
+
             </Tab>
           );
         })}
