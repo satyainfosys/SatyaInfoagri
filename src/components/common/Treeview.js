@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import React, { useEffect, useRef, useState } from 'react';
 import { Collapse } from 'react-bootstrap';
-import { formChangedAction, menuDetailAction } from 'actions';
+import { formChangedAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
-import axios from 'axios';
 
 const TreeviewListItem = ({
   item,
@@ -13,7 +12,8 @@ const TreeviewListItem = ({
   setOpenedItems,
   selectedItems,
   setSelectedItems,
-  selection
+  selection,
+  menuTreeItemClick
 }) => {
   const dispatch = useDispatch();
   const [open, setOpen] = useState(openedItems.indexOf(item.id) !== -1);
@@ -133,20 +133,6 @@ const TreeviewListItem = ({
     }
   }, [selectedItems, checkRef.current]);
 
-  const viewMenuDetail = async (item) => {
-    const requestData = {
-      EncryptedTreeId: item.encryptedTreeId
-    }
-
-    let response = await axios.post(process.env.REACT_APP_API_URL + '/view-menu-tree-detail', requestData, {
-      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    })
-
-    if (response.data.status == 200) {
-      dispatch(menuDetailAction(response.data.data));
-    }
-  }
-
   return (
     <li className="treeview-list-item">
       {Object.prototype.hasOwnProperty.call(item, 'children') && item.children.length > 0 ? (
@@ -160,19 +146,41 @@ const TreeviewListItem = ({
                 ref={checkRef}
               />
             )}
-            <a
-              className={classNames('collapse-toggle', {
-                collapsed: open || item.expanded
-              })}
-              href="javascript:void(0);"              
-            >
-              <p
-                className={classNames('treeview-text', { 'ms-2': !selection })}
-                onClick={() => { setOpen(!open), viewMenuDetail(item) }}
-              >
-                {item.name}
-              </p>
-            </a>
+            {
+              menuTreeItemClick ?
+                <a
+                  className={classNames('collapse-toggle', {
+                    collapsed: open || item.expanded
+                  })}
+                  href="javascript:void(0);"
+                  onClick={() => {
+                    setOpen(!open);
+                    menuTreeItemClick(item);
+                  }}
+                >
+                  <p
+                    className={classNames('treeview-text', { 'ms-2': !selection })}
+                  >
+                    {item.name}
+                  </p>
+                </a>
+                :
+                <a
+                  className={classNames('collapse-toggle', {
+                    collapsed: open || item.expanded
+                  })}
+                  href="javascript:void(0);"
+                  onClick={() => {
+                    setOpen(!open)
+                  }}
+                >
+                  <p
+                    className={classNames('treeview-text', { 'ms-2': !selection })}
+                  >
+                    {item.name}
+                  </p>
+                </a>
+            }
           </div>
           <Collapse
             in={open}
@@ -196,6 +204,7 @@ const TreeviewListItem = ({
                   selectedItems={selectedItems}
                   setSelectedItems={setSelectedItems}
                   selection={selection}
+                  menuTreeItemClick={menuTreeItemClick}
                 />
               ))}
             </ul>
@@ -212,13 +221,24 @@ const TreeviewListItem = ({
             />
           )}
           <a href="javascript:void(0);" className="flex-1">
-            <p className="treeview-text" onClick={() => viewMenuDetail(item)}>
-              <FontAwesomeIcon
-                icon={item.icon}
-                className={classNames('me-2', item.iconClass)}
-              />
-              {item.name}
-            </p>
+            {
+              menuTreeItemClick ?
+                <p className="treeview-text" onClick={() => menuTreeItemClick(item)}>
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className={classNames('me-2', item.iconClass)}
+                  />
+                  {item.name}
+                </p>
+                :
+                <p className="treeview-text" >
+                  <FontAwesomeIcon
+                    icon={item.icon}
+                    className={classNames('me-2', item.iconClass)}
+                  />
+                  {item.name}
+                </p>
+            }
           </a>
         </div>
       )}
@@ -231,7 +251,8 @@ const Treeview = ({
   selection,
   expanded = [],
   selectedItems = [],
-  setSelectedItems
+  setSelectedItems,
+  menuTreeItemClick
 }) => {
   const [openedItems, setOpenedItems] = useState(expanded);
 
@@ -246,6 +267,7 @@ const Treeview = ({
           selectedItems={selectedItems}
           setSelectedItems={setSelectedItems}
           selection={selection}
+          menuTreeItemClick={menuTreeItemClick}
         />
       ))}
     </ul>
@@ -258,7 +280,8 @@ TreeviewListItem.propTypes = {
   setOpenedItems: PropTypes.func,
   selectedItems: PropTypes.array,
   setSelectedItems: PropTypes.func,
-  selection: PropTypes.bool
+  selection: PropTypes.bool,
+  menuTreeItemClick: PropTypes.func
 };
 
 Treeview.propTypes = {
@@ -266,7 +289,8 @@ Treeview.propTypes = {
   selection: PropTypes.bool, // If true selection is enabled.
   expanded: PropTypes.array, // Default expanded children ids.
   selectedItems: PropTypes.array, // Selected item ids..
-  setSelectedItems: PropTypes.func // Setter to select items
+  setSelectedItems: PropTypes.func,// Setter to select items
+  menuTreeItemClick: PropTypes.func
 };
 
 export default Treeview;

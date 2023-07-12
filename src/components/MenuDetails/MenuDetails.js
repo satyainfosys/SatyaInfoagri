@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import TabPage from 'components/common/TabPage';
-import { Spinner, Modal, Button, Col, Form, Row } from 'react-bootstrap';
+import { Spinner, Modal, Button } from 'react-bootstrap';
 import { formChangedAction, menuDetailAction, menuDetailsErrorAction, treeViewAction } from 'actions';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
@@ -53,6 +53,7 @@ export const MenuDetails = () => {
   $('[data-rr-ui-event-key*="Add Menu"]').off('click').on('click', function () {
     fetchMenuTree();
     $("#btnSave").show();
+    $("#btnSave").attr('disabled', true);
     $("#btnNew").hide();
   })
 
@@ -85,7 +86,7 @@ export const MenuDetails = () => {
   }
 
   const addMenuDetails = () => {
-    if (menuDetailAction()) {
+    if (menuDetailValidation()) {
       const requestData = {
         parentId: localStorage.getItem("ParentId") ? localStorage.getItem("ParentId") : 0,
         menuItemName: menuData.menuItemName,

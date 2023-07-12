@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { menuDetailAction, formChangedAction } from 'actions';
+import { menuDetailAction, formChangedAction, menuDetailsErrorAction } from 'actions';
 import { Col, Form, Row, Button } from 'react-bootstrap';
 import Treeview from 'components/common/Treeview';
+import axios from 'axios';
 
 const AddMenuDetails = () => {
   const [formHasError, setFormError] = useState(false);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
+  const [menuName, setMenuName] = useState();
 
   const resetMenuDetail = () => {
     dispatch(menuDetailAction({
@@ -67,21 +69,35 @@ const AddMenuDetails = () => {
     resetMenuDetail();
   }
 
+  const resetData = () => {
+    resetMenuDetail();
+    dispatch(menuDetailsErrorAction(undefined));
+    localStorage.removeItem("ParentId");
+  }
+
+  const viewMenuDetail = async (item) => {
+    const requestData = {
+      EncryptedTreeId: item.encryptedTreeId
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/view-menu-tree-detail', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+      setMenuName(response.data.data.menuItemName)
+      dispatch(menuDetailAction(response.data.data));
+    }
+  }
+
   return (
     <>
-      <div style={{ display: "flex", justifyContent: "right" }} mb="5">
-        <Button className='btn btn-info me-1' id='btnReset' onClick={() => resetMenuDetail()}>
-          <span data-fa-transform="shrink-3"></span>Reset
-        </Button>
-        {
-          menuData.childId && (
-            <Button variant='link' className='btn btn-link me-1' id='btnAdd' onClick={() => addSubMenu()}>
-              <span data-fa-transform="shrink-3"></span>
-              Add menu under {menuData.menuItemName}
-            </Button>
-          )
-        }
-      </div>
+      {isLoading ? (
+        <Spinner
+          className="position-absolute start-50 loader-color"
+          animation="border"
+        />
+      ) : null}
 
       {menuData &&
         <Form noValidate validated={formHasError} className="details-form" id='AddMenuDetailsForm'>
@@ -89,10 +105,33 @@ const AddMenuDetails = () => {
             <Col className="me-3 ms-3" md="6">
               <Treeview
                 data={treeViewData}
+                menuTreeItemClick={viewMenuDetail}
               />
             </Col>
 
             <Col className="me-3 ms-3" md="5">
+
+              <Row className="mb-2">
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Col sm="3" style={{ paddingLeft: 0 }}>
+                    <Button className='btn btn-info me-1' id='btnReset' onClick={() => resetData()} style={{ display: "flex", justifyContent: "left" }}>
+                      <span data-fa-transform="shrink-3"></span>Reset
+                    </Button>
+                  </Col>
+
+                  <Col sm="9" style={{ paddingLeft: 0 }}>
+                    {
+                      menuData.childId && (
+                        <Button variant='link' className='btn btn-link me-1' id='btnAdd' onClick={() => addSubMenu()} style={{ display: "flex", justifyContent: "right" }}>
+                          <span data-fa-transform="shrink-3"></span>
+                          Add menu under {menuName}
+                        </Button>
+                      )
+                    }
+                  </Col>
+                </Form.Group>
+              </Row>
+
               <Row className="mb-1">
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                   <Form.Label column sm="3">
@@ -113,10 +152,20 @@ const AddMenuDetails = () => {
                     Order By
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Control id="txtMenuLevel" name="menuLevel" value={menuData.menuLevel} onChange={handleFieldChange} placeholder="Order By" />
+                    <Form.Control id="txtMenuLevel" name="menuLevel" value={menuData.menuLevel}
+                      onChange={handleFieldChange} placeholder="Order By"
+                      onKeyPress={(e) => {
+                        const regex = /[0-9]|\./;
+                        const key = String.fromCharCode(e.charCode);
+                        if (!regex.test(key)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      maxLength={2}
+                    />
                   </Col>
                 </Form.Group>
-              </Row>              
+              </Row>
 
               <Row className="mb-1">
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -181,8 +230,8 @@ const AddMenuDetails = () => {
                         </option>
                       ))}
                       {[...Array(9)].map((_, index) => (
-                        <option key={index} value={index}>
-                          {index}
+                        <option key={index} value={index + 1}>
+                          {index + 1}
                         </option>
                       ))}
                     </Form.Select>
