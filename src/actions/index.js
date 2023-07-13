@@ -333,3 +333,10 @@ export const treeViewAction = (payload) => {
     payload
   };
 };
+
+export const shortcutKeyCombinationAction = (payload) => {
+  return {
+    type: 'SHORTCUTKEYLIST',
+    payload
+  };
+};

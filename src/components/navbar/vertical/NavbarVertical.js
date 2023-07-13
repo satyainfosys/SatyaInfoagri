@@ -11,6 +11,9 @@ import ToggleButton from './ToggleButton';
 import routes from 'routes/routes';
 import { capitalize, getMenuTree, isLoggedIn } from 'helpers/utils';
 import $ from 'jquery';
+import { useDispatch } from 'react-redux';
+import axios from 'axios';
+import { shortcutKeyCombinationAction } from 'actions';
 
 const NavbarVertical = () => {
   const {
@@ -23,28 +26,28 @@ const NavbarVertical = () => {
   } = useContext(AppContext);
 
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
+  const dispatch = useDispatch();
 
   useEffect(() => {
     isLoggedIn();
+    getShortCutKeys();
     let menuTreeItemCount = $('.navbar-vertical-content .navbar-nav .nav-item').length;
     if (menuTreeItemCount <= 1) {
       getMenuTree();
     }
 
-    setTimeout(function (){
-      
+    setTimeout(function () {
+
       var pageUrl = window.location.href.split("/").length > 2 ? "/" + window.location.href.split("/")[3] : "";
 
-      $('li a.nav-link').each(function(i, obj) {
-        var menuLink =  $(this).attr('href');
+      $('li a.nav-link').each(function (i, obj) {
+        var menuLink = $(this).attr('href');
 
-        if(pageUrl == menuLink)
-        {
+        if (pageUrl == menuLink) {
           var parentContainerId = $(this).attr('data-parent-container-id');
 
-          if($('#' + parentContainerId).hasClass('dropdown-indicator') &&
-             $('#' + parentContainerId).hasClass('collapsed')) 
-          {
+          if ($('#' + parentContainerId).hasClass('dropdown-indicator') &&
+            $('#' + parentContainerId).hasClass('collapsed')) {
             var childMenuContainerId = $('#' + parentContainerId).attr('data-children-container-id');
             $('#' + parentContainerId).removeClass('collapsed');
             $('#' + parentContainerId).attr('aria-expanded', 'true');
@@ -52,9 +55,8 @@ const NavbarVertical = () => {
 
             var parentParentContainerId = $('#' + parentContainerId).attr('data-parent-container-id');
 
-            if($('#' + parentParentContainerId).hasClass('dropdown-indicator') &&
-              $('#' + parentParentContainerId).hasClass('collapsed')) 
-            {
+            if ($('#' + parentParentContainerId).hasClass('dropdown-indicator') &&
+              $('#' + parentParentContainerId).hasClass('collapsed')) {
               var childChildMenuContainerId = $('#' + parentParentContainerId).attr('data-children-container-id');
               $('#' + parentParentContainerId).removeClass('collapsed');
               $('#' + parentParentContainerId).attr('aria-expanded', 'true');
@@ -62,15 +64,14 @@ const NavbarVertical = () => {
             }
           }
 
-          if(!$(this).hasClass('dropdown-indicator'))
-          {
+          if (!$(this).hasClass('dropdown-indicator')) {
             $('li a.nav-link').removeClass("active");
             setTimeout(() => {
               $(this).addClass("active");
             }, 100);
           }
         }
-    });
+      });
     }, 1000);
 
     if (isNavbarVerticalCollapsed) {
@@ -83,8 +84,7 @@ const NavbarVertical = () => {
     };
   }, [isNavbarVerticalCollapsed, HTMLClassList]);
 
-  $('body').on('click', 'li a.nav-link', function () 
-  {
+  $('body').on('click', 'li a.nav-link', function () {
     var childMenuContainerId = $(this).attr('data-children-container-id');
 
     if ($(this).hasClass('dropdown-indicator') && $(this).hasClass('collapsed')) {
@@ -92,14 +92,13 @@ const NavbarVertical = () => {
       $(this).attr('aria-expanded', 'true');
       $('#' + childMenuContainerId).addClass('show');
     }
-    else if($(this).hasClass('dropdown-indicator') && !$(this).hasClass('collapsed')){
+    else if ($(this).hasClass('dropdown-indicator') && !$(this).hasClass('collapsed')) {
       $(this).addClass('collapsed');
       $(this).attr('aria-expanded', 'false');
       $('#' + childMenuContainerId).removeClass('show');
     }
 
-    if(!$(this).hasClass('dropdown-indicator'))
-    {
+    if (!$(this).hasClass('dropdown-indicator')) {
       $('.dropdown-indicator').addClass("collapsed");
       $('.dropdown-indicator').attr('aria-expanded', 'false');
       $('ul').removeClass("show");
@@ -134,6 +133,18 @@ const NavbarVertical = () => {
       </Row>
     </Nav.Item>
   );
+
+  const getShortCutKeys = async () => {
+    let token = localStorage.getItem('Token');
+    let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
+      { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
+
+    if (response.data.status == 200) {
+      if (response.data.data && response.data.data.length > 0) {
+        dispatch(shortcutKeyCombinationAction(response.data.data));
+      }
+    }
+  }
 
   return (
     <Navbar

@@ -4,6 +4,7 @@ import 'react-toastify/dist/ReactToastify.min.css';
 import Layout from './layouts/Layout';
 
 const App = () => {
+
   return (
     <Router basename={process.env.PUBLIC_URL}>
       <Layout />
