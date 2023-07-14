@@ -68,6 +68,8 @@ export const MenuDetails = () => {
 
   const menuDetailValidation = () => {
     let menuNameErr = {};
+    let controlKeyErr = {};
+    let commandKeyErr = {};
     let isValid = true;
 
     if (!menuData.menuItemName) {
@@ -76,9 +78,34 @@ export const MenuDetails = () => {
       setFormError(true);
     }
 
+    if(menuData.commandKeys && !menuData.controls){
+      controlKeyErr.empty = "Select control";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if(menuData.controls && !menuData.commandKeys){
+      commandKeyErr.empty = "Select command";
+      isValid = false;
+      setFormError(true);
+    }
+
+    if (menuData.controls && menuData.commandKeys) {
+      const shortCutKey = ["CTRL+V", "CTRL+C", "CTRL+X"];
+      const commandKeysAndControls = menuData.commandKeys + "+" + menuData.controls;
+      if (shortCutKey.includes(commandKeysAndControls)) {
+        commandKeyErr.invalid = "System commands are not allowed!";
+        controlKeyErr.invalid = "System commands are not allowed!";
+        isValid = false;
+        setFormError(true);
+      }
+    }
+
     if (!isValid) {
       var errorObject = {
-        menuNameErr
+        menuNameErr,
+        controlKeyErr,
+        commandKeyErr
       }
       dispatch(menuDetailsErrorAction(errorObject));
     }
@@ -123,6 +150,7 @@ export const MenuDetails = () => {
               theme: 'colored',
               autoClose: 10000
             })
+            dispatch(menuDetailsErrorAction(undefined));
             $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
           } else {
             setIsLoading(false);
@@ -167,6 +195,7 @@ export const MenuDetails = () => {
                 theme: 'colored',
                 autoClose: 10000
               })
+              dispatch(menuDetailsErrorAction(undefined));
               $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
             } else {
               setIsLoading(false);

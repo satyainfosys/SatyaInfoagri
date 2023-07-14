@@ -13,7 +13,7 @@ import { capitalize, getMenuTree, isLoggedIn } from 'helpers/utils';
 import $ from 'jquery';
 import { useDispatch } from 'react-redux';
 import axios from 'axios';
-import { shortcutKeyCombinationAction } from 'actions';
+import { useNavigate } from 'react-router-dom';
 
 const NavbarVertical = () => {
   const {
@@ -26,16 +26,15 @@ const NavbarVertical = () => {
   } = useContext(AppContext);
 
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
-  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   useEffect(() => {
     isLoggedIn();
-    getShortCutKeys();
     let menuTreeItemCount = $('.navbar-vertical-content .navbar-nav .nav-item').length;
     if (menuTreeItemCount <= 1) {
       getMenuTree();
     }
-
+    getShortCutKeys();
     setTimeout(function () {
 
       var pageUrl = window.location.href.split("/").length > 2 ? "/" + window.location.href.split("/")[3] : "";
@@ -136,15 +135,37 @@ const NavbarVertical = () => {
 
   const getShortCutKeys = async () => {
     let token = localStorage.getItem('Token');
-    let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
-      { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
-
-    if (response.data.status == 200) {
-      if (response.data.data && response.data.data.length > 0) {
-        dispatch(shortcutKeyCombinationAction(response.data.data));
+      let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
+        { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
+      if (response.data.status == 200) {
+        if (response.data.data && response.data.data.length > 0) {
+          setShortKeys(response.data.data)
+        }
       }
-    }
   }
+
+  const setShortKeys = (shortCutData) => {
+      $(document).off('keydown').on('keydown', (e) => onKeyDown(e, shortCutData));
+  }
+
+  const onKeyDown = (e, shortCutKeyData) => {
+    var keyPressed = '';
+
+    if (e.shiftKey && e.key.length === 1) {
+      keyPressed = "SHIFT+" + e.key.toUpperCase();
+    }
+    else if (e.altKey && e.key.length === 1) {
+      keyPressed = "ALT+" + e.key.toUpperCase();
+    }
+    else if (e.ctrlKey && e.key.length === 1) {
+      keyPressed = "CTRL+" + e.key.toUpperCase();
+    }
+
+    let shortCutKey = shortCutKeyData.filter(x => x.shortCutKey == keyPressed)[0];
+
+    if (shortCutKey && shortCutKey.route)
+      navigate(shortCutKey.route);
+  };
 
   return (
     <Navbar

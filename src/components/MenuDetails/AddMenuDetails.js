@@ -206,12 +206,15 @@ const AddMenuDetails = () => {
                     Command
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Select id="txtControls" name="controls" onChange={handleFieldChange} value={menuData.controls} >
+                    <Form.Select id="txtCommandKeys" name="commandKeys" onChange={handleFieldChange} value={menuData.commandKeys} >
                       <option value="">Select</option>
                       <option value="ALT">ALT</option>
                       <option value="CTRL">CTRL</option>
                       <option value="SHIFT">SHIFT</option>
                     </Form.Select>
+                    {Object.keys(menuDataError.commandKeyErr).map((key) => {
+                      return <span className="error-message">{menuDataError.commandKeyErr[key]}</span>
+                    })}
                   </Col>
                 </Form.Group>
               </Row>
@@ -222,7 +225,7 @@ const AddMenuDetails = () => {
                     Key
                   </Form.Label>
                   <Col sm="9">
-                    <Form.Select id="txtCommandKeys" name="commandKeys" value={menuData.commandKeys} onChange={handleFieldChange} >
+                    <Form.Select id="txtControls" name="controls" value={menuData.controls} onChange={handleFieldChange} >
                       <option value="">Select</option>
                       {[...Array(26)].map((_, index) => (
                         <option key={index} value={String.fromCharCode(65 + index)}>
@@ -235,6 +238,9 @@ const AddMenuDetails = () => {
                         </option>
                       ))}
                     </Form.Select>
+                    {Object.keys(menuDataError.controlKeyErr).map((key) => {
+                      return <span className="error-message">{menuDataError.controlKeyErr[key]}</span>
+                    })}
                   </Col>
                 </Form.Group>
               </Row>

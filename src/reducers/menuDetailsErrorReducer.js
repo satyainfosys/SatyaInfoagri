@@ -1,6 +1,8 @@
 const initialState = {
   menuDetailsError: {
-    menuNameErr: {}
+    menuNameErr: {},
+    controlKeyErr: {},
+    commandKeyErr: {}
   }
 };
 
