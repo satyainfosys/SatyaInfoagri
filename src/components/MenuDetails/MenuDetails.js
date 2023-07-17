@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import TabPage from 'components/common/TabPage';
 import { Spinner, Modal, Button } from 'react-bootstrap';
-import { formChangedAction, menuDetailAction, menuDetailsErrorAction, treeViewAction } from 'actions';
+import { formChangedAction, menuDetailAction, menuDetailsErrorAction, shortcutKeyCombinationAction, treeViewAction } from 'actions';
 import { useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 
@@ -78,13 +78,13 @@ export const MenuDetails = () => {
       setFormError(true);
     }
 
-    if(menuData.commandKeys && !menuData.controls){
+    if (menuData.commandKeys && !menuData.controls) {
       controlKeyErr.empty = "Select control";
       isValid = false;
       setFormError(true);
     }
 
-    if(menuData.controls && !menuData.commandKeys){
+    if (menuData.controls && !menuData.commandKeys) {
       commandKeyErr.empty = "Select command";
       isValid = false;
       setFormError(true);
@@ -152,6 +152,7 @@ export const MenuDetails = () => {
             })
             dispatch(menuDetailsErrorAction(undefined));
             $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
+            getShortCutKeys();
           } else {
             setIsLoading(false);
             toast.error(res.data.message, {
@@ -197,6 +198,7 @@ export const MenuDetails = () => {
               })
               dispatch(menuDetailsErrorAction(undefined));
               $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
+              getShortCutKeys();
             } else {
               setIsLoading(false);
               toast.error(res.data.message, {
@@ -215,6 +217,18 @@ export const MenuDetails = () => {
       window.location.href = '/dashboard';
     }
     setModalShow(false);
+  }
+
+  const getShortCutKeys = async () => {
+    let token = localStorage.getItem('Token');
+    let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
+      { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
+    if (response.data.status == 200) {
+      if (response.data.data && response.data.data.length > 0) {
+        // setShortKeys(response.data.data)
+        dispatch(shortcutKeyCombinationAction(response.data.data))
+      }
+    }
   }
 
   return (

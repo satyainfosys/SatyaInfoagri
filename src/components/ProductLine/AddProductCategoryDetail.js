@@ -17,8 +17,6 @@ export const AddProductCategoryDetail = () => {
         'S.No',
         'Category Name',
         'Short Name',
-        'Crop Type',
-        'Season',
         'Active Status',
         'Action'
     ]
@@ -31,8 +29,6 @@ export const AddProductCategoryDetail = () => {
         encryptedProductCode: localStorage.getItem("EncryptedProductCode") ? localStorage.getItem("EncryptedProductCode") : "",
         productCategoryName: '',
         productCategoryShortName: '',
-        cropType: '',
-        season: '',
         activeStatus: '',
         addUser: localStorage.getItem("LoginUserName"),
         modifyUser: localStorage.getItem("LoginUserName")
@@ -230,41 +226,7 @@ export const AddProductCategoryDetail = () => {
                                                     maxLength={10}
                                                     className="form-control"
                                                 />
-                                            </td>
-
-                                            <td key={index}>
-                                                <Form.Select
-                                                    type="text"
-                                                    id="txtCropType"
-                                                    name="cropType"
-                                                    value={productCategoryDetailData.cropType}
-                                                    onChange={(e) => handleFieldChange(e, index)}
-                                                    className="form-control"
-                                                >
-                                                    <option value=''>Crop Type</option>
-                                                    <option value="Cash Crop">Cash Crop</option>
-                                                    <option value="Food Crops">Food Crops</option>
-                                                    <option value="Horticulture Crop">Horticulture Crop</option>
-                                                    <option value="Plantation Crop">Plantation Crop</option>
-                                                    <option value="Fertilizer">Fertilizer</option>
-                                                </Form.Select>
-                                            </td>
-
-                                            <td key={index}>
-                                                <Form.Select
-                                                    type="text"
-                                                    id="txtSeason"
-                                                    name="season"
-                                                    className="form-control"
-                                                    value={productCategoryDetailData.season}
-                                                    onChange={(e) => handleFieldChange(e, index)}
-                                                >
-                                                    <option value=''>Season</option>
-                                                    <option value='Rabi'>Rabi</option>
-                                                    <option value='Kharif'>Kharif</option>
-                                                    <option value='Zaid'>Zaid</option>
-                                                </Form.Select>
-                                            </td>
+                                            </td>                                                                                       
 
                                             <td key={index}>
                                                 <Form.Select

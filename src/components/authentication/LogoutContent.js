@@ -4,10 +4,16 @@ import { Button } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import logoutImg from 'assets/img/icons/spot-illustrations/45.png';
+import { useDispatch } from 'react-redux';
+import { shortcutKeyCombinationAction } from 'actions';
 
 const LogoutContent = ({ titleTag: TitleTag }) => {
+
+  const dispatch = useDispatch()
+      
   useEffect(() => {
     localStorage.clear();
+    dispatch(shortcutKeyCombinationAction([]));
   }, []);
   return (
     <>

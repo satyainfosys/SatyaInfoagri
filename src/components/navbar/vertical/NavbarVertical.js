@@ -11,7 +11,7 @@ import ToggleButton from './ToggleButton';
 import routes from 'routes/routes';
 import { capitalize, getMenuTree, isLoggedIn } from 'helpers/utils';
 import $ from 'jquery';
-import { useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -27,6 +27,9 @@ const NavbarVertical = () => {
 
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
   const navigate = useNavigate();
+
+  const shortcutKeyReducer = useSelector((state) => state.rootReducer.shortcutKeyReducer)
+  var shortcutKeyData = shortcutKeyReducer.shortcutKeyList;
 
   useEffect(() => {
     isLoggedIn();
@@ -132,6 +135,10 @@ const NavbarVertical = () => {
       </Row>
     </Nav.Item>
   );
+
+  if(shortcutKeyData && shortcutKeyData.length > 0){
+    $(document).off('keydown').on('keydown', (e) => onKeyDown(e, shortcutKeyData));
+  }
 
   const getShortCutKeys = async () => {
     let token = localStorage.getItem('Token');
