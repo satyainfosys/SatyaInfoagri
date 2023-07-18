@@ -39,6 +39,7 @@ import TabInfoRow from './TabInfoRow';
 import AddProduct from 'components/ProductLine/AddProduct';
 import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
 import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
+import AddProductMaster from 'components/ProductMaster/AddProductMaster';
 
 const TabPage = ({
   listData,
@@ -338,15 +339,17 @@ const TabPage = ({
                 </>
               )}
 
-              {/* {index == 1 && module == 'AddMenu' && (
+              {index == 1 && module == 'ProductMaster' && (
                 <>
-                  <FalconComponentCard >
-                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
-                      <AddMenuDetails />
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddProductMaster />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
+                  <AddProductCategoryDetail />
                 </>
-              )} */}
+              )}
 
             </Tab>
           );

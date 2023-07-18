@@ -340,3 +340,10 @@ export const shortcutKeyCombinationAction = (payload) => {
     payload
   };
 };
+
+export const productMasterDetailsAction = (payload) => {
+  return {
+    type: 'PRODUCTMASTERDETAILS',
+    payload
+  };
+};

@@ -150,8 +150,9 @@ export const MenuDetails = () => {
               theme: 'colored',
               autoClose: 10000
             })
-            dispatch(menuDetailsErrorAction(undefined));
             $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
+            dispatch(menuDetailsErrorAction(undefined));
+            dispatch(formChangedAction(undefined));
             getShortCutKeys();
           } else {
             setIsLoading(false);
@@ -197,7 +198,8 @@ export const MenuDetails = () => {
                 autoClose: 10000
               })
               dispatch(menuDetailsErrorAction(undefined));
-              $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');
+              dispatch(formChangedAction(undefined));
+              $('[data-rr-ui-event-key*="Add Menu"]').trigger('click');              
               getShortCutKeys();
             } else {
               setIsLoading(false);
@@ -225,7 +227,6 @@ export const MenuDetails = () => {
       { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
     if (response.data.status == 200) {
       if (response.data.data && response.data.data.length > 0) {
-        // setShortKeys(response.data.data)
         dispatch(shortcutKeyCombinationAction(response.data.data))
       }
     }

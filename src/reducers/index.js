@@ -40,6 +40,7 @@ import menuDetailsReducer from './menuDetailsReducer'
 import menuDetailsErrorReducer from './menuDetailsErrorReducer'
 import treeViewReducer from './treeViewReducer'
 import shortcutKeyReducer from './shortcutKeyReducer'
+import productMasterDetailsReducer from './productMasterDetailsReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -82,7 +83,8 @@ const rootReducer = combineReducers({
   menuDetailsReducer,
   menuDetailsErrorReducer,
   treeViewReducer,
-  shortcutKeyReducer
+  shortcutKeyReducer,
+  productMasterDetailsReducer
 });
 
 export default rootReducer;
