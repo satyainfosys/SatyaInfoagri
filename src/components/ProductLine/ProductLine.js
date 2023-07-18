@@ -29,8 +29,7 @@ export const ProductLine = () => {
 
         const listFilter = {
             pageNumber: page,
-            pageSize: size,
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+            pageSize: size
         };
 
         setIsLoading(true);
@@ -396,7 +395,6 @@ export const ProductLine = () => {
 
     const getProductCategoryList = async () => {
         const request = {
-            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
             EncryptedProductCode: localStorage.getItem("EncryptedProductCode")
         }
 
