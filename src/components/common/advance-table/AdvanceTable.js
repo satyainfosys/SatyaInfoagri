@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -87,6 +87,15 @@ const AdvanceTable = ({
       dispatch(productLineDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Product"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Product"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
+    }
+    else if(rowData.hasOwnProperty('encryptedProductMasterCode')){
+      localStorage.setItem('EncryptedProductMasterCode', rowData.encryptedProductMasterCode);
+      localStorage.setItem('EncryptedProductLineCode', rowData.encryptedProductLineCode);
+      localStorage.setItem('EncryptedProductCategoryCode', rowData.encryptedProductCategoryCode);
+      dispatch(productMasterDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Product Master"]').trigger('click');
       $('#btnSave').attr('disabled', true);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {

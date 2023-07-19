@@ -183,15 +183,15 @@ export const FarmersMachinaryDetailsTable = () => {
             </Flex>
           }
         />
-                    {
-              farmerMachineryDetailsData && farmerMachineryDetailsData.length > 0 &&
-        <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-          <Form
-            noValidate
-            validated={formHasError || (farmerError.machineryDetailErr && farmerError.machineryDetailErr.invalidMachineryDetail)}
-            className="details-form"
-            id="AddFarmersMachinaryTableDetailsForm"
-          >
+        {
+          farmerMachineryDetailsData && farmerMachineryDetailsData.length > 0 &&
+          <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+            <Form
+              noValidate
+              validated={formHasError || (farmerError.machineryDetailErr && farmerError.machineryDetailErr.invalidMachineryDetail)}
+              className="details-form"
+              id="AddFarmersMachinaryTableDetailsForm"
+            >
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -284,14 +284,14 @@ export const FarmersMachinaryDetailsTable = () => {
                         </Form.Select>
                       </td>
                       <td>
-                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(farmerMachineryDetailsData.encryptedFarmerMachineryCode) }} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-          </Form>
-        </Card.Body>
+            </Form>
+          </Card.Body>
         }
       </Card>
     </>

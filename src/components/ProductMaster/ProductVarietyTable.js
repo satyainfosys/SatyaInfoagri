@@ -29,6 +29,8 @@ const ProductVarietyTable = () => {
         id: rowData.length + 1,
         encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',
         encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode") ? localStorage.getItem("EncryptedProductMasterCode") : '',
+        encryptedProductLineCode: localStorage.getItem("EncryptedProductLineCode") ? localStorage.getItem("EncryptedProductLineCode") : '',
+        encryptedProductCategoryCode: localStorage.getItem("EncryptedProductCategoryCode") ? localStorage.getItem("EncryptedProductCategoryCode") : '',
         productVarietyName: '',
         productVarietyShortName: '',
         perishableDays: '',
@@ -61,7 +63,7 @@ const ProductVarietyTable = () => {
 
     return (
         <>
-            <Card className="h-100 big-card-body">
+            <Card className="h-100 mb-2">
                 <FalconCardHeader
                     title="Product Variety Details"
                     titleTag="h6"

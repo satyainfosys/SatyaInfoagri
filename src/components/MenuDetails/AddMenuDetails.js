@@ -11,7 +11,6 @@ const AddMenuDetails = () => {
   const [formHasError, setFormError] = useState(false);
   const dispatch = useDispatch();
   const [isLoading, setIsLoading] = useState(false);
-  const [menuName, setMenuName] = useState();
   const [deleteModalShow, setDeleteModalShow] = useState(false);
 
   const resetMenuDetail = () => {
@@ -19,6 +18,7 @@ const AddMenuDetails = () => {
       "menuItemName": "",
       "menuLevel": "",
       "menuItemPageURL": "",
+      "menuItemIcon": "",
       "description": "",
       "controls": "",
       "commandKeys": ""
@@ -88,7 +88,6 @@ const AddMenuDetails = () => {
     })
 
     if (response.data.status == 200) {
-      setMenuName(response.data.data.menuItemName)
       dispatch(menuDetailAction(response.data.data));
     }
   }
@@ -152,11 +151,28 @@ const AddMenuDetails = () => {
           </Modal.Header>
           <Modal.Body>
             {
-              (menuData.isChild || menuData.isModule || menuData.isUser) ?
-                <h4>Do you want to delete this menu details
-                  as this menu is linked with other modules?</h4>
+              (menuData.isChild && menuData.isModule && menuData.isUser) ?
+                <h5>If you delete this menu,child menus, linked products and user accesses will also deleted, are you sure you want to proceed?</h5>
                 :
-                <h4>Do you want to delete this menu details?</h4>
+                (menuData.isModule && menuData.isUser && !menuData.isChild) ?
+                  <h5>If you delete this menu,linked products and user accesses will also deleted, are you sure you want to proceed?</h5>
+                  :
+                  (menuData.isChild && menuData.isUser && !menuData.isModule) ?
+                    <h5>If you delete this menu, child menus and linked user accesses will also deleted, are you sure you want to proceed?</h5>
+                    :
+                    (menuData.isChild && menuData.isModule && !menuData.isUser) ?
+                      <h5>If you delete this menu,child menus and linked products will also deleted, are you sure you want to proceed?</h5>
+                      :
+                      menuData.isChild ?
+                        <h5>If you delete this menu, child menus will also deleted, are you sure you want to proceed?</h5>
+                        :
+                        menuData.isModule ?
+                          <h5>If you delete this menu, linked products will also deleted, are you sure you want to proceed?</h5>
+                          :
+                          menuData.isUser ?
+                            <h5>If you delete this menu, linked user accesses will also deleted, are you sure you want to proceed?</h5>
+                            :
+                            <h5>Are you sure, you want to delete this menu?</h5>
             }
           </Modal.Body>
           <Modal.Footer>
@@ -188,10 +204,10 @@ const AddMenuDetails = () => {
 
                   <Col sm="9" style={{ paddingLeft: 0 }}>
                     {
-                      menuData.childId && (
+                      (menuData.childId || menuData.encryptedTreeId) && (
                         <Button variant='link' className='btn btn-link me-1' id='btnAdd' onClick={() => addSubMenu()} style={{ display: "flex", justifyContent: "right" }}>
                           <span data-fa-transform="shrink-3"></span>
-                          Add menu under {menuName}
+                          Add menu under {menuData.menuItemName}
                         </Button>
                       )
                     }
@@ -312,11 +328,14 @@ const AddMenuDetails = () => {
                 </Form.Group>
               </Row>
               <Row className="mb-1">
-                <div style={{ display: "flex", justifyContent: "right", borderRadius: "8px" }}>
-                  <Button className='btn btn-danger me-1' id='btnDeleteMenu' onClick={() => deleteModalPreview()} disabled={!menuData.encryptedTreeId}>
-                    <span class="fas fa-trash me-1" data-fa-transform="shrink-3"></span>Delete
-                  </Button>
-                </div>
+                {
+                  menuData.encryptedTreeId &&
+                  <div style={{ display: "flex", justifyContent: "right", borderRadius: "8px" }}>
+                    <Button className='btn btn-danger me-1' id='btnDeleteMenu' onClick={() => deleteModalPreview()}>
+                      <span class="fas fa-trash me-1" data-fa-transform="shrink-3"></span>Delete
+                    </Button>
+                  </div>
+                }
               </Row>
             </Col>
           </Row >

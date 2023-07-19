@@ -53,7 +53,10 @@ const TabPage = ({
   exitModule,
   tableFilterOptions,
   tableFilterName,
-  supportingMethod1
+  supportingMethod1,
+  tableFilterOptions1,
+  tableFilterName1,
+  supportingMethod2
 }) => {
   $.fn.extend({
     trackChanges: function () {
@@ -89,6 +92,10 @@ const TabPage = ({
     $('.add-farmer-card-body').removeClass('bg-light');
     localStorage.removeItem('EncryptedResponseClientCode');
     localStorage.removeItem("EncryptedCompanyCode");
+    localStorage.removeItem("EncryptedFarmerCode");
+    localStorage.removeItem("EncryptedProductCategoryCode");
+    localStorage.removeItem("EncryptedProductLineCode");
+    localStorage.removeItem("CompanyName");
   }, []);
 
   const discardChanges = () => {
@@ -178,7 +185,11 @@ const TabPage = ({
                         data={listData}
                         filterOptions={tableFilterOptions}
                         filterName={tableFilterName}
-                        handleFilterChange={supportingMethod1} />
+                        handleFilterChange={supportingMethod1}
+                        filterOptions1={tableFilterOptions1}
+                        filterName1={tableFilterName1}
+                        handleFilterChange1={supportingMethod2}
+                      />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>

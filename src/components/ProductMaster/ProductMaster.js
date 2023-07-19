@@ -4,6 +4,8 @@ import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { productMasterDetailsAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
+import { toast } from 'react-toastify';
+import $ from "jquery";
 
 const tabArray = ['Product Master List', 'Add Product Master'];
 
@@ -25,13 +27,17 @@ const ProductMaster = () => {
     const [formHasError, setFormError] = useState(false);
     const [activeTabName, setActiveTabName] = useState();
     const [modalShow, setModalShow] = useState(false);
+    const [productLineList, setProductLineList] = useState([]);
+    const [productCategoryList, setProductCategoryList] = useState([]);
 
-    const fetchProductMasterList = async (page, size = perPage) => {
+    const fetchProductMasterList = async (page, size = perPage, encryptedProductLineCode, encryptedProductCategoryCode) => {
         let token = localStorage.getItem('Token');
 
         const listFilter = {
             pageNumber: page,
-            pageSize: size
+            pageSize: size,
+            encryptedProductLineCode: encryptedProductLineCode ? encryptedProductLineCode : '',
+            encryptedProductCategoryCode: encryptedProductCategoryCode ? encryptedProductCategoryCode : ''
         };
 
         setIsLoading(true);
@@ -51,6 +57,7 @@ const ProductMaster = () => {
     useEffect(() => {
         fetchProductMasterList(1);
         $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', true);
+        getProductLineList();
     }, []);
 
 
@@ -73,19 +80,27 @@ const ProductMaster = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
-
-        // if (productCategoryDetailData.length <= 0 &&
-        //     !(localStorage.getItem("DeleteProductCategoryCodes")) &&
-        //     (localStorage.getItem("EncryptedProductCode") ||
-        //         productLineData.encryptedProductCode)) {
-        //     getProductCategoryList();
-        // }
     })
 
     const newDetails = () => {
-        $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Add Product Master"]').trigger('click');
-        $('#btnSave').attr('disabled', false);
+        if (localStorage.getItem("EncryptedProductLineCode") && localStorage.getItem("EncryptedProductCategoryCode")) {
+            $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add Product Master"]').trigger('click');
+            $('#btnSave').attr('disabled', false);
+            localStorage.removeItem("EncryptedProductMasterCode");
+        }
+        else if (!localStorage.getItem("EncryptedProductLineCode")) {
+            toast.error("Please select product line first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
+        else if (!localStorage.getItem("EncryptedProductCategoryCode")) {
+            toast.error("Please select product category first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
     }
 
     const cancelClick = () => {
@@ -108,6 +123,68 @@ const ProductMaster = () => {
         }
     }
 
+    const getProductLineList = async () => {
+        let productLineData = [];
+
+        let productLineResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-line-list', {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (productLineResponse.data.status == 200) {
+            if (productLineResponse.data && productLineResponse.data.data.length > 0) {
+                productLineResponse.data.data.forEach(productLine => {
+                    productLineData.push({
+                        key: productLine.productLineName,
+                        value: productLine.encrypteProductLineCode,
+                        label: productLine.productLineName,
+                    })
+                })
+            }
+            setProductLineList(productLineData)
+        } else {
+            setProductLineList([])
+        }
+    }
+
+    const handleProductLineChange = e => {
+        setProductCategoryList([]);
+        localStorage.setItem("EncryptedProductLineCode", e.target.value);
+        fetchProductMasterList(1, perPage, e.target.value)
+        fetchProductCategoryList(e.target.value)
+    }
+
+    const fetchProductCategoryList = async (encryptedProductLineCode) => {
+        let productCategoryData = [];
+
+        const request = {
+            EncryptedProductCode: encryptedProductLineCode
+        }
+
+        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-product-category-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (productCategoryResponse.data.status == 200) {
+            if (productCategoryResponse.data && productCategoryResponse.data.data.length > 0) {
+                productCategoryResponse.data.data.forEach(productCategory => {
+                    productCategoryData.push({
+                        key: productCategory.productCategoryName,
+                        value: productCategory.encryptedProductCategoryCode
+                    })
+                })
+            }
+            setProductCategoryList(productCategoryData)
+        } else {
+            setProductCategoryList([])
+        }
+    }
+
+    const handleProductCategoryChange = e => {
+        let encryptedProductLineCode = localStorage.getItem("EncryptedProductLineCode");
+        localStorage.setItem("EncryptedProductCategoryCode", e.target.value)
+        fetchProductMasterList(1, perPage, encryptedProductLineCode, e.target.value)
+    }
+
     return (
         <>
             {isLoading ? (
@@ -126,6 +203,12 @@ const ProductMaster = () => {
                 // saveDetails={productLineData.encryptedProductCode ? updateProductLineDetails : addProductLineDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}
+                tableFilterOptions={productLineList}
+                tableFilterName={'Product Line'}
+                supportingMethod1={handleProductLineChange}
+                tableFilterOptions1={productCategoryList}
+                tableFilterName1={'Product Category'}
+                supportingMethod2={handleProductCategoryChange}
             />
         </>
     )

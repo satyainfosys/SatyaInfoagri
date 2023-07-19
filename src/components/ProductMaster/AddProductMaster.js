@@ -1,12 +1,14 @@
 import { productMasterDetailsAction } from 'actions';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { Col, Form, Row } from 'react-bootstrap';
+import axios from 'axios';
 
 const AddProductMaster = () => {
 
-  const [formHasError, setFormError] = useState(false);
   const dispatch = useDispatch();
+  const [formHasError, setFormError] = useState(false);
+  const [productSeasonList, setProductSeasonList] = useState([]);
 
   const resetProductMasterDetailsData = () => {
     dispatch(productMasterDetailsAction({
@@ -35,6 +37,31 @@ const AddProductMaster = () => {
     resetProductMasterDetailsData();
   }
 
+  useEffect(() => {
+    getProductSeason();
+  }, []);
+
+  const getProductSeason = async () => {
+    let productSeasonData = [];
+    let productSeasonResponse = await axios.get(process.env.REACT_APP_API_URL + '/get-product-season-list', {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    });
+
+    if (productSeasonResponse.data.status == 200) {
+      if (productSeasonResponse.data && productSeasonResponse.data.data.length > 0) {
+        productSeasonResponse.data.data.forEach(productSeason => {
+          productSeasonData.push({
+            key: productSeason.seasonName,
+            value: productSeason.productSeasonId
+          })
+        })
+      }
+      setProductSeasonList(productSeasonData)
+    } else {
+      setProductSeasonList([]);
+    }
+  }
+
   return (
     <>
       {/* {
@@ -43,39 +70,15 @@ const AddProductMaster = () => {
       <Form noValidate validated={formHasError} className="details-form" id='AddProductMasterDetailForm'>
         <Row>
           <Col className="me-3 ms-3" md="6">
-            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-              <Form.Label column sm="3">
-                Product Line
-              </Form.Label>
-              <Col sm="8">
-                <Form.Select id="txtProductLine" name="productLineCode" value={productMasterData.productLineCode} required>
-                  <option value=''>Product Line</option>
-                  {/* {countryList.map((option, index) => (
-                    <option key={index} value={option.value}>{option.key}</option>
-                  ))} */}
-                </Form.Select>
-              </Col>
-            </Form.Group>
-
-            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-              <Form.Label column sm="3">
-                Product Category
-              </Form.Label>
-              <Col sm="8">
-                <Form.Select id="txtProductCategory" name="productCategoryCode" value={productMasterData.productCategoryCode} required>
-                  <option value=''>Product Category</option>
-                  {/* {countryList.map((option, index) => (
-                    <option key={index} value={option.value}>{option.key}</option>
-                  ))} */}
-                </Form.Select>
-              </Col>
-            </Form.Group>
 
             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
               <Form.Label column sm="3">
                 Product Name
               </Form.Label>
-              <Col sm="8">
+              <Col sm="2">
+                <Form.Control id="txtProductMasterCode" name="productCode" placeholder="Code" value={productMasterData.productCode} disabled />
+              </Col>
+              <Col sm="6">
                 <Form.Control id="txtProductMasterName" name="productName" maxLength={40} value={productMasterData.productName} placeholder="Product Name" />
               </Col>
             </Form.Group>
@@ -104,9 +107,6 @@ const AddProductMaster = () => {
               </Col>
             </Form.Group>
 
-          </Col>
-
-          <Col className="me-3 ms-3" md="5">
             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
               <Form.Label column sm="3">
                 Product Season
@@ -114,12 +114,16 @@ const AddProductMaster = () => {
               <Col sm="8">
                 <Form.Select id="txtProductSeason" name="productSeasonId" value={productMasterData.productSeasonId} required>
                   <option value=''>Product Season</option>
-                  {/* {countryList.map((option, index) => (
+                  {productSeasonList.map((option, index) => (
                     <option key={index} value={option.value}>{option.key}</option>
-                  ))} */}
+                  ))}
                 </Form.Select>
               </Col>
             </Form.Group>
+
+          </Col>
+
+          <Col className="me-3 ms-3" md="5">
 
             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
               <Form.Label column sm="3">
