@@ -347,3 +347,10 @@ export const productMasterDetailsAction = (payload) => {
     payload
   };
 };
+
+export const productVarietyDetailsAction = (payload) => {
+  return {
+    type: 'PRODUCTVARIETYDETAILS',
+    payload
+  };
+};

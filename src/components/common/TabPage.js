@@ -40,6 +40,7 @@ import AddProduct from 'components/ProductLine/AddProduct';
 import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
 import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
 import AddProductMaster from 'components/ProductMaster/AddProductMaster';
+import ProductVarietyTable from 'components/ProductMaster/ProductVarietyTable';
 
 const TabPage = ({
   listData,
@@ -152,7 +153,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product'
+                    || tab == 'Add Product' || tab == 'Add Product Master'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -347,7 +348,7 @@ const TabPage = ({
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
 
-                  <AddProductCategoryDetail />
+                  <ProductVarietyTable />
                 </>
               )}
 
