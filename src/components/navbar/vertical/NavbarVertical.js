@@ -86,7 +86,7 @@ const NavbarVertical = () => {
     };
   }, [isNavbarVerticalCollapsed, HTMLClassList]);
 
-  $('body').on('click', 'li a.nav-link', function () {
+  $('body').off('click').on('click', 'li a.nav-link', function () {
     var childMenuContainerId = $(this).attr('data-children-container-id');
 
     if ($(this).hasClass('dropdown-indicator') && $(this).hasClass('collapsed')) {
@@ -136,23 +136,23 @@ const NavbarVertical = () => {
     </Nav.Item>
   );
 
-  if(shortcutKeyData && shortcutKeyData.length > 0){
+  if (shortcutKeyData && shortcutKeyData.length > 0) {
     $(document).off('keydown').on('keydown', (e) => onKeyDown(e, shortcutKeyData));
   }
 
   const getShortCutKeys = async () => {
     let token = localStorage.getItem('Token');
-      let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
-        { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
-      if (response.data.status == 200) {
-        if (response.data.data && response.data.data.length > 0) {
-          setShortKeys(response.data.data)
-        }
+    let response = await axios.get(process.env.REACT_APP_API_URL + '/get-key-combination-list',
+      { headers: { "Authorization": `Bearer ${JSON.parse(token).value}` } })
+    if (response.data.status == 200) {
+      if (response.data.data && response.data.data.length > 0) {
+        setShortKeys(response.data.data)
       }
+    }
   }
 
   const setShortKeys = (shortCutData) => {
-      $(document).off('keydown').on('keydown', (e) => onKeyDown(e, shortCutData));
+    $(document).off('keydown').on('keydown', (e) => onKeyDown(e, shortCutData));
   }
 
   const onKeyDown = (e, shortCutKeyData) => {

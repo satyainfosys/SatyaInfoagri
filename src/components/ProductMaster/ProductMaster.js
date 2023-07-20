@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
-import { productMasterDetailsAction } from 'actions';
+import { formChangedAction, productMasterDetailsAction, productMasterDetailsErrorAction, productVarietyDetailsAction } from 'actions';
 import { useSelector, useDispatch } from 'react-redux';
 import { toast } from 'react-toastify';
 import $ from "jquery";
@@ -60,6 +60,11 @@ const ProductMaster = () => {
         getProductLineList();
     }, []);
 
+    const productMasterDetailsReducer = useSelector((state) => state.rootReducer.productMasterDetailsReducer)
+    var productMasterData = productMasterDetailsReducer.productMasterDetails;
+
+    const productVarietyDetailReducer = useSelector((state) => state.rootReducer.productVarietyDetailReducer)
+    const productVarietyDetailsList = productVarietyDetailReducer.productVarietyDetails;
 
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
@@ -67,12 +72,22 @@ const ProductMaster = () => {
     let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     $('[data-rr-ui-event-key*="Product Master List"]').off('click').on('click', function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', true);
-        // $('#AddProductLineDetailForm').get(0).reset();
-        dispatch(productMasterDetailsAction(undefined));
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', true);
+            clearProductMasterReducers();
+            dispatch(productMasterDetailsAction(undefined));
+            localStorage.removeItem("EncryptedProductMasterCode");
+            localStorage.removeItem("DeleteProductVarietyCodes");
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Product Master"]').off('click').on('click', function () {
@@ -80,6 +95,12 @@ const ProductMaster = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        if (productVarietyDetailsList.length <= 0 &&
+            !(localStorage.getItem("DeleteProductVarietyCodes")) &&
+            (localStorage.getItem("EncryptedProductMasterCode") ||
+                productMasterData.encryptedProductMasterCode)) {
+            getProductVarietyList();
+        }
     })
 
     const newDetails = () => {
@@ -121,6 +142,16 @@ const ProductMaster = () => {
         else {
             window.location.href = '/dashboard';
         }
+    }
+
+    const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else
+            $('[data-rr-ui-event-key*="Product Master List"]').trigger('click');
+
+        setModalShow(false);
     }
 
     const getProductLineList = async () => {
@@ -185,6 +216,149 @@ const ProductMaster = () => {
         fetchProductMasterList(1, perPage, encryptedProductLineCode, e.target.value)
     }
 
+    const productMasterValidation = () => {
+        setModalShow(false);
+        const productMasterNameErr = {};
+        const productVarietyNameErr = {};
+
+        let isValid = true;
+
+        if (!productMasterData.productName) {
+            productMasterNameErr.empty = "Enter product name";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (productVarietyDetailsList && productVarietyDetailsList.length > 0) {
+            productVarietyDetailsList.forEach((row, index) => {
+                if (!row.productVarietyName) {
+                    productVarietyNameErr.invalidProductVariety = "Fill the required fields"
+                    isValid = false;
+                    setFormError(true);
+                }
+            });
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                productMasterNameErr,
+                productVarietyNameErr
+            }
+            dispatch(productMasterDetailsErrorAction(errorObject))
+        }
+        return isValid;
+    }
+
+    const clearProductMasterReducers = () => {
+        dispatch(productMasterDetailsErrorAction(undefined));
+        dispatch(productVarietyDetailsAction([]));
+        dispatch(formChangedAction(undefined));
+    }
+
+    const updateProductMasterCallback = (isAddProductMaster = false) => {
+        setModalShow(false);
+        let encrypteProductLineCode = localStorage.getItem("EncryptedProductLineCode");
+        let encryptedProductCategoryCode = localStorage.getItem("EncryptedProductCategoryCode");
+        localStorage.removeItem("DeleteProductVarietyCodes");
+
+        if (!isAddProductMaster) {
+            toast.success("Product master details updated successfully", {
+                theme: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearProductMasterReducers();
+
+        fetchProductMasterList(1, perPage, encrypteProductLineCode, encryptedProductCategoryCode);
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addProductMasterDetails = () => {
+        if (productMasterValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedProductLineCode: localStorage.getItem("EncryptedProductLineCode"),
+                encryptedProductCategoryCode: localStorage.getItem("EncryptedProductCategoryCode"),
+                productName: productMasterData.productName,
+                productShortName: productMasterData.productShortName ? productMasterData.productShortName : "",
+                productType: productMasterData.productType == "Horticulture Crops" ? "HC" : productMasterData.productType == "Plantation Crops" ? "PC" :
+                    productMasterData.productType == "Cash Crop" ? "CC" : productMasterData.productType == "Food Crops" ? "FC" : "",
+                productSeasonId: productMasterData.productSeasonId ? parseInt(productMasterData.productSeasonId) : 0,
+                perishableDays: productMasterData.perishableDays ? parseInt(productMasterData.perishableDays) : 0,
+                texanomy: productMasterData.texanomy ? productMasterData.texanomy : "",
+                botany: productMasterData.botany ? productMasterData.botany : "",
+                activeStatus: productMasterData.status == null || productMasterData.status == "Active" ? "A" : "S",
+                addUser: localStorage.getItem("LoginUserName"),
+                productVarietyDetails: productVarietyDetailsList
+            }
+
+            const keys = ["productName", "productShortName", "texanomy", "botany", "addUser"]
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            }
+
+            const productVarietyKeys = ['productVarietyName', 'productVarietyShortName', 'addUser']
+            var index = 0;
+            for (var obj in requestData.productVarietyDetails) {
+                var productVarietyDetailsObj = requestData.productVarietyDetails[obj];
+
+                for (const key of Object.keys(productVarietyDetailsObj).filter((key) => productVarietyKeys.includes(key))) {
+                    productVarietyDetailsObj[key] = productVarietyDetailsObj[key] ? productVarietyDetailsObj[key].toUpperCase() : '';
+                }
+                requestData.productVarietyDetails[index] = productVarietyDetailsObj;
+                index++;
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-product-master-detail', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(productMasterDetailsAction({
+                                ...productMasterData,
+                                encryptedProductMasterCode: res.data.data.encryptedProductMasterCode,
+                                code: res.data.data.productCode
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedProductMasterCode", res.data.data.encryptedProductMasterCode);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateProductMasterCallback(true);
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
+
+    const getProductVarietyList = async () => {
+        const request = {
+            EncryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-variety-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(productVarietyDetailsAction(response.data.data));
+            }
+        }
+    }
+
     return (
         <>
             {isLoading ? (
@@ -194,6 +368,28 @@ const ProductMaster = () => {
                 />
             ) : null}
 
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Do you want to save changes?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={addProductMasterDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 tabArray={tabArray}
@@ -201,6 +397,7 @@ const ProductMaster = () => {
                 module="ProductMaster"
                 newDetails={newDetails}
                 // saveDetails={productLineData.encryptedProductCode ? updateProductLineDetails : addProductLineDetails}
+                saveDetails={addProductMasterDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}
                 tableFilterOptions={productLineList}

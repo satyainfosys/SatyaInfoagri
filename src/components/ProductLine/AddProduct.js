@@ -71,8 +71,8 @@ export const AddProduct = () => {
                                 <Form.Label>Product Name<span className="text-danger">*</span></Form.Label>
                                 <Form.Control id="txtProductName" name="productName" placeholder="Product Name" maxLength={45} value={productLineData.productName} onChange={handleFieldChange} />
                                 {Object.keys(productLineError.productNameErr).map((key) => {
-                                        return <span className="error-message">{productLineError.productNameErr[key]}</span>
-                                    })}
+                                    return <span className="error-message">{productLineError.productNameErr[key]}</span>
+                                })}
                             </Row>
                         </Col>
                         <Col className="me-3 ms-3">

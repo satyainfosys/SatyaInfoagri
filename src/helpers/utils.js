@@ -113,12 +113,16 @@ export const getMenuTree = () => {
               const childId = childMenus[j].childId;
               const name = childMenus[j].menuItemName;
               const menuUrl = childMenus[j].menuItemPageURL;
+              const icon = childMenus[j].menuItemIcon;
 
               var childChildMenus = res.data.data.filter(x => x.parentId == childId);
 
               menuTreeHtml += `<li id="child_${childId}" class="nav-item">
                                       <a id="parent_parent_${childId}" data-children-container-id="children_children_${childId}" aria-current="page" class="nav-link ${childChildMenus.length > 0 ? 'dropdown-indicator collapsed\" aria-expanded="false' : ''}" ${childChildMenus.length == 0 ? 'href="' + menuUrl + '"' : ''} data-parent-container-id="parent_${childrenId}">
                                         <div class="d-flex align-items-center">
+                                        <span class="nav-link-icon">
+                                          <span class="${icon ? icon : "fas fa-chart-pie"}"></span>
+                                        </span>
                                          <span class="nav-link-text ps-1">${name}</span>
                                         </div>
                                       </a>`;
@@ -130,10 +134,14 @@ export const getMenuTree = () => {
                                           const childChildId = childChildMenus[j].childId;
                                           const name = childChildMenus[j].menuItemName;
                                           const menuUrl = childChildMenus[j].menuItemPageURL;
+                                          const icon = childChildMenus[j].menuItemIcon;
                             
                                           menuTreeHtml += `<li id="child_child_${childChildId}" class="nav-item">
                                                                   <a class="nav-link" href="${menuUrl}" data-parent-container-id="parent_parent_${childId}" data-bs-toggle="" aria-expanded="false">
                                                                     <div class="d-flex align-items-center">
+                                                                    <span class="nav-link-icon">
+                                                                      <span class="${icon ? icon : "fas fa-chart-pie"}"></span>
+                                                                    </span>
                                                                      <span class="nav-link-text ps-1">${name}</span>
                                                                     </div>
                                                                   </a>`;

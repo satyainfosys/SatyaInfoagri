@@ -5,7 +5,6 @@ import { Spinner, Modal, Button } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
 import { formChangedAction, productCategoryDetailAction, productLineDetailsAction, productLineDetailsErrorAction } from 'actions';
 import { toast } from 'react-toastify';
-import { object } from 'is_js';
 
 const tabArray = ['Product Line List', 'Add Product'];
 

@@ -354,3 +354,10 @@ export const productVarietyDetailsAction = (payload) => {
     payload
   };
 };
+
+export const productMasterDetailsErrorAction = (payload) => {
+  return {
+    type: 'PRODUCTMASTERDETAILSERROR',
+    payload
+  };
+};
