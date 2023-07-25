@@ -91,12 +91,12 @@ const AddProductMaster = () => {
       {
         productMasterData &&
         <Form noValidate validated={formHasError} className="details-form" id='AddProductMasterDetailForm'>
-          <Row>
+          <Row className="mb-3">
             <Col className="me-3 ms-3" md="6">
 
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="3">
-                  Product Name
+                  Product Name<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="2">
                   <Form.Control id="txtProductMasterCode" name="code" placeholder="Code" value={productMasterData.code} disabled />
@@ -133,7 +133,7 @@ const AddProductMaster = () => {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+              <Form.Group as={Row} controlId="formPlaintextPassword">
                 <Form.Label column sm="3">
                   Product Season
                 </Form.Label>
@@ -190,7 +190,7 @@ const AddProductMaster = () => {
                 </Col>
               </Form.Group>
 
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+              <Form.Group as={Row} controlId="formPlaintextPassword">
                 <Form.Label column sm="3">
                   Status
                 </Form.Label>

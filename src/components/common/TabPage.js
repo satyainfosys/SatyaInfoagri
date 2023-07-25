@@ -53,9 +53,11 @@ const TabPage = ({
   exitModule,
   tableFilterOptions,
   tableFilterName,
+  filterValue,
   supportingMethod1,
   tableFilterOptions1,
   tableFilterName1,
+  filterValue1,
   supportingMethod2
 }) => {
   $.fn.extend({
@@ -93,8 +95,8 @@ const TabPage = ({
     localStorage.removeItem('EncryptedResponseClientCode');
     localStorage.removeItem("EncryptedCompanyCode");
     localStorage.removeItem("EncryptedFarmerCode");
-    localStorage.removeItem("EncryptedProductCategoryCode");
-    localStorage.removeItem("EncryptedProductLineCode");
+    localStorage.removeItem("ProductCategoryCode");
+    localStorage.removeItem("ProductLineCode");
     localStorage.removeItem("CompanyName");
   }, []);
 
@@ -185,9 +187,11 @@ const TabPage = ({
                         data={listData}
                         filterOptions={tableFilterOptions}
                         filterName={tableFilterName}
+                        filterValue={filterValue}
                         handleFilterChange={supportingMethod1}
                         filterOptions1={tableFilterOptions1}
                         filterName1={tableFilterName1}
+                        filterValue1={filterValue1}
                         handleFilterChange1={supportingMethod2}
                       />
                     </FalconComponentCard.Body>

@@ -29,15 +29,17 @@ const ProductMaster = () => {
     const [modalShow, setModalShow] = useState(false);
     const [productLineList, setProductLineList] = useState([]);
     const [productCategoryList, setProductCategoryList] = useState([]);
+    const [productLineValue, setProductLineValue] = useState();
+    const [productCategoryValue, setProductCategoryValue] = useState();
 
-    const fetchProductMasterList = async (page, size = perPage, encryptedProductLineCode, encryptedProductCategoryCode) => {
+    const fetchProductMasterList = async (page, size = perPage, productLineCode, productCategoryCode) => {
         let token = localStorage.getItem('Token');
 
         const listFilter = {
             pageNumber: page,
             pageSize: size,
-            encryptedProductLineCode: encryptedProductLineCode ? encryptedProductLineCode : '',
-            encryptedProductCategoryCode: encryptedProductCategoryCode ? encryptedProductCategoryCode : ''
+            productLineCode: productLineCode ? productLineCode : '',
+            productCategoryCode: productCategoryCode ? productCategoryCode : ''
         };
 
         setIsLoading(true);
@@ -87,6 +89,13 @@ const ProductMaster = () => {
             dispatch(productMasterDetailsAction(undefined));
             localStorage.removeItem("EncryptedProductMasterCode");
             localStorage.removeItem("DeleteProductVarietyCodes");
+            if (localStorage.getItem("ProductLineCode")) {
+                fetchProductCategoryList(localStorage.getItem("ProductLineCode"));
+                setProductLineValue(localStorage.getItem("ProductLineCode"))
+                if (localStorage.getItem("ProductCategoryCode")) {
+                    setProductCategoryValue(localStorage.getItem("ProductCategoryCode"))
+                }
+            }
         }
     })
 
@@ -104,19 +113,19 @@ const ProductMaster = () => {
     })
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedProductLineCode") && localStorage.getItem("EncryptedProductCategoryCode")) {
+        if (localStorage.getItem("ProductLineCode") && localStorage.getItem("ProductCategoryCode")) {
             $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Product Master"]').trigger('click');
             $('#btnSave').attr('disabled', false);
             localStorage.removeItem("EncryptedProductMasterCode");
         }
-        else if (!localStorage.getItem("EncryptedProductLineCode")) {
+        else if (!localStorage.getItem("ProductLineCode")) {
             toast.error("Please select product line first", {
                 theme: 'colored',
                 autoClose: 5000
             });
         }
-        else if (!localStorage.getItem("EncryptedProductCategoryCode")) {
+        else if (!localStorage.getItem("ProductCategoryCode")) {
             toast.error("Please select product category first", {
                 theme: 'colored',
                 autoClose: 5000
@@ -141,6 +150,11 @@ const ProductMaster = () => {
         }
         else {
             window.location.href = '/dashboard';
+            clearProductMasterReducers();
+            localStorage.removeItem("EncryptedProductMasterCode");
+            localStorage.removeItem("ProductLineCode");
+            localStorage.removeItem("ProductCategoryCode");
+            localStorage.removeItem("DeleteProductVarietyCodes");
         }
     }
 
@@ -166,7 +180,7 @@ const ProductMaster = () => {
                 productLineResponse.data.data.forEach(productLine => {
                     productLineData.push({
                         key: productLine.productLineName,
-                        value: productLine.encrypteProductLineCode,
+                        value: productLine.productLineCode,
                         label: productLine.productLineName,
                     })
                 })
@@ -179,19 +193,19 @@ const ProductMaster = () => {
 
     const handleProductLineChange = e => {
         setProductCategoryList([]);
-        localStorage.setItem("EncryptedProductLineCode", e.target.value);
+        localStorage.setItem("ProductLineCode", e.target.value);
         fetchProductMasterList(1, perPage, e.target.value)
         fetchProductCategoryList(e.target.value)
     }
 
-    const fetchProductCategoryList = async (encryptedProductLineCode) => {
+    const fetchProductCategoryList = async (productLineCode) => {
         let productCategoryData = [];
 
         const request = {
-            EncryptedProductCode: encryptedProductLineCode
+            ProductLineCode: productLineCode
         }
 
-        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-product-category-detail-list', request, {
+        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/product-category-master-list', request, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
 
@@ -200,7 +214,7 @@ const ProductMaster = () => {
                 productCategoryResponse.data.data.forEach(productCategory => {
                     productCategoryData.push({
                         key: productCategory.productCategoryName,
-                        value: productCategory.encryptedProductCategoryCode
+                        value: productCategory.productCategoryCode
                     })
                 })
             }
@@ -211,9 +225,9 @@ const ProductMaster = () => {
     }
 
     const handleProductCategoryChange = e => {
-        let encryptedProductLineCode = localStorage.getItem("EncryptedProductLineCode");
-        localStorage.setItem("EncryptedProductCategoryCode", e.target.value)
-        fetchProductMasterList(1, perPage, encryptedProductLineCode, e.target.value)
+        let productLineCode = localStorage.getItem("ProductLineCode");
+        localStorage.setItem("ProductCategoryCode", e.target.value)
+        fetchProductMasterList(1, perPage, productLineCode, e.target.value)
     }
 
     const productMasterValidation = () => {
@@ -253,12 +267,29 @@ const ProductMaster = () => {
         dispatch(productMasterDetailsErrorAction(undefined));
         dispatch(productVarietyDetailsAction([]));
         dispatch(formChangedAction(undefined));
+        localStorage.removeItem("DeleteProductVarietyCodes");
+    }
+
+    const getProductVarietyList = async () => {
+        const request = {
+            EncryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-variety-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(productVarietyDetailsAction(response.data.data));
+            }
+        }
     }
 
     const updateProductMasterCallback = (isAddProductMaster = false) => {
         setModalShow(false);
-        let encrypteProductLineCode = localStorage.getItem("EncryptedProductLineCode");
-        let encryptedProductCategoryCode = localStorage.getItem("EncryptedProductCategoryCode");
+        let productLineCode = localStorage.getItem("ProductLineCode");
+        let productCategoryCode = localStorage.getItem("ProductCategoryCode");
         localStorage.removeItem("DeleteProductVarietyCodes");
 
         if (!isAddProductMaster) {
@@ -271,7 +302,7 @@ const ProductMaster = () => {
 
         clearProductMasterReducers();
 
-        fetchProductMasterList(1, perPage, encrypteProductLineCode, encryptedProductCategoryCode);
+        fetchProductMasterList(1, perPage, productLineCode, productCategoryCode);
 
         $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
     }
@@ -280,8 +311,8 @@ const ProductMaster = () => {
         if (productMasterValidation()) {
             const requestData = {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                encryptedProductLineCode: localStorage.getItem("EncryptedProductLineCode"),
-                encryptedProductCategoryCode: localStorage.getItem("EncryptedProductCategoryCode"),
+                productLineCode: localStorage.getItem("ProductLineCode"),
+                productCategoryCode: localStorage.getItem("ProductCategoryCode"),
                 productName: productMasterData.productName,
                 productShortName: productMasterData.productShortName ? productMasterData.productShortName : "",
                 productType: productMasterData.productType == "Horticulture Crops" ? "HC" : productMasterData.productType == "Plantation Crops" ? "PC" :
@@ -343,18 +374,145 @@ const ProductMaster = () => {
         }
     }
 
-    const getProductVarietyList = async () => {
-        const request = {
-            EncryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode")
-        }
+    const updateProductMasterDetails = async () => {
+        if (productMasterValidation()) {
+            if (!formChangedData.productMasterUpdate &&
+                !(formChangedData.productVarietyDetailUpdate || formChangedData.productVarietyDetailAdd || formChangedData.productVarietyDetailDelete)) {
+                return;
+            }
 
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-variety-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
+            var deleteProductVarietyDetailCodes = localStorage.getItem("DeleteProductVarietyCodes");
 
-        if (response.data.status == 200) {
-            if (response.data.data && response.data.data.length > 0) {
-                dispatch(productVarietyDetailsAction(response.data.data));
+            const updateRequestData = {
+                encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
+                productName: productMasterData.productName,
+                productShortName: productMasterData.productShortName,
+                productType: productMasterData.productType == "Horticulture Crops" ? "HC" : productMasterData.productType == "Plantation Crops" ? "PC" :
+                    productMasterData.productType == "Cash Crop" ? "CC" : productMasterData.productType == "Food Crops" ? "FC" : "",
+                productSeasonId: productMasterData.productSeasonId ? parseInt(productMasterData.productSeasonId) : 0,
+                perishableDays: productMasterData.perishableDays ? parseInt(productMasterData.perishableDays) : 0,
+                texanomy: productMasterData.texanomy ? productMasterData.texanomy : "",
+                botany: productMasterData.botany ? productMasterData.botany : "",
+                activeStatus: productMasterData.status == null || productMasterData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            const keys = ['productName', 'productShortName', 'modifyUser']
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : '';
+            }
+
+            var hasError = false;
+
+            if (formChangedData.productMasterUpdate) {
+                setIsLoading(true)
+                await axios.post(process.env.REACT_APP_API_URL + '/update-product-master-detail', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            setModalShow(false);
+                        }
+                    })
+            }
+
+            var productVarietyDetailIndex = 1;
+
+            //ProductVarietyDetail Add, Update, Delete
+            if (!hasError && ((formChangedData.productVarietyDetailDelete || formChangedData.productVarietyDetailAdd || formChangedData.productVarietyDetailUpdate))) {
+                if (!hasError && formChangedData.productVarietyDetailDelete) {
+                    var deleteProductVarietyDetailsList = deleteProductVarietyDetailCodes ? deleteProductVarietyDetailCodes.split(',') : null;
+                    if (deleteProductVarietyDetailsList) {
+                        var deleteProductVarietyDetailIndex = 1;
+
+                        for (let i = 0; i < deleteProductVarietyDetailsList.length; i++) {
+                            const deleteProductVarietyCode = deleteProductVarietyDetailsList[i];
+                            const data = { encryptedProductVarietyCode: deleteProductVarietyCode }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteProductVarietyDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-product-variety-details', { headers, data });
+                            if (deleteProductVarietyDetailResponse.data.status != 200) {
+                                toast.error(deleteProductVarietyDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteProductVarietyDetailIndex++
+                    }
+                }
+
+                for (let i = 0; i < productVarietyDetailsList.length; i++) {
+                    const productVareityDetails = productVarietyDetailsList[i];
+
+                    const keys = ['productVarietyName', 'productVarietyShortName', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(productVareityDetails).filter((key) => keys.includes(key))) {
+                        productVareityDetails[key] = productVareityDetails[key] ? productVareityDetails[key].toUpperCase() : '';
+                    }
+
+                    if (!hasError && formChangedData.productVarietyDetailUpdate && productVareityDetails.encryptedProductVarietyCode) {
+                        const requestData = {
+                            encryptedProductVarietyCode: productVareityDetails.encryptedProductVarietyCode,
+                            productVarietyName: productVareityDetails.productVarietyName,
+                            productVarietyShortName: productVareityDetails.productVarietyShortName ? productVareityDetails.productVarietyShortName : "",
+                            perishableDays: productVareityDetails.perishableDays ? parseInt(productVareityDetails.perishableDays) : 0,
+                            activeStatus: productVareityDetails.activeStatus == null || productVareityDetails.activeStatus == "Active" ? "A" : "S",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateProductVarietyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-product-variety-details', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateProductVarietyDetailResponse.data.status != 200) {
+                            toast.error(updateProductVarietyDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.productVarietyDetailAdd && !productVareityDetails.encryptedProductVarietyCode) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            productLineCode: localStorage.getItem("ProductLineCode"),
+                            productCategoryCode: localStorage.getItem("ProductCategoryCode"),
+                            encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
+                            productVarietyName: productVareityDetails.productVarietyName,
+                            productVarietyShortName: productVareityDetails.productVarietyShortName ? productVareityDetails.productVarietyShortName : "",
+                            perishableDays: productVareityDetails.perishableDays ? productVareityDetails.perishableDays : "",
+                            activeStatus: productVareityDetails.activeStatus == null || productVareityDetails.activeStatus == "Active" ? "A" : "S",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addProductVarietyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-product-variety-details', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addProductVarietyDetailResponse.data.status != 200) {
+                            toast.error(addProductVarietyDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    productVarietyDetailIndex++
+                }
+            }
+            if (!hasError) {
+                clearProductMasterReducers();
+                updateProductMasterCallback();
             }
         }
     }
@@ -384,7 +542,7 @@ const ProductMaster = () => {
                         <h4>Do you want to save changes?</h4>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" onClick={addProductMasterDetails}>Save</Button>
+                        <Button variant="success" onClick={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}>Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -396,8 +554,7 @@ const ProductMaster = () => {
                 listColumnArray={listColumnArray}
                 module="ProductMaster"
                 newDetails={newDetails}
-                // saveDetails={productLineData.encryptedProductCode ? updateProductLineDetails : addProductLineDetails}
-                saveDetails={addProductMasterDetails}
+                saveDetails={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}
                 tableFilterOptions={productLineList}
@@ -406,6 +563,8 @@ const ProductMaster = () => {
                 tableFilterOptions1={productCategoryList}
                 tableFilterName1={'Product Category'}
                 supportingMethod2={handleProductCategoryChange}
+                filterValue={productLineValue}
+                filterValue1={productCategoryValue}
             />
         </>
     )

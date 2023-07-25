@@ -134,7 +134,7 @@ export const AddDistributionCentre = () => {
                         <Col className="me-3 ms-3" md="7">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    Distribution Name
+                                    Distribution Name<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="2">
                                     <Form.Control id="txtDistributionCentreCode" name="distributionCentreCode" placeholder="Code" value={distirbutionCentreData.distributionCentreCode} disabled />
@@ -158,7 +158,7 @@ export const AddDistributionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    Country
+                                    Country<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtCountry" name="countryCode" value={distirbutionCentreData.countryCode} onChange={handleFieldChange} required>
@@ -175,7 +175,7 @@ export const AddDistributionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    State
+                                    State<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={distirbutionCentreData.stateCode} >

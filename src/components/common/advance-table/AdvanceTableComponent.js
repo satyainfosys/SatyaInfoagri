@@ -14,9 +14,11 @@ const AdvanceTableComponent = ({
   filterOptions,
   filterName,
   handleFilterChange,
+  filterValue,
   filterOptions1,
   filterName1,
-  handleFilterChange1
+  handleFilterChange1,
+  filterValue1,
 }) => {
 
   return (
@@ -31,14 +33,14 @@ const AdvanceTableComponent = ({
       <FalconComponentCard id='TableSearchPanelCard' className="no-pad mb-1">
         <FalconComponentCard.Body>
           <Row className="mt-1 mb-1 space-between-row">
-            <Col xs="auto" className="ms-1 flex-col" sm={6} lg={4}>
+            <Col xs="auto" className="ms-1 me-1 flex-col" sm={6} lg={4}>
               <div className="text-left">
-                <AdvanceTableFilter options={filterOptions} filterName={filterName} handleFilterChange={handleFilterChange} />
+                <AdvanceTableFilter options={filterOptions} filterName={filterName} handleFilterChange={handleFilterChange} filterValue={filterValue} />
               </div>
             </Col>
             <Col xs="auto" className="me-1 flex-col" sm={5} lg={3}>
               <div className="text-left">
-                <AdvanceTableFilter options={filterOptions1} filterName={filterName1} handleFilterChange={handleFilterChange1} />
+                <AdvanceTableFilter options={filterOptions1} filterName={filterName1} handleFilterChange={handleFilterChange1} filterValue={filterValue1} />
               </div>
             </Col>
             <Col xs="auto" className="me-1 flex-col" sm={6} lg={4}>

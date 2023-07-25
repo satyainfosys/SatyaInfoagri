@@ -133,7 +133,7 @@ export const AddCollectionCentre = () => {
                         <Col className="me-3 ms-3" md="7">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    Collection Centre Name
+                                    Collection Centre Name<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="2">
                                     <Form.Control id="txtCollectionCentreCode" name="collectionCentreCode" placeholder="Code" value={collectionCentreData.collectionCentreCode} disabled />
@@ -157,7 +157,7 @@ export const AddCollectionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    Country Name
+                                    Country Name<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtCountry" name="countryCode" onChange={handleFieldChange} value={collectionCentreData.countryCode} >
@@ -174,7 +174,7 @@ export const AddCollectionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    State Name
+                                    State Name<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtStateName" name="stateCode" onChange={handleFieldChange} value={collectionCentreData.stateCode} >
@@ -202,7 +202,7 @@ export const AddCollectionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    DC Name
+                                    DC Name<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={collectionCentreData.distributionCentreCode} >
@@ -221,7 +221,7 @@ export const AddCollectionCentre = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    CC Type
+                                    CC Type<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
                                     <Form.Select id="txtCollectionCentreType" name="collectionCentreType" onChange={handleFieldChange} value={collectionCentreData.collectionCentreType} >

@@ -29,8 +29,8 @@ const ProductVarietyTable = () => {
         id: rowData.length + 1,
         encryptedClientCode: localStorage.getItem("EncryptedClientCode") ? localStorage.getItem("EncryptedClientCode") : '',
         encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode") ? localStorage.getItem("EncryptedProductMasterCode") : '',
-        encryptedProductLineCode: localStorage.getItem("EncryptedProductLineCode") ? localStorage.getItem("EncryptedProductLineCode") : '',
-        encryptedProductCategoryCode: localStorage.getItem("EncryptedProductCategoryCode") ? localStorage.getItem("EncryptedProductCategoryCode") : '',
+        productLineCode: localStorage.getItem("ProductLineCode") ? localStorage.getItem("ProductLineCode") : '',
+        productCategoryCode: localStorage.getItem("ProductCategoryCode") ? localStorage.getItem("ProductCategoryCode") : '',
         productVarietyName: '',
         productVarietyShortName: '',
         perishableDays: '',
@@ -102,8 +102,63 @@ const ProductVarietyTable = () => {
         }
     }
 
+    const ModalPreview = (encryptedProductVarietyCode, productVarietyNameToBeDelete) => {
+        setModalShow(true);
+        setParamsData({ encryptedProductVarietyCode, productVarietyNameToBeDelete });
+    }
+
+    const deleteProductVarietyDetails = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = productVarietyDetailReducer.productVarietyDetails.findIndex(x => x.productVarietyName == paramsData.productVarietyNameToBeDelete);
+        productVarietyDetailReducer.productVarietyDetails.splice(objectIndex, 1);
+
+        var deleteProductVarietyCode = localStorage.getItem("DeleteProductVarietyCodes");
+
+        if (paramsData.encryptedProductVarietyCode) {
+            var deleteProductVarietyCodes = deleteProductVarietyCode ? deleteProductVarietyCode + "," + paramsData.encryptedProductVarietyCode : paramsData.encryptedProductVarietyCode;
+            localStorage.setItem("DeleteProductVarietyCodes", deleteProductVarietyCodes);
+
+            dispatch(formChangedAction({
+            ...formChangedData,
+            productVarietyDetailDelete: true
+        }))
+        }
+
+        toast.success("Product variety details deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(productVarietyDetailsAction(productVarietyDetailsData));        
+
+        setModalShow(false);
+    }
+
     return (
         <>
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this product variety detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteProductVarietyDetails()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <Card className="h-100 mb-2">
                 <FalconCardHeader
                     title="Product Variety Details"
@@ -207,7 +262,7 @@ const ProductVarietyTable = () => {
                                             </td>
 
                                             <td>
-                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" />
+                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(productVarietyDetailData.encryptedProductVarietyCode, productVarietyDetailData.productVarietyName) }} />
                                             </td>
                                         </tr>
                                     ))}

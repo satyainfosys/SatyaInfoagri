@@ -91,8 +91,8 @@ const AdvanceTable = ({
     }
     else if(rowData.hasOwnProperty('encryptedProductMasterCode')){
       localStorage.setItem('EncryptedProductMasterCode', rowData.encryptedProductMasterCode);
-      localStorage.setItem('EncryptedProductLineCode', rowData.encryptedProductLineCode);
-      localStorage.setItem('EncryptedProductCategoryCode', rowData.encryptedProductCategoryCode);
+      localStorage.setItem('ProductLineCode', rowData.productLineCode);
+      localStorage.setItem('ProductCategoryCode', rowData.productCategoryCode);
       dispatch(productMasterDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Product Master"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Product Master"]').trigger('click');
