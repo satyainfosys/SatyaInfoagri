@@ -150,7 +150,7 @@ const ProductVarietyTable = () => {
                         <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Are you sure, you want to delete this product variety detail?</h4>
+                        <h5>Are you sure, you want to delete this product variety detail?</h5>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>

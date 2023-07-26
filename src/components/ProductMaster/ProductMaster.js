@@ -34,12 +34,14 @@ const ProductMaster = () => {
 
     const fetchProductMasterList = async (page, size = perPage, productLineCode, productCategoryCode) => {
         let token = localStorage.getItem('Token');
+        let productLine = localStorage.getItem("ProductLineCode");
+        let productCategory = localStorage.getItem("ProductCategoryCode");
 
         const listFilter = {
             pageNumber: page,
             pageSize: size,
-            productLineCode: productLineCode ? productLineCode : '',
-            productCategoryCode: productCategoryCode ? productCategoryCode : ''
+            productLineCode: productLineCode ? productLineCode : productLine ? productLine : '',
+            productCategoryCode: productCategoryCode ? productCategoryCode : productCategory ? productCategory : ''
         };
 
         setIsLoading(true);
@@ -94,6 +96,7 @@ const ProductMaster = () => {
                 setProductLineValue(localStorage.getItem("ProductLineCode"))
                 if (localStorage.getItem("ProductCategoryCode")) {
                     setProductCategoryValue(localStorage.getItem("ProductCategoryCode"))
+                    fetchProductMasterList(1);
                 }
             }
         }
@@ -192,7 +195,9 @@ const ProductMaster = () => {
     }
 
     const handleProductLineChange = e => {
+        setProductLineValue(null);
         setProductCategoryList([]);
+        localStorage.removeItem("ProductCategoryCode");
         localStorage.setItem("ProductLineCode", e.target.value);
         fetchProductMasterList(1, perPage, e.target.value)
         fetchProductCategoryList(e.target.value)
@@ -225,6 +230,7 @@ const ProductMaster = () => {
     }
 
     const handleProductCategoryChange = e => {
+        setProductCategoryValue(null);
         let productLineCode = localStorage.getItem("ProductLineCode");
         localStorage.setItem("ProductCategoryCode", e.target.value)
         fetchProductMasterList(1, perPage, productLineCode, e.target.value)
@@ -354,7 +360,7 @@ const ProductMaster = () => {
                             dispatch(productMasterDetailsAction({
                                 ...productMasterData,
                                 encryptedProductMasterCode: res.data.data.encryptedProductMasterCode,
-                                code: res.data.data.productCode
+                                code: res.data.data.code
                             }))
                         }, 50);
                         localStorage.setItem("EncryptedProductMasterCode", res.data.data.encryptedProductMasterCode);
@@ -385,6 +391,7 @@ const ProductMaster = () => {
 
             const updateRequestData = {
                 encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
+                productCategoryCode: localStorage.getItem("ProductCategoryCode"),
                 productName: productMasterData.productName,
                 productShortName: productMasterData.productShortName,
                 productType: productMasterData.productType == "Horticulture Crops" ? "HC" : productMasterData.productType == "Plantation Crops" ? "PC" :
@@ -461,6 +468,7 @@ const ProductMaster = () => {
                     if (!hasError && formChangedData.productVarietyDetailUpdate && productVareityDetails.encryptedProductVarietyCode) {
                         const requestData = {
                             encryptedProductVarietyCode: productVareityDetails.encryptedProductVarietyCode,
+                            encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
                             productVarietyName: productVareityDetails.productVarietyName,
                             productVarietyShortName: productVareityDetails.productVarietyShortName ? productVareityDetails.productVarietyShortName : "",
                             perishableDays: productVareityDetails.perishableDays ? parseInt(productVareityDetails.perishableDays) : 0,
@@ -539,7 +547,7 @@ const ProductMaster = () => {
                         <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
                     </Modal.Header>
                     <Modal.Body>
-                        <h4>Do you want to save changes?</h4>
+                        <h5>Do you want to save changes?</h5>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}>Save</Button>
