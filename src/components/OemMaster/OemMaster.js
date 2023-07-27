@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
@@ -58,6 +58,22 @@ const OemMaster = () => {
         $('[data-rr-ui-event-key*="Add OEM"]').attr('disabled', true);
     })
 
+    const newDetails = () => {
+        $('[data-rr-ui-event-key*="Add OEM"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add OEM"]').trigger('click');
+        $('#btnSave').attr('disabled', false);
+    }
+
+    const cancelClick = () => {
+        $('#btnExit').attr('isExit', 'false');
+        $('[data-rr-ui-event-key*="OEM List"]').trigger('click');
+    }
+
+    const exitModule = () => {
+        $('#btnExit').attr('isExit', 'true');
+        window.location.href = '/dashboard';
+    }
+
     return (
         <>
             {isLoading ? (
@@ -72,10 +88,10 @@ const OemMaster = () => {
                 tabArray={tabArray}
                 listColumnArray={listColumnArray}
                 module="OemMaster"
-                // newDetails={newDetails}
+                newDetails={newDetails}
                 // saveDetails={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}
-                // cancelClick={cancelClick}
-                // exitModule={exitModule}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
             />
         </>
     )
