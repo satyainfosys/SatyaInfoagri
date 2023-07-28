@@ -368,3 +368,10 @@ export const oemMasterDetailsAction = (payload) => {
     payload
   };
 };
+
+export const oemMasterDetailsErrAction = (payload) => {
+  return {
+    type: 'OEMMASTERDETAILSERROR',
+    payload
+  };
+};

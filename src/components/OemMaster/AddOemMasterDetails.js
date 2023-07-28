@@ -1,4 +1,4 @@
-import { oemMasterDetailsAction } from 'actions';
+import { formChangedAction, oemMasterDetailsAction } from 'actions';
 import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'react-bootstrap';
@@ -29,6 +29,12 @@ const AddOemMasterDetails = () => {
 
     const oemMasterDetailsReducer = useSelector((state) => state.rootReducer.oemMasterDetailsReducer)
     var oemMasterData = oemMasterDetailsReducer.oemMasterDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const oemMasterDetailsErrorReducer = useSelector((state) => state.rootReducer.oemMasterDetailsErrorReducer)
+    const oemMasterErr = oemMasterDetailsErrorReducer.oemMasterDetailsError;
 
     useEffect(() => {
         getCountries();
@@ -80,85 +86,135 @@ const AddOemMasterDetails = () => {
         }
     }
 
+    if (oemMasterData.stateCode &&
+        !$('#txtStateName').val()) {
+        getStates(oemMasterData.countryCode);
+    }
+
+    const handleFieldChange = e => {
+        if (e.target.name == "countryCode") {
+            dispatch(oemMasterDetailsAction({
+                ...oemMasterData,
+                countryCode: e.target.value,
+                stateCode: null
+            }))
+            setStateList([]);
+
+            e.target.value && getStates(e.target.value);
+        } else {
+            dispatch(oemMasterDetailsAction({
+                ...oemMasterData,
+                [e.target.name]: e.target.value
+            }))
+        }
+
+        if (oemMasterData.encryptedOemMasterCode) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                oemMasterDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                oemMasterDetailAdd: true
+            }))
+        }
+    }
+
     return (
         <>
-            <Form noValidate validated={formHasError} className="details-form" id='AddOemMasterDetails'>
-                <Row>
-                    <Col className="me-3 ms-3" md="7">
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                OEM Name<span className="text-danger">*</span>
-                            </Form.Label>
-                            <Col sm="2">
-                                <Form.Control id="txtOemMasterCode" name="oemMasterCode" placeholder="Code" value={oemMasterData.oemMasterCode} disabled />
-                            </Col>
-                            <Col sm="7">
-                                <Form.Control id="txtOemName" name="oemName" maxLength={45} value={oemMasterData.oemName} placeholder="OEM Name" required />
-                            </Col>
-                        </Form.Group>
+            {
+                oemMasterData &&
+                <Form noValidate validated={formHasError} className="details-form" id='AddOemMasterDetails'>
+                    <Row>
+                        <Col className="me-3 ms-3" md="7">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    OEM Name<span className="text-danger">*</span>
+                                </Form.Label>
+                                <Col sm="2">
+                                    <Form.Control id="txtOemMasterCode" name="oemMasterCode" placeholder="Code" value={oemMasterData.oemMasterCode} disabled />
+                                </Col>
+                                <Col sm="7">
+                                    <Form.Control id="txtOemName" name="oemName" maxLength={45} value={oemMasterData.oemName} onChange={handleFieldChange} placeholder="OEM Name" required />
+                                    {Object.keys(oemMasterErr.oemNameErr).map((key) => {
+                                        return <span className="error-message">{oemMasterErr.oemNameErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Address<span className="text-danger">*</span>
-                            </Form.Label>
-                            <Col sm="9">
-                                <Form.Control id="txtAddress" as='textarea' name="oemAddress" maxLength={100} value={oemMasterData.oemAddress} placeholder="OEM Address" rows="4" required />
-                            </Col>
-                        </Form.Group>
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Address<span className="text-danger">*</span>
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtAddress" as='textarea' name="oemAddress" maxLength={100} value={oemMasterData.oemAddress} onChange={handleFieldChange} placeholder="OEM Address" rows="4" required />
+                                    {Object.keys(oemMasterErr.oemAddressErr).map((key) => {
+                                        return <span className="error-message">{oemMasterErr.oemAddressErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Country<span className="text-danger">*</span>
-                            </Form.Label>
-                            <Col sm="9">
-                                <Form.Select id="txtCountry" name="countryCode" value={oemMasterData.countryCode} required>
-                                    <option value=''>Select Country</option>
-                                    {countryList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                            </Col>
-                        </Form.Group>
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Country<span className="text-danger">*</span>
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtCountry" name="countryCode" value={oemMasterData.countryCode} onChange={handleFieldChange} required>
+                                        <option value=''>Select Country</option>
+                                        {countryList.map((option, index) => (
+                                            <option key={index} value={option.value}>{option.key}</option>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(oemMasterErr.countryCodeErr).map((key) => {
+                                        return <span className="error-message">{oemMasterErr.countryCodeErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                State<span className="text-danger">*</span>
-                            </Form.Label>
-                            <Col sm="9">
-                                <Form.Select id="txtStateName" name="stateCode" value={oemMasterData.stateCode} >
-                                    <option value="">Select State</option>
-                                    {stateList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                            </Col>
-                        </Form.Group>
-                    </Col>
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    State<span className="text-danger">*</span>
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStateName" name="stateCode" value={oemMasterData.stateCode} onChange={handleFieldChange} >
+                                        <option value="">Select State</option>
+                                        {stateList.map((option, index) => (
+                                            <option key={index} value={option.value}>{option.key}</option>
+                                        ))}
+                                    </Form.Select>
+                                    {Object.keys(oemMasterErr.stateCodeErr).map((key) => {
+                                        return <span className="error-message">{oemMasterErr.stateCodeErr[key]}</span>
+                                    })}
+                                </Col>
+                            </Form.Group>
+                        </Col>
 
-                    <Col className="me-3 ms-3" md="4">
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Short Name
-                            </Form.Label>
-                            <Col sm="9">
-                                <Form.Control id="txtOemShortName" name="oemShortName" maxLength={15} value={oemMasterData.oemShortName} placeholder="Short Name" />
-                            </Col>
-                        </Form.Group>
+                        <Col className="me-3 ms-3" md="4">
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Short Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtOemShortName" name="oemShortName" maxLength={15} value={oemMasterData.oemShortName} onChange={handleFieldChange} placeholder="Short Name" />
+                                </Col>
+                            </Form.Group>
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Status
-                            </Form.Label>
-                            <Col sm="9">
-                                <Form.Select id="txtStatus" name="status" value={oemMasterData.status} >
-                                    <option value="Active">Active</option>
-                                    <option value="Suspended">Suspended</option>
-                                </Form.Select>
-                            </Col>
-                        </Form.Group>
-                    </Col>
-                </Row>
-            </Form>
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Status
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Select id="txtStatus" name="status" value={oemMasterData.status} onChange={handleFieldChange} >
+                                        <option value="Active">Active</option>
+                                        <option value="Suspended">Suspended</option>
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+                        </Col>
+                    </Row>
+                </Form>
+            }
         </>
     )
 }

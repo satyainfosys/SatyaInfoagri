@@ -44,6 +44,7 @@ import productMasterDetailsReducer from './productMasterDetailsReducer'
 import productVarietyDetailReducer from './productVarietyDetailReducer'
 import productMasterDetailsErrorReducer from './productMasterDetailsErrorReducer'
 import oemMasterDetailsReducer from './oemMasterDetailsReducer'
+import oemMasterDetailsErrorReducer from './oemMasterDetailsErrorReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -90,7 +91,8 @@ const rootReducer = combineReducers({
   productMasterDetailsReducer,
   productVarietyDetailReducer,
   productMasterDetailsErrorReducer,
-  oemMasterDetailsReducer
+  oemMasterDetailsReducer,
+  oemMasterDetailsErrorReducer
 });
 
 export default rootReducer;
