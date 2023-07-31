@@ -245,6 +245,48 @@ const OemMaster = () => {
         }
     }
 
+    const updateOemMasterDetails = async () => {
+        if (oemMasterValidation()) {
+            if (!formChangedData.oemMasterDetailUpdate) {
+                return;
+            }
+
+            const updateRequestData = {
+                encryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode"),
+                oemName: oemMasterData.oemName,
+                oemShortName: oemMasterData.oemShortName ? oemMasterData.oemShortName : "",
+                oemAddress: oemMasterData.oemAddress,
+                stateCode: oemMasterData.stateCode,
+                countryCode: oemMasterData.countryCode,
+                activeStatus: oemMasterData.status == null || oemMasterData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            const keys = ['oemName', 'oemShortName', 'oemAddress', 'modifyUser']
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : '';
+            }
+
+            setIsLoading(true)
+            await axios.post(process.env.REACT_APP_API_URL + '/update-oem-master-detail', updateRequestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    setIsLoading(false);
+                    if (res.data.status !== 200) {
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                        setModalShow(false);
+                    } else {
+                        clearOemMasterReducers();
+                        updateOemMasterCallback();
+                    }
+                })
+        }
+    }
+
     return (
         <>
             {isLoading ? (
@@ -270,8 +312,7 @@ const OemMaster = () => {
                         <h5>Do you want to save changes?</h5>
                     </Modal.Body>
                     <Modal.Footer>
-                        {/* <Button variant="success" onClick={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}>Save</Button> */}
-                        <Button variant="success" onClick={addOemMasterDetails}>Save</Button>
+                        <Button variant="success" onClick={oemMasterData.encryptedOemMasterCode ? updateOemMasterDetails : addOemMasterDetails}>Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -283,8 +324,7 @@ const OemMaster = () => {
                 listColumnArray={listColumnArray}
                 module="OemMaster"
                 newDetails={newDetails}
-                saveDetails={addOemMasterDetails}
-                // saveDetails={productMasterData.encryptedProductMasterCode ? updateProductMasterDetails : addProductMasterDetails}
+                saveDetails={oemMasterData.encryptedOemMasterCode ? updateOemMasterDetails : addOemMasterDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}
             />
