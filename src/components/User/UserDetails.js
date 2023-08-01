@@ -2,9 +2,10 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
-import { userDetailsAction, clientDataAction, formChangedAction } from '../../actions/index';
+import { userDetailsAction, clientDataAction, formChangedAction, selectedProductsAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import Treeview from 'components/common/Treeview';
 
 export const UserDetails = () => {
 
@@ -12,6 +13,19 @@ export const UserDetails = () => {
     const [clientList, setClientList] = useState([]);
     const [isAdmin, setIsAdmin] = useState(false);
     const dispatch = useDispatch();
+    const [treeViewItems, setTreeViewItems] = useState([]);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
+
+
+    useEffect(() => {
+        getClientList();
+        fetchMenuTree();
+    }, []);
+
+    useEffect(() => {
+        dispatch(selectedProductsAction(selectedItems));
+    }, [selectedItems]);
 
     const resetUserDetail = () => {
         dispatch(userDetailsAction({
@@ -21,6 +35,7 @@ export const UserDetails = () => {
             "loginUserMobileNumber": "",
             "status": "Active"
         }))
+        setSelectedItems([]);
     }
 
     // const { formState: { isDirty } } = useForm({ defaultValues: resetUserDetail });
@@ -28,9 +43,19 @@ export const UserDetails = () => {
     const userDetailsReducer = useSelector((state) => state.rootReducer.userDetailsReducer)
     var userData = userDetailsReducer.userDetails;
 
-    if (!userDetailsReducer.userDetails ||
-        userDetailsReducer.userDetails.length <= 0) {
+    const handleSelectedItems = () => {
+        if (userDetailsReducer.userDetails && userData.treeIds && userData.treeIds.length > 0) {
+            setSelectedItems(userData.treeIds)
+        }
+    }
+
+    if (Object.keys(userDetailsReducer.userDetails).length == 0 && !userDetailsReducer.userDetails.encryptedSecurityUserId) {
         resetUserDetail();
+    }
+    else if (userDetailsReducer.userDetails.encryptedSecurityUserId && (!selectedItems || selectedItems.length <= 0)
+        // && (!formChangedData.moduleDetailAdd && !formChangedData.moduleDetailDelete)
+    ) {
+        handleSelectedItems();
     }
 
     const userDetailsErrorReducer = useSelector((state) => state.rootReducer.userDetailsErrorReducer)
@@ -70,9 +95,25 @@ export const UserDetails = () => {
             });
     }
 
-    useEffect(() => {
-        getClientList();
-    }, []);
+    const fetchMenuTree = async () => {
+        let token = localStorage.getItem('Token');
+
+        const encryptedModuleCode = {
+            encryptedModuleCode: localStorage.getItem("EncryptedResponseModuleCode") ? localStorage.getItem("EncryptedResponseModuleCode") : ''
+        }
+
+        setIsLoading(true);
+        await axios
+            .post(process.env.REACT_APP_API_URL + '/get-security-menu-tree-master-list', encryptedModuleCode, {
+                headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+            })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status == 200) {
+                    setTreeViewItems(res.data.data);
+                }
+            });
+    };
 
     if (userData.clientName && !$('#txtClient').val()) {
         $('#txtClient option:contains(' + userData.clientName + ')').prop('selected', true);
@@ -168,8 +209,6 @@ export const UserDetails = () => {
                                 <Form.Label>State</Form.Label>
                                 <Form.Control id="txtState" name="state" disabled />
                             </Row>
-                        </Col>
-                        <Col className="me-3 ms-3">
                             <Row className="mb-3">
                                 <Form.Label>Email</Form.Label>
                                 <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
@@ -199,6 +238,16 @@ export const UserDetails = () => {
                                     <option value="Suspended">Suspended</option>
                                 </Form.Select>
                             </Row>
+                        </Col>
+                        <Col className="me-3 ms-3">
+                            <Treeview
+                                data={treeViewItems}
+                                selection
+                                defaultSelected={[]}
+                                selectedItems={selectedItems}
+                                setSelectedItems={setSelectedItems}
+                            // expanded={['1', '2', '3', '7', '18']}
+                            />
                         </Col>
                     </Row>
                 </Form>

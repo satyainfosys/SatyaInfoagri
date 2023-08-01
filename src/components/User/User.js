@@ -27,6 +27,9 @@ export const User = () => {
     const [formHasError, setFormError] = useState(false);
     const dispatch = useDispatch();
 
+    const selectedProductsReducer = useSelector((state) => state.rootReducer.selectedProductsReducer)
+    var selectedProductItems = selectedProductsReducer.selectedProducts;
+
     const fetchUsersList = async (page, size = perPage) => {
         let token = localStorage.getItem('Token');
 
@@ -195,7 +198,7 @@ export const User = () => {
             $('#txtCountry').val(country);
             $('#txtState').val(state);
         }
-        else{
+        else {
             dispatch(userDetailsAction({
                 ...userData,
                 encryptedSecurityUserId: encryptedSecurityUserId
@@ -204,7 +207,7 @@ export const User = () => {
         $('#btnSave').attr('disabled', true)
 
         fetchUsersList(1);
- 
+
     }
 
     const addUserDetails = () => {
@@ -258,12 +261,12 @@ export const User = () => {
                 loginUserName: userData.loginUserName,
                 ActiveStatus: !userData.status || userData.status == "Active" ? "A" : "S",
                 ModifyUser: localStorage.getItem("LoginUserName")
-            }           
+            }
 
             const keys = ['loginUserName', 'ModifyUser']
             for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
                 updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
-            }            
+            }
 
             if (formChangedData.userDetailUpdate) {
                 setIsLoading(true);
