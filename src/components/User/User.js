@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import TabPage from 'components/common/TabPage';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { formChangedAction, userDetailsAction, userDetailsErrorAction } from '../../actions/index';
+import { formChangedAction, selectedProductsAction, userDetailsAction, userDetailsErrorAction } from '../../actions/index';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
@@ -67,39 +67,25 @@ export const User = () => {
 
     const [activeTabName, setActiveTabName] = useState();
 
-    // $.fn.extend({
-    //     trackChanges: function () {
-    //         $(":input", this).change(function () {
-    //             $(this.form).data("changed", true);
-    //         });
-    //     }
-    //     ,
-    //     isChanged: function () {
-    //         return this.data("changed");
-    //     }
-    // });
-
-    // $("#UserDetailsForm").trackChanges();
-
     const clearUserDetailsReducer = () => {
         dispatch(userDetailsAction(undefined));
         dispatch(userDetailsErrorAction(undefined));
         dispatch(formChangedAction(undefined));
-        // $("#UserDetailsForm").data("changed", false);
+        dispatch(selectedProductsAction([]));
     }
 
-    $('[data-rr-ui-event-key*="User Detail"]').click(function () {
+    $('[data-rr-ui-event-key*="User Detail"]').off('click').on('click', function () {
         setActiveTabName("User Detail")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', false);
     })
 
     const newDetails = () => {
         $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', false);
         $('[data-rr-ui-event-key*="User Detail"]').trigger('click');
         $('#btnSave').attr('disabled', false);
-        $("#UserDetailsForm").data("changed", false);
         clearUserDetailsReducer();
     }
 
@@ -133,7 +119,6 @@ export const User = () => {
         setModalShow(false);
     }
 
-
     $('[data-rr-ui-event-key*="User List"]').off('click').on('click', function () {
         let isDiscard = $('#btnDiscard').attr('isDiscard');
         if (isDiscard != 'true' && isFormChanged) {
@@ -147,6 +132,8 @@ export const User = () => {
             $("#btnCancel").hide();
             $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', true);
             $('#UserDetailsForm').get(0).reset();
+            localStorage.removeItem("EncryptedResponseSecurityUserId");
+            $("#btnDiscard").attr("isDiscard", false)
             clearUserDetailsReducer();
         }
     })
@@ -185,7 +172,6 @@ export const User = () => {
             var country = $('#txtCountry').val();
             var state = $('#txtState').val();
         }
-        $('#UserDetailsForm').get(0).reset();
 
         dispatch(userDetailsErrorAction(undefined));
         dispatch(formChangedAction(undefined));
@@ -207,7 +193,7 @@ export const User = () => {
         $('#btnSave').attr('disabled', true)
 
         fetchUsersList(1);
-
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
     }
 
     const addUserDetails = () => {
@@ -252,7 +238,22 @@ export const User = () => {
     }
 
     const updateUserDetails = async () => {
+
+        let addModuleDetailIds = [];
+
         if (userValidation()) {
+            let uniqueTreeIds = [...new Set(selectedProductItems)]
+
+            if (userData.treeIds && userData.treeIds.length > 0) {
+                for (let i = 0; i < uniqueTreeIds.length; i++) {
+                    if (!userData.treeIds.includes(uniqueTreeIds[i])) {
+                        addModuleDetailIds.push(uniqueTreeIds[i]);
+                    }
+                }
+            } else if (uniqueTreeIds.length > 0) {
+                addModuleDetailIds = uniqueTreeIds;
+            }
+
             const updatedUserData = {
                 encryptedClientCode: userData.encryptedClientCode,
                 encryptedSecurityUserId: userData.encryptedSecurityUserId,
@@ -268,6 +269,8 @@ export const User = () => {
                 updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
             }
 
+            var hasError = false;
+
             if (formChangedData.userDetailUpdate) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
@@ -280,10 +283,48 @@ export const User = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                        } else {
-                            updateUserCallback();
+                            hasError = true;
                         }
                     })
+            }
+
+            if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
+                var moduleDetailIndex = 1;
+                for (let i = 0; i < addModuleDetailIds.length; i++) {
+
+                    const treeId = addModuleDetailIds[i];
+
+                    if (formChangedData.moduleDetailAdd) {
+                        const requestData = {
+                            securityUserId: userData.securityUserId,
+                            clientCode: userData.clientCode,
+                            treeId: treeId,
+                            addUser: localStorage.getItem("LoginUserName").toUpperCase()
+                        }
+
+                        setIsLoading(true);
+                        const addModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-user-access-rights', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addModuleDetailResponse.data.status != 200) {
+                            toast.error(addModuleDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    moduleDetailIndex++
+                }
+            }
+            if (!hasError) {
+                updateUserCallback();
+                dispatch(userDetailsAction({
+                    ...userData,
+                    treeIds: uniqueTreeIds
+                }))
             }
         }
     }

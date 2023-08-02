@@ -17,6 +17,25 @@ export const UserDetails = () => {
     const [selectedItems, setSelectedItems] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
+    const fetchMenuTree = async () => {
+        let token = localStorage.getItem('Token');
+
+        const encryptedModuleCode = {
+            encryptedModuleCode: localStorage.getItem("EncryptedResponseModuleCode") ? localStorage.getItem("EncryptedResponseModuleCode") : ''
+        }
+
+        setIsLoading(true);
+        await axios
+            .post(process.env.REACT_APP_API_URL + '/get-security-menu-tree-master-list', encryptedModuleCode, {
+                headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+            })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status == 200) {
+                    setTreeViewItems(res.data.data);
+                }
+            });
+    };
 
     useEffect(() => {
         getClientList();
@@ -38,10 +57,17 @@ export const UserDetails = () => {
         setSelectedItems([]);
     }
 
-    // const { formState: { isDirty } } = useForm({ defaultValues: resetUserDetail });
-
     const userDetailsReducer = useSelector((state) => state.rootReducer.userDetailsReducer)
     var userData = userDetailsReducer.userDetails;
+
+    const userDetailsErrorReducer = useSelector((state) => state.rootReducer.userDetailsErrorReducer)
+    const userError = userDetailsErrorReducer.userDetailsError;
+
+    const clientDataReducer = useSelector((state) => state.rootReducer.clientDataReducer)
+    var clientUserData = clientDataReducer.clientData;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const handleSelectedItems = () => {
         if (userDetailsReducer.userDetails && userData.treeIds && userData.treeIds.length > 0) {
@@ -53,19 +79,9 @@ export const UserDetails = () => {
         resetUserDetail();
     }
     else if (userDetailsReducer.userDetails.encryptedSecurityUserId && (!selectedItems || selectedItems.length <= 0)
-        // && (!formChangedData.moduleDetailAdd && !formChangedData.moduleDetailDelete)
-    ) {
+        && (!formChangedData.moduleDetailAdd && !formChangedData.moduleDetailDelete)) {
         handleSelectedItems();
     }
-
-    const userDetailsErrorReducer = useSelector((state) => state.rootReducer.userDetailsErrorReducer)
-    const userError = userDetailsErrorReducer.userDetailsError;
-
-    const clientDataReducer = useSelector((state) => state.rootReducer.clientDataReducer)
-    var clientUserData = clientDataReducer.clientData;
-
-    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
-    var formChangedData = formChangedReducer.formChanged;
 
     const getClientList = async () => {
         axios
@@ -94,26 +110,6 @@ export const UserDetails = () => {
                 }
             });
     }
-
-    const fetchMenuTree = async () => {
-        let token = localStorage.getItem('Token');
-
-        const encryptedModuleCode = {
-            encryptedModuleCode: localStorage.getItem("EncryptedResponseModuleCode") ? localStorage.getItem("EncryptedResponseModuleCode") : ''
-        }
-
-        setIsLoading(true);
-        await axios
-            .post(process.env.REACT_APP_API_URL + '/get-security-menu-tree-master-list', encryptedModuleCode, {
-                headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
-            })
-            .then(res => {
-                setIsLoading(false);
-                if (res.data.status == 200) {
-                    setTreeViewItems(res.data.data);
-                }
-            });
-    };
 
     if (userData.clientName && !$('#txtClient').val()) {
         $('#txtClient option:contains(' + userData.clientName + ')').prop('selected', true);
@@ -180,7 +176,6 @@ export const UserDetails = () => {
             }))
         }
     }
-
 
     return (
         <>
