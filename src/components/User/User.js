@@ -239,7 +239,8 @@ export const User = () => {
 
     const updateUserDetails = async () => {
 
-        let addModuleDetailIds = [];
+        let addUserAccessRights = [];
+        let deleteUserAccessRights = [];
 
         if (userValidation()) {
             let uniqueTreeIds = [...new Set(selectedProductItems)]
@@ -247,11 +248,17 @@ export const User = () => {
             if (userData.treeIds && userData.treeIds.length > 0) {
                 for (let i = 0; i < uniqueTreeIds.length; i++) {
                     if (!userData.treeIds.includes(uniqueTreeIds[i])) {
-                        addModuleDetailIds.push(uniqueTreeIds[i]);
+                        addUserAccessRights.push(uniqueTreeIds[i]);
+                    }
+                }
+
+                for (let i = 0; i < userData.treeIds.length; i++) {
+                    if (!uniqueTreeIds.includes(userData.treeIds[i])) {
+                        deleteUserAccessRights.push(userData.treeIds[i]);
                     }
                 }
             } else if (uniqueTreeIds.length > 0) {
-                addModuleDetailIds = uniqueTreeIds;
+                addUserAccessRights = uniqueTreeIds;
             }
 
             const updatedUserData = {
@@ -289,10 +296,36 @@ export const User = () => {
             }
 
             if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
-                var moduleDetailIndex = 1;
-                for (let i = 0; i < addModuleDetailIds.length; i++) {
+                if (!hasError && formChangedData.moduleDetailDelete) {
+                    if (deleteUserAccessRights) {
+                        var deleteUserAccessRightsIndex = 1;
 
-                    const treeId = addModuleDetailIds[i];
+                        for (let i = 0; i < deleteUserAccessRights.length; i++) {
+                            const deleteUserAccessRightsId = deleteUserAccessRights[i]
+                            const data = {
+                                securityUserId: userData.securityUserId,
+                                treeId: deleteUserAccessRightsId
+                            }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            const deleteUserAccessRightsResponse =
+                                await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-user-access-rights', { headers, data });
+                            if (deleteUserAccessRightsResponse.data.status != 200) {
+                                toast.error(deleteUserAccessRightsResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteUserAccessRightsIndex++
+                    }
+                }
+
+                var moduleDetailIndex = 1;
+                for (let i = 0; i < addUserAccessRights.length; i++) {
+
+                    const treeId = addUserAccessRights[i];
 
                     if (formChangedData.moduleDetailAdd) {
                         const requestData = {
