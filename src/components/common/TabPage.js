@@ -42,6 +42,7 @@ import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
 import AddProductMaster from 'components/ProductMaster/AddProductMaster';
 import ProductVarietyTable from 'components/ProductMaster/ProductVarietyTable';
 import AddOemMasterDetails from 'components/OemMaster/AddOemMasterDetails';
+import OemProductDetails from 'components/OemMaster/OemProductDetails';
 
 const TabPage = ({
   listData,
@@ -370,11 +371,13 @@ const TabPage = ({
 
               {index == 1 && module == 'OemMaster' && (
                 <>
-                  <FalconComponentCard className="full-tab-page-card-body">
+                  <FalconComponentCard className="no-pb mb-1">
                     <FalconComponentCard.Body language="jsx">
                       <AddOemMasterDetails />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
+                  <OemProductDetails />
                 </>
               )}
 

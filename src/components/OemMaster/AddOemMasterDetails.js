@@ -145,6 +145,15 @@ const AddOemMasterDetails = () => {
 
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
+                                    Short Name
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtOemShortName" name="oemShortName" maxLength={15} value={oemMasterData.oemShortName} onChange={handleFieldChange} placeholder="Short Name" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
                                     Address<span className="text-danger">*</span>
                                 </Form.Label>
                                 <Col sm="9">
@@ -152,6 +161,24 @@ const AddOemMasterDetails = () => {
                                     {Object.keys(oemMasterErr.oemAddressErr).map((key) => {
                                         return <span className="error-message">{oemMasterErr.oemAddressErr[key]}</span>
                                     })}
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Pin Code
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtPinCode" name="oemPinCode" maxLength={10} value={oemMasterData.pinCode}
+                                        onChange={handleFieldChange} placeholder="Pin Code"
+                                        onKeyPress={(e) => {
+                                            const regex = /[0-9]|\./;
+                                            const key = String.fromCharCode(e.charCode);
+                                            if (!regex.test(key)) {
+                                                e.preventDefault();
+                                            }
+                                        }}
+                                    />
                                 </Col>
                             </Form.Group>
 
@@ -193,10 +220,46 @@ const AddOemMasterDetails = () => {
                         <Col className="me-3 ms-3" md="4">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
-                                    Short Name
+                                    Contact Person
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtOemShortName" name="oemShortName" maxLength={15} value={oemMasterData.oemShortName} onChange={handleFieldChange} placeholder="Short Name" />
+                                    <Form.Control id="txtContactPerson" name="oemContactPerson" maxLength={25} value={oemMasterData.oemContactPerson} onChange={handleFieldChange} placeholder="Contact Person" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Email
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtEmail" name="oemEmail" maxLength={50} value={oemMasterData.oemEmail} onChange={handleFieldChange} placeholder="Email" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Mobile No
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtMobileNo" name="oemMobileNo" maxLength={10} value={oemMasterData.oemMobileNo} onChange={handleFieldChange} placeholder="Mobile No" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Landline No
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtLandlineNo" name="oemLandlineNo" maxLength={45} value={oemMasterData.oemLandlineNo} onChange={handleFieldChange} placeholder="Landline No" />
+                                </Col>
+                            </Form.Group>
+
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    Website
+                                </Form.Label>
+                                <Col sm="9">
+                                    <Form.Control id="txtWebsite" name="oemWebsite" maxLength={20} value={oemMasterData.oemWebsite} onChange={handleFieldChange} placeholder="Website" />
                                 </Col>
                             </Form.Group>
 

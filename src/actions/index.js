@@ -375,3 +375,10 @@ export const oemMasterDetailsErrAction = (payload) => {
     payload
   };
 };
+
+export const oemProductDetailsAction = (payload) => {
+  return {
+    type: 'OEMPRODUCTDETAILS',
+    payload
+  };
+};
