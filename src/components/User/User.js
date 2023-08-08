@@ -204,6 +204,8 @@ export const User = () => {
                 loginUserEmailId: userData.loginUserEmailId,
                 loginUserMobileNumber: userData.loginUserMobileNumber,
                 loginUserName: userData.loginUserName,
+                moduleCode: localStorage.getItem("ModuleCode"),
+                treeIds: selectedProductItems,
                 activeStatus: userData.status == null || userData.status == "Active" ? "A" : "S",
                 addUser: localStorage.getItem("LoginUserName")
             }

@@ -111,6 +111,45 @@ export const UserDetails = () => {
             });
     }
 
+    const getClientModuleDetail = async (encryptedClientCode) => {
+        const request = {
+            encryptedClientCode: encryptedClientCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/client-registration-authorization-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(moduleData => {
+                    localStorage.setItem("ModuleCode", moduleData.moduleCode);
+                    getSelectedTreeItems(moduleData.moduleCode);
+                })
+            }
+
+        }
+    }
+
+    const getSelectedTreeItems = async (moduleCode) => {
+        let treeData = [];
+        const request = {
+            moduleCode: moduleCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-security-module-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                let treeItemsData = response.data.data;
+                treeData = treeItemsData.map((x) => x.tree_Id);
+            }
+            setSelectedItems(treeData);
+        }
+    }
+
     if (userData.clientName && !$('#txtClient').val()) {
         $('#txtClient option:contains(' + userData.clientName + ')').prop('selected', true);
     }
@@ -154,6 +193,9 @@ export const UserDetails = () => {
                 }))
                 $('#txtCountry').val(client.country)
                 $('#txtState').val(client.state)
+                if (client.encryptedClientCode) {
+                    getClientModuleDetail(client.encryptedClientCode)
+                }
             }
 
         }
