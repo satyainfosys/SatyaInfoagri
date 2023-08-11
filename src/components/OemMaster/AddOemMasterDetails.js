@@ -23,6 +23,12 @@ const AddOemMasterDetails = () => {
             "stateCode": "",
             "stateName": "",
             "oemAddress": "",
+            "oemPincode": "",
+            "oemEmail": "",
+            "oemContactPerson": "",
+            "oemContactMob": "",
+            "oemContactLandline": "",
+            "oemWebsite": "",
             "status": "Active"
         }))
     }
@@ -169,7 +175,7 @@ const AddOemMasterDetails = () => {
                                     Pin Code
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtPinCode" name="oemPinCode" maxLength={10} value={oemMasterData.pinCode}
+                                    <Form.Control id="txtPinCode" name="oemPinCode" maxLength={10} value={oemMasterData.oemPincode}
                                         onChange={handleFieldChange} placeholder="Pin Code"
                                         onKeyPress={(e) => {
                                             const regex = /[0-9]|\./;
@@ -241,7 +247,7 @@ const AddOemMasterDetails = () => {
                                     Mobile No
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtMobileNo" name="oemMobileNo" maxLength={10} value={oemMasterData.oemMobileNo} onChange={handleFieldChange} placeholder="Mobile No" />
+                                    <Form.Control id="txtMobileNo" name="oemContactMob" maxLength={10} value={oemMasterData.oemContactMob} onChange={handleFieldChange} placeholder="Mobile No" />
                                 </Col>
                             </Form.Group>
 
@@ -250,7 +256,7 @@ const AddOemMasterDetails = () => {
                                     Landline No
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtLandlineNo" name="oemLandlineNo" maxLength={45} value={oemMasterData.oemLandlineNo} onChange={handleFieldChange} placeholder="Landline No" />
+                                    <Form.Control id="txtLandlineNo" name="oemContactLandline" maxLength={45} value={oemMasterData.oemContactLandline} onChange={handleFieldChange} placeholder="Landline No" />
                                 </Col>
                             </Form.Group>
 
