@@ -107,12 +107,6 @@ const ProductMaster = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
-        if (productVarietyDetailsList.length <= 0 &&
-            !(localStorage.getItem("DeleteProductVarietyCodes")) &&
-            (localStorage.getItem("EncryptedProductMasterCode") ||
-                productMasterData.encryptedProductMasterCode)) {
-            getProductVarietyList();
-        }
     })
 
     const newDetails = () => {
@@ -271,25 +265,8 @@ const ProductMaster = () => {
 
     const clearProductMasterReducers = () => {
         dispatch(productMasterDetailsErrorAction(undefined));
-        dispatch(productVarietyDetailsAction([]));
         dispatch(formChangedAction(undefined));
         localStorage.removeItem("DeleteProductVarietyCodes");
-    }
-
-    const getProductVarietyList = async () => {
-        const request = {
-            EncryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode")
-        }
-
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-variety-list', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
-
-        if (response.data.status == 200) {
-            if (response.data.data && response.data.data.length > 0) {
-                dispatch(productVarietyDetailsAction(response.data.data));
-            }
-        }
     }
 
     const updateProductMasterCallback = (isAddProductMaster = false) => {
@@ -329,7 +306,6 @@ const ProductMaster = () => {
                 botany: productMasterData.botany ? productMasterData.botany : "",
                 activeStatus: productMasterData.status == null || productMasterData.status == "Active" ? "A" : "S",
                 addUser: localStorage.getItem("LoginUserName"),
-                productVarietyDetails: productVarietyDetailsList
             }
 
             const keys = ["productName", "productShortName", "texanomy", "botany", "addUser"]
@@ -382,12 +358,6 @@ const ProductMaster = () => {
 
     const updateProductMasterDetails = async () => {
         if (productMasterValidation()) {
-            if (!formChangedData.productMasterUpdate &&
-                !(formChangedData.productVarietyDetailUpdate || formChangedData.productVarietyDetailAdd || formChangedData.productVarietyDetailDelete)) {
-                return;
-            }
-
-            var deleteProductVarietyDetailCodes = localStorage.getItem("DeleteProductVarietyCodes");
 
             const updateRequestData = {
                 encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
@@ -427,96 +397,6 @@ const ProductMaster = () => {
                             setModalShow(false);
                         }
                     })
-            }
-
-            var productVarietyDetailIndex = 1;
-
-            //ProductVarietyDetail Add, Update, Delete
-            if (!hasError && ((formChangedData.productVarietyDetailDelete || formChangedData.productVarietyDetailAdd || formChangedData.productVarietyDetailUpdate))) {
-                if (!hasError && formChangedData.productVarietyDetailDelete) {
-                    var deleteProductVarietyDetailsList = deleteProductVarietyDetailCodes ? deleteProductVarietyDetailCodes.split(',') : null;
-                    if (deleteProductVarietyDetailsList) {
-                        var deleteProductVarietyDetailIndex = 1;
-
-                        for (let i = 0; i < deleteProductVarietyDetailsList.length; i++) {
-                            const deleteProductVarietyCode = deleteProductVarietyDetailsList[i];
-                            const data = { encryptedProductVarietyCode: deleteProductVarietyCode }
-                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-
-                            const deleteProductVarietyDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-product-variety-details', { headers, data });
-                            if (deleteProductVarietyDetailResponse.data.status != 200) {
-                                toast.error(deleteProductVarietyDetailResponse.data.message, {
-                                    theme: 'colored',
-                                    autoClose: 10000
-                                });
-                                hasError = true;
-                                break;
-                            }
-                        }
-                        deleteProductVarietyDetailIndex++
-                    }
-                }
-
-                for (let i = 0; i < productVarietyDetailsList.length; i++) {
-                    const productVareityDetails = productVarietyDetailsList[i];
-
-                    const keys = ['productVarietyName', 'productVarietyShortName', 'addUser', 'modifyUser']
-                    for (const key of Object.keys(productVareityDetails).filter((key) => keys.includes(key))) {
-                        productVareityDetails[key] = productVareityDetails[key] ? productVareityDetails[key].toUpperCase() : '';
-                    }
-
-                    if (!hasError && formChangedData.productVarietyDetailUpdate && productVareityDetails.encryptedProductVarietyCode) {
-                        const requestData = {
-                            encryptedProductVarietyCode: productVareityDetails.encryptedProductVarietyCode,
-                            encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
-                            productVarietyName: productVareityDetails.productVarietyName,
-                            productVarietyShortName: productVareityDetails.productVarietyShortName ? productVareityDetails.productVarietyShortName : "",
-                            perishableDays: productVareityDetails.perishableDays ? parseInt(productVareityDetails.perishableDays) : 0,
-                            activeStatus: productVareityDetails.activeStatus == null || productVareityDetails.activeStatus == "Active" ? "A" : "S",
-                            modifyUser: localStorage.getItem("LoginUserName")
-                        }
-                        setIsLoading(true);
-                        const updateProductVarietyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-product-variety-details', requestData, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (updateProductVarietyDetailResponse.data.status != 200) {
-                            toast.error(updateProductVarietyDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            hasError = true;
-                            break;
-                        }
-                    }
-                    else if (!hasError && formChangedData.productVarietyDetailAdd && !productVareityDetails.encryptedProductVarietyCode) {
-                        const requestData = {
-                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            productLineCode: localStorage.getItem("ProductLineCode"),
-                            productCategoryCode: localStorage.getItem("ProductCategoryCode"),
-                            encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
-                            productVarietyName: productVareityDetails.productVarietyName,
-                            productVarietyShortName: productVareityDetails.productVarietyShortName ? productVareityDetails.productVarietyShortName : "",
-                            perishableDays: productVareityDetails.perishableDays ? productVareityDetails.perishableDays : "",
-                            activeStatus: productVareityDetails.activeStatus == null || productVareityDetails.activeStatus == "Active" ? "A" : "S",
-                            addUser: localStorage.getItem("LoginUserName")
-                        }
-                        setIsLoading(true);
-                        const addProductVarietyDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-product-variety-details', requestData, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (addProductVarietyDetailResponse.data.status != 200) {
-                            toast.error(addProductVarietyDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            hasError = true;
-                            break;
-                        }
-                    }
-                    productVarietyDetailIndex++
-                }
             }
             if (!hasError) {
                 clearProductMasterReducers();

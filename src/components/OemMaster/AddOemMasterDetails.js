@@ -142,7 +142,7 @@ const AddOemMasterDetails = () => {
                                     <Form.Control id="txtOemMasterCode" name="oemMasterCode" placeholder="Code" value={oemMasterData.oemMasterCode} disabled />
                                 </Col>
                                 <Col sm="7">
-                                    <Form.Control id="txtOemName" name="oemName" maxLength={45} value={oemMasterData.oemName} onChange={handleFieldChange} placeholder="OEM Name" required />
+                                    <Form.Control id="txtOemName" name="oemName" maxLength={60} value={oemMasterData.oemName} onChange={handleFieldChange} placeholder="OEM Name" required />
                                     {Object.keys(oemMasterErr.oemNameErr).map((key) => {
                                         return <span className="error-message">{oemMasterErr.oemNameErr[key]}</span>
                                     })}
@@ -175,7 +175,7 @@ const AddOemMasterDetails = () => {
                                     Pin Code
                                 </Form.Label>
                                 <Col sm="9">
-                                    <Form.Control id="txtPinCode" name="oemPinCode" maxLength={10} value={oemMasterData.oemPincode}
+                                    <Form.Control id="txtPinCode" name="oemPincode" maxLength={10} value={oemMasterData.oemPincode}
                                         onChange={handleFieldChange} placeholder="Pin Code"
                                         onKeyPress={(e) => {
                                             const regex = /[0-9]|\./;

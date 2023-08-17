@@ -364,8 +364,6 @@ const TabPage = ({
                       <AddProductMaster />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
-
-                  <ProductVarietyTable />
                 </>
               )}
 

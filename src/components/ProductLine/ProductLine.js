@@ -80,6 +80,7 @@ export const ProductLine = () => {
             clearProductLineReducers();
             dispatch(productLineDetailsAction(undefined));
             localStorage.removeItem("EncryptedProductCode");
+            localStorage.removeItem("ProductLineCode");
             localStorage.removeItem("DeleteProductCategoryCodes");
         }
     })
@@ -93,7 +94,7 @@ export const ProductLine = () => {
         if (productCategoryDetailData.length <= 0 &&
             !(localStorage.getItem("DeleteProductCategoryCodes")) &&
             (localStorage.getItem("EncryptedProductCode") ||
-                productLineData.encryptedProductCode)) {
+                productLineData.productCode)) {
             getProductCategoryList();
         }
     })
@@ -104,6 +105,7 @@ export const ProductLine = () => {
         $('#btnSave').attr('disabled', false);
         clearProductLineReducers();
         localStorage.removeItem("EncryptedProductCode");
+        localStorage.removeItem("ProductLineCode");
         localStorage.removeItem("DeleteProductCategoryCodes");
     }
 
@@ -394,7 +396,7 @@ export const ProductLine = () => {
 
     const getProductCategoryList = async () => {
         const request = {
-            EncryptedProductCode: localStorage.getItem("EncryptedProductCode")
+            ProductLineCode: localStorage.getItem("ProductLineCode")
         }
 
         let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-category-detail-list', request, {

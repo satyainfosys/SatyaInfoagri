@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
-import { formChangedAction, oemMasterDetailsAction, oemMasterDetailsErrAction } from 'actions';
+import { formChangedAction, oemMasterDetailsAction, oemMasterDetailsErrAction, oemProductDetailsAction } from 'actions';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import $ from "jquery";
@@ -60,6 +60,9 @@ const OemMaster = () => {
     const oemMasterDetailsReducer = useSelector((state) => state.rootReducer.oemMasterDetailsReducer)
     var oemMasterData = oemMasterDetailsReducer.oemMasterDetails;
 
+    let oemProductDetailsReducer = useSelector((state) => state.rootReducer.oemProductDetailsReducer)
+    let oemProductList = oemProductDetailsReducer.oemProductDetails;
+
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
@@ -88,6 +91,9 @@ const OemMaster = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if(oemProductList.length <= 0 &&
+          !(localStorage.getItem("Delete"))){}
     })
 
     const newDetails = () => {
@@ -177,6 +183,7 @@ const OemMaster = () => {
     const clearOemMasterReducers = () => {
         dispatch(oemMasterDetailsErrAction(undefined));
         dispatch(formChangedAction(undefined));
+        dispatch(oemProductDetailsAction([]));
     }
 
     const updateOemMasterCallback = (isAddOemMaster = false) => {
@@ -212,12 +219,25 @@ const OemMaster = () => {
                 countryCode: oemMasterData.countryCode,
                 stateCode: oemMasterData.stateCode,
                 activeStatus: oemMasterData.status == null || oemMasterData.status == "Active" ? "A" : "S",
+                oemProductCatalogueDetails: oemProductList,
                 addUser: localStorage.getItem("LoginUserName")
             }
 
             const keys = ["oemName", "oemShortName", "oemAddress", "addUser"]
             for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
                 requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            }
+
+            const oemProductCatalogueyKeys = ['productVarietyName', 'brand', 'addUser']
+            var index = 0;
+            for (var obj in requestData.oemProductCatalogueDetails) {
+                var oemProductCatalogueDetailObj = requestData.oemProductCatalogueDetails[obj];
+
+                for (const key of Object.keys(oemProductCatalogueDetailObj).filter((key) => oemProductCatalogueyKeys.includes(key))) {
+                    oemProductCatalogueDetailObj[key] = oemProductCatalogueDetailObj[key] ? oemProductCatalogueDetailObj[key].toUpperCase() : '';
+                }
+                requestData.oemProductCatalogueDetails[index] = oemProductCatalogueDetailObj;
+                index++;
             }
 
             setIsLoading(true);
@@ -296,6 +316,22 @@ const OemMaster = () => {
                         updateOemMasterCallback();
                     }
                 })
+        }
+    }
+
+    const getOemProductCatalogueDetails = async() => {
+        const request = {
+            EncryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-oem-product-catalogue-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(oemProductDetailsAction(response.data.data));
+            }
         }
     }
 

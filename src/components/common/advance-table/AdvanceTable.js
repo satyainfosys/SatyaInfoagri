@@ -84,6 +84,7 @@ const AdvanceTable = ({
     }
     else if (rowData.hasOwnProperty('encryptedProductCode')) {
       localStorage.setItem('EncryptedProductCode', rowData.encryptedProductCode);
+      localStorage.setItem('ProductLineCode', rowData.productCode);
       dispatch(productLineDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Product"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Product"]').trigger('click');
