@@ -3,7 +3,8 @@ const initialState = {
         oemNameErr: {},
         countryCodeErr: {},
         stateCodeErr: {},
-        oemAddressErr: {}
+        oemAddressErr: {},
+        oemProductDetailsErr:{}
     }
 };
 

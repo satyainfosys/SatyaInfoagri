@@ -83,6 +83,8 @@ const OemMaster = () => {
             $('[data-rr-ui-event-key*="Add OEM"]').attr('disabled', true);
             clearOemMasterReducers();
             dispatch(oemMasterDetailsAction(undefined));
+            localStorage.removeItem("EncryptedOemMasterCode");
+            localStorage.removeItem("DeleteOemProductCatalogueCodes");
         }
     })
 
@@ -92,8 +94,10 @@ const OemMaster = () => {
         $("#btnSave").show();
         $("#btnCancel").show();
 
-        if(oemProductList.length <= 0 &&
-          !(localStorage.getItem("Delete"))){}
+        if (oemProductList.length <= 0 &&
+            !(localStorage.getItem("Delete"))) {
+            getOemProductCatalogueDetails();
+        }
     })
 
     const newDetails = () => {
@@ -118,7 +122,9 @@ const OemMaster = () => {
         } else {
             window.location.href = '/dashboard';
             clearOemMasterReducers();
-            localStorage.removeItem("EncryptedOemMastercode")
+            dispatch(oemMasterDetailsAction(undefined));
+            localStorage.removeItem("EncryptedOemMastercode");
+            localStorage.removeItem("DeleteOemProductCatalogueCodes");
         }
 
     }
@@ -140,6 +146,7 @@ const OemMaster = () => {
         const oemAddressErr = {};
         const countryCodeErr = {};
         const stateCodeErr = {};
+        const oemProductDetailsErr = {};
 
         let isValid = true;
 
@@ -167,12 +174,23 @@ const OemMaster = () => {
             setFormError(true);
         }
 
+        if(oemProductList && oemProductList.length > 0){
+            oemProductList.forEach((row, index) => {
+                if(!row.productCategoryCode || !row.productCode){
+                    oemProductDetailsErr.invalidOemProductDetail = "Fill the required fields"
+                    isValid = false;
+                    setFormError(true);
+                }
+            });
+        }
+
         if (!isValid) {
             var errorObject = {
                 oemNameErr,
                 oemAddressErr,
                 countryCodeErr,
-                stateCodeErr
+                stateCodeErr,
+                oemProductDetailsErr
             }
             dispatch(oemMasterDetailsErrAction(errorObject))
         }
@@ -228,7 +246,7 @@ const OemMaster = () => {
                 requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
             }
 
-            const oemProductCatalogueyKeys = ['productVarietyName', 'brand', 'addUser']
+            const oemProductCatalogueyKeys = ['productVarietyName', 'brandName', 'addUser']
             var index = 0;
             for (var obj in requestData.oemProductCatalogueDetails) {
                 var oemProductCatalogueDetailObj = requestData.oemProductCatalogueDetails[obj];
@@ -273,9 +291,12 @@ const OemMaster = () => {
 
     const updateOemMasterDetails = async () => {
         if (oemMasterValidation()) {
-            if (!formChangedData.oemMasterDetailUpdate) {
+            if (!formChangedData.oemMasterDetailUpdate &&
+                !(formChangedData.oemProductDetailDelete || formChangedData.oemProductDetailAdd || formChangedData.oemProductDetailUpdate)) {
                 return;
             }
+
+            var deleteOemProductCatalogueCodes = localStorage.getItem("DeleteOemProductCatalogueCodes");
 
             const updateRequestData = {
                 encryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode"),
@@ -299,27 +320,209 @@ const OemMaster = () => {
                 updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : '';
             }
 
-            setIsLoading(true)
-            await axios.post(process.env.REACT_APP_API_URL + '/update-oem-master-detail', updateRequestData, {
-                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-            })
-                .then(res => {
-                    setIsLoading(false);
-                    if (res.data.status !== 200) {
-                        toast.error(res.data.message, {
-                            theme: 'colored',
-                            autoClose: 10000
-                        });
-                        setModalShow(false);
-                    } else {
-                        clearOemMasterReducers();
-                        updateOemMasterCallback();
-                    }
+            var hasError = false;
+
+            if (formChangedData.oemMasterDetailUpdate) {
+                setIsLoading(true)
+                await axios.post(process.env.REACT_APP_API_URL + '/update-oem-master-detail', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                 })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            setModalShow(false);
+                        } else {
+                            clearOemMasterReducers();
+                            updateOemMasterCallback();
+                        }
+                    })
+            }
+
+            var oemProductCatalogueDetailIndex = 1;
+
+            //OemProductCatalogueDetail ADD, UPDATE, DELETE
+            if (!hasError && (formChangedData.oemProductDetailDelete || formChangedData.oemProductDetailAdd || formChangedData.oemProductDetailUpdate)) {
+
+                if (!hasError && formChangedData.oemProductDetailDelete) {
+                    var deleteOemProductCatalogueDetailsList = deleteOemProductCatalogueCodes ? deleteOemProductCatalogueCodes.split(',') : null;
+                    if (deleteOemProductCatalogueDetailsList) {
+                        var deleteOemProductCatalogueDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteOemProductCatalogueDetailsList.length; i++) {
+                            const deletePemProductCatalogueDetailCode = deleteOemProductCatalogueDetailsList[i];
+                            const data = { encryptedProductVarietyCode: deletePemProductCatalogueDetailCode }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-oem-product-catalogue-details', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deleteOemProductCatalogueDetailsIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < oemProductList.length; i++) {
+                    const oemProductDetail = oemProductList[i];
+
+                    const keys = ['productVarietyName', 'brandName', 'modifyUser', 'addUser']
+                    for (const key of Object.keys(oemProductDetail).filter((key) => keys.includes(key))) {
+                        oemProductDetail[key] = oemProductDetail[key] ? oemProductDetail[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.oemProductDetailUpdate && oemProductDetail.encryptedProductVarietyCode) {
+                        const requestData = {
+                            encryptedProductVarietyCode: oemProductDetail.encryptedProductVarietyCode,
+                            encryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode"),
+                            productLineCode: oemProductDetail.productLineCode,
+                            productCategoryCode: oemProductDetail.productCategoryCode,
+                            productCode: oemProductDetail.productCode,
+                            productVarietyName: oemProductDetail.productVarietyName,
+                            brandName: oemProductDetail.brandName,
+                            productSeasonId: oemProductDetail.productSeasonId ? oemProductDetail.productSeasonId : "",
+                            nFrom: oemProductDetail.nFrom ? oemProductDetail.nFrom : "",
+                            nTo: oemProductDetail.nTo ? oemProductDetail.nTo : "",
+                            pFrom: oemProductDetail.pFrom ? oemProductDetail.pFrom : "",
+                            pTo: oemProductDetail.pTo ? oemProductDetail.pTo : "",
+                            kFrom: oemProductDetail.kFrom ? oemProductDetail.kFrom : "",
+                            kTo: oemProductDetail.kTo ? oemProductDetail.kTo : "",
+                            tempFrom: oemProductDetail.tempFrom ? parseFloat(oemProductDetail.tempFrom) : 0,
+                            tempTo: oemProductDetail.tempTo ? parseFloat(oemProductDetail.tempTo) : 0,
+                            phFrom: oemProductDetail.phFrom ? oemProductDetail.phFrom : "",
+                            phTo: oemProductDetail.phTo ? oemProductDetail.phTo : "",
+                            maturityDays: oemProductDetail.maturityDays ? parseFloat(oemProductDetail.maturityDays) : 0,
+                            maturityUnitCode: oemProductDetail.maturityUnitCode ? parseInt(oemProductDetail.maturityUnitCode) : 0,
+                            seedQty: oemProductDetail.seedQty ? parseInt(oemProductDetail.seedQty) : 0,
+                            seedUnitCode: oemProductDetail.seedUnitCode ? parseInt(oemProductDetail.seedUnitCode) : 0,
+                            yieldLand: oemProductDetail.yieldLand ? parseFloat(oemProductDetail.yieldLand) : 0,
+                            area: oemProductDetail.area && oemProductDetail.area == "Plain" ? "P" : oemProductDetail.area = "Hill" ? "H" : "",
+                            sowing: oemProductDetail.sowing && oemProductDetail.sowing == "Early" ? "E" : oemProductDetail.sowing = "Late" ? "L" : "",
+                            orgIng: oemProductDetail.orgIng && oemProductDetail.orgIng == "Organic" ? "O" : oemProductDetail.orgIng = "Inorganic" ? "I" : "",
+                            desiHyb: oemProductDetail.desiHyb && oemProductDetail.desiHyb == "Desi" ? "D" : oemProductDetail.desiHyb = "Hybrid" ? "H" : "",
+                            perishableDays: oemProductDetail.perishableDays ? parseInt(oemProductDetail.perishableDays) : 0,
+                            landUnitCode: oemProductDetail.landUnitCode ? parseInt(oemProductDetail.landUnitCode) : 0,
+                            yieldOutput: oemProductDetail.yieldOutput ? parseFloat(oemProductDetail.yieldOutput) : 0,
+                            yieldUnitCode: oemProductDetail.yieldUnitCode ? parseInt(oemProductDetail.yieldUnitCode) : 0,
+                            ecFrom: oemProductDetail.ecFrom ? oemProductDetail.ecFrom : "",
+                            ecTo: oemProductDetail.ecTo ? oemProductDetail.ecTo : "",
+                            organicCarbonFrom: oemProductDetail.organicCarbonFrom ? oemProductDetail.organicCarbonFrom : "",
+                            organicCarbonTo: oemProductDetail.organicCarbonTo ? oemProductDetail.organicCarbonTo : "",
+                            sulphurFrom: oemProductDetail.sulphurFrom ? oemProductDetail.sulphurFrom : "",
+                            sulphurTo: oemProductDetail.sulphurTo ? oemProductDetail.sulphurTo : "",
+                            ironFrom: oemProductDetail.ironFrom ? oemProductDetail.ironFrom : "",
+                            ironTo: oemProductDetail.ironTo ? oemProductDetail.ironTo : "",
+                            zincFrom: oemProductDetail.zincFrom ? oemProductDetail.zincFrom : "",
+                            zincTo: oemProductDetail.zincTo ? oemProductDetail.zincTo : "",
+                            copperFrom: oemProductDetail.copperFrom ? oemProductDetail.copperFrom : "",
+                            copperTo: oemProductDetail.copperTo ? oemProductDetail.copperTo : "",
+                            boronFrom: oemProductDetail.boronFrom ? oemProductDetail.boronFrom : "",
+                            boronTo: oemProductDetail.boronTo ? oemProductDetail.boronTo : "",
+                            manganeseFrom: oemProductDetail.manganeseFrom ? oemProductDetail.manganeseFrom : "",
+                            manganeseTo: oemProductDetail.manganeseTo ? oemProductDetail.manganeseTo : "",
+                            activeStatus: !oemProductDetail.activeStatus || oemProductDetail.activeStatus == "Active" ? "A" : "S",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-oem-product-catalogue-details', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.oemProductDetailAdd && !oemProductDetail.encryptedProductVarietyCode) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode"),
+                            productLineCode: oemProductDetail.productLineCode,
+                            productCategoryCode: oemProductDetail.productCategoryCode,
+                            productCode: oemProductDetail.productCode,
+                            productVarietyName: oemProductDetail.productVarietyName,
+                            brandName: oemProductDetail.brandName,
+                            productSeasonId: oemProductDetail.productSeasonId ? oemProductDetail.productSeasonId : "",
+                            nFrom: oemProductDetail.nFrom ? oemProductDetail.nFrom : "",
+                            nTo: oemProductDetail.nTo ? oemProductDetail.nTo : "",
+                            pFrom: oemProductDetail.pFrom ? oemProductDetail.pFrom : "",
+                            pTo: oemProductDetail.pTo ? oemProductDetail.pTo : "",
+                            kFrom: oemProductDetail.kFrom ? oemProductDetail.kFrom : "",
+                            kTo: oemProductDetail.kTo ? oemProductDetail.kTo : "",
+                            tempFrom: oemProductDetail.tempFrom ? oemProductDetail.tempFrom : "",
+                            tempTo: oemProductDetail.tempTo ? oemProductDetail.tempTo : "",
+                            phFrom: oemProductDetail.phFrom ? oemProductDetail.phFrom : "",
+                            phTo: oemProductDetail.phTo ? oemProductDetail.phTo : "",
+                            maturityDays: oemProductDetail.maturityDays ? oemProductDetail.maturityDays : "",
+                            maturityUnitCode: oemProductDetail.maturityUnitCode ? oemProductDetail.maturityUnitCode : "",
+                            seedQty: oemProductDetail.seedQty ? oemProductDetail.seedQty : "",
+                            seedUnitCode: oemProductDetail.seedUnitCode ? oemProductDetail.seedUnitCode : "",
+                            yieldLand: oemProductDetail.yieldLand ? oemProductDetail.yieldLand : "",
+                            area: oemProductDetail.area ? oemProductDetail.area : "",
+                            sowing: oemProductDetail.sowing ? oemProductDetail.sowing : "",
+                            orgIng: oemProductDetail.orgIng ? oemProductDetail.orgIng : "",
+                            desiHyb: oemProductDetail.desiHyb ? oemProductDetail.desiHyb : "",
+                            perishableDays: oemProductDetail.perishableDays ? oemProductDetail.perishableDays : "",
+                            landUnitCode: oemProductDetail.landUnitCode ? oemProductDetail.landUnitCode : "",
+                            yieldOutput: oemProductDetail.yieldOutput ? oemProductDetail.yieldOutput : "",
+                            yieldUnitCode: oemProductDetail.yieldUnitCode ? oemProductDetail.yieldUnitCode : "",
+                            ecFrom: oemProductDetail.ecFrom ? oemProductDetail.ecFrom : "",
+                            ecTo: oemProductDetail.ecTo ? oemProductDetail.ecTo : "",
+                            organicCarbonFrom: oemProductDetail.organicCarbonFrom ? oemProductDetail.organicCarbonFrom : "",
+                            organicCarbonTo: oemProductDetail.organicCarbonTo ? oemProductDetail.organicCarbonTo : "",
+                            sulphurFrom: oemProductDetail.sulphurFrom ? oemProductDetail.sulphurFrom : "",
+                            sulphurTo: oemProductDetail.sulphurTo ? oemProductDetail.sulphurTo : "",
+                            ironFrom: oemProductDetail.ironFrom ? oemProductDetail.ironFrom : "",
+                            ironTo: oemProductDetail.ironTo ? oemProductDetail.ironTo : "",
+                            zincFrom: oemProductDetail.zincFrom ? oemProductDetail.zincFrom : "",
+                            zincTo: oemProductDetail.zincTo ? oemProductDetail.zincTo : "",
+                            copperFrom: oemProductDetail.copperFrom ? oemProductDetail.copperFrom : "",
+                            copperTo: oemProductDetail.copperTo ? oemProductDetail.copperTo : "",
+                            boronFrom: oemProductDetail.boronFrom ? oemProductDetail.boronFrom : "",
+                            boronTo: oemProductDetail.boronTo ? oemProductDetail.boronTo : "",
+                            manganeseFrom: oemProductDetail.manganeseFrom ? oemProductDetail.manganeseFrom : "",
+                            manganeseTo: oemProductDetail.manganeseTo ? oemProductDetail.manganeseTo : "",
+                            addUser: localStorage.getItem("LoginUserName"),
+                            activeStatus: oemProductDetail.activeStatus
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-oem-product-catalogue-details', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if(addResponse.data.status != 200){
+                            toast.error(addResponse.data.message, {
+                                theme:'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    oemProductCatalogueDetailIndex++
+                }
+            }
+
+            if(!hasError){
+                clearOemMasterReducers();
+                updateOemMasterCallback();
+            }
         }
     }
 
-    const getOemProductCatalogueDetails = async() => {
+    const getOemProductCatalogueDetails = async () => {
         const request = {
             EncryptedOemMasterCode: localStorage.getItem("EncryptedOemMasterCode")
         }

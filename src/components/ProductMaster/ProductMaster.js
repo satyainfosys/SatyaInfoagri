@@ -204,7 +204,7 @@ const ProductMaster = () => {
             ProductLineCode: productLineCode
         }
 
-        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/product-category-master-list', request, {
+        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-product-category-detail-list', request, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
 

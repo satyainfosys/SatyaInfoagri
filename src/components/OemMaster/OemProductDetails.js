@@ -12,13 +12,18 @@ import axios from 'axios';
 const OemProductDetails = () => {
 
     const dispatch = useDispatch();
+    const [formHasError, setFormError] = useState(false);
     const [rowData, setRowData] = useState([]);
     const [oemModal, setOemModal] = useState(false);
-    const [productLineList, setProductLineList] = useState([]);
     const [productCategoryList, setProductCategoryList] = useState([]);
     const [productMasterList, setProductMasterList] = useState([]);
     const [modalIndex, setModalIndex] = useState();
     let [modalData, setModalData] = useState({});
+    const [unitList, setUnitList] = useState([]);
+    const [productSeasonList, setProductSeasonList] = useState([]);
+    const [modalShow, setModalShow] = useState(false);
+    const [paramsData, setParamsData] = useState({});
+    const [productCategoryDataList, setProductCategoryDataList] = useState([]);
 
     const emptyRow = {
         id: rowData.length + 1,
@@ -27,14 +32,13 @@ const OemProductDetails = () => {
         productLineCode: '',
         productCategoryCode: '',
         productCode: '',
-        item: '',
         productVarietyName: '',
         brandName: '',
-        season: '',
+        productSeasonId: '',
         area: '',
         sowing: '',
-        fertilizer: '',
-        type: '',
+        orgIng: '',
+        desiHyb: '',
         activeStatus: '',
         addUser: localStorage.getItem("LoginUserName"),
         modifyUser: localStorage.getItem("LoginUserName"),
@@ -46,12 +50,13 @@ const OemProductDetails = () => {
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
+    const oemMasterDetailsErrorReducer = useSelector((state) => state.rootReducer.oemMasterDetailsErrorReducer)
+    const oemMasterErr = oemMasterDetailsErrorReducer.oemMasterDetailsError;
+
     const columnsArray = [
         'S.No',
-        'Product Line',
         'Product Category',
         'Product',
-        'Item',
         'Variety',
         'Brand',
         'Season',
@@ -64,48 +69,100 @@ const OemProductDetails = () => {
     ];
 
     useEffect(() => {
+
+        if (unitList.length <= 0) {
+            getUnitList();
+        }
+
         if (oemProductDetailsReducer.oemProductDetails.length > 0) {
             setRowData(oemProductData);
+            setTimeout(function () {
+                setProductMasterValue();
+            }, 50)
         }
 
-        if (productLineList.length <= 0) {
-            getProductLine();
+        if (productCategoryList.length <= 0) {
+            getProductCategoryList();
         }
+
+        getProductSeason();
     }, [oemProductData, oemProductDetailsReducer])
 
-    const getProductLine = async () => {
-        let productLineData = [];
 
-        let productLineResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-line-list', {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        });
+    const setProductMasterValue = () => {
+        oemProductData.map((row, index) => {
+            getProductMasterList(row.productCategoryCode, index);
+        })
+    }
 
-        if (productLineResponse.data.status == 200) {
-            if (productLineResponse.data && productLineResponse.data.data.length > 0) {
-                productLineResponse.data.data.forEach(productLine => {
-                    productLineData.push({
-                        key: productLine.productLineName,
-                        value: productLine.productLineCode,
-                        label: productLine.productLineName,
-                    })
-                })
-            }
-            setProductLineList(productLineData)
-        } else {
-            setProductLineList([])
+    const validateOemProductCatalogueDetailsForm = () => {
+        let isValid = true;
+
+        if (oemProductData && oemProductData.length > 0) {
+            oemProductData.forEach((row, index) => {
+                if (!row.productCategoryCode || !row.productCode) {
+                    isValid = false;
+                    setFormError(true);
+                }
+            });
         }
+
+        if (isValid) {
+            setFormError(false);
+        }
+
+        return isValid;
     }
 
     const handleAddRow = async () => {
-        oemProductData.unshift(emptyRow);
-        dispatch(oemProductDetailsAction(oemProductData));
-        setProductCategoryList(prevCategoryList => [...prevCategoryList, []]);
-        setProductMasterList(prevProductList => [...prevProductList, []]);
+        if (validateOemProductCatalogueDetailsForm()) {
+            oemProductData.unshift(emptyRow);
+            dispatch(oemProductDetailsAction(oemProductData));
+            setProductMasterList(prevProductList => [...prevProductList, []]);
+        }
     }
 
     const oemDetailModalPreview = (index) => {
         setOemModal(true);
         setModalIndex(index)
+        if (oemProductData[index].encryptedProductVarietyCode) {
+            setModalData({
+                seedQty: oemProductData[index].seedQty,
+                seedUnitCode: oemProductData[index].seedUnitCode,
+                maturityDays: oemProductData[index].maturityDays,
+                maturityUnitCode: oemProductData[index].maturityUnitCode,
+                yieldLand: oemProductData[index].yieldLand,
+                landUnitCode: oemProductData[index].landUnitCode,
+                yieldOutput: oemProductData[index].yieldOutput,
+                yieldUnitCode: oemProductData[index].yieldUnitCode,
+                nFrom: oemProductData[index].nFrom,
+                nTo: oemProductData[index].nTo,
+                pFrom: oemProductData[index].pFrom,
+                pTo: oemProductData[index].pTo,
+                kFrom: oemProductData[index].kFrom,
+                kTo: oemProductData[index].kTo,
+                phFrom: oemProductData[index].phFrom,
+                phTo: oemProductData[index].phTo,
+                tempFrom: oemProductData[index].tempFrom,
+                tempTo: oemProductData[index].tempTo,
+                ecFrom: oemProductData[index].ecFrom,
+                ecTo: oemProductData[index].ecTo,
+                organicCarbonFrom: oemProductData[index].organicCarbonFrom,
+                organicCarbonTo: oemProductData[index].organicCarbonTo,
+                sulphurFrom: oemProductData[index].sulphurFrom,
+                sulphurTo: oemProductData[index].sulphurTo,
+                ironFrom: oemProductData[index].ironFrom,
+                ironTo: oemProductData[index].ironTo,
+                zincFrom: oemProductData[index].zincFrom,
+                zincTo: oemProductData[index].zincTo,
+                copperFrom: oemProductData[index].copperFrom,
+                copperTo: oemProductData[index].copperTo,
+                boronFrom: oemProductData[index].boronFrom,
+                boronTo: oemProductData[index].boronTo,
+                manganeseFrom: oemProductData[index].manganeseFrom,
+                manganeseTo: oemProductData[index].manganeseTo
+            })
+        }
     }
 
     const handleFieldChange = (e, index) => {
@@ -116,12 +173,9 @@ const OemProductDetails = () => {
             return rowData[key];
         })
 
-        if (name == 'productLineCode') {
-            oemDetails[index].productCategoryCode = '';
-            value && getProductCategoryList(value, index);
-        }
-
         if (name == 'productCategoryCode') {
+            const data = productCategoryDataList.find(item => item.productCategoryCode == value);
+            oemDetails[index].productLineCode = data.productLineCode;
             oemDetails[index].productCode = '';
             value && getProductMasterList(value, index);
         }
@@ -141,18 +195,16 @@ const OemProductDetails = () => {
         }
     }
 
-    const getProductCategoryList = async (productLineCode, index) => {
-        const request = {
-            ProductLineCode: productLineCode
-        }
+    const getProductCategoryList = async () => {
 
         let productCategoryData = [];
-        let productCategoryResponse = await axios.post(process.env.REACT_APP_API_URL + '/product-category-master-list', request, {
+        let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
 
         if (productCategoryResponse.data.status == 200) {
             if (productCategoryResponse.data && productCategoryResponse.data.data.length > 0) {
+                setProductCategoryDataList(productCategoryResponse.data.data);
                 productCategoryResponse.data.data.forEach(productCategory => {
                     productCategoryData.push({
                         key: productCategory.productCategoryName,
@@ -160,19 +212,11 @@ const OemProductDetails = () => {
                     })
                 })
             }
-            setProductCategoryList(prevCategoryList => {
-                const newCategoryList = [...prevCategoryList];
-                newCategoryList[index] = productCategoryData;
-                return newCategoryList;
-            });
+            setProductCategoryList(productCategoryData);
+        } else {
+            setProductCategoryList([]);
         }
-        else {
-            setProductCategoryList(prevCategoryList => {
-                const newCategoryList = [...prevCategoryList];
-                newCategoryList[index] = productCategoryData;
-                return newCategoryList;
-            })
-        }
+
 
     }
 
@@ -216,6 +260,49 @@ const OemProductDetails = () => {
             ...modalData,
             [e.target.name]: e.target.value
         });
+
+    }
+
+    const getUnitList = async () => {
+
+        let response = await axios.get(process.env.REACT_APP_API_URL + '/unit-list')
+        let unitListData = [];
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(units => {
+                    unitListData.push({
+                        key: units.unitName,
+                        value: units.unitCode
+                    })
+                })
+                setUnitList(unitListData);
+            }
+        }
+        else {
+            setUnitList([]);
+        }
+    }
+
+    const getProductSeason = async () => {
+        let productSeasonData = [];
+        let productSeasonResponse = await axios.get(process.env.REACT_APP_API_URL + '/get-product-season-list', {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (productSeasonResponse.data.status == 200) {
+            if (productSeasonResponse.data && productSeasonResponse.data.data.length > 0) {
+                productSeasonResponse.data.data.forEach(productSeason => {
+                    productSeasonData.push({
+                        key: productSeason.seasonName,
+                        value: productSeason.productSeasonId
+                    })
+                })
+            }
+            setProductSeasonList(productSeasonData)
+        } else {
+            setProductSeasonList([]);
+        }
     }
 
     const onModalSave = () => {
@@ -225,12 +312,86 @@ const OemProductDetails = () => {
         dispatch(oemProductDetailsAction(oemProductData));
         setModalData({});
         setOemModal(false);
+
+        if (oemProductData[modalIndex].encryptedProductVarietyCode) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                oemProductDetailUpdate: true
+            }))
+        }
+        else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                oemProductDetailAdd: true
+            }))
+        }
+    }
+
+    const handleKeyDown = (event) => {
+        const keyCode = event.keyCode || event.which;
+        if ((keyCode >= 65 && keyCode <= 90) || (keyCode >= 97 && keyCode <= 122)) {
+            event.preventDefault();
+        }
+    };
+
+    const ModalPreview = (encryptedProductVarietyCode) => {
+        setModalShow(true);
+        setParamsData({ encryptedProductVarietyCode });
+    }
+
+    const deleteOemProductDetails = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = oemProductDetailsReducer.oemProductDetails.findIndex(x => x.encryptedProductVarietyCode == paramsData.encryptedProductVarietyCode);
+        oemProductDetailsReducer.oemProductDetails.splice(objectIndex, 1)
+
+        var deleteOemProductCatalogueCode = localStorage.getItem("DeleteOemProductCatalogueCodes");
+
+        if (paramsData.encryptedProductVarietyCode) {
+            var deleteOemProductCatalogueDetail = deleteOemProductCatalogueCode ? deleteOemProductCatalogueCode + "," + paramsData.encryptedProductVarietyCode : paramsData.encryptedProductVarietyCode;
+            localStorage.setItem("DeleteOemProductCatalogueCodes", deleteOemProductCatalogueDetail);
+        }
+
+        toast.success("Oem product details deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(oemProductDetailsAction(oemProductData));
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            oemProductDetailDelete: true
+        }))
+
+        setModalShow(false);
     }
 
     return (
         <>
-            {
-                oemModal &&
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this oem product detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteOemProductDetails()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
+            {oemModal &&
                 <Modal
                     show={oemModal}
                     onHide={() => setOemModal(false)}
@@ -245,7 +406,6 @@ const OemProductDetails = () => {
                     <Modal.Body className="max-five-rows">
                         <Form
                             noValidate
-                            // validated={modalError}
                             className="details-form"
                         >
                             <Row>
@@ -257,7 +417,7 @@ const OemProductDetails = () => {
                                             Qty
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtQty" name="quantity" placeholder="Quantity" onChange={handleItemInfoChange} value={modalData.quantity} />
+                                            <Form.Control id="txtQty" name="seedQty" placeholder="Quantity" onChange={handleItemInfoChange} value={modalData.seedQty} maxLength={10} onKeyPress={handleKeyDown} />
                                         </Col>
                                         <Col sm="4">
                                             <Form.Select
@@ -269,6 +429,9 @@ const OemProductDetails = () => {
                                                 value={modalData.seedUnitCode}
                                             >
                                                 <option value=''>Select</option>
+                                                {unitList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
@@ -278,7 +441,7 @@ const OemProductDetails = () => {
                                             Maturity Days
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtNoOfDays" name="maturityDays" placeholder="Maturity Days" onChange={handleItemInfoChange} value={modalData.maturityDays} />
+                                            <Form.Control id="txtNoOfDays" name="maturityDays" placeholder="Maturity Days" onChange={handleItemInfoChange} value={modalData.maturityDays} maxLength={5} onKeyPress={handleKeyDown} />
                                         </Col>
                                         <Col sm="4">
                                             <Form.Select
@@ -290,6 +453,9 @@ const OemProductDetails = () => {
                                                 value={modalData.maturityUnitCode}
                                             >
                                                 <option value=''>Select</option>
+                                                {unitList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
@@ -299,7 +465,7 @@ const OemProductDetails = () => {
                                             Yield Land
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtYieldLand" name="yieldLand" placeholder="Yield Land" onChange={handleItemInfoChange} value={modalData.yieldLand} />
+                                            <Form.Control id="txtYieldLand" name="yieldLand" placeholder="Yield Land" onChange={handleItemInfoChange} value={modalData.yieldLand} maxLength={5} onKeyPress={handleKeyDown} />
                                         </Col>
                                         <Col sm="4">
                                             <Form.Select
@@ -311,6 +477,9 @@ const OemProductDetails = () => {
                                                 value={modalData.landUnitCode}
                                             >
                                                 <option value=''>Select</option>
+                                                {unitList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
@@ -320,7 +489,7 @@ const OemProductDetails = () => {
                                             Yield Output
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtYieldOutput" name="yieldOutput" placeholder="Yield Output" onChange={handleItemInfoChange} value={modalData.yieldOutput} />
+                                            <Form.Control id="txtYieldOutput" name="yieldOutput" placeholder="Yield Output" onChange={handleItemInfoChange} value={modalData.yieldOutput} maxLength={10} onKeyPress={handleKeyDown} />
                                         </Col>
                                         <Col sm="4">
                                             <Form.Select
@@ -332,6 +501,9 @@ const OemProductDetails = () => {
                                                 value={modalData.yieldUnitCode}
                                             >
                                                 <option value=''>Select</option>
+                                                {unitList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </Col>
                                     </Form.Group>
@@ -353,10 +525,10 @@ const OemProductDetails = () => {
                                                 N
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="N From" name />
+                                                <Form.Control placeholder="N From" name="nFrom" onChange={handleItemInfoChange} value={modalData.nFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="N To" />
+                                                <Form.Control placeholder="N To" name="nTo" onChange={handleItemInfoChange} value={modalData.nTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -364,10 +536,10 @@ const OemProductDetails = () => {
                                                 P
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="P From" />
+                                                <Form.Control placeholder="P From" name="pFrom" onChange={handleItemInfoChange} value={modalData.pFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="P To" />
+                                                <Form.Control placeholder="P To" name="pTo" onChange={handleItemInfoChange} value={modalData.pTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -375,10 +547,10 @@ const OemProductDetails = () => {
                                                 K
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="K From" />
+                                                <Form.Control placeholder="K From" name="kFrom" onChange={handleItemInfoChange} value={modalData.kFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="K To" />
+                                                <Form.Control placeholder="K To" name="kTo" onChange={handleItemInfoChange} value={modalData.kTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -386,10 +558,10 @@ const OemProductDetails = () => {
                                                 PH
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="PH From" />
+                                                <Form.Control placeholder="PH From" name="phFrom" onChange={handleItemInfoChange} value={modalData.phFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="PH To" />
+                                                <Form.Control placeholder="PH To" name="phTo" onChange={handleItemInfoChange} value={modalData.phTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -397,10 +569,10 @@ const OemProductDetails = () => {
                                                 Temp
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Temp From" />
+                                                <Form.Control placeholder="Temp From" name="tempFrom" onChange={handleItemInfoChange} value={modalData.tempFrom} maxLength={5} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Temp To" />
+                                                <Form.Control placeholder="Temp To" name="tempTo" onChange={handleItemInfoChange} value={modalData.tempTo} maxLength={5} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -408,10 +580,10 @@ const OemProductDetails = () => {
                                                 EC
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="EC From" />
+                                                <Form.Control placeholder="EC From" name="ecFrom" onChange={handleItemInfoChange} value={modalData.ecFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="EC To" />
+                                                <Form.Control placeholder="EC To" name="ecTo" onChange={handleItemInfoChange} value={modalData.ecTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -419,10 +591,10 @@ const OemProductDetails = () => {
                                                 Organic Carbon
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Organic Carbon From" />
+                                                <Form.Control placeholder="Organic Carbon From" name="organicCarbonFrom" onChange={handleItemInfoChange} value={modalData.organicCarbonFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Organic Carbon To" />
+                                                <Form.Control placeholder="Organic Carbon To" name="organicCarbonTo" onChange={handleItemInfoChange} value={modalData.organicCarbonTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -430,10 +602,10 @@ const OemProductDetails = () => {
                                                 Sulphur
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Sulphur From" />
+                                                <Form.Control placeholder="Sulphur From" name="sulphurFrom" onChange={handleItemInfoChange} value={modalData.sulphurFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Sulphur To" />
+                                                <Form.Control placeholder="Sulphur To" name="sulphurTo" onChange={handleItemInfoChange} value={modalData.sulphurTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -441,10 +613,10 @@ const OemProductDetails = () => {
                                                 Iron
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Iron From" />
+                                                <Form.Control placeholder="Iron From" name="ironFrom" onChange={handleItemInfoChange} value={modalData.ironFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Iron To" />
+                                                <Form.Control placeholder="Iron To" name="ironTo" onChange={handleItemInfoChange} value={modalData.ironTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -452,10 +624,10 @@ const OemProductDetails = () => {
                                                 Zinc
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Zinc From" />
+                                                <Form.Control placeholder="Zinc From" name="zincFrom" onChange={handleItemInfoChange} value={modalData.zincFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Zinc To" />
+                                                <Form.Control placeholder="Zinc To" name="zincTo" onChange={handleItemInfoChange} value={modalData.zincTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -463,10 +635,10 @@ const OemProductDetails = () => {
                                                 Copper
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Copper From" />
+                                                <Form.Control placeholder="Copper From" name="copperFrom" onChange={handleItemInfoChange} value={modalData.copperFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Copper To" />
+                                                <Form.Control placeholder="Copper To" name="copperTo" onChange={handleItemInfoChange} value={modalData.copperTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -474,10 +646,10 @@ const OemProductDetails = () => {
                                                 Boron
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Boron From" />
+                                                <Form.Control placeholder="Boron From" name="boronFrom" onChange={handleItemInfoChange} value={modalData.boronFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Boron To" />
+                                                <Form.Control placeholder="Boron To" name="boronTo" onChange={handleItemInfoChange} value={modalData.boronTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                         <tr>
@@ -485,10 +657,10 @@ const OemProductDetails = () => {
                                                 Manganese
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Manganese From" />
+                                                <Form.Control placeholder="Manganese From" name="manganeseFrom" onChange={handleItemInfoChange} value={modalData.manganeseFrom} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Manganese To" />
+                                                <Form.Control placeholder="Manganese To" name="manganeseTo" onChange={handleItemInfoChange} value={modalData.manganeseTo} maxLength={3} onKeyPress={handleKeyDown} />
                                             </td>
                                         </tr>
                                     </tbody>
@@ -531,7 +703,7 @@ const OemProductDetails = () => {
                     <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
                         <Form
                             noValidate
-                            // validated={formHasError || (farmerError.familyErr && farmerError.familyErr.invalidFamilyDetail)}
+                            validated={formHasError || (oemMasterErr.oemProductDetailsErr && oemMasterErr.oemProductDetailsErr.invalidOemProductDetail)}
                             className="details-form"
                             id="AddOemProductDetailsForm"
                         >
@@ -551,21 +723,6 @@ const OemProductDetails = () => {
                                             <td>
                                                 {index + 1}
                                             </td>
-                                            <td key={index}>
-                                                <Form.Select
-                                                    type="text"
-                                                    name="productLineCode"
-                                                    onChange={(e) => handleFieldChange(e, index)}
-                                                    value={oemProductData.productLineCode}
-                                                    className="form-control"
-                                                    required
-                                                >
-                                                    <option value=''>Select</option>
-                                                    {productLineList.map((option, index) => (
-                                                        <option key={index} value={option.value}>{option.key}</option>
-                                                    ))}
-                                                </Form.Select>
-                                            </td>
 
                                             <td key={index}>
                                                 <Form.Select
@@ -577,8 +734,8 @@ const OemProductDetails = () => {
                                                     required
                                                 >
                                                     <option value=''>Select</option>
-                                                    {productCategoryList[index] && productCategoryList[index].map((option, mapIndex) => (
-                                                        <option key={mapIndex} value={option.value}>{option.key}</option>
+                                                    {productCategoryList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
                                                     ))}
                                                 </Form.Select>
                                             </td>
@@ -601,18 +758,6 @@ const OemProductDetails = () => {
 
                                             <td key={index}>
                                                 <EnlargableTextbox
-                                                    id="txtItem"
-                                                    name="item"
-                                                    value={oemProductData.item}
-                                                    onChange={(e) => handleFieldChange(e, index)}
-                                                    placeholder="Item"
-                                                    maxLength={20}
-                                                />
-                                            </td>
-
-                                            <td key={index}>
-                                                <EnlargableTextbox
-                                                    id="txtVariety"
                                                     name="productVarietyName"
                                                     value={oemProductData.productVarietyName}
                                                     onChange={(e) => handleFieldChange(e, index)}
@@ -623,7 +768,6 @@ const OemProductDetails = () => {
 
                                             <td key={index}>
                                                 <EnlargableTextbox
-                                                    id="txtBrand"
                                                     name="brandName"
                                                     value={oemProductData.brandName}
                                                     onChange={(e) => handleFieldChange(e, index)}
@@ -635,72 +779,77 @@ const OemProductDetails = () => {
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtSeason"
-                                                    name="season"
+                                                    name="productSeasonId"
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={oemProductData.season}
+                                                    value={oemProductData.productSeasonId}
                                                     className="form-control"
                                                 >
                                                     <option value=''>Select</option>
+                                                    {productSeasonList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
                                                 </Form.Select>
                                             </td>
 
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtArea"
                                                     name="area"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={oemProductData.area}
                                                 >
                                                     <option value=''>Select Area</option>
+                                                    <option value='Hill'>Hill</option>
+                                                    <option value='Plain'>Plain</option>
                                                 </Form.Select>
                                             </td>
 
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtSowing"
                                                     name="sowing"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={oemProductData.sowing}
                                                 >
                                                     <option value=''>Select Sowing</option>
+                                                    <option value='Early'>Early</option>
+                                                    <option value='Late'>Late</option>
                                                 </Form.Select>
                                             </td>
 
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtFertilizer"
-                                                    name="fertilizer"
+                                                    name="orgIng"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={oemProductData.fertilizer}
+                                                    value={oemProductData.orgIng}
                                                 >
-                                                    <option value=''>Select Fertilier</option>
+                                                    <option value=''>Select</option>
+                                                    <option value='Organic'>Organic</option>
+                                                    <option value='Inorganic'>Inorganic</option>
                                                 </Form.Select>
                                             </td>
 
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtType"
-                                                    name="type"
+                                                    name="desiHyb"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={oemProductData.type}
+                                                    value={oemProductData.desiHyb}
                                                 >
-                                                    <option value=''>Select Type</option>
+                                                    <option value=''>Select</option>
+                                                    <option value='Desi'>Desi</option>
+                                                    <option value='Hybrid'>Hybrid</option>
                                                 </Form.Select>
                                             </td>
 
                                             <td key={index}>
                                                 <Form.Select
                                                     type="text"
-                                                    id="txtType"
                                                     name="activeStatus"
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
@@ -712,8 +861,9 @@ const OemProductDetails = () => {
                                             </td>
 
                                             <td key={index}>
-                                                <FontAwesomeIcon icon={'plus'} className="fa-2x"
+                                                <FontAwesomeIcon icon={'plus'} className="fa-2x me-2"
                                                     onClick={() => oemDetailModalPreview(index)} />
+                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(oemProductData.encryptedProductVarietyCode) }} />
                                             </td>
                                         </tr>
                                     ))}
