@@ -174,9 +174,9 @@ const OemMaster = () => {
             setFormError(true);
         }
 
-        if(oemProductList && oemProductList.length > 0){
+        if (oemProductList && oemProductList.length > 0) {
             oemProductList.forEach((row, index) => {
-                if(!row.productCategoryCode || !row.productCode){
+                if (!row.productCategoryCode || !row.productCode) {
                     oemProductDetailsErr.invalidOemProductDetail = "Fill the required fields"
                     isValid = false;
                     setFormError(true);
@@ -334,10 +334,7 @@ const OemMaster = () => {
                                 theme: 'colored',
                                 autoClose: 10000
                             });
-                            setModalShow(false);
-                        } else {
-                            clearOemMasterReducers();
-                            updateOemMasterCallback();
+                            hasError = true;
                         }
                     })
             }
@@ -502,9 +499,9 @@ const OemMaster = () => {
                             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         });
                         setIsLoading(false);
-                        if(addResponse.data.status != 200){
+                        if (addResponse.data.status != 200) {
                             toast.error(addResponse.data.message, {
-                                theme:'colored',
+                                theme: 'colored',
                                 autoClose: 10000
                             });
                             hasError = true;
@@ -515,7 +512,7 @@ const OemMaster = () => {
                 }
             }
 
-            if(!hasError){
+            if (!hasError) {
                 clearOemMasterReducers();
                 updateOemMasterCallback();
             }
