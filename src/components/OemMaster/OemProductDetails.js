@@ -711,7 +711,7 @@ const OemProductDetails = () => {
 
             <Card className="h-100 mb-2">
                 <FalconCardHeader
-                    title="OEM Product Details"
+                    title="OEM Product Catalogue"
                     titleTag="h6"
                     className="py-2"
                     light
