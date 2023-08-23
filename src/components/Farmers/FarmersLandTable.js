@@ -76,7 +76,7 @@ export const FarmersLandTable = () => {
 
   useEffect(() => {
     if (unitList.length <= 0) {
-      getUnitList();
+      getUnitList("L");
     }
 
     if (farmerLandDetailsReducer.farmerLandDetails.length > 0) {
@@ -288,9 +288,12 @@ export const FarmersLandTable = () => {
     }
   };
 
-  const getUnitList = async () => {
+  const getUnitList = async (type) => {
 
-    let response = await axios.get(process.env.REACT_APP_API_URL + '/unit-list')
+    let requestData = {
+      UnitType: type
+    }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
     let unitListData = [];
 
     if (response.data.status == 200) {

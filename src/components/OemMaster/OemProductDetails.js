@@ -19,11 +19,14 @@ const OemProductDetails = () => {
     const [productMasterList, setProductMasterList] = useState([]);
     const [modalIndex, setModalIndex] = useState();
     let [modalData, setModalData] = useState({});
-    const [unitList, setUnitList] = useState([]);
+    const [quantityUnitList, setQuantityUnitList] = useState([]);
+    const [daysUnitList, setDaysUnitList] = useState([]);
+    const [landUnitList, setLandUnitList] = useState([]);
     const [productSeasonList, setProductSeasonList] = useState([]);
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
     const [productCategoryDataList, setProductCategoryDataList] = useState([]);
+    const [popupTitle, setPopupTitle] = useState();
 
     const emptyRow = {
         id: rowData.length + 1,
@@ -68,14 +71,27 @@ const OemProductDetails = () => {
         'Add Info'
     ];
 
-    useEffect(() => {
-
-        if (unitList.length <= 0) {
-            getUnitList();
-        }
+    useEffect(() => {        
 
         if (oemProductDetailsReducer.oemProductDetails.length > 0) {
             setRowData(oemProductData);
+            if(oemProductData.map((row, index) => {
+                if(row.seedQty){
+                    getUnitList("W")
+                }
+
+                if(row.maturityDays){
+                    getUnitList("D")
+                }
+
+                if(row.yieldLand){
+                    getUnitList("L")
+                }
+
+                if(row.yieldOutput){
+                    getUnitList("W")
+                }
+            }))
             setTimeout(function () {
                 setProductMasterValue();
             }, 50)
@@ -122,9 +138,10 @@ const OemProductDetails = () => {
         }
     }
 
-    const oemDetailModalPreview = (index) => {
+    const oemDetailModalPreview = (index, varietyName) => {
         setOemModal(true);
         setModalIndex(index)
+        setPopupTitle(varietyName)
         if (oemProductData[index].encryptedProductVarietyCode) {
             setModalData({
                 seedQty: oemProductData[index].seedQty,
@@ -263,9 +280,13 @@ const OemProductDetails = () => {
 
     }
 
-    const getUnitList = async () => {
+    const getUnitList = async (type) => {
 
-        let response = await axios.get(process.env.REACT_APP_API_URL + '/unit-list')
+        let requestData = {
+            UnitType : type
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
         let unitListData = [];
 
         if (response.data.status == 200) {
@@ -276,11 +297,19 @@ const OemProductDetails = () => {
                         value: units.unitCode
                     })
                 })
-                setUnitList(unitListData);
+                if(type == "W"){
+                    setQuantityUnitList(unitListData)
+                }else if(type == "T"){
+                    setDaysUnitList(unitListData)
+                }else if(type == "L"){
+                    setLandUnitList(unitListData)
+                }
             }
         }
         else {
-            setUnitList([]);
+            setQuantityUnitList([]);
+            setDaysUnitList([]);
+            setLandUnitList([]);
         }
     }
 
@@ -409,7 +438,7 @@ const OemProductDetails = () => {
                             className="details-form"
                         >
                             <Row>
-                                <div className="mb-2 d-flex justify-content-center align-items-center">Item - Item Name</div>
+                                <div className="mb-2 d-flex justify-content-center align-items-center">{popupTitle}</div>
                                 <hr></hr>
                                 <Col className="me-3 ms-3 mb-3 mt-2" md="11">
                                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -425,11 +454,12 @@ const OemProductDetails = () => {
                                                 id="txtUnit"
                                                 name="seedUnitCode"
                                                 className="form-control"
+                                                onClick={() => getUnitList("W")}
                                                 onChange={handleItemInfoChange}
                                                 value={modalData.seedUnitCode}
                                             >
                                                 <option value=''>Select</option>
-                                                {unitList.map((option, index) => (
+                                                {quantityUnitList.map((option, index) => (
                                                     <option key={index} value={option.value}>{option.key}</option>
                                                 ))}
                                             </Form.Select>
@@ -449,11 +479,12 @@ const OemProductDetails = () => {
                                                 id="txtUnitDays"
                                                 name="maturityUnitCode"
                                                 className="form-control"
+                                                onClick={() => getUnitList("T")}
                                                 onChange={handleItemInfoChange}
                                                 value={modalData.maturityUnitCode}
                                             >
                                                 <option value=''>Select</option>
-                                                {unitList.map((option, index) => (
+                                                {daysUnitList.map((option, index) => (
                                                     <option key={index} value={option.value}>{option.key}</option>
                                                 ))}
                                             </Form.Select>
@@ -473,11 +504,12 @@ const OemProductDetails = () => {
                                                 id="txtLandUnit"
                                                 name="landUnitCode"
                                                 className="form-control"
+                                                onClick={() => getUnitList("L")}
                                                 onChange={handleItemInfoChange}
                                                 value={modalData.landUnitCode}
                                             >
                                                 <option value=''>Select</option>
-                                                {unitList.map((option, index) => (
+                                                {landUnitList.map((option, index) => (
                                                     <option key={index} value={option.value}>{option.key}</option>
                                                 ))}
                                             </Form.Select>
@@ -497,11 +529,12 @@ const OemProductDetails = () => {
                                                 id="txtYieldOutputUnits"
                                                 name="yieldUnitCode"
                                                 className="form-control"
+                                                onClick={() => getUnitList("W")}
                                                 onChange={handleItemInfoChange}
                                                 value={modalData.yieldUnitCode}
                                             >
                                                 <option value=''>Select</option>
-                                                {unitList.map((option, index) => (
+                                                {quantityUnitList.map((option, index) => (
                                                     <option key={index} value={option.value}>{option.key}</option>
                                                 ))}
                                             </Form.Select>
@@ -862,7 +895,7 @@ const OemProductDetails = () => {
 
                                             <td key={index}>
                                                 <FontAwesomeIcon icon={'plus'} className="fa-2x me-2"
-                                                    onClick={() => oemDetailModalPreview(index)} />
+                                                    onClick={() => oemDetailModalPreview(index, oemProductData.productVarietyName)} />
                                                 <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(oemProductData.encryptedProductVarietyCode) }} />
                                             </td>
                                         </tr>
