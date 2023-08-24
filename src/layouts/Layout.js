@@ -29,6 +29,7 @@ import ProductLine from 'components/ProductLine/ProductLine';
 import MenuDetails from 'components/MenuDetails/MenuDetails';
 import ProductMaster from 'components/ProductMaster/ProductMaster';
 import OemMaster from 'components/OemMaster/OemMaster';
+import VendorMaster from 'components/VendorMaster/VendorMaster';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -95,7 +96,10 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/oem" element={<OemMaster />} />
-        </Route>        
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/vendor" element={<VendorMaster />} />
+        </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>

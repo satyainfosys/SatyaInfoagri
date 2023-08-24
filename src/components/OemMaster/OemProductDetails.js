@@ -101,7 +101,9 @@ const OemProductDetails = () => {
             getProductCategoryList();
         }
 
-        getProductSeason();
+        if(productSeasonList.length <= 0){
+            getProductSeason();
+        }        
     }, [oemProductData, oemProductDetailsReducer])
 
 

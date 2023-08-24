@@ -382,3 +382,17 @@ export const oemProductDetailsAction = (payload) => {
     payload
   };
 };
+
+export const vendorMasterDetailsAction = (payload) => {
+  return {
+    type: 'VENDORMASTERDETAILS',
+    payload
+  };
+};
+
+export const vendorProductCatalogueDetailsAction = (payload) => {
+  return {
+    type: 'VENDORPRODUCTCATALOGUEDETAILS',
+    payload
+  };
+};

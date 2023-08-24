@@ -43,6 +43,8 @@ import AddProductMaster from 'components/ProductMaster/AddProductMaster';
 import ProductVarietyTable from 'components/ProductMaster/ProductVarietyTable';
 import AddOemMasterDetails from 'components/OemMaster/AddOemMasterDetails';
 import OemProductDetails from 'components/OemMaster/OemProductDetails';
+import AddVendorMasterDetail from 'components/VendorMaster/AddVendorMasterDetail';
+import VendorProductCatalogueDetails from 'components/VendorMaster/VendorProductCatalogueDetails';
 
 const TabPage = ({
   listData,
@@ -164,7 +166,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM'
+                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add New Vendor'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -376,6 +378,18 @@ const TabPage = ({
                   </FalconComponentCard>
 
                   <OemProductDetails />
+                </>
+              )}
+
+              {index == 1 && module == 'VendorMaster' && (
+                <>
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddVendorMasterDetail />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <VendorProductCatalogueDetails />
                 </>
               )}
 

@@ -202,6 +202,7 @@ const OemMaster = () => {
         dispatch(oemMasterDetailsErrAction(undefined));
         dispatch(formChangedAction(undefined));
         dispatch(oemProductDetailsAction([]));
+        localStorage.removeItem("DeleteOemProductCatalogueCodes");
     }
 
     const updateOemMasterCallback = (isAddOemMaster = false) => {
