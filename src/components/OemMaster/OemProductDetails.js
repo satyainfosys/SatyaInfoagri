@@ -47,6 +47,9 @@ const OemProductDetails = () => {
         modifyUser: localStorage.getItem("LoginUserName"),
     }
 
+    const oemMasterDetailsReducer = useSelector((state) => state.rootReducer.oemMasterDetailsReducer)
+    var oemMasterData = oemMasterDetailsReducer.oemMasterDetails;
+
     let oemProductDetailsReducer = useSelector((state) => state.rootReducer.oemProductDetailsReducer)
     let oemProductData = oemProductDetailsReducer.oemProductDetails;
 
@@ -432,7 +435,7 @@ const OemProductDetails = () => {
                     backdrop="static"
                 >
                     <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-vcenter">OEM - Amazon</Modal.Title>
+                        <Modal.Title id="contained-modal-title-vcenter">OEM - {oemMasterData.oemName}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="max-five-rows">
                         <Form

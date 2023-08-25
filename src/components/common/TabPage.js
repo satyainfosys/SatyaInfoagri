@@ -166,7 +166,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add New Vendor'
+                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -383,6 +383,7 @@ const TabPage = ({
 
               {index == 1 && module == 'VendorMaster' && (
                 <>
+                  <TabInfoRow />
                   <FalconComponentCard className="no-pb mb-1">
                     <FalconComponentCard.Body language="jsx">
                       <AddVendorMasterDetail />

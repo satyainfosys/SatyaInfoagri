@@ -5,8 +5,9 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
+import { tabInfoAction, vendorProductCatalogueDetailsAction } from 'actions';
 
-const tabArray = ['Vendor List', 'Add New Vendor']
+const tabArray = ['Vendor List', 'Add Vendor']
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
@@ -27,10 +28,18 @@ const VendorMaster = () => {
     const [companyList, setCompanyList] = useState([]);
     const [listData, setListData] = useState([]);
     const [perPage, setPerPage] = useState(15);
+    const [activeTabName, setActiveTabName] = useState();
 
     useEffect(() => {
+        $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
         getCompany();
     }, [])
+
+    const vendorMasterDetailsReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsReducer)
+    var vendorMasterData = vendorMasterDetailsReducer.vendorMasterDetails;
+
+    let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
+    let vendorProductCatalogueList = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
 
     const getCompany = async () => {
         let companyData = [];
@@ -95,6 +104,76 @@ const VendorMaster = () => {
         }
     }
 
+    $('[data-rr-ui-event-key*="Vendor List"]').off('click').on('click', function () {        
+        $("#btnNew").show();
+        $("#btnSave").hide();
+        $("#btnCancel").hide();
+        $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
+        dispatch(vendorProductCatalogueDetailsAction([]));
+    })
+
+    $('[data-rr-ui-event-key*="Add Vendor"]').off('click').on('click', function () {
+        setActiveTabName("Add Vendor")
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+
+        if (vendorProductCatalogueList.length <= 0) {
+            getVendorProductCatalogueList();
+        }
+    })  
+
+    const newDetails = () => {
+        if (localStorage.getItem("EncryptedCompanyCode")) {
+            $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
+            $('#btnSave').attr('disabled', false);
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+        } else {
+            toast.error("Please select company first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
+    }
+
+    const cancelClick = () => {
+        $('#btnExit').attr('isExit', 'false');
+        $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
+    }
+
+    const exitModule = () => {
+        $('#btnExit').attr('isExit', 'true');
+        window.location.href = '/dashboard';
+    }
+
+    // const discardChanges = () => {
+    //     $('#btnDiscard').attr('isDiscard', 'true');
+    //     if ($('#btnExit').attr('isExit') == 'true')
+    //         window.location.href = '/dashboard';
+    //     else {
+    //         $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
+    //     }
+
+    //     setModalShow(false);
+    // }
+
+    const getVendorProductCatalogueList = async () => {
+        const request = {
+            EncryptedVendorCode: localStorage.getItem("EncryptedVendorCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-product-catalogue-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(vendorProductCatalogueDetailsAction(response.data.data));
+            }
+        }
+    }
+
     return (
         <TabPage
             listData={listData}
@@ -102,9 +181,9 @@ const VendorMaster = () => {
             tabArray={tabArray}
             module="VendorMaster"
             // saveDetails={distirbutionCentreData.encryptedDistributionCentreCode ? updateDistributionCentreDetails : addDistributionCentreDetails}
-            // newDetails={newDetails}
-            // cancelClick={cancelClick}
-            // exitModule={exitModule}
+            newDetails={newDetails}
+            cancelClick={cancelClick}
+            exitModule={exitModule}
             tableFilterOptions={companyList}
             tableFilterName={'Company'}
             supportingMethod1={handleFieldChange}

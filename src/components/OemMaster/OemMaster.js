@@ -95,7 +95,7 @@ const OemMaster = () => {
         $("#btnCancel").show();
 
         if (oemProductList.length <= 0 &&
-            !(localStorage.getItem("Delete"))) {
+            !(localStorage.getItem("DeleteOemProductCatalogueCodes"))) {
             getOemProductCatalogueDetails();
         }
     })

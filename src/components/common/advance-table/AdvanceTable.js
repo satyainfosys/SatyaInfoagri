@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -104,6 +104,13 @@ const AdvanceTable = ({
       dispatch(oemMasterDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add OEM"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add OEM"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
+    }
+    else if (rowData.hasOwnProperty('encryptedVendorCode')) {
+      localStorage.setItem('EncryptedVendorCode', rowData.encryptedVendorCode);
+      dispatch(vendorMasterDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
       $('#btnSave').attr('disabled', true);
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
