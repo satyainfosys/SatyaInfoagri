@@ -74,27 +74,27 @@ const OemProductDetails = () => {
         'Add Info'
     ];
 
-    useEffect(() => {        
+    useEffect(() => {
 
         if (oemProductDetailsReducer.oemProductDetails.length > 0) {
             setRowData(oemProductData);
-            if(oemProductData.map((row, index) => {
-                if(row.seedQty){
+            oemProductData.map((row, index) => {
+                if (row.seedQty) {
                     getUnitList("W")
                 }
 
-                if(row.maturityDays){
+                if (row.maturityDays) {
                     getUnitList("D")
                 }
 
-                if(row.yieldLand){
+                if (row.yieldLand) {
                     getUnitList("L")
                 }
 
-                if(row.yieldOutput){
+                if (row.yieldOutput) {
                     getUnitList("W")
                 }
-            }))
+            })
             setTimeout(function () {
                 setProductMasterValue();
             }, 50)
@@ -104,9 +104,9 @@ const OemProductDetails = () => {
             getProductCategoryList();
         }
 
-        if(productSeasonList.length <= 0){
+        if (productSeasonList.length <= 0) {
             getProductSeason();
-        }        
+        }
     }, [oemProductData, oemProductDetailsReducer])
 
 
@@ -288,7 +288,7 @@ const OemProductDetails = () => {
     const getUnitList = async (type) => {
 
         let requestData = {
-            UnitType : type
+            UnitType: type
         }
 
         let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
@@ -302,11 +302,11 @@ const OemProductDetails = () => {
                         value: units.unitCode
                     })
                 })
-                if(type == "W"){
+                if (type == "W") {
                     setQuantityUnitList(unitListData)
-                }else if(type == "T"){
+                } else if (type == "T") {
                     setDaysUnitList(unitListData)
-                }else if(type == "L"){
+                } else if (type == "L") {
                     setLandUnitList(unitListData)
                 }
             }
@@ -359,6 +359,11 @@ const OemProductDetails = () => {
                 oemProductDetailAdd: true
             }))
         }
+    }
+
+    const onModalCancel = () => {
+        setModalData({});
+        setOemModal(false);
     }
 
     const handleKeyDown = (event) => {
@@ -428,7 +433,7 @@ const OemProductDetails = () => {
             {oemModal &&
                 <Modal
                     show={oemModal}
-                    onHide={() => setOemModal(false)}
+                    onHide={() => onModalCancel()}
                     size="md"
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
@@ -709,7 +714,7 @@ const OemProductDetails = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={() => onModalSave()}>Save</Button>
-                        <Button variant="danger" onClick={() => { setOemModal(false) }} >Cancel</Button>
+                        <Button variant="danger" onClick={() => onModalCancel()} >Cancel</Button>
                     </Modal.Footer>
                 </Modal >
             }
