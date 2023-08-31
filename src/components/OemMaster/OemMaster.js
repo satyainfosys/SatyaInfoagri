@@ -123,7 +123,7 @@ const OemMaster = () => {
             window.location.href = '/dashboard';
             clearOemMasterReducers();
             dispatch(oemMasterDetailsAction(undefined));
-            localStorage.removeItem("EncryptedOemMastercode");
+            localStorage.removeItem("EncryptedOemMasterCode");
             localStorage.removeItem("DeleteOemProductCatalogueCodes");
         }
 

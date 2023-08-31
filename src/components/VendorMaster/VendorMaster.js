@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
-import { tabInfoAction, vendorProductCatalogueDetailsAction } from 'actions';
+import { formChangedAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
 
 const tabArray = ['Vendor List', 'Add Vendor']
 
@@ -29,6 +29,8 @@ const VendorMaster = () => {
     const [listData, setListData] = useState([]);
     const [perPage, setPerPage] = useState(15);
     const [activeTabName, setActiveTabName] = useState();
+    const [formHasError, setFormError] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
@@ -40,6 +42,11 @@ const VendorMaster = () => {
 
     let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
     let vendorProductCatalogueList = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const getCompany = async () => {
         let companyData = [];
@@ -104,24 +111,38 @@ const VendorMaster = () => {
         }
     }
 
-    $('[data-rr-ui-event-key*="Vendor List"]').off('click').on('click', function () {        
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
-        dispatch(vendorProductCatalogueDetailsAction([]));
+    $('[data-rr-ui-event-key*="Vendor List"]').off('click').on('click', function () {
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        }
+        else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
+            clearVendorMasterReducers();
+            dispatch(vendorMasterDetailsAction(undefined));
+            localStorage.removeItem("EncryptedVendorCode");
+            localStorage.removeItem("DeleteVendorProductCatalogueCodes");
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Vendor"]').off('click').on('click', function () {
+
         setActiveTabName("Add Vendor")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
 
-        if (vendorProductCatalogueList.length <= 0) {
+        if (vendorProductCatalogueList.length <= 0 &&
+            !(localStorage.getItem("DeleteVendorProductCatalogueCodes"))) {
             getVendorProductCatalogueList();
         }
-    })  
+    })
 
     const newDetails = () => {
         if (localStorage.getItem("EncryptedCompanyCode")) {
@@ -139,24 +160,38 @@ const VendorMaster = () => {
 
     const cancelClick = () => {
         $('#btnExit').attr('isExit', 'false');
-        $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
+        }
     }
 
     const exitModule = () => {
         $('#btnExit').attr('isExit', 'true');
-        window.location.href = '/dashboard';
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+            clearVendorMasterReducers();
+            dispatch(vendorMasterDetailsAction(undefined));
+            localStorage.removeItem("EncryptedVendorMasterCode");
+            localStorage.removeItem("DeleteVendorProductCatalogueCodes");
+            localStorage.removeItem("EncryptedCompanyCode");
+            localStorage.removeItem("CompanyName");
+        }
     }
 
-    // const discardChanges = () => {
-    //     $('#btnDiscard').attr('isDiscard', 'true');
-    //     if ($('#btnExit').attr('isExit') == 'true')
-    //         window.location.href = '/dashboard';
-    //     else {
-    //         $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
-    //     }
+    const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else {
+            $('[data-rr-ui-event-key*="Vendor List"]').trigger('click');
+        }
 
-    //     setModalShow(false);
-    // }
+        setModalShow(false);
+    }
 
     const getVendorProductCatalogueList = async () => {
         const request = {
@@ -174,20 +209,219 @@ const VendorMaster = () => {
         }
     }
 
+    const clearVendorMasterReducers = () => {
+        dispatch(formChangedAction(undefined))
+        dispatch(vendorProductCatalogueDetailsAction([]));
+        dispatch(vendorMasterDetailsErrAction(undefined));
+        localStorage.removeItem("DeleteVendorProductCatalogueCodes");
+    }
+
+    const vendorMasterValidation = () => {
+        setModalShow(false);
+
+        const vendorNameErr = {};
+        const countryCodeErr = {};
+        const stateCodeErr = {};
+        const panNoErr = {};
+        const gstNoErr = {};
+        const vendorProductCatalogueDetailErr = {};
+
+        let isValid = true;
+
+        if (!vendorMasterData.vendorName) {
+            vendorNameErr.empty = "Enter vendor name";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!vendorMasterData.countryCode) {
+            countryCodeErr.empty = "Select country";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!vendorMasterData.stateCode) {
+            stateCodeErr.empty = "Select state";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (vendorMasterData.vendorGstNo &&
+            !(/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ][0-9a-zA-Z]{1}$/.test(vendorMasterData.vendorGstNo))) {
+            gstNoErr.gstNoInvalid = "Enter valid GST number";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (vendorMasterData.vendorPanNo &&
+            !(/^[a-zA-Z]{3}[abcfghljptABCFGHLJPT][a-zA-Z][0-9]{4}[a-zA-Z]$/.test(vendorMasterData.vendorPanNo))) {
+            panNoErr.panNoInvalid = "Enter valid PAN number";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (vendorProductCatalogueList && vendorProductCatalogueList.length > 0) {
+            vendorProductCatalogueList.forEach((row, index) => {
+                if (!row.validFrom || !row.validTo) {
+                    vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail = "Fill the required fields"
+                    isValid = false;
+                    setFormError(true);
+                }
+            })
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                vendorNameErr,
+                countryCodeErr,
+                stateCodeErr,
+                panNoErr,
+                gstNoErr,
+                vendorProductCatalogueDetailErr
+            }
+            dispatch(vendorMasterDetailsErrAction(errorObject))
+        }
+
+        return isValid;
+    }
+
+    const updateVendorMasterCallback = (isAddVendorMaster = false) => {
+        setModalShow(false);
+
+        if (!isAddVendorMaster) {
+            toast.success("Vendor detail updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearVendorMasterReducers();
+
+        fetchVendorMasterList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addVendorMasterDetails = () => {
+        if (vendorMasterValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorName: vendorMasterData.vendorName,
+                vendorType: vendorMasterData.vendorType && vendorMasterData.vendorType == "Seed Supplier" ? "SS" : vendorMasterData.vendorType == "Transporter" ? "TR" : vendorMasterData.vendorType == "Input Supplier" ? "IS" : vendorMasterData.vendorType == "Machinery Supplier" ? "MS" : vendorMasterData.vendorType == "Seedling Supplier" ? "SD" : "",
+                vendorAddress: vendorMasterData.vendorAddress ? vendorMasterData.vendorAddress : "",
+                vendorPincode: vendorMasterData.vendorPincode ? vendorMasterData.vendorPincode : "",
+                countryCode: vendorMasterData.countryCode,
+                stateCode: vendorMasterData.stateCode,
+                vendorGstNo: vendorMasterData.vendorGstNo ? vendorMasterData.vendorGstNo : "",
+                vendorPanNo: vendorMasterData.vendorPanNo ? vendorMasterData.vendorPanNo : "",
+                vendorTinNo: vendorMasterData.vendorTinNo ? vendorMasterData.vendorTinNo : "",
+                vendorWebsite: vendorMasterData.vendorWebsite ? vendorMasterData.vendorWebsite : "",
+                vendorRating: vendorMasterData.vendorRating ? vendorMasterData.vendorRating : "",
+                activeStatus: vendorMasterData.status == null || vendorMasterData.status == "Active" ? "A" : "S",
+                vendorProductCatalogueDetails: vendorProductCatalogueList,
+                addUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ["vendorName", "vendorAddress", "vendorGstNo", "vendorPanNo", "addUser"]
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+            }
+
+            const vendorProductCatalogueKeys = ["addUser"]
+            var index = 0;
+            for (var obj in requestData.vendorProductCatalogueDetails) {
+                var vendorProductCatalogueDetailObj = requestData.vendorProductCatalogueDetails[obj];
+
+                for (const key of Object.keys(vendorProductCatalogueDetailObj).filter((key) => vendorProductCatalogueKeys.includes(key))) {
+                    vendorProductCatalogueDetailObj[key] = vendorProductCatalogueDetailObj[key] ? vendorProductCatalogueDetailObj[key].toUpperCase() : "";
+                }
+                requestData.vendorProductCatalogueDetails[index] = vendorProductCatalogueDetailObj;
+                index++;
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-vendor-master-detail', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(vendorMasterDetailsAction({
+                                ...vendorMasterData,
+                                encryptedVendorCode: res.data.data.encryptedVendorCode,
+                                vendorCode: res.data.data.vendorCode
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedVendorCode", res.data.data.encryptedVendorCode);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateVendorMasterCallback(true);
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
+
+    // const updateVendorMasterDetails = async() => {
+
+    // }
+
     return (
-        <TabPage
-            listData={listData}
-            listColumnArray={listColumnArray}
-            tabArray={tabArray}
-            module="VendorMaster"
-            // saveDetails={distirbutionCentreData.encryptedDistributionCentreCode ? updateDistributionCentreDetails : addDistributionCentreDetails}
-            newDetails={newDetails}
-            cancelClick={cancelClick}
-            exitModule={exitModule}
-            tableFilterOptions={companyList}
-            tableFilterName={'Company'}
-            supportingMethod1={handleFieldChange}
-        />
+        <>
+            {isLoading ? (
+                <Spinner
+                    className="position-absolute start-50 loader-color"
+                    animation="border"
+                />
+            ) : null}
+
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Do you want to save changes?</h5>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {/* <Button variant="success" onClick={oemMasterData.encryptedOemMasterCode ? updateOemMasterDetails : addOemMasterDetails}>Save</Button> */}
+                        <Button variant="success" onClick={addVendorMasterDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
+            <TabPage
+                listData={listData}
+                listColumnArray={listColumnArray}
+                tabArray={tabArray}
+                module="VendorMaster"
+                saveDetails={addVendorMasterDetails}
+                newDetails={newDetails}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
+                tableFilterOptions={companyList}
+                tableFilterName={'Company'}
+                supportingMethod1={handleFieldChange}
+            />
+        </>
     )
 }
 

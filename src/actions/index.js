@@ -396,3 +396,10 @@ export const vendorProductCatalogueDetailsAction = (payload) => {
     payload
   };
 };
+
+export const vendorMasterDetailsErrAction = (payload) => {
+  return {
+    type: 'VENDORMASTERDETAILSERROR',
+    payload
+  };
+};

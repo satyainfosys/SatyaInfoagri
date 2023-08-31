@@ -19,6 +19,9 @@ export const VendorProductCatalogueDetails = () => {
     const [oemProductCatalogueModal, setOemProductCatalogueModal] = useState(false);
     const [quantityUnitList, setQuantityUnitList] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [modalData, setModalData] = useState({});
+    const [modalShow, setModalShow] = useState(false);
+    const [paramsData, setParamsData] = useState({});
 
     const emptyRow = {
         id: rowData.length + 1,
@@ -47,6 +50,9 @@ export const VendorProductCatalogueDetails = () => {
     let oemProductDetailsReducer = useSelector((state) => state.rootReducer.oemProductDetailsReducer)
     let oemProductList = oemProductDetailsReducer.oemProductDetails;
 
+    const vendorMasterDetailsErrorReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsErrorReducer)
+    const vendorMasterErr = vendorMasterDetailsErrorReducer.vendorMasterDetailsError;
+
     const columnsArray = [
         'S.No',
         'Product Category',
@@ -69,12 +75,15 @@ export const VendorProductCatalogueDetails = () => {
     useEffect(() => {
         if (vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.length > 0) {
             setRowData(vendorProductCatalogueData);
-
+            setSelectedRows([]);
             vendorProductCatalogueData.map((row, index) => {
                 if (row.quantity) {
                     getUnitList("W")
                 }
             })
+        } else {
+            setRowData([]);
+            setSelectedRows([]);
         }
     }, [vendorProductCatalogueData, vendorProductCatalogueDetailsReducer])
 
@@ -85,8 +94,46 @@ export const VendorProductCatalogueDetails = () => {
         }
     }
 
-    const oemProductCatalogueModalPreview = async () => {
+    const oemProductCatalogueModalPreview = async (index) => {
         setOemProductCatalogueModal(true);
+        if (vendorProductCatalogueData && vendorProductCatalogueData[index].encryptedProductVarietyCode) {
+            setModalData({
+                seedQuantity: vendorProductCatalogueData[index].seedQuantity,
+                seedUnitCode: vendorProductCatalogueData[index].seedUnitCode,
+                maturityDays: vendorProductCatalogueData[index].maturityDays,
+                maturityUnitCode: vendorProductCatalogueData[index].maturityUnitCode,
+                yieldLand: vendorProductCatalogueData[index].yieldLand,
+                landUnitCode: vendorProductCatalogueData[index].landUnitCode,
+                yieldOutput: vendorProductCatalogueData[index].yieldOutput,
+                yieldUnitCode: vendorProductCatalogueData[index].yieldUnitCode,
+                nFrom: vendorProductCatalogueData[index].nFrom,
+                nTo: vendorProductCatalogueData[index].nTo,
+                pFrom: vendorProductCatalogueData[index].pFrom,
+                pTo: vendorProductCatalogueData[index].pTo,
+                kFrom: vendorProductCatalogueData[index].kFrom,
+                kTo: vendorProductCatalogueData[index].kTo,
+                phFrom: vendorProductCatalogueData[index].phFrom,
+                phTo: vendorProductCatalogueData[index].phTo,
+                tempFrom: vendorProductCatalogueData[index].tempFrom,
+                tempTo: vendorProductCatalogueData[index].tempTo,
+                ecFrom: vendorProductCatalogueData[index].ecFrom,
+                ecTo: vendorProductCatalogueData[index].ecTo,
+                organicCarbonFrom: vendorProductCatalogueData[index].organicCarbonFrom,
+                organicCarbonTo: vendorProductCatalogueData[index].organicCarbonTo,
+                sulphurFrom: vendorProductCatalogueData[index].sulphurFrom,
+                sulphurTo: vendorProductCatalogueData[index].sulphurTo,
+                ironFrom: vendorProductCatalogueData[index].ironFrom,
+                ironTo: vendorProductCatalogueData[index].ironTo,
+                zincFrom: vendorProductCatalogueData[index].zincFrom,
+                zincTo: vendorProductCatalogueData[index].zincTo,
+                copperFrom: vendorProductCatalogueData[index].copperFrom,
+                copperTo: vendorProductCatalogueData[index].copperTo,
+                boronFrom: vendorProductCatalogueData[index].boronFrom,
+                boronTo: vendorProductCatalogueData[index].boronTo,
+                manganeseFrom: vendorProductCatalogueData[index].manganeseFrom,
+                manganeseTo: vendorProductCatalogueData[index].manganeseTo
+            })
+        }
     }
 
     const getUnitList = async (type) => {
@@ -161,12 +208,78 @@ export const VendorProductCatalogueDetails = () => {
     };
 
     const handleSelectedItem = () => {
-        dispatch(vendorProductCatalogueDetailsAction(selectedRows));
-        // setSelectedRows([]);
+        const uniqueSelectedRows = selectedRows.filter(item => !vendorProductCatalogueData.includes(item));
+        const updatedData = vendorProductCatalogueData.concat(uniqueSelectedRows);
+        dispatch(vendorProductCatalogueDetailsAction(updatedData));
+        dispatch(formChangedAction({
+            ...formChangedData,
+            vendorProductCatalogueDetailAdd: true
+        }))
+        setOemModal(false);
+    }
+
+    const handleSearchChange = (e) => {
+        getOemCatalogueMasterList(e.target.value);
+    }
+
+    const ModalPreview = (encryptedVendorProductCatalogueCode) => {
+        setModalShow(true);
+        setParamsData({ encryptedVendorProductCatalogueCode });
+    }
+
+    const deleteVendorProductCatalogueDetails = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.findIndex(x => x.encryptedVendorProductCatalogueCode == paramsData.encryptedVendorProductCatalogueCode);
+        vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.splice(objectIndex, 1)
+
+        var deleteVendorProductCatalogueCode = localStorage.getItem("DeleteVendorProductCatalogueCodes");
+
+        if (paramsData.encryptedVendorProductCatalogueCode) {
+            var deleteVendorProductCatalogueDetail = deleteVendorProductCatalogueCode ? deleteVendorProductCatalogueCode + "," + paramsData.encryptedVendorProductCatalogueCode : paramsData.encryptedVendorProductCatalogueCode;
+            localStorage.setItem("DeleteVendorProductCatalogueCodes", deleteVendorProductCatalogueDetail);
+        }
+
+        toast.success("Vendor product catalogue details deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueData));
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            vendorProductCatalogueDetailDelete: true
+        }))
+
+        setModalShow(false);
     }
 
     return (
         <>
+
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this vendor product catalogue detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteVendorProductCatalogueDetails()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             {oemModal &&
                 <Modal
                     show={oemModal}
@@ -188,7 +301,7 @@ export const VendorProductCatalogueDetails = () => {
                                             Search
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search" onChange={handleSearchChange} maxLength={45} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -251,14 +364,13 @@ export const VendorProductCatalogueDetails = () => {
             {oemProductCatalogueModal &&
                 <Modal
                     show={oemProductCatalogueModal}
-                    onHide={() => setOemProductCatalogueModal(false)}
+                    onHide={() => { setOemProductCatalogueModal(false), setModalData({}) }}
                     size="md"
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
                     backdrop="static"
                 >
                     <Modal.Header closeButton>
-                        {/* <Modal.Title id="contained-modal-title-vcenter">OEM - Amazon</Modal.Title> */}
                     </Modal.Header>
                     <Modal.Body className="max-five-rows">
                         <Form
@@ -272,22 +384,10 @@ export const VendorProductCatalogueDetails = () => {
                                             Qty
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtQty" name="seedQty" placeholder="Quantity" disabled />
+                                            <Form.Control id="txtQty" name="seedQuantity" placeholder="Quantity" value={modalData.seedQuantity} disabled />
                                         </Col>
                                         <Col sm="4">
-                                            <Form.Control id="txtQty" name="seedUnitCode" placeholder="Unit" disabled />
-                                        </Col>
-                                    </Form.Group>
-
-                                    <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="3">
-                                            Maturity Days
-                                        </Form.Label>
-                                        <Col sm="4">
-                                            <Form.Control id="txtNoOfDays" name="maturityDays" placeholder="Maturity Days" disabled />
-                                        </Col>
-                                        <Col sm="4">
-                                            <Form.Control id="txtUnitDays" name="maturityUnitCode" placeholder="Unit" disabled />
+                                            <Form.Control id="txtQty" name="seedUnitCode" placeholder="Unit" value={modalData.seedUnitCode} disabled />
                                         </Col>
                                     </Form.Group>
 
@@ -296,22 +396,34 @@ export const VendorProductCatalogueDetails = () => {
                                             Maturity Days
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtYieldLand" name="yieldLand" placeholder="Yield Land" disabled />
+                                            <Form.Control id="txtNoOfDays" name="maturityDays" placeholder="Maturity Days" value={modalData.maturityDays} disabled />
                                         </Col>
                                         <Col sm="4">
-                                            <Form.Control id="txtLandUnit" name="landUnitCode" placeholder="Unit" disabled />
+                                            <Form.Control id="txtUnitDays" name="maturityUnitCode" placeholder="Unit" value={modalData.maturityUnitCode} disabled />
                                         </Col>
                                     </Form.Group>
 
                                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                         <Form.Label column sm="3">
-                                            Maturity Days
+                                            Yield Land
                                         </Form.Label>
                                         <Col sm="4">
-                                            <Form.Control id="txtYieldOutput" name="yieldOutput" placeholder="Yield Output" disabled />
+                                            <Form.Control id="txtYieldLand" name="yieldLand" placeholder="Yield Land" value={modalData.yieldLand} disabled />
                                         </Col>
                                         <Col sm="4">
-                                            <Form.Control id="txtYieldOutputUnits" name="yieldUnitCode" placeholder="Unit" disabled />
+                                            <Form.Control id="txtLandUnit" name="landUnitCode" placeholder="Unit" value={modalData.landUnitCode} disabled />
+                                        </Col>
+                                    </Form.Group>
+
+                                    <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                        <Form.Label column sm="3">
+                                            Yield Output
+                                        </Form.Label>
+                                        <Col sm="4">
+                                            <Form.Control id="txtYieldOutput" name="yieldOutput" placeholder="Yield Output" value={modalData.yieldOutput} disabled />
+                                        </Col>
+                                        <Col sm="4">
+                                            <Form.Control id="txtYieldOutputUnits" name="yieldUnitCode" placeholder="Unit" value={modalData.yieldUnitCode} disabled />
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -332,10 +444,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 N
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="N From" name="nFrom" disabled />
+                                                <Form.Control placeholder="N From" name="nFrom" value={modalData.nFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="N To" name="nTo" disabled />
+                                                <Form.Control placeholder="N To" name="nTo" value={modalData.nTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -343,10 +455,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 P
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="P From" name="pFrom" disabled />
+                                                <Form.Control placeholder="P From" name="pFrom" value={modalData.pFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="P To" name="pTo" disabled />
+                                                <Form.Control placeholder="P To" name="pTo" value={modalData.pTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -354,10 +466,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 K
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="K From" name="kFrom" disabled />
+                                                <Form.Control placeholder="K From" name="kFrom" value={modalData.kFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="K To" name="kTo" disabled />
+                                                <Form.Control placeholder="K To" name="kTo" value={modalData.kTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -365,10 +477,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 PH
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="PH From" name="phFrom" disabled />
+                                                <Form.Control placeholder="PH From" name="phFrom" value={modalData.phFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="PH To" name="phTo" disabled />
+                                                <Form.Control placeholder="PH To" name="phTo" value={modalData.phTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -376,10 +488,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Temp
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Temp From" name="tempFrom" disabled />
+                                                <Form.Control placeholder="Temp From" name="tempFrom" value={modalData.tempFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Temp To" name="tempTo" disabled />
+                                                <Form.Control placeholder="Temp To" name="tempTo" value={modalData.tempTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -387,10 +499,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 EC
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="EC From" name="ecFrom" disabled />
+                                                <Form.Control placeholder="EC From" name="ecFrom" value={modalData.ecFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="EC To" name="ecTo" disabled />
+                                                <Form.Control placeholder="EC To" name="ecTo" value={modalData.ecTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -398,10 +510,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Organic Carbon
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Organic Carbon From" name="organicCarbonFrom" disabled />
+                                                <Form.Control placeholder="Organic Carbon From" name="organicCarbonFrom" value={modalData.organicCarbonFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Organic Carbon To" name="organicCarbonTo" disabled />
+                                                <Form.Control placeholder="Organic Carbon To" name="organicCarbonTo" value={modalData.organicCarbonTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -409,10 +521,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Sulphur
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Sulphur From" name="sulphurFrom" disabled />
+                                                <Form.Control placeholder="Sulphur From" name="sulphurFrom" value={modalData.sulphurFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Sulphur To" name="sulphurTo" disabled />
+                                                <Form.Control placeholder="Sulphur To" name="sulphurTo" value={modalData.sulphurTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -420,10 +532,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Iron
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Iron From" name="ironFrom" disabled />
+                                                <Form.Control placeholder="Iron From" name="ironFrom" value={modalData.ironFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Iron To" name="ironTo" disabled />
+                                                <Form.Control placeholder="Iron To" name="ironTo" value={modalData.ironTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -431,10 +543,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Zinc
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Zinc From" name="zincFrom" disabled />
+                                                <Form.Control placeholder="Zinc From" name="zincFrom" value={modalData.zincFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Zinc To" name="zincTo" disabled />
+                                                <Form.Control placeholder="Zinc To" name="zincTo" value={modalData.zincTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -442,10 +554,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Copper
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Copper From" name="copperFrom" disabled />
+                                                <Form.Control placeholder="Copper From" name="copperFrom" value={modalData.copperFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Copper To" name="copperTo" disabled />
+                                                <Form.Control placeholder="Copper To" name="copperTo" value={modalData.copperTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -453,10 +565,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Boron
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Boron From" name="boronFrom" disabled />
+                                                <Form.Control placeholder="Boron From" name="boronFrom" value={modalData.boronFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Boron To" name="boronTo" disabled />
+                                                <Form.Control placeholder="Boron To" name="boronTo" value={modalData.boronTo} disabled />
                                             </td>
                                         </tr>
                                         <tr>
@@ -464,10 +576,10 @@ export const VendorProductCatalogueDetails = () => {
                                                 Manganese
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Manganese From" name="manganeseFrom" disabled />
+                                                <Form.Control placeholder="Manganese From" name="manganeseFrom" value={modalData.manganeseFrom} disabled />
                                             </td>
                                             <td>
-                                                <Form.Control placeholder="Manganese To" name="manganeseTo" disabled />
+                                                <Form.Control placeholder="Manganese To" name="manganeseTo" value={modalData.manganeseTo} disabled />
                                             </td>
                                         </tr>
                                     </tbody>
@@ -501,179 +613,181 @@ export const VendorProductCatalogueDetails = () => {
                         </Flex>
                     }
                 />
-                <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-                    <Form
-                        noValidate
-                        // validated={formHasError || (oemMasterErr.oemProductDetailsErr && oemMasterErr.oemProductDetailsErr.invalidOemProductDetail)}
-                        validated={formHasError}
-                        className="details-form"
-                        id="AddVendorProductCatalogueDetailsForm"
-                    >
-                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                            <thead className='custom-bg-200'>
-                                {rowData && <tr>
-                                    {columnsArray.map((column, index) => (
-                                        <th className="text-left" key={index}>
-                                            {column}
-                                        </th>
+                {
+                    vendorProductCatalogueData && vendorProductCatalogueData.length > 0 &&
+                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                        <Form
+                            noValidate
+                            validated={vendorMasterErr.vendorProductCatalogueDetailErr && vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail}
+                            className="details-form"
+                            id="AddVendorProductCatalogueDetailsForm"
+                        >
+                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                <thead className='custom-bg-200'>
+                                    {rowData && <tr>
+                                        {columnsArray.map((column, index) => (
+                                            <th className="text-left" key={index}>
+                                                {column}
+                                            </th>
+                                        ))}
+                                    </tr>}
+                                </thead>
+                                <tbody id="tbody" className="details-form">
+                                    {rowData.map((vendorProductCatalogueData, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                {index + 1}
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="productCategoryName"
+                                                    value={vendorProductCatalogueData.productCategoryName}
+                                                    placeholder="Product Category"
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="productName"
+                                                    value={vendorProductCatalogueData.productName}
+                                                    placeholder="Product"
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="varietyName"
+                                                    value={vendorProductCatalogueData.varietyName}
+                                                    placeholder="Variety"
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="brandName"
+                                                    value={vendorProductCatalogueData.brandName}
+                                                    placeholder="Brand"
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="season"
+                                                    value={vendorProductCatalogueData.season}
+                                                    placeholder="Season"
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="quantity"
+                                                    value={vendorProductCatalogueData.quantity}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="Quantity"
+                                                    maxLength={5}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    name="unitCode"
+                                                    className="form-control"
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={vendorProductCatalogueData.unitCode}
+                                                >
+                                                    <option value=''>Select </option>
+                                                    {quantityUnitList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="vendorRate"
+                                                    value={vendorProductCatalogueData.vendorRate}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="Vendor Rate"
+                                                    maxLength={13}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="vendorAmount"
+                                                    value={vendorProductCatalogueData.vendorAmount}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="Amount"
+                                                    maxLength={13}
+                                                />
+                                            </td>
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="oemRate"
+                                                    value={vendorProductCatalogueData.oemRate}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    placeholder="OEM Rate"
+                                                    maxLength={13}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Control
+                                                    type='date'
+                                                    name="validFrom"
+                                                    placeholder="Select date"
+                                                    value={vendorProductCatalogueData.validFrom ? Moment(vendorProductCatalogueData.validFrom).format("YYYY-MM-DD") : ""}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    required
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Control
+                                                    type='date'
+                                                    name="validTo"
+                                                    placeholder="Select date"
+                                                    value={vendorProductCatalogueData.validTo ? Moment(vendorProductCatalogueData.validTo).format("YYYY-MM-DD") : ""}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    required
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    name="activeStatus"
+                                                    className="form-control"
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={vendorProductCatalogueData.activeStatus}
+                                                >
+                                                    <option value="Active">Active</option>
+                                                    <option value="Suspended">Suspended</option>
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorProductCatalogueData.encryptedVendorProductCatalogueCode) }} />
+                                            </td>
+
+                                            <td key={index}>
+                                                <FontAwesomeIcon icon={'plus'} className="fa-2x me-2"
+                                                    onClick={() => oemProductCatalogueModalPreview(index)} />
+                                            </td>
+                                        </tr>
                                     ))}
-                                </tr>}
-                            </thead>
-                            <tbody id="tbody" className="details-form">
-                                {rowData.map((vendorProductCatalogueData, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {index + 1}
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="productCategoryName"
-                                                value={vendorProductCatalogueData.productCategoryName}
-                                                placeholder="Product Category"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="productName"
-                                                value={vendorProductCatalogueData.productName}
-                                                placeholder="Product"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="varietyName"
-                                                value={vendorProductCatalogueData.varietyName}
-                                                placeholder="Variety"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="brandName"
-                                                value={vendorProductCatalogueData.brandName}
-                                                placeholder="Brand"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="season"
-                                                value={vendorProductCatalogueData.season}
-                                                placeholder="Season"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="quantity"
-                                                value={vendorProductCatalogueData.quantity}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="Quantity"
-                                                maxLength={5}
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="unitCode"
-                                                className="form-control"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={vendorProductCatalogueData.unitCode}
-                                            >
-                                                <option value=''>Select </option>
-                                                {quantityUnitList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
-                                            </Form.Select>
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="vendorRate"
-                                                value={vendorProductCatalogueData.vendorRate}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="Vendor Rate"
-                                                maxLength={13}
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="vendorAmount"
-                                                value={vendorProductCatalogueData.vendorAmount}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="Amount"
-                                                maxLength={13}
-                                            />
-                                        </td>
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="oemRate"
-                                                value={vendorProductCatalogueData.oemRate}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="OEM Rate"
-                                                maxLength={13}
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Control
-                                                type='date'
-                                                name="validFrom"
-                                                placeholder="Select date"
-                                                value={Moment(vendorProductCatalogueData.validFrom).format("YYYY-MM-DD")}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                required
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Control
-                                                type='date'
-                                                name="validTo"
-                                                placeholder="Select date"
-                                                value={Moment(vendorProductCatalogueData.validTo).format("YYYY-MM-DD")}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                required
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="activeStatus"
-                                                className="form-control"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={vendorProductCatalogueData.activeStatus}
-                                            >
-                                                <option value="Active">Active</option>
-                                                <option value="Suspended">Suspended</option>
-                                            </Form.Select>
-                                        </td>
-
-                                        <td key={index}>
-                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" />
-                                        </td>
-
-                                        <td key={index}>
-                                            <FontAwesomeIcon icon={'plus'} className="fa-2x me-2"
-                                                onClick={() => oemProductCatalogueModalPreview(vendorProductCatalogueData.encryptedOemProductCatalogueCode)} />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    </Form>
-                </Card.Body>
+                                </tbody>
+                            </Table>
+                        </Form>
+                    </Card.Body>
+                }
             </Card>
         </>
 

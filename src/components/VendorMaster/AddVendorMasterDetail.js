@@ -3,6 +3,7 @@ import { Col, Form, Row } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import $ from "jquery";
+import { formChangedAction, vendorMasterDetailsAction } from 'actions';
 
 export const AddVendorMasterDetail = () => {
 
@@ -10,6 +11,39 @@ export const AddVendorMasterDetail = () => {
   const dispatch = useDispatch();
   const [countryList, setCountryList] = useState([]);
   const [stateList, setStateList] = useState([]);
+
+  const resetVendorMasterDetails = () => {
+    dispatch(vendorMasterDetailsAction({
+      'encryptedVendorCode': '',
+      'vendorCode': '',
+      'vendorName': '',
+      'vendorType': '',
+      'vendorAddress': '',
+      'vendorPincode': '',
+      'countryCode': '',
+      'stateCode': '',
+      'vendorGstNo': '',
+      'vendorPanNo': '',
+      'vendorTinNo': '',
+      'vendorWebsite': '',
+      'vendorRating': '',
+      'status': 'Active'
+    }))
+  }
+
+  const vendorMasterDetailsReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsReducer)
+  var vendorMasterData = vendorMasterDetailsReducer.vendorMasterDetails;
+
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
+  const vendorMasterDetailsErrorReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsErrorReducer)
+  const vendorMasterErr = vendorMasterDetailsErrorReducer.vendorMasterDetailsError;
+
+  if (!vendorMasterDetailsReducer.vendorMasterDetails ||
+    Object.keys(vendorMasterDetailsReducer.vendorMasterDetails).length <= 0) {
+    resetVendorMasterDetails();
+  }
 
   useEffect(() => {
     getCountries();
@@ -56,8 +90,41 @@ export const AddVendorMasterDetail = () => {
     }
   }
 
-  const vendorMasterDetailsReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsReducer)
-  var vendorMasterData = vendorMasterDetailsReducer.vendorMasterDetails;
+  if (vendorMasterData.stateCode &&
+    !$('#txtStateName').val()) {
+    getStates(vendorMasterData.countryCode);
+  }
+
+  const handleFieldChange = e => {
+    if (e.target.name == 'countryCode') {
+      dispatch(vendorMasterDetailsAction({
+        ...vendorMasterData,
+        countryCode: e.target.value,
+        stateCode: null
+      }))
+      setStateList([]);
+
+      e.target.value && getStates(e.target.value);
+    }
+    else {
+      dispatch(vendorMasterDetailsAction({
+        ...vendorMasterData,
+        [e.target.name]: e.target.value
+      }))
+    }
+
+    if (vendorMasterData.encryptedVendorCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        vendorMasterDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        vendorMasterDetailAdd: true
+      }))
+    }
+  }
 
   return (
     <Form noValidate validated={formHasError} className="details-form" id='AddVendorMasterDetails'>
@@ -68,10 +135,13 @@ export const AddVendorMasterDetail = () => {
               Vendor Name<span className="text-danger">*</span>
             </Form.Label>
             <Col sm="2">
-              <Form.Control id="txtVendorCode" name="vendorCode" value={vendorMasterData.vendorCode}  placeholder="Code" disabled />
+              <Form.Control id="txtVendorCode" name="vendorCode" value={vendorMasterData.vendorCode} placeholder="Code" disabled />
             </Col>
             <Col sm="7">
-              <Form.Control id="txtVendorName" name="vendorName" value={vendorMasterData.vendorName} maxLength={45} placeholder="Vendor Name" />
+              <Form.Control id="txtVendorName" name="vendorName" value={vendorMasterData.vendorName} onChange={handleFieldChange} maxLength={45} placeholder="Vendor Name" />
+              {Object.keys(vendorMasterErr.vendorNameErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.vendorNameErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
 
@@ -80,7 +150,7 @@ export const AddVendorMasterDetail = () => {
               Type
             </Form.Label>
             <Col sm="9">
-              <Form.Select id="txtVendorType" name="vendorType" value={vendorMasterData.vendorType} >
+              <Form.Select id="txtVendorType" name="vendorType" value={vendorMasterData.vendorType} onChange={handleFieldChange} >
                 <option value=''>Select Type</option>
                 <option value='Seed Supplier'>Seed Supplier</option>
                 <option value='Transporter'>Transporter</option>
@@ -96,7 +166,7 @@ export const AddVendorMasterDetail = () => {
               Address
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtAddress" as='textarea' name="vendorAddress" value={vendorMasterData.vendorAddress} maxLength={100} placeholder="Vendor Address" rows="4" />
+              <Form.Control id="txtAddress" as='textarea' name="vendorAddress" value={vendorMasterData.vendorAddress} onChange={handleFieldChange} maxLength={100} placeholder="Vendor Address" rows="4" />
             </Col>
           </Form.Group>
 
@@ -105,7 +175,7 @@ export const AddVendorMasterDetail = () => {
               Pincode
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorPincode" name="vendorPincode" value={vendorMasterData.vendorPincode} maxLength={8} placeholder="Pincode" />
+              <Form.Control id="txtVendorPincode" name="vendorPincode" value={vendorMasterData.vendorPincode} onChange={handleFieldChange} maxLength={8} placeholder="Pincode" />
             </Col>
           </Form.Group>
 
@@ -114,12 +184,15 @@ export const AddVendorMasterDetail = () => {
               Country<span className="text-danger">*</span>
             </Form.Label>
             <Col sm="9">
-              <Form.Select id="txtCountry" name="countryCode" value={vendorMasterData.countryCode} required>
+              <Form.Select id="txtCountry" name="countryCode" value={vendorMasterData.countryCode} onChange={handleFieldChange} required>
                 <option value=''>Select Country</option>
                 {countryList.map((option, index) => (
                   <option key={index} value={option.value}>{option.key}</option>
                 ))}
               </Form.Select>
+              {Object.keys(vendorMasterErr.countryCodeErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.countryCodeErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
 
@@ -128,12 +201,15 @@ export const AddVendorMasterDetail = () => {
               State<span className="text-danger">*</span>
             </Form.Label>
             <Col sm="9">
-              <Form.Select id="txtStateName" name="stateCode" value={vendorMasterData.stateCode} >
+              <Form.Select id="txtStateName" name="stateCode" value={vendorMasterData.stateCode} onChange={handleFieldChange} >
                 <option value="">Select State</option>
                 {stateList.map((option, index) => (
                   <option key={index} value={option.value}>{option.key}</option>
                 ))}
               </Form.Select>
+              {Object.keys(vendorMasterErr.stateCodeErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.stateCodeErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
         </Col>
@@ -144,7 +220,10 @@ export const AddVendorMasterDetail = () => {
               Gst No
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorGstNo" name="vendorGstNo" value={vendorMasterData.vendorGstNo} maxLength={20} placeholder="GST No" />
+              <Form.Control id="txtVendorGstNo" name="vendorGstNo" value={vendorMasterData.vendorGstNo} onChange={handleFieldChange} maxLength={20} placeholder="GST No" />
+              {Object.keys(vendorMasterErr.gstNoErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.gstNoErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
 
@@ -153,7 +232,10 @@ export const AddVendorMasterDetail = () => {
               Pan No
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorPanNo" name="vendorPanNo" value={vendorMasterData.vendorPanNo} maxLength={15} placeholder="PAN No" />
+              <Form.Control id="txtVendorPanNo" name="vendorPanNo" value={vendorMasterData.vendorPanNo} onChange={handleFieldChange} maxLength={15} placeholder="PAN No" />
+              {Object.keys(vendorMasterErr.panNoErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.panNoErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
 
@@ -162,7 +244,7 @@ export const AddVendorMasterDetail = () => {
               Tin No
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorTinNo" name="vendorTinNo" value={vendorMasterData.vendorTinNo} maxLength={15} placeholder="TIN No" />
+              <Form.Control id="txtVendorTinNo" name="vendorTinNo" value={vendorMasterData.vendorTinNo} onChange={handleFieldChange} maxLength={15} placeholder="TIN No" />
             </Col>
           </Form.Group>
 
@@ -171,7 +253,7 @@ export const AddVendorMasterDetail = () => {
               Website
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorWebsite" name="vendorWebsite" value={vendorMasterData.vendorWebsite} maxLength={30} placeholder="Website" />
+              <Form.Control id="txtVendorWebsite" name="vendorWebsite" value={vendorMasterData.vendorWebsite} onChange={handleFieldChange} maxLength={30} placeholder="Website" />
             </Col>
           </Form.Group>
 
@@ -180,7 +262,7 @@ export const AddVendorMasterDetail = () => {
               Rating
             </Form.Label>
             <Col sm="9">
-              <Form.Control id="txtVendorRating" name="vendorRating" value={vendorMasterData.vendorRating} maxLength={1} placeholder="Rating" />
+              <Form.Control id="txtVendorRating" name="vendorRating" value={vendorMasterData.vendorRating} onChange={handleFieldChange} maxLength={1} placeholder="Rating" />
             </Col>
           </Form.Group>
 
@@ -189,7 +271,7 @@ export const AddVendorMasterDetail = () => {
               Status
             </Form.Label>
             <Col sm="9">
-              <Form.Select id="txtStatus" name="status" value={vendorMasterData.status} >
+              <Form.Select id="txtStatus" name="status" value={vendorMasterData.status} onChange={handleFieldChange} >
                 <option value="Active">Active</option>
                 <option value="Suspended">Suspended</option>
               </Form.Select>
