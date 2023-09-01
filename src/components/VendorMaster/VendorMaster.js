@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
 import { formChangedAction, oemProductDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
+import Moment from "moment";
 
 const tabArray = ['Vendor List', 'Add Vendor']
 
@@ -453,6 +454,44 @@ const VendorMaster = () => {
                             deleteVendorProductCatalogueDetailsIndex++
                         }
                     }
+                }
+
+                for (let i = 0; i < vendorProductCatalogueList.length; i++) {
+                    const vendorProductCatalogueDetail = vendorProductCatalogueList[i];
+
+                    const keys = ['modifyUser']
+                    for (const key of Object.keys(vendorProductCatalogueDetail).filter((key) => keys.includes(key))) {
+                        vendorProductCatalogueDetail[key] = vendorProductCatalogueDetail[key] ? vendorProductCatalogueDetail[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.vendorProductCatalogueDetailUpdate && vendorProductCatalogueDetail.encryptedVendorProductCatalogueCode) {
+                        const requestData = {
+                            encryptedVendorProductCatalogueCode: vendorProductCatalogueDetail.encryptedVendorProductCatalogueCode,
+                            oemRate: vendorProductCatalogueDetail.oemRate ? parseFloat(vendorProductCatalogueDetail.oemRate) : 0,
+                            vendorRate: vendorProductCatalogueDetail.vendorRate ? parseFloat(vendorProductCatalogueDetail.vendorRate) : 0,
+                            quantity: vendorProductCatalogueDetail.quantity ? parseFloat(vendorProductCatalogueDetail.quantity) : 0,
+                            unitCode: vendorProductCatalogueDetail.unitCode ? parseInt(vendorProductCatalogueDetail.unitCode) : 0,
+                            validFrom: Moment(vendorProductCatalogueDetail.validFrom).format("YYYY-MM-DD"),
+                            validTo: Moment(vendorProductCatalogueDetail.validTo).format("YYYY-MM-DD"),
+                            activeStatus: !vendorProductCatalogueDetail.activeStatus || vendorProductCatalogueDetail.activeStatus == "Active" ? "A" : "S",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-vendor-product-catalogue-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    vendorProductCatalogueDetailIndex++
                 }
             }
 
