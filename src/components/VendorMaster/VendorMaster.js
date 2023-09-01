@@ -290,7 +290,7 @@ const VendorMaster = () => {
         setModalShow(false);
 
         if (!isAddVendorMaster) {
-            toast.success("Vendor detail updated successfully", {
+            toast.success("Vendor details updated successfully", {
                 time: 'colored'
             })
         }
@@ -425,7 +425,36 @@ const VendorMaster = () => {
                     })
             }
 
-            var vendorProductCatalogueDetailIndex = 1;            
+            var vendorProductCatalogueDetailIndex = 1;
+
+            //VendorProductCatalogueDetail ADD, UPDATE, DELETE
+            if (!hasError && (formChangedData.vendorProductCatalogueDetailUpdate ||
+                formChangedData.vendorProductCatalogueDetailAdd || formChangedData.vendorProductCatalogueDetailDelete)) {
+
+                if (!hasError && formChangedData.vendorProductCatalogueDetailDelete) {
+                    var deleteVendorProductCatalogueDetailsList = deleteVendorProductCatalogueCodes ? deleteVendorProductCatalogueCodes.split(',') : null;
+                    if (deleteVendorProductCatalogueDetailsList) {
+                        var deleteVendorProductCatalogueDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteVendorProductCatalogueDetailsList.length; i++) {
+                            const deleteVendorProductCatalogueDetailCode = deleteVendorProductCatalogueDetailsList[i];
+                            const data = { encryptedVendorProductCatalogueCode: deleteVendorProductCatalogueDetailCode }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-vendor-product-catalogue-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deleteVendorProductCatalogueDetailsIndex++
+                        }
+                    }
+                }
+            }
 
             if (!hasError) {
                 clearVendorMasterReducers();
