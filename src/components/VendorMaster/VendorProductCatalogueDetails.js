@@ -86,7 +86,7 @@ export const VendorProductCatalogueDetails = () => {
             setSelectedRows([]);
         }
 
-        if(oemProductDetailsReducer.oemProductDetails.length <= 0){
+        if (oemProductDetailsReducer.oemProductDetails.length <= 0) {
             getOemCatalogueMasterList();
         }
     }, [vendorProductCatalogueData, vendorProductCatalogueDetailsReducer])
@@ -174,6 +174,13 @@ export const VendorProductCatalogueDetails = () => {
         })
 
         dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
+
+        if (vendorProductCatalogueDetail[index].quantity && vendorProductCatalogueDetail[index].vendorRate) {
+            vendorProductCatalogueDetail[index].vendorAmount = parseFloat(vendorProductCatalogueDetail[index].quantity) * parseFloat(vendorProductCatalogueDetail[index].vendorRate)
+            dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
+        }else{
+            vendorProductCatalogueDetail[index].vendorAmount = 0
+        }
 
         if (vendorProductCatalogueDetail[index].encryptedVendorProductCatalogueCode) {
             dispatch(formChangedAction({
