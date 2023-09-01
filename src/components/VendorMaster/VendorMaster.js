@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
-import { formChangedAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
+import { formChangedAction, oemProductDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
 
 const tabArray = ['Vendor List', 'Add Vendor']
 
@@ -126,6 +126,7 @@ const VendorMaster = () => {
             $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
             clearVendorMasterReducers();
             dispatch(vendorMasterDetailsAction(undefined));
+            dispatch(oemProductDetailsAction([]));
             localStorage.removeItem("EncryptedVendorCode");
             localStorage.removeItem("DeleteVendorProductCatalogueCodes");
         }
@@ -372,9 +373,66 @@ const VendorMaster = () => {
         }
     }
 
-    // const updateVendorMasterDetails = async() => {
+    const updateVendorMasterDetails = async () => {
+        if (vendorMasterValidation()) {
+            if (!formChangedData.vendorMasterDetailUpdate &&
+                !(formChangedData.vendorProductCatalogueDetailUpdate ||
+                    formChangedData.vendorProductCatalogueDetailAdd || formChangedData.vendorProductCatalogueDetailDelete)) {
+                return;
+            }
 
-    // }
+            var deleteVendorProductCatalogueCodes = localStorage.getItem("DeleteVendorProductCatalogueCodes")
+
+            const updateRequestData = {
+                encryptedVendorCode: localStorage.getItem("EncryptedVendorCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorName: vendorMasterData.vendorName,
+                vendorType: vendorMasterData.vendorType && vendorMasterData.vendorType == "Seed Supplier" ? "SS" : vendorMasterData.vendorType == "Transporter" ? "TR" : vendorMasterData.vendorType == "Input Supplier" ? "IS" : vendorMasterData.vendorType == "Machinery Supplier" ? "MS" : vendorMasterData.vendorType == "Seedling Supplier" ? "SD" : "",
+                vendorAddress: vendorMasterData.vendorAddress ? vendorMasterData.vendorAddress : "",
+                vendorPincode: vendorMasterData.vendorPincode ? vendorMasterData.vendorPincode : "",
+                countryCode: vendorMasterData.countryCode,
+                stateCode: vendorMasterData.stateCode,
+                vendorGstNo: vendorMasterData.vendorGstNo ? vendorMasterData.vendorGstNo : "",
+                vendorPanNo: vendorMasterData.vendorPanNo ? vendorMasterData.vendorPanNo : "",
+                vendorTinNo: vendorMasterData.vendorTinNo ? vendorMasterData.vendorTinNo : "",
+                vendorWebsite: vendorMasterData.vendorWebsite ? vendorMasterData.vendorWebsite : "",
+                vendorRating: vendorMasterData.vendorRating ? vendorMasterData.vendorRating : "",
+                activeStatus: vendorMasterData.status == null || vendorMasterData.status == "Active" ? "A" : "S",
+                modifyUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ["vendorName", "vendorAddress", "vendorGstNo", "vendorPanNo", "modifyUser"]
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : '';
+            }
+
+            var hasError = false;
+
+            if (formChangedData.vendorMasterDetailUpdate) {
+                setIsLoading(true)
+                await axios.post(process.env.REACT_APP_API_URL + '/update-vendor-master-detail', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        }
+                    })
+            }
+
+            var vendorProductCatalogueDetailIndex = 1;            
+
+            if (!hasError) {
+                clearVendorMasterReducers();
+                updateVendorMasterCallback();
+            }
+        }
+    }
 
     return (
         <>
@@ -401,8 +459,7 @@ const VendorMaster = () => {
                         <h5>Do you want to save changes?</h5>
                     </Modal.Body>
                     <Modal.Footer>
-                        {/* <Button variant="success" onClick={oemMasterData.encryptedOemMasterCode ? updateOemMasterDetails : addOemMasterDetails}>Save</Button> */}
-                        <Button variant="success" onClick={addVendorMasterDetails}>Save</Button>
+                        <Button variant="success" onClick={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}>Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -413,7 +470,7 @@ const VendorMaster = () => {
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="VendorMaster"
-                saveDetails={addVendorMasterDetails}
+                saveDetails={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}

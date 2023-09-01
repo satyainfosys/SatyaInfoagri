@@ -85,6 +85,10 @@ export const VendorProductCatalogueDetails = () => {
             setRowData([]);
             setSelectedRows([]);
         }
+
+        if(oemProductDetailsReducer.oemProductDetails.length <= 0){
+            getOemCatalogueMasterList();
+        }
     }, [vendorProductCatalogueData, vendorProductCatalogueDetailsReducer])
 
     const handleAddItem = async () => {
