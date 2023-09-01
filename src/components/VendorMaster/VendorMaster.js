@@ -491,6 +491,37 @@ const VendorMaster = () => {
                             break;
                         }
                     }
+                    else if (!hasError && formChangedData.vendorProductCatalogueDetailAdd && !vendorProductCatalogueDetail.encryptedVendorProductCatalogueCode) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedVendorCode: localStorage.getItem("EncryptedVendorCode"),
+                            encryptedProductMasterCode: vendorProductCatalogueDetail.encryptedProductMasterCode,
+                            encryptedProductVarietyCode: vendorProductCatalogueDetail.encryptedProductVarietyCode,
+                            oemRate: vendorProductCatalogueDetail.oemRate ? vendorProductCatalogueDetail.oemRate : "",
+                            vendorRate: vendorProductCatalogueDetail.vendorRate ? vendorProductCatalogueDetail.vendorRate : "",
+                            vendorAmount: vendorProductCatalogueDetail.vendorAmount ? vendorProductCatalogueDetail.vendorAmount : "",
+                            quantity: vendorProductCatalogueDetail.quantity ? vendorProductCatalogueDetail.quantity : "",
+                            unitCode: vendorProductCatalogueDetail.unitCode ? vendorProductCatalogueDetail.unitCode : "",
+                            validFrom: Moment(vendorProductCatalogueDetail.validFrom).format("YYYY-MM-DD"),
+                            validTo: Moment(vendorProductCatalogueDetail.validTo).format("YYYY-MM-DD"),
+                            activeStatus: vendorProductCatalogueDetail.activeStatus,
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-vendor-product-catalogue-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
                     vendorProductCatalogueDetailIndex++
                 }
             }
