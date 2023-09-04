@@ -98,44 +98,47 @@ export const VendorProductCatalogueDetails = () => {
         }
     }
 
-    const oemProductCatalogueModalPreview = async (index) => {
+    const oemProductCatalogueModalPreview = async (index, oemProductCatalogueCode) => {
         setOemProductCatalogueModal(true);
-        if (vendorProductCatalogueData && vendorProductCatalogueData[index].encryptedProductVarietyCode) {
+
+        const oemProductData = oemProductList.find(item => item.oemProductCatalogueCode === oemProductCatalogueCode);
+
+        if (oemProductData !== null) {
             setModalData({
-                seedQuantity: vendorProductCatalogueData[index].seedQuantity,
-                seedUnitCode: vendorProductCatalogueData[index].seedUnitCode,
-                maturityDays: vendorProductCatalogueData[index].maturityDays,
-                maturityUnitCode: vendorProductCatalogueData[index].maturityUnitCode,
-                yieldLand: vendorProductCatalogueData[index].yieldLand,
-                landUnitCode: vendorProductCatalogueData[index].landUnitCode,
-                yieldOutput: vendorProductCatalogueData[index].yieldOutput,
-                yieldUnitCode: vendorProductCatalogueData[index].yieldUnitCode,
-                nFrom: vendorProductCatalogueData[index].nFrom,
-                nTo: vendorProductCatalogueData[index].nTo,
-                pFrom: vendorProductCatalogueData[index].pFrom,
-                pTo: vendorProductCatalogueData[index].pTo,
-                kFrom: vendorProductCatalogueData[index].kFrom,
-                kTo: vendorProductCatalogueData[index].kTo,
-                phFrom: vendorProductCatalogueData[index].phFrom,
-                phTo: vendorProductCatalogueData[index].phTo,
-                tempFrom: vendorProductCatalogueData[index].tempFrom,
-                tempTo: vendorProductCatalogueData[index].tempTo,
-                ecFrom: vendorProductCatalogueData[index].ecFrom,
-                ecTo: vendorProductCatalogueData[index].ecTo,
-                organicCarbonFrom: vendorProductCatalogueData[index].organicCarbonFrom,
-                organicCarbonTo: vendorProductCatalogueData[index].organicCarbonTo,
-                sulphurFrom: vendorProductCatalogueData[index].sulphurFrom,
-                sulphurTo: vendorProductCatalogueData[index].sulphurTo,
-                ironFrom: vendorProductCatalogueData[index].ironFrom,
-                ironTo: vendorProductCatalogueData[index].ironTo,
-                zincFrom: vendorProductCatalogueData[index].zincFrom,
-                zincTo: vendorProductCatalogueData[index].zincTo,
-                copperFrom: vendorProductCatalogueData[index].copperFrom,
-                copperTo: vendorProductCatalogueData[index].copperTo,
-                boronFrom: vendorProductCatalogueData[index].boronFrom,
-                boronTo: vendorProductCatalogueData[index].boronTo,
-                manganeseFrom: vendorProductCatalogueData[index].manganeseFrom,
-                manganeseTo: vendorProductCatalogueData[index].manganeseTo
+                seedQuantity: oemProductData.seedQuantity,
+                seedUnitCode: oemProductData.seedUnitCode,
+                maturityDays: oemProductData.maturityDays,
+                maturityUnitCode: oemProductData.maturityUnitCode,
+                yieldLand: oemProductData.yieldLand,
+                landUnitCode: oemProductData.landUnitCode,
+                yieldOutput: oemProductData.yieldOutput,
+                yieldUnitCode: oemProductData.yieldUnitCode,
+                nFrom: oemProductData.nFrom,
+                nTo: oemProductData.nTo,
+                pFrom: oemProductData.pFrom,
+                pTo: oemProductData.pTo,
+                kFrom: oemProductData.kFrom,
+                kTo: oemProductData.kTo,
+                phFrom: oemProductData.phFrom,
+                phTo: oemProductData.phTo,
+                tempFrom: oemProductData.tempFrom,
+                tempTo: oemProductData.tempTo,
+                ecFrom: oemProductData.ecFrom,
+                ecTo: oemProductData.ecTo,
+                organicCarbonFrom: oemProductData.organicCarbonFrom,
+                organicCarbonTo: oemProductData.organicCarbonTo,
+                sulphurFrom: oemProductData.sulphurFrom,
+                sulphurTo: oemProductData.sulphurTo,
+                ironFrom: oemProductData.ironFrom,
+                ironTo: oemProductData.ironTo,
+                zincFrom: oemProductData.zincFrom,
+                zincTo: oemProductData.zincTo,
+                copperFrom: oemProductData.copperFrom,
+                copperTo: oemProductData.copperTo,
+                boronFrom: oemProductData.boronFrom,
+                boronTo: oemProductData.boronTo,
+                manganeseFrom: oemProductData.manganeseFrom,
+                manganeseTo: oemProductData.manganeseTo
             })
         }
     }
@@ -176,9 +179,10 @@ export const VendorProductCatalogueDetails = () => {
         dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
 
         if (vendorProductCatalogueDetail[index].quantity && vendorProductCatalogueDetail[index].vendorRate) {
-            vendorProductCatalogueDetail[index].vendorAmount = parseFloat(vendorProductCatalogueDetail[index].quantity) * parseFloat(vendorProductCatalogueDetail[index].vendorRate)
+            const calculatedAmount = parseFloat(vendorProductCatalogueDetail[index].quantity) * parseFloat(vendorProductCatalogueDetail[index].vendorRate)
+            vendorProductCatalogueDetail[index].vendorAmount = calculatedAmount.toString();
             dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
-        }else{
+        } else {
             vendorProductCatalogueDetail[index].vendorAmount = 0
         }
 
@@ -737,6 +741,7 @@ export const VendorProductCatalogueDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Amount"
                                                     maxLength={13}
+                                                    disabled
                                                 />
                                             </td>
                                             <td key={index}>
@@ -790,7 +795,7 @@ export const VendorProductCatalogueDetails = () => {
 
                                             <td key={index}>
                                                 <FontAwesomeIcon icon={'plus'} className="fa-2x me-2"
-                                                    onClick={() => oemProductCatalogueModalPreview(index)} />
+                                                    onClick={() => oemProductCatalogueModalPreview(index, vendorProductCatalogueData.oemProductCatalogueCode)} />
                                             </td>
                                         </tr>
                                     ))}
@@ -805,4 +810,4 @@ export const VendorProductCatalogueDetails = () => {
     )
 }
 
-export default VendorProductCatalogueDetails
+export default VendorProductCatalogueDetails;

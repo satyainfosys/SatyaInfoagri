@@ -384,8 +384,8 @@ const OemMaster = () => {
                             productLineCode: oemProductDetail.productLineCode,
                             productCategoryCode: oemProductDetail.productCategoryCode,
                             productCode: oemProductDetail.productCode,
-                            productVarietyName: oemProductDetail.productVarietyName,
-                            brandName: oemProductDetail.brandName,
+                            productVarietyName: oemProductDetail.productVarietyName ? oemProductDetail.productVarietyName : "",
+                            brandName: oemProductDetail.brandName ? oemProductDetail.brandName : "",
                             productSeasonId: oemProductDetail.productSeasonId ? oemProductDetail.productSeasonId : "",
                             nFrom: oemProductDetail.nFrom ? oemProductDetail.nFrom : "",
                             nTo: oemProductDetail.nTo ? oemProductDetail.nTo : "",
@@ -507,6 +507,11 @@ const OemMaster = () => {
                             });
                             hasError = true;
                             break;
+                        } else {
+                            // dispatch(oemProductDetailsAction({
+                            //     ...oemProductList
+                            // }))
+
                         }
                     }
                     oemProductCatalogueDetailIndex++

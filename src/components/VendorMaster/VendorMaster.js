@@ -467,6 +467,11 @@ const VendorMaster = () => {
                     if (!hasError && formChangedData.vendorProductCatalogueDetailUpdate && vendorProductCatalogueDetail.encryptedVendorProductCatalogueCode) {
                         const requestData = {
                             encryptedVendorProductCatalogueCode: vendorProductCatalogueDetail.encryptedVendorProductCatalogueCode,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            oemProductCatalogueCode: vendorProductCatalogueDetail.oemProductCatalogueCode,
+                            productCode: vendorProductCatalogueDetail.productCode,
+                            vendorCode: vendorProductCatalogueDetail.vendorCode,
                             oemRate: vendorProductCatalogueDetail.oemRate ? parseFloat(vendorProductCatalogueDetail.oemRate) : 0,
                             vendorRate: vendorProductCatalogueDetail.vendorRate ? parseFloat(vendorProductCatalogueDetail.vendorRate) : 0,
                             quantity: vendorProductCatalogueDetail.quantity ? parseFloat(vendorProductCatalogueDetail.quantity) : 0,
