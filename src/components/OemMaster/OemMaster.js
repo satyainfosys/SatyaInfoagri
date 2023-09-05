@@ -351,8 +351,8 @@ const OemMaster = () => {
                         var deleteOemProductCatalogueDetailsIndex = 1;
 
                         for (let i = 0; i < deleteOemProductCatalogueDetailsList.length; i++) {
-                            const deletePemProductCatalogueDetailCode = deleteOemProductCatalogueDetailsList[i];
-                            const data = { encryptedProductVarietyCode: deletePemProductCatalogueDetailCode }
+                            const deleteOemProductCatalogueDetailCode = deleteOemProductCatalogueDetailsList[i];
+                            const data = { encryptedProductVarietyCode: deleteOemProductCatalogueDetailCode }
                             const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
 
                             const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-oem-product-catalogue-details', { headers, data });
@@ -363,6 +363,10 @@ const OemMaster = () => {
                                 });
                                 hasError = true;
                                 break;
+                            } else {
+                                deleteOemProductCatalogueDetailsList.splice(i, 1);
+                                var updatedDeleteList = deleteOemProductCatalogueDetailsList.join(',');
+                                localStorage.setItem("DeleteOemProductCatalogueCodes", updatedDeleteList)
                             }
                             deleteOemProductCatalogueDetailsIndex++
                         }
@@ -508,10 +512,14 @@ const OemMaster = () => {
                             hasError = true;
                             break;
                         } else {
-                            // dispatch(oemProductDetailsAction({
-                            //     ...oemProductList
-                            // }))
 
+                            const updatedOemProductList = [...oemProductList];
+                            updatedOemProductList[i] = {
+                                ...updatedOemProductList[i],
+                                encryptedProductVarietyCode: addResponse.data.data.encryptedProductVarietyCode
+                            };
+
+                            dispatch(oemProductDetailsAction(updatedOemProductList));
                         }
                     }
                     oemProductCatalogueDetailIndex++
