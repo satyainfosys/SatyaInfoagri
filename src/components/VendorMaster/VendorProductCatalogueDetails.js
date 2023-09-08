@@ -23,24 +23,6 @@ export const VendorProductCatalogueDetails = () => {
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
 
-    const emptyRow = {
-        id: rowData.length + 1,
-        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-        encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-        encryptedVendorCode: localStorage.getItem("EncryptedVendorCode"),
-        encryptedProductMasterCode: localStorage.getItem("EncryptedProductMasterCode"),
-        encryptedOemProductCatalogueCode: localStorage.getItem("EncryptedOemProductCatalogueCode"),
-        quantity: '',
-        unitCode: '',
-        oemRate: '',
-        companyRate: '',
-        validFrom: '',
-        validTo: '',
-        activeStatus: '',
-        addUser: localStorage.getItem("LoginUserName"),
-        modifyUser: localStorage.getItem("LoginUserName"),
-    }
-
     let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
     let vendorProductCatalogueData = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
 
@@ -171,10 +153,10 @@ export const VendorProductCatalogueDetails = () => {
     const handleFieldChange = (e, index) => {
         const { name, value } = e.target;
         var vendorProductCatalogueDetail = [...rowData];
-        vendorProductCatalogueDetail[index][name] = value;
-        vendorProductCatalogueDetail = Object.keys(rowData).map(key => {
-            return rowData[key];
-        })
+        vendorProductCatalogueDetail[index] = {
+            ...vendorProductCatalogueDetail[index],
+            [name]: value,
+        };
 
         dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
 
@@ -183,7 +165,7 @@ export const VendorProductCatalogueDetails = () => {
             vendorProductCatalogueDetail[index].vendorAmount = calculatedAmount.toString();
             dispatch(vendorProductCatalogueDetailsAction(vendorProductCatalogueDetail))
         } else {
-            vendorProductCatalogueDetail[index].vendorAmount = 0
+            vendorProductCatalogueDetail[index].vendorAmount = "0"
         }
 
         if (vendorProductCatalogueDetail[index].encryptedVendorProductCatalogueCode) {
@@ -223,13 +205,13 @@ export const VendorProductCatalogueDetails = () => {
     };
 
     const handleSelectedItem = () => {
-        const uniqueSelectedRows = selectedRows.filter(item => !vendorProductCatalogueData.includes(item));
-        const updatedData = vendorProductCatalogueData.concat(uniqueSelectedRows);
+        const updatedData = vendorProductCatalogueData.concat(selectedRows);
         dispatch(vendorProductCatalogueDetailsAction(updatedData));
         dispatch(formChangedAction({
             ...formChangedData,
             vendorProductCatalogueDetailAdd: true
         }))
+
         setOemModal(false);
     }
 

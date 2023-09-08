@@ -71,7 +71,7 @@ const VendorMaster = () => {
             }
             setCompanyList(companyData)
             if (companyResponse.data.data.length == 1) {
-                fetchDistributionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                fetchVendorMasterList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
             }
@@ -450,6 +450,10 @@ const VendorMaster = () => {
                                 });
                                 hasError = true;
                                 break;
+                            } else {
+                                deleteVendorProductCatalogueDetailsList.splice(i, 1);
+                                var updatedDeleteList = deleteVendorProductCatalogueDetailsList.join(',');
+                                localStorage.setItem("DeleteVendorProductCatalogueCodes", updatedDeleteList)
                             }
                             deleteVendorProductCatalogueDetailsIndex++
                         }
@@ -525,6 +529,14 @@ const VendorMaster = () => {
                             });
                             hasError = true;
                             break;
+                        } else {
+                            const updatedVendorProductCatalogueList = [...vendorProductCatalogueList];
+                            updatedVendorProductCatalogueList[i] = {
+                                ...updatedVendorProductCatalogueList[i],
+                                encryptedVendorProductCatalogueCode: addResponse.data.data.encryptedVendorProductCatalogueCode
+                            };
+
+                            dispatch(vendorProductCatalogueDetailsAction(updatedVendorProductCatalogueList));
                         }
                     }
                     vendorProductCatalogueDetailIndex++

@@ -201,6 +201,7 @@ export const CollectionCentre = () => {
             setCompanyList(companyData)
             if(companyResponse.data.data.length == 1){
                 fetchCollectionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
             }
