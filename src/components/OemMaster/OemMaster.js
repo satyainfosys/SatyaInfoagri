@@ -363,10 +363,6 @@ const OemMaster = () => {
                                 });
                                 hasError = true;
                                 break;
-                            } else {
-                                deleteOemProductCatalogueDetailsList.splice(i, 1);
-                                var updatedDeleteList = deleteOemProductCatalogueDetailsList.join(',');
-                                localStorage.setItem("DeleteOemProductCatalogueCodes", updatedDeleteList)
                             }
                             deleteOemProductCatalogueDetailsIndex++
                         }

@@ -450,10 +450,6 @@ const VendorMaster = () => {
                                 });
                                 hasError = true;
                                 break;
-                            } else {
-                                deleteVendorProductCatalogueDetailsList.splice(i, 1);
-                                var updatedDeleteList = deleteVendorProductCatalogueDetailsList.join(',');
-                                localStorage.setItem("DeleteVendorProductCatalogueCodes", updatedDeleteList)
                             }
                             deleteVendorProductCatalogueDetailsIndex++
                         }
