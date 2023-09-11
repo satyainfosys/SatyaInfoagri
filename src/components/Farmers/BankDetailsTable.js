@@ -66,13 +66,7 @@ export const BankDetailsTable = () => {
   };
 
   const getBankDetailList = async () => {
-    const request = {
-      EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
-    }
-
-    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-bank-details-list', request, {
-      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    })
+    let response = await axios.get(process.env.REACT_APP_API_URL + '/get-bank-details-list')
     let bankListData = [];
 
     if (response.data.status == 200) {
@@ -223,14 +217,14 @@ export const BankDetailsTable = () => {
           }
         />
         {
-              bankDetailData && bankDetailData.length > 0 &&
-        <Card.Body className="position-relative pb-0 p3px full-tab-card-body">
-          <Form
-            noValidate
-            validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
-            className="details-form"
-            id="AddFarmersBankTableDetailsForm"
-          >
+          bankDetailData && bankDetailData.length > 0 &&
+          <Card.Body className="position-relative pb-0 p3px full-tab-card-body">
+            <Form
+              noValidate
+              validated={formHasError || (farmerError.bankDetailErr.invalidBankDetail)}
+              className="details-form"
+              id="AddFarmersBankTableDetailsForm"
+            >
               <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                 <thead className='custom-bg-200'>
                   <tr>
@@ -338,14 +332,14 @@ export const BankDetailsTable = () => {
                         </Form.Select>
                       </td>
                       <td>
-                      <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
+                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(bankDetailData.encryptedFarmerBankId, bankDetailData.bankAccount) }} />
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
-          </Form>
-        </Card.Body>
+            </Form>
+          </Card.Body>
         }
       </Card>
     </>

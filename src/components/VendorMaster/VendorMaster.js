@@ -226,6 +226,7 @@ const VendorMaster = () => {
         const stateCodeErr = {};
         const panNoErr = {};
         const gstNoErr = {};
+        const websiteErr = {};
         const vendorProductCatalogueDetailErr = {};
 
         let isValid = true;
@@ -262,12 +263,28 @@ const VendorMaster = () => {
             setFormError(true);
         }
 
+        if (vendorMasterData.vendorWebsite &&
+            !(/^(ftp|http|https):\/\/[^ "]+$/.test(vendorMasterData.vendorWebsite))) {
+            websiteErr.webSiteInvalid = "Enter valid website";
+            isValid = false;
+            setFormError(true);
+        }
+
         if (vendorProductCatalogueList && vendorProductCatalogueList.length > 0) {
             vendorProductCatalogueList.forEach((row, index) => {
                 if (!row.validFrom || !row.validTo) {
                     vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail = "Fill the required fields"
                     isValid = false;
                     setFormError(true);
+                }
+
+                if(row.validFrom > row.validTo){
+                    vendorProductCatalogueDetailErr.invalidDate = "From Date cannot be greater than To Date"
+                    isValid = false;
+                    setFormError(true);
+                    toast.error(vendorProductCatalogueDetailErr.invalidDate, {
+                        theme: 'colored'
+                    });
                 }
             })
         }
@@ -279,6 +296,7 @@ const VendorMaster = () => {
                 stateCodeErr,
                 panNoErr,
                 gstNoErr,
+                websiteErr,
                 vendorProductCatalogueDetailErr
             }
             dispatch(vendorMasterDetailsErrAction(errorObject))

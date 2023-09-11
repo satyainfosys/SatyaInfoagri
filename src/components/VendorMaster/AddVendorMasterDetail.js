@@ -254,6 +254,9 @@ export const AddVendorMasterDetail = () => {
             </Form.Label>
             <Col sm="9">
               <Form.Control id="txtVendorWebsite" name="vendorWebsite" value={vendorMasterData.vendorWebsite} onChange={handleFieldChange} maxLength={30} placeholder="Website" />
+              {Object.keys(vendorMasterErr.websiteErr).map((key) => {
+                return <span className="error-message">{vendorMasterErr.websiteErr[key]}</span>
+              })}
             </Col>
           </Form.Group>
 

@@ -183,6 +183,14 @@
     .big-card-body{
         min-height: 365px;
     }
+
+    .select{
+        width: 110px !important;
+    }
+
+    /* .enlargeText{
+        width: 50px !important;
+    } */
 }
 
 @media (min-width:1400px) {
@@ -238,6 +246,14 @@
     .big-card-body{
         min-height: 435px;
     }
+
+    .select{
+        width: 110px !important;
+    }
+
+    .enlargeText{
+        width: 50px !important;
+    }
 }
 
 @media (min-width:1600px) {
@@ -278,7 +294,7 @@
 
     .big-card-body{
         min-height: 485px;
-    }
+    }   
 }
 
 @media (min-width:1680px) {

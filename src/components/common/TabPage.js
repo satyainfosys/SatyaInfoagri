@@ -40,7 +40,6 @@ import AddProduct from 'components/ProductLine/AddProduct';
 import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
 import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
 import AddProductMaster from 'components/ProductMaster/AddProductMaster';
-import ProductVarietyTable from 'components/ProductMaster/ProductVarietyTable';
 import AddOemMasterDetails from 'components/OemMaster/AddOemMasterDetails';
 import OemProductDetails from 'components/OemMaster/OemProductDetails';
 import AddVendorMasterDetail from 'components/VendorMaster/AddVendorMasterDetail';

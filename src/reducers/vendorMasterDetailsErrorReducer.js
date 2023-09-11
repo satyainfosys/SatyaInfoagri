@@ -5,6 +5,7 @@ const initialState = {
         stateCodeErr: {},
         panNoErr: {},
         gstNoErr: {},
+        websiteErr: {},
         vendorProductCatalogueDetailsErr: {}
     }
 };

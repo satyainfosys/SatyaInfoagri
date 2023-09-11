@@ -22,6 +22,7 @@ export const VendorProductCatalogueDetails = () => {
     const [modalData, setModalData] = useState({});
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
+    const [selectAll, setSelectAll] = useState(false);
 
     let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
     let vendorProductCatalogueData = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
@@ -58,11 +59,9 @@ export const VendorProductCatalogueDetails = () => {
         if (vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.length > 0) {
             setRowData(vendorProductCatalogueData);
             setSelectedRows([]);
-            vendorProductCatalogueData.map((row, index) => {
-                if (row.quantity) {
-                    getUnitList("W")
-                }
-            })
+            if (quantityUnitList.length <= 0) {
+                getUnitList("W")
+            }
         } else {
             setRowData([]);
             setSelectedRows([]);
@@ -87,6 +86,8 @@ export const VendorProductCatalogueDetails = () => {
 
         if (oemProductData !== null) {
             setModalData({
+                oemName: oemProductData.oemName,
+                varietyName: oemProductData.varietyName,
                 seedQuantity: oemProductData.seedQuantity,
                 seedUnitCode: oemProductData.seedUnitCode,
                 maturityDays: oemProductData.maturityDays,
@@ -205,14 +206,20 @@ export const VendorProductCatalogueDetails = () => {
     };
 
     const handleSelectedItem = () => {
-        const updatedData = vendorProductCatalogueData.concat(selectedRows);
-        dispatch(vendorProductCatalogueDetailsAction(updatedData));
+        if (selectAll) {
+            const updatedData = [...oemProductList]
+            dispatch(vendorProductCatalogueDetailsAction(updatedData));
+        } else {
+            const updatedData = vendorProductCatalogueData.concat(selectedRows);
+            dispatch(vendorProductCatalogueDetailsAction(updatedData));
+        }
         dispatch(formChangedAction({
             ...formChangedData,
             vendorProductCatalogueDetailAdd: true
         }))
 
         setOemModal(false);
+        setSelectAll(false);
     }
 
     const handleSearchChange = (e) => {
@@ -252,6 +259,13 @@ export const VendorProductCatalogueDetails = () => {
         setModalShow(false);
     }
 
+    const handleHeaderCheckboxChange = () => {
+        setSelectAll(!selectAll);
+        if (!selectAll) {
+            setSelectedRows([]);
+        }
+    };
+
     return (
         <>
 
@@ -281,7 +295,7 @@ export const VendorProductCatalogueDetails = () => {
                 <Modal
                     show={oemModal}
                     onHide={() => setOemModal(false)}
-                    size="lg"
+                    size="xl"
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
                     backdrop="static"
@@ -305,7 +319,16 @@ export const VendorProductCatalogueDetails = () => {
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
-                                            <th>Select</th>
+                                            <th>Select <Form.Check type="checkbox" id="contactListChkBox" >
+                                                <Form.Check.Input
+                                                    type="checkbox"
+                                                    name="selectAll"
+                                                    style={{ width: '15px', height: '15px' }}
+                                                    onChange={handleHeaderCheckboxChange}
+                                                    checked={selectAll}
+                                                />
+                                            </Form.Check>
+                                            </th>
                                             <th>OEM Name</th>
                                             <th>Product</th>
                                             <th>Variety</th>
@@ -323,13 +346,13 @@ export const VendorProductCatalogueDetails = () => {
                                             oemProductDetailsReducer.oemProductDetails.map((data, index) =>
                                                 <tr>
                                                     <td key={index}>
-                                                        <Form.Check type="checkbox" id="contactListChkBox" className="mb-1">
+                                                        <Form.Check type="checkbox" className="mb-1">
                                                             <Form.Check.Input
                                                                 type="checkbox"
-                                                                name="Same as client"
+                                                                name="singleChkBox"
                                                                 style={{ width: '20px', height: '20px' }}
                                                                 onChange={() => handleCheckboxChange(data)}
-                                                                checked={selectedRows.includes(data)}
+                                                                checked={selectAll || selectedRows.includes(data)}
                                                             />
                                                         </Form.Check>
                                                     </td>
@@ -368,6 +391,7 @@ export const VendorProductCatalogueDetails = () => {
                     backdrop="static"
                 >
                     <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">OEM - {modalData.oemName}</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="max-five-rows">
                         <Form
@@ -375,6 +399,12 @@ export const VendorProductCatalogueDetails = () => {
                             className="details-form"
                         >
                             <Row>
+                                {modalData.varietyName &&
+                                    <>
+                                        <div className="mb-2 d-flex justify-content-center align-items-center">{modalData.varietyName}</div>
+                                        <hr></hr>
+                                    </>
+                                }
                                 <Col className="me-3 ms-3 mb-3 mt-2" md="11">
                                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                         <Form.Label column sm="3">
@@ -615,7 +645,8 @@ export const VendorProductCatalogueDetails = () => {
                     <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
                         <Form
                             noValidate
-                            validated={vendorMasterErr.vendorProductCatalogueDetailErr && vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail}
+                            validated={vendorMasterErr.vendorProductCatalogueDetailErr && (vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail ||
+                                vendorMasterErr.vendorProductCatalogueDetailErr.invalidDate)}
                             className="details-form"
                             id="AddVendorProductCatalogueDetailsForm"
                         >
@@ -695,7 +726,7 @@ export const VendorProductCatalogueDetails = () => {
                                                 <Form.Select
                                                     type="text"
                                                     name="unitCode"
-                                                    className="form-control"
+                                                    className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={vendorProductCatalogueData.unitCode}
                                                 >
@@ -709,6 +740,7 @@ export const VendorProductCatalogueDetails = () => {
                                             <td key={index}>
                                                 <EnlargableTextbox
                                                     name="vendorRate"
+                                                    // className="enlargeText"
                                                     value={vendorProductCatalogueData.vendorRate}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Vendor Rate"
@@ -719,6 +751,7 @@ export const VendorProductCatalogueDetails = () => {
                                             <td key={index}>
                                                 <EnlargableTextbox
                                                     name="vendorAmount"
+                                                    // className="enlargeText"
                                                     value={vendorProductCatalogueData.vendorAmount}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Amount"
@@ -741,9 +774,11 @@ export const VendorProductCatalogueDetails = () => {
                                                     type='date'
                                                     name="validFrom"
                                                     placeholder="Select date"
+                                                    // className="form-control col-12 col-sm-6 col-md-4"
                                                     value={vendorProductCatalogueData.validFrom ? Moment(vendorProductCatalogueData.validFrom).format("YYYY-MM-DD") : ""}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    required
+                                                    required={vendorMasterErr.vendorProductCatalogueDetailErr && (vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail ||
+                                                        vendorMasterErr.vendorProductCatalogueDetailErr.invalidDate)}
                                                 />
                                             </td>
 
@@ -752,9 +787,11 @@ export const VendorProductCatalogueDetails = () => {
                                                     type='date'
                                                     name="validTo"
                                                     placeholder="Select date"
+                                                    // className="form-control col-12 col-sm-6 col-md-4"
                                                     value={vendorProductCatalogueData.validTo ? Moment(vendorProductCatalogueData.validTo).format("YYYY-MM-DD") : ""}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    required
+                                                    required={vendorMasterErr.vendorProductCatalogueDetailErr && (vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail ||
+                                                        vendorMasterErr.vendorProductCatalogueDetailErr.invalidDate)}
                                                 />
                                             </td>
 
