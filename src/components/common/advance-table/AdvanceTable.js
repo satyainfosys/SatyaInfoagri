@@ -112,6 +112,9 @@ const AdvanceTable = ({
       $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
       $('#btnSave').attr('disabled', true);
+      dispatch(tabInfoAction({
+        title1: `${localStorage.getItem("CompanyName")}`
+      }))
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));

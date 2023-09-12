@@ -30,6 +30,7 @@ import MenuDetails from 'components/MenuDetails/MenuDetails';
 import ProductMaster from 'components/ProductMaster/ProductMaster';
 import OemMaster from 'components/OemMaster/OemMaster';
 import VendorMaster from 'components/VendorMaster/VendorMaster';
+import PurchaseOrder from 'components/PurchaseOrder/PurchaseOrder';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -99,6 +100,9 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/vendor" element={<VendorMaster />} />
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/purchase-order" element={<PurchaseOrder />} />
         </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
