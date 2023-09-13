@@ -45,6 +45,7 @@ import OemProductDetails from 'components/OemMaster/OemProductDetails';
 import AddVendorMasterDetail from 'components/VendorMaster/AddVendorMasterDetail';
 import VendorProductCatalogueDetails from 'components/VendorMaster/VendorProductCatalogueDetails';
 import AddPurchaseOrderDetail from 'components/PurchaseOrder/AddPurchaseOrderDetail';
+import PurchaseOrderProductDetails from 'components/PurchaseOrder/PurchaseOrderProductDetails';
 
 const TabPage = ({
   listData,
@@ -402,6 +403,8 @@ const TabPage = ({
                       <AddPurchaseOrderDetail />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
+
+                  <PurchaseOrderProductDetails />
                 </>
               )}
 

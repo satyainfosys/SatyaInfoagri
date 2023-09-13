@@ -10,9 +10,9 @@ const AddPurchaseOrderDetail = () => {
         <>
             <Form>
                 <Row>
-                    <Col className="me-3 ms-3" md="3">
+                    <Col className="me-3 ms-3" md="4">
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 Vendor Name
                             </Form.Label>
                             <Col sm="8">
@@ -23,7 +23,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 Address
                             </Form.Label>
                             <Col sm="8">
@@ -32,7 +32,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 Pincode
                             </Form.Label>
                             <Col sm="8">
@@ -41,7 +41,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 State
                             </Form.Label>
                             <Col sm="8">
@@ -50,7 +50,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 Country
                             </Form.Label>
                             <Col sm="8">
@@ -61,7 +61,7 @@ const AddPurchaseOrderDetail = () => {
 
                     <Col className="me-3 ms-3" md="4">
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 PO Number
                             </Form.Label>
                             <Col sm="8">
@@ -70,7 +70,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 PO Date
                             </Form.Label>
                             <Col sm="8">
@@ -79,7 +79,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 PO Amount
                             </Form.Label>
                             <Col sm="8">
@@ -88,7 +88,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 PO Status
                             </Form.Label>
                             <Col sm="8">
@@ -102,7 +102,7 @@ const AddPurchaseOrderDetail = () => {
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
+                            <Form.Label column sm="4">
                                 Delivery Location
                             </Form.Label>
                             <Col sm="8">

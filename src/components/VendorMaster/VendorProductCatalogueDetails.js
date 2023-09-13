@@ -23,6 +23,8 @@ export const VendorProductCatalogueDetails = () => {
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
     const [selectAll, setSelectAll] = useState(false);
+    const [productCategoryList, setProductCategoryList] = useState([]);
+    const [productCategory, setProductCategory] = useState();
 
     let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
     let vendorProductCatalogueData = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
@@ -69,6 +71,10 @@ export const VendorProductCatalogueDetails = () => {
 
         if (oemProductDetailsReducer.oemProductDetails.length <= 0) {
             getOemCatalogueMasterList();
+        }
+
+        if (productCategoryList.length <= 0) {
+            getProductCategoryList();
         }
     }, [vendorProductCatalogueData, vendorProductCatalogueDetailsReducer])
 
@@ -182,9 +188,10 @@ export const VendorProductCatalogueDetails = () => {
         }
     }
 
-    const getOemCatalogueMasterList = async (searchText) => {
+    const getOemCatalogueMasterList = async (searchText, productCategoryCode) => {
         const requestData = {
-            SearchText: searchText
+            SearchText: searchText,
+            ProductCategoryCode: productCategoryCode ? productCategoryCode : productCategory
         }
 
         const response = await axios.post(process.env.REACT_APP_API_URL + '/get-oem-product-catalogue-master-list', requestData, {
@@ -266,6 +273,33 @@ export const VendorProductCatalogueDetails = () => {
         }
     };
 
+    const getProductCategoryList = async () => {
+
+        let productCategoryData = [];
+        let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (productCategoryResponse.data.status == 200) {
+            if (productCategoryResponse.data && productCategoryResponse.data.data.length > 0) {
+                productCategoryResponse.data.data.forEach(productCategory => {
+                    productCategoryData.push({
+                        key: productCategory.productCategoryName,
+                        value: productCategory.productCategoryCode
+                    })
+                })
+            }
+            setProductCategoryList(productCategoryData);
+        } else {
+            setProductCategoryList([]);
+        }
+    }
+
+    const handleProductCategoryChange = e => {
+        setProductCategory(e.target.value);
+        getOemCatalogueMasterList("", e.target.value);
+    }
+
     return (
         <>
 
@@ -306,16 +340,39 @@ export const VendorProductCatalogueDetails = () => {
                     <Modal.Body className="max-five-rows">
                         <Form className="details-form" id="OemDetailsForm" >
                             <Row>
-                                <Col className="me-3 ms-3 mb-3 mt-2" md="11">
+                                <Col className="me-3 ms-3" md="4">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="1">
+                                        <Form.Label column sm="2">
                                             Search
                                         </Form.Label>
-                                        <Col sm="4">
+                                        <Col sm="8">
                                             <Form.Control id="txtSearch" name="search" placeholder="Search" onChange={handleSearchChange} maxLength={45} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
+
+                                <Col className="me-3 ms-3" md="7">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Form.Label column sm="3">
+                                            Product Category
+                                        </Form.Label>
+                                        <Col sm="8">
+                                            <Form.Select
+                                                type="text"
+                                                name="productCategoryCode"
+                                                onChange={handleProductCategoryChange}
+                                                value={productCategory}
+                                                className="form-control"
+                                            >
+                                                <option value=''>Select</option>
+                                                {productCategoryList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
@@ -330,6 +387,7 @@ export const VendorProductCatalogueDetails = () => {
                                             </Form.Check>
                                             </th>
                                             <th>OEM Name</th>
+                                            <th>Category</th>
                                             <th>Product</th>
                                             <th>Variety</th>
                                             <th>Brand</th>
@@ -357,6 +415,7 @@ export const VendorProductCatalogueDetails = () => {
                                                         </Form.Check>
                                                     </td>
                                                     <td>{data.oemName}</td>
+                                                    <td>{data.productCategoryName}</td>
                                                     <td>{data.productName}</td>
                                                     <td>{data.varietyName}</td>
                                                     <td>{data.brandName}</td>

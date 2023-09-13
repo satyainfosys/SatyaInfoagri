@@ -26,7 +26,7 @@ const PurchaseOrder = () => {
     const [activeTabName, setActiveTabName] = useState();
 
     useEffect(() => {
-        // $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
         getCompany();
     }, [])
 
@@ -97,7 +97,7 @@ const PurchaseOrder = () => {
         $("#btnNew").show();
         $("#btnSave").hide();
         $("#btnCancel").hide();
-        // $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
     })
 
     $('[data-rr-ui-event-key*="Add PO"]').off('click').on('click', function () {
@@ -105,8 +105,23 @@ const PurchaseOrder = () => {
         setActiveTabName("Add Vendor")
         $("#btnNew").hide();
         $("#btnSave").show();
-        $("#btnCancel").show();        
+        $("#btnCancel").show();
     })
+
+    const newDetails = () => {
+        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
+        $('#btnSave').attr('disabled', false);
+        // dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+    }
+
+    const cancelClick = () => {
+        $('[data-rr-ui-event-key*="PO List"]').trigger('click');
+    }
+
+    const exitModule = () => {
+        window.location.href = '/dashboard';
+    }
 
     return (
         <>
@@ -123,9 +138,9 @@ const PurchaseOrder = () => {
                 tabArray={tabArray}
                 module="PurchaseOrder"
                 // saveDetails={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}
-                // newDetails={newDetails}
-                // cancelClick={cancelClick}
-                // exitModule={exitModule}
+                newDetails={newDetails}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
                 tableFilterOptions={companyList}
                 tableFilterName={'Company'}
                 supportingMethod1={handleFieldChange}
