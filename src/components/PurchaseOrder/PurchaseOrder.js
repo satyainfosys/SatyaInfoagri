@@ -79,18 +79,18 @@ const PurchaseOrder = () => {
             EncryptedCompanyCode: encryptedCompanyCode
         }
 
-        // setIsLoading(true);
-        // let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-master-list', listFilter, {
-        //     headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
-        // })
+        setIsLoading(true);
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-header-list', listFilter, {
+            headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+        })
 
-        // if (response.data.status == 200) {
-        //     setIsLoading(false);
-        //     setListData(response.data.data);
-        // } else {
-        //     setIsLoading(false);
-        //     setListData([])
-        // }
+        if (response.data.status == 200) {
+            setIsLoading(false);
+            setListData(response.data.data);
+        } else {
+            setIsLoading(false);
+            setListData([])
+        }
     }
 
     $('[data-rr-ui-event-key*="PO List"]').off('click').on('click', function () {
