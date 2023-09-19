@@ -46,6 +46,7 @@ import AddVendorMasterDetail from 'components/VendorMaster/AddVendorMasterDetail
 import VendorProductCatalogueDetails from 'components/VendorMaster/VendorProductCatalogueDetails';
 import AddPurchaseOrderDetail from 'components/PurchaseOrder/AddPurchaseOrderDetail';
 import PurchaseOrderProductDetails from 'components/PurchaseOrder/PurchaseOrderProductDetails';
+import PurchaseOrderTermDetails from 'components/PurchaseOrder/PurchaseOrderTermDetails';
 
 const TabPage = ({
   listData,
@@ -405,6 +406,14 @@ const TabPage = ({
                   </FalconComponentCard>
 
                   <PurchaseOrderProductDetails />
+                </>
+              )}
+
+              {index == 2 && module == 'PurchaseOrder' && (
+                <>
+                  <TabInfoRow />
+
+                  <PurchaseOrderTermDetails />
                 </>
               )}
 

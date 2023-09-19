@@ -469,26 +469,6 @@ export const CollectionCentre = () => {
         }
     }
 
-    const getCollectionCentreDetail = async () => {
-        const request = {
-            encryptedCollectionCentreCode: localStorage.getItem("EncryptedCollectionCentreCode")
-        }
-
-        let collectionCentreResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-master-detail', request, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
-
-        if (collectionCentreResponse.data.status == 200) {
-            if (collectionCentreResponse.data.data) {
-                dispatch(collectionCentreDetailsAction(collectionCentreResponse.data.data))
-                dispatch(tabInfoAction({
-                    title1: `${localStorage.getItem("CompanyName")}`,
-                    title2: collectionCentreResponse.data.data.collectionCentreName
-                }))
-            }
-        }
-    }
-
     const getFigDetail = async () => {
         const request = {
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),

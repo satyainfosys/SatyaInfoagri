@@ -403,3 +403,31 @@ export const vendorMasterDetailsErrAction = (payload) => {
     payload
   };
 };
+
+export const purchaseOrderDetailsAction = (payload) => {
+  return {
+    type: 'PURCHASEORDERDETAILS',
+    payload
+  };
+};
+
+export const purchaseOrderProductDetailsAction = (payload) => {
+  return {
+    type: 'PURCHASEORDERPRODUCTDETAILS',
+    payload
+  };
+};
+
+export const purchaseOrderTermDetailsAction = (payload) => {
+  return {
+    type: 'PURCHASEORDERTERMDETAILS',
+    payload
+  };
+};
+
+export const purchaseOrderDetailsErrAction = (payload) => {
+  return {
+    type: 'PURCHASEORDERDETAILSERROR',
+    payload
+  };
+};

@@ -4,8 +4,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
+import { toast } from 'react-toastify';
+import { formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, purchaseOrderTermDetailsAction, tabInfoAction, vendorProductCatalogueDetailsAction } from 'actions';
+import Moment from "moment";
 
-const tabArray = ['PO List', 'Add PO']
+const tabArray = ['PO List', 'Add PO', 'Add Term']
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
@@ -24,11 +27,28 @@ const PurchaseOrder = () => {
     const [listData, setListData] = useState([]);
     const [perPage, setPerPage] = useState(15);
     const [activeTabName, setActiveTabName] = useState();
+    const [formHasError, setFormError] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', true);
         getCompany();
     }, [])
+
+    const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
+    var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
+
+    let purchaseOrderProductDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderProductDetailsReducer)
+    let purchaseOrderProductDetailsList = purchaseOrderProductDetailsReducer.purchaseOrderProductDetails;
+
+    let purchaseOrderTermDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderTermDetailsReducer)
+    let purchaseOrderTermList = purchaseOrderTermDetailsReducer.purchaseOrderTermDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);  
 
     const getCompany = async () => {
         let companyData = [];
@@ -94,33 +114,237 @@ const PurchaseOrder = () => {
     }
 
     $('[data-rr-ui-event-key*="PO List"]').off('click').on('click', function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
+            $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', true);
+            clearPurchaseOrderReducers();
+            dispatch(purchaseOrderDetailsAction(undefined));
+            dispatch(vendorProductCatalogueDetailsAction([]));
+        }
     })
 
     $('[data-rr-ui-event-key*="Add PO"]').off('click').on('click', function () {
+        setActiveTabName("Add PO")
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+    })
 
-        setActiveTabName("Add Vendor")
+    $('[data-rr-ui-event-key*="Add Term"]').off('click').on('click', function () {
+        setActiveTabName("Add Term")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
     })
 
     const newDetails = () => {
-        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
-        $('#btnSave').attr('disabled', false);
-        // dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+
+        if (localStorage.getItem("EncryptedCompanyCode")) {
+            $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
+            $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', false);
+            $('#btnSave').attr('disabled', false);
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+        } else {
+            toast.error("Please select company first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
     }
 
     const cancelClick = () => {
-        $('[data-rr-ui-event-key*="PO List"]').trigger('click');
+        $('#btnExit').attr('isExit', 'false');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            $('[data-rr-ui-event-key*="PO List"]').trigger('click');
+        }
     }
 
     const exitModule = () => {
-        window.location.href = '/dashboard';
+        $('#btnExit').attr('isExit', 'true');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+            clearPurchaseOrderReducers();
+            dispatch(purchaseOrderDetailsAction(undefined));
+            dispatch(vendorProductCatalogueDetailsAction([]));
+            localStorage.removeItem("EncryptedPoNo");
+            localStorage.removeItem("DeletePoProductDetailIds");
+            localStorage.removeItem("DeletePoTermDetailIds");
+            localStorage.removeItem("EncryptedCompanyCode");
+            localStorage.removeItem("CompanyName");
+        }
+    }
+
+    const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else {
+            $('[data-rr-ui-event-key*="PO List"]').trigger('click');
+        }
+
+        setModalShow(false);
+    }
+
+    const clearPurchaseOrderReducers = () => {
+        dispatch(formChangedAction(undefined));
+        dispatch(purchaseOrderProductDetailsAction([]));
+        dispatch(purchaseOrderTermDetailsAction([]));
+        dispatch(purchaseOrderDetailsErrAction(undefined));
+        localStorage.removeItem("DeletePoProductDetailIds");
+        localStorage.removeItem("DeletePoTermDetailIds");
+    }
+
+    const purchaseOrderValidation = () => {
+        setModalShow(false);
+
+        const vendorErr = {};
+        const poDateErr = {};
+        // const poAmountErr = {};
+        const poProductDetailsErr = {};
+
+        let isValid = true;
+
+        if (!purchaseOrderData.vendorCode) {
+            vendorErr.empty = "Select vendor";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!purchaseOrderData.poDate) {
+            poDateErr.empty = "Select PO date";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (purchaseOrderProductDetailsList.length < 1) {
+            poProductDetailsErr.poProductDetailEmpty = "At least one purchase order product detail required";
+            setTimeout(() => {
+                toast.error(poProductDetailsErr.poProductDetailEmpty, {
+                    theme: 'colored'
+                });
+            }, 1000);
+            isValid = false;
+        }
+        else if (purchaseOrderProductDetailsList && purchaseOrderProductDetailsList.length > 0) {
+            purchaseOrderProductDetailsList.forEach((row, index) => {
+                if (!row.unitCode || !row.quantity || !row.poRate || !row.poAmt) {
+                    poProductDetailsErr.invalidPoProductDetail = "Fill the required fields in purchase order product detail";
+                    isValid = false;
+                    setFormError(true);
+                }
+            })
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                vendorErr,
+                poDateErr,
+                poProductDetailsErr
+            }
+
+            dispatch(purchaseOrderDetailsErrAction(errorObject))
+        }
+
+        return isValid;
+    }
+
+    const updatePurchaseOrderCallback = (isAddPurchaseOrder = false) => {
+        setModalShow(false);
+
+        if (!isAddPurchaseOrder) {
+            toast.success("Purchase order details updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearPurchaseOrderReducers();
+
+        fetchPurchaseOrderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addPurchaseOrderDetails = () => {
+        if (purchaseOrderValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+                collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+                vendorCode: purchaseOrderData.vendorCode,
+                poDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+                poAmount: parseFloat(purchaseOrderData.poAmount),
+                poStatus: purchaseOrderData.poStatus ? purchaseOrderData.poStatus : "Draft",
+                gstNo: purchaseOrderData.gstNo ? purchaseOrderData.gstNo : "",
+                activeStatus: "A",
+                purchaseOrderProductDetails: purchaseOrderProductDetailsList,
+                purchaseOrderTermDetails: purchaseOrderTermList,
+                addUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['addUser']
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+            }
+
+            const poTermDetailKeys = ['poTerms', 'addUser']
+            var index = 0;
+            for (var obj in requestData.purchaseOrderTermDetails) {
+                var poTermDetailObject = requestData.purchaseOrderTermDetails[obj];
+
+                for (const key of Object.keys(poTermDetailObject).filter((key) => poTermDetailKeys.includes(key))) {
+                    poTermDetailObject[key] = poTermDetailObject[key] ? poTermDetailObject[key].toUpperCase() : "";
+                }
+
+                requestData.purchaseOrderTermDetails[index] = poTermDetailObject;
+                index++;
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-po-header-detail', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(purchaseOrderDetailsAction({
+                                ...purchaseOrderData,
+                                encryptedPoNo: res.data.data.encryptedPoNo,
+                                poNo: res.data.data.poNo
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedPoNo", res.data.data.encryptedPoNo);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updatePurchaseOrderCallback(true);
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
     }
 
     return (
@@ -132,12 +356,36 @@ const PurchaseOrder = () => {
                 />
             ) : null}
 
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Do you want to save changes?</h5>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        {/* <Button variant="success" onClick={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}>Save</Button> */}
+                        <Button variant="success" onClick={addPurchaseOrderDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="PurchaseOrder"
                 // saveDetails={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}
+                saveDetails={addPurchaseOrderDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}
