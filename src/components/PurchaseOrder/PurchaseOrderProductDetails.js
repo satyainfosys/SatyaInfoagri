@@ -47,10 +47,10 @@ const PurchaseOrderProductDetails = () => {
         'Quantity',
         'PO Rate',
         'Vendor Rate',
-        'Amt',
         'Tax Basis',
         'Tax Rate',
         'Tax Amount',
+        'Amt',
         'Delete',
     ];
 
@@ -163,20 +163,20 @@ const PurchaseOrderProductDetails = () => {
         return 0;
     }
 
-    const handleFieldChange = (e, index) => {
+    const handleFieldChange = async (e, index) => {
         const { name, value } = e.target;
         var purchaseOrderProductDetail = [...rowData];
         purchaseOrderProductDetail[index] = {
             ...purchaseOrderProductDetail[index],
             [name]: value
         };
-
+       
         dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
 
         if (e.target.name == "quantity") {
             if (purchaseOrderProductDetail[index].poRate) {
                 if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                    var poTaxAmount = calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].poRate))
+                    var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount)
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
                     purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
@@ -199,7 +199,7 @@ const PurchaseOrderProductDetails = () => {
         if (e.target.name == "poRate") {
             if (purchaseOrderProductDetail[index].quantity) {
                 if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                    var poTaxAmount = calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(e.target.value))
+                    var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(e.target.value))
                     const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value) + parseFloat(poTaxAmount);
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
                     purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
@@ -227,7 +227,7 @@ const PurchaseOrderProductDetails = () => {
                     const calculatedQuantity = parseFloat(purchaseOrderProductDetail[index].poAmt) / parseFloat(e.target.value)
                     purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                        purchaseOrderProductDetail[index].taxAmount = calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(e.target.value));
+                        purchaseOrderProductDetail[index].taxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(e.target.value));
                     }
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -245,7 +245,7 @@ const PurchaseOrderProductDetails = () => {
                     const calculatedQuantity = parseFloat(e.target.value) / parseFloat(purchaseOrderProductDetail[index].poRate)
                     purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                        purchaseOrderProductDetail[index].taxAmount = calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(purchaseOrderProductDetail[index].poRate));
+                        purchaseOrderProductDetail[index].taxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(purchaseOrderProductDetail[index].poRate));
                     }
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -254,31 +254,68 @@ const PurchaseOrderProductDetails = () => {
 
         if (e.target.name == "taxRate") {
             if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate) {
-                var poTaxAmount = calculateTaxAmount("Percentage", parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
-                const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
-                purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
-                purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
-                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                if (parseFloat(e.target.value) > 0) {
+                    var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
+                else {
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = "";
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
             }
             else if (purchaseOrderProductDetail[index].taxBasis == "Lumpsum" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate) {
-                purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
-                const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
-                purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
-                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                if (parseFloat(e.target.value) > 0) {
+                    purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
+                else {
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = "";
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
             }
         }
 
         if (e.target.name == "taxBasis") {
-            if (e.target.value == "Percentage" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate && purchaseOrderProductDetail[index].taxRate) {
-                var poTaxAmount = calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
-                const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
-                purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
-                purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
-                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+            if (e.target.value == "Percentage" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate) {
+                if (parseFloat(purchaseOrderProductDetail[index].taxRate) > 0) {
+                    var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
+                else {
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = "";
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
             }
-            else if (e.target.value == "Lumpsum" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate && purchaseOrderProductDetail[index].taxRate) {
-                purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
-                const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
+            else if (e.target.value == "Lumpsum" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate) {
+                if (parseFloat(purchaseOrderProductDetail[index].taxRate) > 0) {
+                    purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
+                else {
+                    const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
+                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].taxAmount = "";
+                    dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+                }
+            }
+            else {
+                const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate)
                 purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
                 dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
             }
@@ -353,6 +390,7 @@ const PurchaseOrderProductDetails = () => {
                     </Modal.Footer>
                 </Modal>
             }
+
             {vendorModal &&
                 <Modal
                     show={vendorModal}
@@ -572,17 +610,6 @@ const PurchaseOrderProductDetails = () => {
                                             </td>
 
                                             <td key={index}>
-                                                <EnlargableTextbox
-                                                    name="poAmt"
-                                                    placeholder="Amount"
-                                                    maxLength={13}
-                                                    onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.poAmt}
-                                                    required
-                                                />
-                                            </td>
-
-                                            <td key={index}>
                                                 <Form.Select
                                                     type="text"
                                                     name="taxBasis"
@@ -613,6 +640,17 @@ const PurchaseOrderProductDetails = () => {
                                                     maxLength={13}
                                                     value={poProductDetailData.taxAmount}
                                                     disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="poAmt"
+                                                    placeholder="Amount"
+                                                    maxLength={13}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.poAmt}
+                                                    required
                                                 />
                                             </td>
 
