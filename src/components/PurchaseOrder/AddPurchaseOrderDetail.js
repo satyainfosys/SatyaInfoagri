@@ -126,17 +126,25 @@ const AddPurchaseOrderDetail = () => {
                             <Form.Label column sm="4">
                                 Vendor Name
                             </Form.Label>
-                            <Col sm="8">
-                                <Form.Select id="txtVendorName" name="vendorCode" onClick={() => handleVendorClict()} onChange={handleFieldChange} value={purchaseOrderData.vendorCode} >
-                                    <option value=''>Select Vendor</option>
-                                    {vendorList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(purchaseOrderErr.vendorErr).map((key) => {
-                                    return <span className="error-message">{purchaseOrderErr.vendorErr[key]}</span>
-                                })}
-                            </Col>
+                            {
+                                purchaseOrderData.encryptedPoNo ?
+                                    <Col sm="8">
+                                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={purchaseOrderData.vendorName} disabled />
+                                    </Col>
+                                    :
+                                    <Col sm="8">
+                                        <Form.Select id="txtVendorName" name="vendorCode" onClick={() => handleVendorClict()} onChange={handleFieldChange} value={purchaseOrderData.vendorCode} >
+                                            <option value=''>Select Vendor</option>
+                                            {vendorList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))}
+                                        </Form.Select>
+                                        {Object.keys(purchaseOrderErr.vendorErr).map((key) => {
+                                            return <span className="error-message">{purchaseOrderErr.vendorErr[key]}</span>
+                                        })}
+                                    </Col>
+                            }
+
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
