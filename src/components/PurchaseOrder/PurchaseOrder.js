@@ -48,7 +48,7 @@ const PurchaseOrder = () => {
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
-    let isFormChanged = Object.values(formChangedData).some(value => value === true);  
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const getCompany = async () => {
         let companyData = [];
@@ -129,6 +129,7 @@ const PurchaseOrder = () => {
             clearPurchaseOrderReducers();
             dispatch(purchaseOrderDetailsAction(undefined));
             dispatch(vendorProductCatalogueDetailsAction([]));
+            localStorage.removeItem("EncryptedPoNo");
         }
     })
 
@@ -137,6 +138,17 @@ const PurchaseOrder = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', false);
+
+        if (purchaseOrderProductDetailsList.length <= 0 &&
+            !(localStorage.getItem("DeletePurchaseOrderProductDetailIds"))) {
+            getPurchaseOrderProductDetailsList()
+        }
+
+        if (purchaseOrderTermList.length <= 0 &&
+            !(localStorage.getItem("DeletePurchaseOrderTermDetailIds"))) {
+            getPurchaseOrderTermDetailsList();
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Term"]').off('click').on('click', function () {
@@ -197,6 +209,38 @@ const PurchaseOrder = () => {
         }
 
         setModalShow(false);
+    }
+
+    const getPurchaseOrderProductDetailsList = async () => {
+        const request = {
+            EncryptedPoNo: localStorage.getItem("EncryptedPoNo")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(purchaseOrderProductDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    const getPurchaseOrderTermDetailsList = async () => {
+        const request = {
+            EncryptedPoNo: localStorage.getItem("EncryptedPoNo")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-term-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(purchaseOrderTermDetailsAction(response.data.data))
+            }
+        }
     }
 
     const clearPurchaseOrderReducers = () => {
