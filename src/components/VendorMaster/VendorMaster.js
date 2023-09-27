@@ -504,7 +504,6 @@ const VendorMaster = () => {
                             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
                         });
                         setIsLoading(false);
-                        setIsLoading(false);
                         if (updateResponse.data.status != 200) {
                             toast.error(updateResponse.data.message, {
                                 theme: 'colored',

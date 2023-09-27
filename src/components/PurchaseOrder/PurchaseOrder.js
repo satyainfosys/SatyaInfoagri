@@ -391,6 +391,175 @@ const PurchaseOrder = () => {
         }
     }
 
+    const updatePurchaseOrderDetails = async () => {
+        if (purchaseOrderValidation()) {
+            if (!formChangedData.purchaseOrderDetailUpdate &&
+                !(formChangedData.purchaseOrderProductDetailsAdd || formChangedData.purchaseOrderProductDetailsUpdate || formChangedData.purchaseOrderProductDetailsDelete) &&
+                !(formChangedData.poTermDetailsAdd || formChangedData.poTermDetailsDelete || formChangedData.poTermDetailsUpdate)) {
+                return;
+            }
+
+            var deletePoProductDetailIds = localStorage.getItem("DeletePoProductDetailIds");
+            var deletePoTermDetailIds = localStorage.getItem("DeletePoTermDetailIds");
+
+            const updateRequestData = {
+                encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                poDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+                poAmount: parseFloat(purchaseOrderData.poAmount),
+                poStatus: purchaseOrderData.poStatus ? purchaseOrderData.poStatus : "Draft",
+                distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+                collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+                deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
+                modifyUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['deliveryLocation', 'modifyUser']
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+            }
+
+            var hasError = false;
+
+            if (formChangedData.purchaseOrderDetailUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-po-header-detail', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        }
+                    })
+            }
+
+            var purchaseOrderProductDetailIndex = 1;
+            var purchaseOrderTermDetailIndex = 1;
+
+            //PurchaseOrderProductDetail ADD, UPDATE, DELETE
+            if (!hasError && (formChangedData.purchaseOrderProductDetailsAdd || formChangedData.purchaseOrderProductDetailsUpdate || formChangedData.purchaseOrderProductDetailsDelete)) {
+                debugger
+                if (!hasError && formChangedData.purchaseOrderProductDetailsDelete) {
+                    var deletePoProductDetailList = deletePoProductDetailIds ? deletePoProductDetailIds.split(',') : null;
+                    if (deletePoProductDetailList) {
+                        var deletePoProductDetailIndex = 1;
+
+                        for (let i = 0; i < deletePoProductDetailList.length; i++) {
+                            const deleteId = deletePoProductDetailList[i];
+                            const data = { encryptedPoDetailId: deleteId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-po-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deletePoProductDetailIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
+                    const purchaseProductOrderDetailData = purchaseOrderProductDetailsList[i];
+
+                    const keys = ["modifyUser"];
+                    for (const key of Object.keys(purchaseProductOrderDetailData).filter((key) => keys.includes(key))) {
+                        purchaseProductOrderDetailData[key] = purchaseProductOrderDetailData[key] ? purchaseProductOrderDetailData[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.purchaseOrderProductDetailsUpdate && purchaseProductOrderDetailData.encryptedPoDetailId) {
+                        const requestData = {
+                            encryptedPoDetailId: purchaseProductOrderDetailData.encryptedPoDetailId,
+                            vendorProductCatalogueCode: purchaseProductOrderDetailData.vendorProductCatalogueCode,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            productLineCode: purchaseProductOrderDetailData.productLineCode,
+                            productCategoryCode: purchaseProductOrderDetailData.productCategoryCode,
+                            productCode: purchaseProductOrderDetailData.productCode,
+                            quantity: parseFloat(purchaseProductOrderDetailData.quantity),
+                            unitCode: parseInt(purchaseProductOrderDetailData.unitCode),
+                            poRate: parseFloat(purchaseProductOrderDetailData.poRate),
+                            poAmt: parseFloat(purchaseProductOrderDetailData.poAmt),
+                            taxBasis: purchaseProductOrderDetailData.taxBasis && purchaseProductOrderDetailData.taxBasis == "Percentage" ? "P" : purchaseProductOrderDetailData.taxBasis == "Lumpsum" ? "L" : "",
+                            taxRate: purchaseProductOrderDetailData.taxRate ? parseFloat(purchaseProductOrderDetailData.taxRate) : "",
+                            taxAmt: purchaseProductOrderDetailData.taxAmount ? parseFloat(purchaseProductOrderDetailData.taxAmount) : "",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-po-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.purchaseOrderProductDetailsAdd && !purchaseProductOrderDetailData.encryptedPoDetailId) {
+                        const requestData = {
+                            vendorProductCatalogueCode: purchaseProductOrderDetailData.vendorProductCatalogueCode,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                            productLineCode: purchaseProductOrderDetailData.productLineCode,
+                            productCategoryCode: purchaseProductOrderDetailData.productCategoryCode,
+                            productCode: purchaseProductOrderDetailData.productCode,
+                            quantity: purchaseProductOrderDetailData.quantity,
+                            unitCode: purchaseProductOrderDetailData.unitCode,
+                            poRate: purchaseProductOrderDetailData.poRate,
+                            poAmt: purchaseProductOrderDetailData.poAmt,
+                            taxBasis: purchaseProductOrderDetailData.taxBasis ? purchaseProductOrderDetailData.taxBasis : "",
+                            taxRate: purchaseProductOrderDetailData.taxRate ? purchaseProductOrderDetailData.taxRate : "",
+                            taxAmt: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
+                            vendorRate: purchaseProductOrderDetailData.vendorRate,
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-po-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                        else {
+                            const updatedPurchaseOrderProductDetailsList = [...purchaseOrderProductDetailsList]
+                            updatedPurchaseOrderProductDetailsList[i] = {
+                                ...updatedPurchaseOrderProductDetailsList[i],
+                                encryptedPoDetailId: addResponse.data.data.encryptedPoDetailId
+                            };
+
+                            dispatch(purchaseOrderProductDetailsAction(updatedPurchaseOrderProductDetailsList))
+                        }
+                    }
+                    purchaseOrderProductDetailIndex++
+                }
+            }
+
+            if (!hasError) {
+                clearPurchaseOrderReducers();
+                updatePurchaseOrderCallback();
+            }
+        }
+    }
+
     return (
         <>
             {isLoading ? (
@@ -416,8 +585,7 @@ const PurchaseOrder = () => {
                         <h5>Do you want to save changes?</h5>
                     </Modal.Body>
                     <Modal.Footer>
-                        {/* <Button variant="success" onClick={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}>Save</Button> */}
-                        <Button variant="success" onClick={addPurchaseOrderDetails}>Save</Button>
+                        <Button variant="success" onClick={purchaseOrderData.encryptedPoNo ? updatePurchaseOrderDetails : addPurchaseOrderDetails}>Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -428,8 +596,7 @@ const PurchaseOrder = () => {
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="PurchaseOrder"
-                // saveDetails={vendorMasterData.encryptedVendorCode ? updateVendorMasterDetails : addVendorMasterDetails}
-                saveDetails={addPurchaseOrderDetails}
+                saveDetails={purchaseOrderData.encryptedPoNo ? updatePurchaseOrderDetails : addPurchaseOrderDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}

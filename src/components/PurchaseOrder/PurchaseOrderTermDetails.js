@@ -29,6 +29,9 @@ const PurchaseOrderTermDetails = () => {
     let purchaseOrderTermDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderTermDetailsReducer)
     let purchaseOrderTermData = purchaseOrderTermDetailsReducer.purchaseOrderTermDetails;
 
+    const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
+    var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
+
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
@@ -206,10 +209,12 @@ const PurchaseOrderTermDetails = () => {
                                                     maxLength={45}
                                                 />
                                             </td>
-
-                                            <td key={index}>
-                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poTermData.encryptedPoTermId) }} />
-                                            </td>
+                                            {
+                                                purchaseOrderData.poStatus != "Approved" &&
+                                                <td key={index}>
+                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poTermData.encryptedPoTermId) }} />
+                                                </td>
+                                            }
                                         </tr>
                                     ))}
                                 </tbody>

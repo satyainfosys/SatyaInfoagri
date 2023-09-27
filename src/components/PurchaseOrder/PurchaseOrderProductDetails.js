@@ -361,7 +361,7 @@ const PurchaseOrderProductDetails = () => {
 
         dispatch(formChangedAction({
             ...formChangedData,
-            purchaseOrderProductDetailsDelete: false
+            purchaseOrderProductDetailsDelete: true
         }))
 
         setModalShow(false);
@@ -655,7 +655,7 @@ const PurchaseOrderProductDetails = () => {
                                             </td>
 
                                             {
-                                                purchaseOrderData.poStatus != "Draft" &&
+                                                purchaseOrderData.poStatus != "Approved" &&
                                                 <td key={index}>
                                                     <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
                                                 </td>

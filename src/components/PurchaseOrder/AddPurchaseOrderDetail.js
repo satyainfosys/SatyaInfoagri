@@ -27,7 +27,8 @@ const AddPurchaseOrderDetail = () => {
             "country": "",
             "gstNo": "",
             "panNo": "",
-            "tinNo": ""
+            "tinNo": "",
+            "deliveryLocation": ""
         }))
     }
 
@@ -234,7 +235,7 @@ const AddPurchaseOrderDetail = () => {
                                 Delivery Location
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" />
+                                <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} />
                             </Col>
                         </Form.Group>
                     </Col>
