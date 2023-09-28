@@ -156,6 +156,16 @@ const PurchaseOrder = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if (purchaseOrderTermList.length <= 0 &&
+            !(localStorage.getItem("DeletePurchaseOrderTermDetailIds"))) {
+            getPurchaseOrderTermDetailsList();
+        }
+
+        if (purchaseOrderProductDetailsList.length <= 0 &&
+            !(localStorage.getItem("DeletePurchaseOrderProductDetailIds"))) {
+            getPurchaseOrderProductDetailsList()
+        }
     })
 
     const newDetails = () => {
@@ -442,7 +452,6 @@ const PurchaseOrder = () => {
 
             //PurchaseOrderProductDetail ADD, UPDATE, DELETE
             if (!hasError && (formChangedData.purchaseOrderProductDetailsAdd || formChangedData.purchaseOrderProductDetailsUpdate || formChangedData.purchaseOrderProductDetailsDelete)) {
-                debugger
                 if (!hasError && formChangedData.purchaseOrderProductDetailsDelete) {
                     var deletePoProductDetailList = deletePoProductDetailIds ? deletePoProductDetailIds.split(',') : null;
                     if (deletePoProductDetailList) {
@@ -478,6 +487,7 @@ const PurchaseOrder = () => {
                     if (!hasError && formChangedData.purchaseOrderProductDetailsUpdate && purchaseProductOrderDetailData.encryptedPoDetailId) {
                         const requestData = {
                             encryptedPoDetailId: purchaseProductOrderDetailData.encryptedPoDetailId,
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
                             vendorProductCatalogueCode: purchaseProductOrderDetailData.vendorProductCatalogueCode,
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
@@ -550,6 +560,97 @@ const PurchaseOrder = () => {
                         }
                     }
                     purchaseOrderProductDetailIndex++
+                }
+            }
+
+            if (!hasError && (formChangedData.poTermDetailsAdd || formChangedData.poTermDetailsDelete || formChangedData.poTermDetailsUpdate)) {
+                if (!hasError && formChangedData.poTermDetailsDelete) {
+                    var deletePoTermDetailList = deletePoTermDetailIds ? deletePoTermDetailIds.split(',') : null
+                    if (deletePoTermDetailList) {
+                        var deletePoTermDetailIndex = 1;
+
+                        for (let i = 0; i < deletePoTermDetailList.length; i++) {
+                            const deleteId = deletePoTermDetailList[i];
+                            const data = { encryptedPoTermId: deleteId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-po-term-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deletePoTermDetailIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < purchaseOrderTermList.length; i++) {
+                    const purchaseOrderTermData = purchaseOrderTermList[i];
+
+                    const keys = ['poTerms', 'modifyUser']
+                    for (const key of Object.keys(purchaseOrderTermData).filter((key) => keys.includes(key))) {
+                        purchaseOrderTermData[key] = purchaseOrderTermData[key] ? purchaseOrderTermData[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.poTermDetailsUpdate && purchaseOrderTermData.encryptedPoTermId) {
+                        const requestData = {
+                            encryptedPoTermId: purchaseOrderTermData.encryptedPoTermId,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                            poTerms: purchaseOrderTermData.poTerms,
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-po-term-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.poTermDetailsAdd && !purchaseOrderTermData.encryptedPoTermId) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                            poTerms: purchaseOrderTermData.poTerms,
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-po-term-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                        else {
+                            const updatedPurchaseOrderTermDetailsList = [...purchaseOrderTermList]
+                            updatedPurchaseOrderTermDetailsList[i] = {
+                                ...updatedPurchaseOrderTermDetailsList[i],
+                                encryptedPoTermId: addResponse.data.data.encryptedPoTermId
+                            };
+
+                            dispatch(purchaseOrderTermDetailsAction(updatedPurchaseOrderTermDetailsList))
+                        }
+                    }
+                    purchaseOrderTermDetailIndex++
                 }
             }
 
