@@ -45,6 +45,10 @@ const PurchaseOrderTermDetails = () => {
         if (purchaseOrderTermDetailsReducer.purchaseOrderTermDetails.length > 0) {
             setRowData(purchaseOrderTermData);
         }
+
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     }, [purchaseOrderTermData, purchaseOrderTermDetailsReducer])
 
     const validatePoTermDetailsForm = () => {
@@ -160,17 +164,20 @@ const PurchaseOrderTermDetails = () => {
                     light
                     endEl={
                         <Flex>
-                            <div >
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="btn-reveal"
-                                    type="button"
-                                    onClick={() => handleAddRow()}
-                                >
-                                    <i className="fa-solid fa-plus" />
-                                </Button>
-                            </div>
+                            {
+                                purchaseOrderData.poStatus != "Approved" &&
+                                <div >
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        className="btn-reveal"
+                                        type="button"
+                                        onClick={() => handleAddRow()}
+                                    >
+                                        <i className="fa-solid fa-plus" />
+                                    </Button>
+                                </div>
+                            }
                         </Flex>
                     }
                 />
@@ -207,6 +214,7 @@ const PurchaseOrderTermDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Terms"
                                                     maxLength={45}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 />
                                             </td>
                                             {

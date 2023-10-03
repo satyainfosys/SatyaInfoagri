@@ -34,6 +34,11 @@ const PurchaseOrder = () => {
         $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', true);
         getCompany();
+        localStorage.removeItem("EncryptedPoNo");
+        localStorage.removeItem("EncryptedCompanyCode");
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     }, [])
 
     const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)

@@ -42,7 +42,9 @@ const AddPurchaseOrderDetail = () => {
     const purchaseOrderErr = purchaseOrderDetailsErrorReducer.purchaseOrderDetailsError;
 
     useEffect(() => {
-        // getVendorMasterList();
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     }, [])
 
     if (!purchaseOrderDetailsReducer.purchaseOrderDetails ||
@@ -51,9 +53,7 @@ const AddPurchaseOrderDetail = () => {
     }
 
     const handleVendorClict = async () => {
-        if (!vendorList || vendorList.length <= 0) {
-            getVendorMasterList();
-        }
+        getVendorMasterList();
     }
 
     const getVendorMasterList = async () => {
@@ -96,7 +96,8 @@ const AddPurchaseOrderDetail = () => {
                 country: vendorDetail.countryName,
                 gstNo: vendorDetail.vendorGstNo,
                 panNo: vendorDetail.vendorPanNo,
-                tinNo: vendorDetail.vendorTinNo
+                tinNo: vendorDetail.vendorTinNo,
+                vendorName: vendorDetail.vendorName
             }))
         } else {
             dispatch(purchaseOrderDetailsAction({
@@ -105,7 +106,11 @@ const AddPurchaseOrderDetail = () => {
             }))
         }
 
-        if (purchaseOrderData.encryptedPoNo) {
+        if (purchaseOrderData.encryptedPoNo && e.target.name == "poStatus" && e.target.value == "Approved") {
+            dispatch(formChangedAction(undefined))
+            $("#btnSave").attr('disabled', true);
+        }
+        else if (purchaseOrderData.encryptedPoNo) {
             dispatch(formChangedAction({
                 ...formChangedData,
                 purchaseOrderDetailUpdate: true
@@ -200,7 +205,7 @@ const AddPurchaseOrderDetail = () => {
                                 PO Date
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} />
+                                <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
                                 {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
                                     return <span className="error-message">{purchaseOrderErr.poDateErr[key]}</span>
                                 })}
@@ -212,7 +217,7 @@ const AddPurchaseOrderDetail = () => {
                                 PO Amount
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} />
+                                <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
                             </Col>
                         </Form.Group>
 
@@ -235,7 +240,7 @@ const AddPurchaseOrderDetail = () => {
                                 Delivery Location
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} />
+                                <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
                             </Col>
                         </Form.Group>
                     </Col>

@@ -79,6 +79,11 @@ const PurchaseOrderProductDetails = () => {
             ...purchaseOrderData,
             poAmount: totalPoAmount
         }))
+
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
+
     }, [purchaseOrderProductDetailsData, purchaseOrderProductDetailsReducer])
 
     const handleAddItem = () => {
@@ -99,6 +104,9 @@ const PurchaseOrderProductDetails = () => {
             if (response.data && response.data.data.length > 0) {
                 dispatch(vendorProductCatalogueDetailsAction(response.data.data));
             }
+        }
+        else{
+            dispatch(vendorProductCatalogueDetailsAction([]));
         }
     }
 
@@ -178,7 +186,7 @@ const PurchaseOrderProductDetails = () => {
                 if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount)
-                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
+                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -201,7 +209,7 @@ const PurchaseOrderProductDetails = () => {
                 if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(e.target.value))
                     const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value) + parseFloat(poTaxAmount);
-                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
+                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -227,7 +235,8 @@ const PurchaseOrderProductDetails = () => {
                     const calculatedQuantity = parseFloat(purchaseOrderProductDetail[index].poAmt) / parseFloat(e.target.value)
                     purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                        purchaseOrderProductDetail[index].taxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(e.target.value));
+                        var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(e.target.value));
+                        purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     }
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -245,7 +254,8 @@ const PurchaseOrderProductDetails = () => {
                     const calculatedQuantity = parseFloat(e.target.value) / parseFloat(purchaseOrderProductDetail[index].poRate)
                     purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
-                        purchaseOrderProductDetail[index].taxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(purchaseOrderProductDetail[index].poRate));
+                        var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(purchaseOrderProductDetail[index].poRate));
+                        purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     }
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -258,7 +268,7 @@ const PurchaseOrderProductDetails = () => {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
                     purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
-                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
+                    purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
@@ -478,6 +488,7 @@ const PurchaseOrderProductDetails = () => {
             }
 
             <Card className="h-100 mb-2">
+
                 <FalconCardHeader
                     title="Product Details"
                     titleTag="h6"
@@ -485,17 +496,20 @@ const PurchaseOrderProductDetails = () => {
                     light
                     endEl={
                         <Flex>
-                            <div >
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="btn-reveal"
-                                    type="button"
-                                    onClick={() => handleAddItem()}
-                                >
-                                    Add Item
-                                </Button>
-                            </div>
+                            {
+                                purchaseOrderData.poStatus != "Approved" &&
+                                <div >
+                                    <Button
+                                        variant="primary"
+                                        size="sm"
+                                        className="btn-reveal"
+                                        type="button"
+                                        onClick={() => handleAddItem()}
+                                    >
+                                        Add Item
+                                    </Button>
+                                </div>
+                            }
                         </Flex>
                     }
                 />
@@ -569,6 +583,7 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.unitCode}
                                                     required
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 >
                                                     <option value=''>Select </option>
                                                     {quantityUnitList.map((option, index) => (
@@ -585,6 +600,7 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.quantity}
                                                     required
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 />
                                             </td>
 
@@ -596,6 +612,7 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.poRate}
                                                     required
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 />
                                             </td>
 
@@ -606,6 +623,7 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.vendorRate}
                                                     maxLength={10}
+                                                    disabled
                                                 />
                                             </td>
 
@@ -616,6 +634,7 @@ const PurchaseOrderProductDetails = () => {
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.taxBasis}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 >
                                                     <option value=''>Select </option>
                                                     <option value='Percentage'>Percentage </option>
@@ -630,6 +649,7 @@ const PurchaseOrderProductDetails = () => {
                                                     maxLength={10}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.taxRate}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 />
                                             </td>
 
@@ -651,6 +671,7 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.poAmt}
                                                     required
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 />
                                             </td>
 
