@@ -21,6 +21,10 @@ const PurchaseOrderProductDetails = () => {
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
     const [poTaxAmount, setPoTaxAmount] = useState();
+    const [productCategoryList, setProductCategoryList] = useState([]);
+    const [productCategory, setProductCategory] = useState();
+    const [productMasterList, setProductMasterList] = useState([]);
+    const [product, setProduct] = useState();
 
     const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
     var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
@@ -84,6 +88,10 @@ const PurchaseOrderProductDetails = () => {
             $("#btnSave").attr('disabled', true);
         }
 
+        if (productCategoryList.length <= 0) {
+            getProductCategoryList();
+        }
+
     }, [purchaseOrderProductDetailsData, purchaseOrderProductDetailsReducer])
 
     const handleAddItem = () => {
@@ -91,10 +99,12 @@ const PurchaseOrderProductDetails = () => {
         getVendorProductCatalogueMasterList();
     }
 
-    const getVendorProductCatalogueMasterList = async (searchText) => {
+    const getVendorProductCatalogueMasterList = async (searchText, productCategoryCode, productCode) => {
         const requestData = {
             vendorCode: purchaseOrderData.vendorCode,
-            searchText: searchText
+            searchText: searchText,
+            ProductCategoryCode: productCategoryCode ? productCategoryCode : productCategory,
+            ProductCode: productCode ? productCode : product
         }
 
         const response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-product-catalogue-master-list', requestData, {
@@ -105,7 +115,7 @@ const PurchaseOrderProductDetails = () => {
                 dispatch(vendorProductCatalogueDetailsAction(response.data.data));
             }
         }
-        else{
+        else {
             dispatch(vendorProductCatalogueDetailsAction([]));
         }
     }
@@ -178,7 +188,7 @@ const PurchaseOrderProductDetails = () => {
             ...purchaseOrderProductDetail[index],
             [name]: value
         };
-       
+
         dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
 
         if (e.target.name == "quantity") {
@@ -377,6 +387,72 @@ const PurchaseOrderProductDetails = () => {
         setModalShow(false);
     }
 
+    const handleProductCategoryChange = e => {
+        setProductCategory(e.target.value);
+        getVendorProductCatalogueMasterList("", e.target.value);
+        getProductList(e.target.value);
+    }
+
+    const getProductCategoryList = async () => {
+
+        let productCategoryData = [];
+        let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (productCategoryResponse.data.status == 200) {
+            if (productCategoryResponse.data && productCategoryResponse.data.data.length > 0) {
+                productCategoryResponse.data.data.forEach(productCategory => {
+                    productCategoryData.push({
+                        key: productCategory.productCategoryName,
+                        value: productCategory.productCategoryCode
+                    })
+                })
+            }
+            setProductCategoryList(productCategoryData);
+        } else {
+            setProductCategoryList([]);
+        }
+    }
+
+    const getProductList = async (productCategoryCode) => {
+        const request = {
+            pageNumber: 1,
+            pageSize: 1,
+            ProductCategoryCode: productCategoryCode
+        }
+
+        let productData = [];
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-master-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(product => {
+                    productData.push({
+                        key: product.productName,
+                        value: product.code
+                    })
+                })
+            }
+            setProductMasterList(productData);
+        } else {
+            setProductMasterList([]);
+        }
+    }
+
+    const handleProductChange = e => {
+        setProduct(e.target.value);
+        getVendorProductCatalogueMasterList('', productCategory, e.target.value);
+    }
+
+    const onCancelClick = async () => {
+        setVendorModal(false);
+        setProductCategory();
+        setProduct();
+    }
+
     return (
         <>
             {modalShow && paramsData &&
@@ -411,21 +487,58 @@ const PurchaseOrderProductDetails = () => {
                     backdrop="static"
                 >
                     <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-vcenter">OEM Detail</Modal.Title>
+                        <Modal.Title id="contained-modal-title-vcenter">Vendor Product</Modal.Title>
                     </Modal.Header>
                     <Modal.Body className="max-five-rows">
                         <Form className="details-form" id="OemDetailsForm" >
                             <Row>
-                                <Col className="me-3 ms-3 mb-3 mt-2" md="11">
+                                <Col className="me-3 ms-3" md="4">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="1">
+                                        <Form.Label column sm="2">
                                             Search
                                         </Form.Label>
-                                        <Col sm="4">
+                                        <Col sm="8">
                                             <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
+                                <Col className="me-2 ms-3" md="4">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Col sm="8">
+                                            <Form.Select
+                                                type="text"
+                                                name="productCategoryCode"
+                                                onChange={handleProductCategoryChange}
+                                                value={productCategory}
+                                                className="form-control"
+                                            >
+                                                <option value=''>Select Product Category</option>
+                                                {productCategoryList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                                <Col className="me-2 ms-3" md="3">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Col sm="8">
+                                            <Form.Select
+                                                type="text"
+                                                name="productCode"
+                                                onChange={handleProductChange}
+                                                value={product}
+                                                className="form-control"
+                                            >
+                                                <option value=''>Select Product</option>
+                                                {productMasterList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
@@ -440,8 +553,12 @@ const PurchaseOrderProductDetails = () => {
                                             </Form.Check>
                                             </th>
                                             <th>OEM Name</th>
+                                            <th>Product Category</th>
+                                            <th>Product</th>
                                             <th>Variety</th>
                                             <th>Brand</th>
+                                            <th>Unit</th>
+                                            <th>Rate</th>
                                             <th>Season</th>
                                             <th>Area</th>
                                             <th>Sowing</th>
@@ -465,8 +582,12 @@ const PurchaseOrderProductDetails = () => {
                                                         </Form.Check>
                                                     </td>
                                                     <td>{data.oemName}</td>
+                                                    <td>{data.productCategoryName}</td>
+                                                    <td>{data.productName}</td>
                                                     <td>{data.varietyName}</td>
                                                     <td>{data.brandName}</td>
+                                                    <td>{data.unitName}</td>
+                                                    <td>{data.vendorRate}</td>
                                                     <td>{data.season}</td>
                                                     <td>{data.area}</td>
                                                     <td>{data.sowing}</td>
@@ -482,7 +603,7 @@ const PurchaseOrderProductDetails = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={() => handleSelectedItem()} >Add</Button>
-                        <Button variant="danger" onClick={() => { setVendorModal(false) }} >Cancel</Button>
+                        <Button variant="danger" onClick={() => onCancelClick()} >Cancel</Button>
                     </Modal.Footer>
                 </Modal >
             }
@@ -524,13 +645,20 @@ const PurchaseOrderProductDetails = () => {
                         >
                             <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                 <thead className='custom-bg-200'>
-                                    {rowData && <tr>
-                                        {columnsArray.map((column, index) => (
-                                            <th className="text-left" key={index}>
-                                                {column}
-                                            </th>
-                                        ))}
-                                    </tr>}
+                                    {rowData &&
+                                        (<tr>
+                                            {columnsArray.map((column, index) => {
+                                                if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
+                                                    return null;
+                                                }
+                                                return (
+                                                    <th className="text-left" key={index}>
+                                                        {column}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                        )}
                                 </thead>
                                 <tbody id="tbody" className="details-form">
                                     {rowData.map((poProductDetailData, index) => (

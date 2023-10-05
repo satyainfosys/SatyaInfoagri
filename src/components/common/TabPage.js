@@ -36,17 +36,24 @@ import AddFig from 'components/CollectionCentre/AddFig';
 import AddDistributionCentre from 'components/DistributionCentre/AddDistributionCentre';
 import CommonContactTable from './CommonContactTable';
 import TabInfoRow from './TabInfoRow';
+
 import AddProduct from 'components/ProductLine/AddProduct';
 import AddProductCategoryDetail from 'components/ProductLine/AddProductCategoryDetail';
 import AddMenuDetails from 'components/MenuDetails/AddMenuDetails';
 import AddProductMaster from 'components/ProductMaster/AddProductMaster';
+
 import AddOemMasterDetails from 'components/OemMaster/AddOemMasterDetails';
 import OemProductDetails from 'components/OemMaster/OemProductDetails';
+
 import AddVendorMasterDetail from 'components/VendorMaster/AddVendorMasterDetail';
 import VendorProductCatalogueDetails from 'components/VendorMaster/VendorProductCatalogueDetails';
+
 import AddPurchaseOrderDetail from 'components/PurchaseOrder/AddPurchaseOrderDetail';
 import PurchaseOrderProductDetails from 'components/PurchaseOrder/PurchaseOrderProductDetails';
 import PurchaseOrderTermDetails from 'components/PurchaseOrder/PurchaseOrderTermDetails';
+
+import AddMaterialReceiptHeader from 'components/MaterialReceipt/AddMaterialReceiptHeader';
+import AddMaterialReceiptDetail from 'components/MaterialReceipt/AddMaterialReceiptDetail';
 
 const TabPage = ({
   listData,
@@ -168,7 +175,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO"
+                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material'
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -417,6 +424,18 @@ const TabPage = ({
                 </>
               )}
 
+              {index == 1 && module == 'MaterialReceipt' && (
+                <>
+                  <TabInfoRow />
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddMaterialReceiptHeader />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <AddMaterialReceiptDetail />
+                </>
+              )}
             </Tab>
           );
         })}

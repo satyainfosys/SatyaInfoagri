@@ -28,7 +28,7 @@ const MaterialReceipt = () => {
     const [formHasError, setFormError] = useState(false);
 
     useEffect(() => {
-        $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
+        // $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
         getCompany();
     }, [])
 

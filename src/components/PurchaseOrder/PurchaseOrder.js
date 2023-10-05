@@ -5,7 +5,7 @@ import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
 import { toast } from 'react-toastify';
-import { formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, purchaseOrderTermDetailsAction, tabInfoAction, vendorProductCatalogueDetailsAction } from 'actions';
+import { distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, purchaseOrderTermDetailsAction, tabInfoAction, vendorProductCatalogueDetailsAction } from 'actions';
 import Moment from "moment";
 
 const tabArray = ['PO List', 'Add PO', 'Add Term']
@@ -92,6 +92,7 @@ const PurchaseOrder = () => {
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
         fetchPurchaseOrderList(1, perPage, e.target.value);
+        fetchDistributionCentreList(e.target.value);
     }
 
     const fetchPurchaseOrderList = async (page, size = perPage, encryptedCompanyCode) => {
@@ -115,6 +116,29 @@ const PurchaseOrder = () => {
         } else {
             setIsLoading(false);
             setListData([])
+        }
+    }
+
+    const fetchDistributionCentreList = async (encryptedCompanyCode) => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedCompanyCode: encryptedCompanyCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        let distributionCentreListData = [];
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(distributionCentre => {
+                    distributionCentreListData.push({
+                        key: distributionCentre.distributionName,
+                        value: distributionCentre.distributionCentreCode
+                    })
+                })
+            }
+            dispatch(distributionCentreListAction(distributionCentreListData));
         }
     }
 

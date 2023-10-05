@@ -431,3 +431,17 @@ export const purchaseOrderDetailsErrAction = (payload) => {
     payload
   };
 };
+
+export const materialReceiptHeaderDetailsAction = (payload) => {
+  return {
+    type: 'MATERIALRECEIPTHEADERDETAILS',
+    payload
+  };
+};
+
+export const materialReceiptDetailsAction = (payload) => {
+  return {
+    type: 'MATERIALRECEIPTDETAILS',
+    payload
+  };
+};

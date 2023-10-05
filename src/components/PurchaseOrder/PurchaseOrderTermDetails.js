@@ -192,13 +192,20 @@ const PurchaseOrderTermDetails = () => {
                         >
                             <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                 <thead className='custom-bg-200'>
-                                    {rowData && <tr>
-                                        {columnsArray.map((column, index) => (
-                                            <th className="text-left" key={index}>
-                                                {column}
-                                            </th>
-                                        ))}
-                                    </tr>}
+                                    {rowData &&
+                                        (<tr>
+                                            {columnsArray.map((column, index) => {
+                                                if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
+                                                    return null;
+                                                }
+                                                return (
+                                                    <th className="text-left" key={index}>
+                                                        {column}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                        )}
                                 </thead>
                                 <tbody id="tbody" className="details-form">
                                     {rowData.map((poTermData, index) => (
