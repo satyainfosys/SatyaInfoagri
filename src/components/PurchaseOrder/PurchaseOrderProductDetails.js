@@ -542,6 +542,7 @@ const PurchaseOrderProductDetails = () => {
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
+                                            <th>S.No</th>
                                             <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
                                                 <Form.Check.Input
                                                     type="checkbox"
@@ -557,19 +558,20 @@ const PurchaseOrderProductDetails = () => {
                                             <th>Product</th>
                                             <th>Variety</th>
                                             <th>Brand</th>
+                                            <th>Type</th>
                                             <th>Unit</th>
                                             <th>Rate</th>
+                                            <th>Org/Inorg</th>
                                             <th>Season</th>
                                             <th>Area</th>
-                                            <th>Sowing</th>
-                                            <th>Org/Inorg</th>
-                                            <th>Type</th>
+                                            <th>Sowing</th>                                            
                                         </tr>
                                     </thead>
                                     <tbody>
                                         {
                                             vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.map((data, index) =>
                                                 <tr>
+                                                    <td>{index + 1}</td>
                                                     <td key={index}>
                                                         <Form.Check type="checkbox" className="mb-1">
                                                             <Form.Check.Input
@@ -586,13 +588,13 @@ const PurchaseOrderProductDetails = () => {
                                                     <td>{data.productName}</td>
                                                     <td>{data.varietyName}</td>
                                                     <td>{data.brandName}</td>
+                                                    <td>{data.type}</td>
                                                     <td>{data.unitName}</td>
                                                     <td>{data.vendorRate}</td>
+                                                    <td>{data.orgInorg}</td>
                                                     <td>{data.season}</td>
                                                     <td>{data.area}</td>
-                                                    <td>{data.sowing}</td>
-                                                    <td>{data.orgInorg}</td>
-                                                    <td>{data.type}</td>
+                                                    <td>{data.sowing}</td>                                                    
                                                 </tr>
                                             )
                                         }
