@@ -404,6 +404,13 @@ export const vendorMasterDetailsErrAction = (payload) => {
   };
 };
 
+export const vendorMasterDetailsListAction = (payload) => {
+  return {
+    type: 'VENDORMASTERLISTDETAILS',
+    payload
+  };
+};
+
 export const purchaseOrderDetailsAction = (payload) => {
   return {
     type: 'PURCHASEORDERDETAILS',
@@ -442,6 +449,13 @@ export const materialReceiptHeaderDetailsAction = (payload) => {
 export const materialReceiptDetailsAction = (payload) => {
   return {
     type: 'MATERIALRECEIPTDETAILS',
+    payload
+  };
+};
+
+export const materialReceiptErrorAction = (payload) => {
+  return {
+    type: 'MATERIALRECEIPTERROR',
     payload
   };
 };

@@ -112,6 +112,8 @@ const AddPurchaseOrderDetail = () => {
                 distributionCentreCode: e.target.value,
                 collectionCentreCode: null
             }))
+            setCollectionCentreList([]);
+            e.target.value && getCollectionCentre(e.target.value)
         }
         else {
             dispatch(purchaseOrderDetailsAction({
@@ -129,8 +131,6 @@ const AddPurchaseOrderDetail = () => {
                 ...formChangedData,
                 purchaseOrderDetailUpdate: true
             }))
-            setCollectionCentreList([]);
-            e.target.value && getCollectionCentre(e.target.value)
         } else {
             dispatch(formChangedAction({
                 ...formChangedData,

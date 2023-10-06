@@ -6,6 +6,7 @@ import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
 import { toast } from 'react-toastify';
 import Moment from "moment";
+import { formChangedAction, materialReceiptDetailsAction, materialReceiptErrorAction, materialReceiptHeaderDetailsAction, tabInfoAction, vendorMasterDetailsListAction } from 'actions';
 
 const tabArray = ["Material List", "Add Material"]
 
@@ -26,12 +27,24 @@ const MaterialReceipt = () => {
     const [perPage, setPerPage] = useState(15);
     const [activeTabName, setActiveTabName] = useState();
     const [formHasError, setFormError] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
-        // $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
+        localStorage.removeItem("EncryptedMaterialReceiptId");
         getCompany();
     }, [])
 
+    const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
+    var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const materialReceiptDetailsReducer = useSelector((state) => state.rootReducer.materialReceiptDetailsReducer)
+    var materialReceiptList = materialReceiptDetailsReducer.materialReceiptDetails;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const getCompany = async () => {
         let companyData = [];
@@ -56,11 +69,31 @@ const MaterialReceipt = () => {
             setCompanyList(companyData)
             if (companyResponse.data.data.length == 1) {
                 fetchMaterialReceiptHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                getVendorMasterList(companyResponse.data.data[0].encryptedCompanyCode)
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
             }
         } else {
             setCompanyList([])
+        }
+    }
+
+    const getVendorMasterList = async () => {
+        const requestData = {
+            pageNumber: 1,
+            pageSize: 1,
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-master-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                dispatch(vendorMasterDetailsListAction(response.data.data))
+            }
+        } else {
+            dispatch(vendorMasterDetailsListAction([]))
         }
     }
 
@@ -70,6 +103,7 @@ const MaterialReceipt = () => {
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
         fetchMaterialReceiptHeaderList(1, perPage, e.target.value);
+        getVendorMasterList(e.target.value);
     }
 
     const fetchMaterialReceiptHeaderList = async (page, size = perPage, encryptedCompanyCode) => {
@@ -95,12 +129,181 @@ const MaterialReceipt = () => {
         }
     }
 
-    $('[data-rr-ui-event-key*="PO List"]').off('click').on('click', function () {
+    $('[data-rr-ui-event-key*="Material List"]').off('click').on('click', function () {
         $("#btnNew").show();
         $("#btnSave").hide();
         $("#btnCancel").hide();
         $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
+        localStorage.removeItem("EncryptedMaterialReceiptId");
+        dispatch(materialReceiptHeaderDetailsAction(undefined));
     })
+
+    $('[data-rr-ui-event-key*="Add Material"]').off('click').on('click', function () {
+        setActiveTabName("Add Material")
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+    })
+
+    const newDetails = () => {
+        if (localStorage.getItem("EncryptedCompanyCode")) {
+            $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
+            $('#btnSave').attr('disabled', false);
+            dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+        } else {
+            toast.error("Please select company first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
+    }
+
+    const cancelClick = () => {
+        $('#btnExit').attr('isExit', 'false');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            $('[data-rr-ui-event-key*="Material List"]').trigger('click');
+        }
+    }
+
+    const exitModule = () => {
+        $('#btnExit').attr('isExit', 'true');
+        if (isFormChanged) {
+            setModalShow(true);
+        } else {
+            window.location.href = '/dashboard';
+            dispatch(materialReceiptHeaderDetailsAction(undefined));
+            dispatch(vendorMasterDetailsListAction([]));
+            localStorage.removeItem("EncryptedMaterialReceiptId");
+            localStorage.removeItem("EncryptedCompanyCode");
+            localStorage.removeItem("CompanyName");
+        }
+    }
+
+    const discardChanges = () => {
+        $('#btnDiscard').attr('isDiscard', 'true');
+        if ($('#btnExit').attr('isExit') == 'true')
+            window.location.href = '/dashboard';
+        else {
+            $('[data-rr-ui-event-key*="Material List"]').trigger('click');
+        }
+
+        setModalShow(false);
+    }
+
+    const clearMaterialReceiptReducers = () => {
+        dispatch(formChangedAction(undefined));
+        dispatch(materialReceiptDetailsAction([]));
+        dispatch(materialReceiptErrorAction(undefined));
+    }
+
+    const materialReceiptValidation = () => {
+        setModalShow(false);
+
+        const vendorErr = {};
+
+        let isValid = true;
+
+        if (!materialReceiptHeaderData.vendorCode) {
+            vendorErr.empty = "Select vendor";
+            isValid = false;
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                vendorErr
+            }
+
+            dispatch(materialReceiptErrorAction(errorObject))
+        }
+
+        return isValid;
+    }
+
+    const updateMaterialReceiptCallback = (isAddMaterialReceipt = false) => {
+        setModalShow(false);
+
+        if (!isAddMaterialReceipt) {
+            toast.success("Material receipt details updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearMaterialReceiptReducers();
+
+        fetchMaterialReceiptHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addMaterialReceiptDetails = () => {
+        if (materialReceiptValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorCode: materialReceiptHeaderData.vendorCode,
+                poNo: materialReceiptHeaderData.poNo ? materialReceiptHeaderData.poNo : "",
+                materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                    Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                activeStatus: "A",
+                addUser: localStorage.getItem("LoginUserName"),
+                materialReceiptDetails: materialReceiptList
+            }
+
+            const keys = ["addUser", "personName"]
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+            }
+
+            const materialReceiptDetailKeys = ['addUser']
+            var index = 0;
+            for (var obj in requestData.materialReceiptDetails) {
+                var materialReceiptObject = requestData.materialReceiptDetails[obj];
+
+                for (const key of Object.keys(materialReceiptObject).filter((key) => materialReceiptDetailKeys.includes(key))) {
+                    materialReceiptObject[key] = materialReceiptObject[key] ? materialReceiptObject[key].toUpperCase() : "";
+                }
+
+                requestData.materialReceiptDetails[index] = materialReceiptObject;
+                index++;
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-header', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(materialReceiptHeaderDetailsAction({
+                                ...materialReceiptHeaderData,
+                                encryptedMaterialReceiptId: res.data.data.encryptedMaterialReceiptId,
+                                materialReceiptId: res.data.data.materialReceiptId
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedMaterialReceiptId", res.data.data.encryptedMaterialReceiptId);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateMaterialReceiptCallback(true);
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
 
     return (
         <>
@@ -111,15 +314,38 @@ const MaterialReceipt = () => {
                 />
             ) : null}
 
+            {modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Do you want to save changes?</h5>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={addMaterialReceiptDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="MaterialReceipt"
                 // saveDetails={purchaseOrderData.encryptedPoNo ? updatePurchaseOrderDetails : addPurchaseOrderDetails}
-                // newDetails={newDetails}
-                // cancelClick={cancelClick}
-                // exitModule={exitModule}
+                saveDetails={addMaterialReceiptDetails}
+                newDetails={newDetails}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
                 tableFilterOptions={companyList}
                 tableFilterName={'Company'}
                 supportingMethod1={handleFieldChange}

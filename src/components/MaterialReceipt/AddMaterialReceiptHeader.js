@@ -3,47 +3,131 @@ import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
+import { formChangedAction, materialReceiptHeaderDetailsAction } from 'actions';
 
 const AddMaterialReceiptHeader = () => {
 
     const dispatch = useDispatch();
     const [isLoading, setIsLoading] = useState(false);
-    const [vendorList, setVendorList] = useState([]);
-    const [vendorMasterList, setVendorMasterList] = useState([]);
+    const [poList, setPoList] = useState([]);
+    const [poListData, setPoListData] = useState([]);
+
+    const resetMaterialReceiptHeaderDetails = () => {
+        dispatch(materialReceiptHeaderDetailsAction({
+            "encryptedMaterialReceiptId": "",
+            "materialReceiptId": "",
+            "vendorCode": "",
+            "address": "",
+            "pinCode": "",
+            "state": "",
+            "country": "",
+            "poNo": "",
+            "poDate": "",
+            "poStatus": "",
+            "deliveryLocation": "",
+            "challanNo": "",
+            "materialReceiptDate": Moment().format('YYYY-MM-DD'),
+            "gstNo": "",
+            "panNo": "",
+            "tinNo": "",
+            "personName": ""
+        }))
+    }
 
 
     const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
     var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
 
-    const handleVendorClick = async () => {
-        getVendorMasterList();
-    }
-    
-    const getVendorMasterList = async () => {
-        let vendorData = [];
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
-        const requestData = {
-            pageNumber: 1,
-            pageSize: 1,
-            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+    const vendorMasterDetailsListReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsListReducer)
+    var vendorList = vendorMasterDetailsListReducer.vendorMasterListDetails;
+
+    const materialReceiptErrorReducer = useSelector((state) => state.rootReducer.materialReceiptErrorReducer)
+    const materialDataErr = materialReceiptErrorReducer.materialReceiptError;
+
+    useEffect(() => {
+    }, [])
+
+    if (!materialReceiptHeaderReducer.materialReceiptHeaderDetails ||
+        Object.keys(materialReceiptHeaderReducer.materialReceiptHeaderDetails).length <= 0) {
+        resetMaterialReceiptHeaderDetails();
+    }
+
+    const fetchPurchaseOrder = async (vendorCode) => {
+        let purchaseOrderData = [];
+
+        const request = {
+            VendorCode: vendorCode
         }
 
-        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-master-list', requestData, {
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-header-master-list', request, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
+
         if (response.data.status == 200) {
             if (response.data && response.data.data.length > 0) {
-                setVendorMasterList(response.data.data);
-                response.data.data.forEach(vendor => {
-                    vendorData.push({
-                        key: vendor.vendorName,
-                        value: vendor.vendorCode
-                    });
-                });
+                setPoListData(response.data.data)
+                response.data.data.forEach(po => {
+                    purchaseOrderData.push({
+                        key: po.poNo,
+                        value: po.poNo
+                    })
+                })
             }
-            setVendorList(vendorData);
+            setPoList(purchaseOrderData)
+        }
+        else {
+            setPoList([]);
+        }
+    }
+
+    const handleFieldChange = e => {
+        if (e.target.name == "vendorCode" && e.target.value) {
+            const vendorDetail = vendorList.find(vendor => vendor.vendorCode == e.target.value);
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                vendorCode: e.target.value,
+                address: vendorDetail.vendorAddress,
+                pinCode: vendorDetail.vendorPincode,
+                state: vendorDetail.stateName,
+                country: vendorDetail.countryName,
+                gstNo: vendorDetail.vendorGstNo,
+                panNo: vendorDetail.vendorPanNo,
+                tinNo: vendorDetail.vendorTinNo,
+                vendorName: vendorDetail.vendorName
+            }))
+            setPoList([]);
+            e.target.value && fetchPurchaseOrder(e.target.value)
+        }
+        else if (e.target.name == "poNo") {
+            const poNumberDetail = poListData.find(po => po.poNo == e.target.value);
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                poNo: e.target.value,
+                poDate: poNumberDetail.poDate,
+                poStatus: poNumberDetail.poStatus,
+                deliveryLocation: poNumberDetail.deliveryLocation
+            }))
+        }
+        else {
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                [e.target.name]: e.target.value
+            }))
+        }
+
+        if (materialReceiptHeaderData.encryptedMaterialReceiptId) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptHeaderDetailUpdate: true
+            }))
         } else {
-            setVendorList([]);
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptHeaderDetailAdd: true
+            }))
         }
     }
 
@@ -72,7 +156,7 @@ const AddMaterialReceiptHeader = () => {
                                     </Col>
                                     :
                                     <Col sm="8">
-                                        <Form.Select id="txtVendorName" name="vendorCode" onClick={() => handleVendorClict()} onChange={handleFieldChange} value={purchaseOrderData.vendorCode} >
+                                        <Form.Select id="txtVendorName" name="vendorCode" onClick={() => handleVendorClick()} onChange={handleFieldChange} value={purchaseOrderData.vendorCode} >
                                             <option value=''>Select Vendor</option>
                                             {vendorList.map((option, index) => (
                                                 <option key={index} value={option.value}>{option.key}</option>
@@ -84,12 +168,17 @@ const AddMaterialReceiptHeader = () => {
                                     </Col>
                             } */}
                             <Col sm="8">
-                                <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onClick={() => handleVendorClick()} >
+                                <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
                                     <option value=''>Select Vendor</option>
-                                    {vendorList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
+                                    {vendorList.map((vendor) => (
+                                        <option key={vendor.vendorName} value={vendor.vendorCode}>
+                                            {vendor.vendorName}
+                                        </option>
                                     ))}
                                 </Form.Select>
+                                {Object.keys(materialDataErr.vendorErr).map((key) => {
+                                    return <span className="error-message">{materialDataErr.vendorErr[key]}</span>
+                                })}
                             </Col>
                         </Form.Group>
 
@@ -136,8 +225,11 @@ const AddMaterialReceiptHeader = () => {
                                 PO Number
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Select id="txtPoNumber" name="poNo" value={materialReceiptHeaderData.poNo} >
+                                <Form.Select id="txtPoNumber" name="poNo" onChange={handleFieldChange} value={materialReceiptHeaderData.poNo} >
                                     <option value=''>Select PO</option>
+                                    {poList.map((option, index) => (
+                                        <option key={index} value={option.value}>{option.key}</option>
+                                    ))}
                                 </Form.Select>
                             </Col>
                         </Form.Group>
@@ -147,7 +239,7 @@ const AddMaterialReceiptHeader = () => {
                                 PO Date
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(materialReceiptHeaderData.poDate).format("YYYY-MM-DD")} disabled />
+                                <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={materialReceiptHeaderData.poDate} disabled />
                             </Col>
                         </Form.Group>
 
@@ -174,7 +266,7 @@ const AddMaterialReceiptHeader = () => {
                                 Challan No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} />
+                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} />
                             </Col>
                         </Form.Group>
 
@@ -183,7 +275,7 @@ const AddMaterialReceiptHeader = () => {
                                 Delivery Date
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate" value={Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD")} />
+                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate" value={Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD")} onChange={handleFieldChange} />
                             </Col>
                         </Form.Group>
                     </Col>
@@ -213,6 +305,15 @@ const AddMaterialReceiptHeader = () => {
                             </Form.Label>
                             <Col sm="8">
                                 <Form.Control id="txtTinNo" name="tinNo" placeholder="TIN No" value={materialReceiptHeaderData.tinNo} disabled />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                            <Form.Label column sm="3">
+                                Person NAme
+                            </Form.Label>
+                            <Col sm="8">
+                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} />
                             </Col>
                         </Form.Group>
                     </Col>

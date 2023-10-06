@@ -55,6 +55,8 @@ import purchaseOrderTermDetailsReducer from './purchaseOrderTermDetailsReducer'
 import purchaseOrderDetailsErrorReducer from './purchaseOrderDetailsErrorReducer'
 import materialReceiptHeaderReducer from './materialReceiptHeaderReducer'
 import materialReceiptDetailsReducer from './materialReceiptDetailsReducer'
+import vendorMasterDetailsListReducer from './vendorMasterDetailsListReducer'
+import materialReceiptErrorReducer from './materialReceiptErrorReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -112,7 +114,9 @@ const rootReducer = combineReducers({
   purchaseOrderTermDetailsReducer,
   purchaseOrderDetailsErrorReducer,
   materialReceiptHeaderReducer,
-  materialReceiptDetailsReducer
+  materialReceiptDetailsReducer,
+  vendorMasterDetailsListReducer,
+  materialReceiptErrorReducer
 });
 
 export default rootReducer;

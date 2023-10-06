@@ -453,6 +453,13 @@ const PurchaseOrderProductDetails = () => {
         setProduct();
     }
 
+    const handleHeaderCheckboxChange = () => {
+        setSelectAll(!selectAll);
+        if (!selectAll) {
+            setSelectedRows([]);
+        }
+    };
+
     return (
         <>
             {modalShow && paramsData &&
@@ -548,8 +555,8 @@ const PurchaseOrderProductDetails = () => {
                                                     type="checkbox"
                                                     name="selectAll"
                                                     style={{ width: '15px', height: '15px' }}
-                                                // onChange={handleHeaderCheckboxChange}
-                                                // checked={selectAll}
+                                                    onChange={handleHeaderCheckboxChange}
+                                                    checked={selectAll}
                                                 />
                                             </Form.Check>
                                             </th>
@@ -564,7 +571,7 @@ const PurchaseOrderProductDetails = () => {
                                             <th>Org/Inorg</th>
                                             <th>Season</th>
                                             <th>Area</th>
-                                            <th>Sowing</th>                                            
+                                            <th>Sowing</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -594,7 +601,7 @@ const PurchaseOrderProductDetails = () => {
                                                     <td>{data.orgInorg}</td>
                                                     <td>{data.season}</td>
                                                     <td>{data.area}</td>
-                                                    <td>{data.sowing}</td>                                                    
+                                                    <td>{data.sowing}</td>
                                                 </tr>
                                             )
                                         }

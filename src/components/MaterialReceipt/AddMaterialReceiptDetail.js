@@ -7,7 +7,7 @@ import Flex from 'components/common/Flex';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { purchaseOrderProductDetailsAction } from 'actions';
+import { formChangedAction, materialReceiptDetailsAction, purchaseOrderProductDetailsAction } from 'actions';
 
 const AddMaterialReceiptDetail = () => {
 
@@ -15,6 +15,8 @@ const AddMaterialReceiptDetail = () => {
     const [formHasError, setFormError] = useState(false);
     const [rowData, setRowData] = useState([]);
     const [poModal, setPoModal] = useState(false);
+    const [selectAll, setSelectAll] = useState(false);
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const materialReceiptDetailsReducer = useSelector((state) => state.rootReducer.materialReceiptDetailsReducer)
     var materialReceiptData = materialReceiptDetailsReducer.materialReceiptDetails;
@@ -24,6 +26,9 @@ const AddMaterialReceiptDetail = () => {
 
     let purchaseOrderProductDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderProductDetailsReducer)
     let purchaseOrderProductDetailsList = purchaseOrderProductDetailsReducer.purchaseOrderProductDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
 
     const columnsArray = [
         'S.No',
@@ -38,8 +43,19 @@ const AddMaterialReceiptDetail = () => {
         'Delete'
     ];
 
+    useEffect(() => {
+        if (materialReceiptDetailsReducer.materialReceiptDetails.length > 0) {
+            setRowData(materialReceiptData);
+            setSelectedRows([]);
+        } else {
+            setRowData([]);
+            setSelectedRows([]);
+        }
+    }, [materialReceiptData, materialReceiptDetailsReducer])
+
     const handleAddItem = () => {
         setPoModal(true);
+        getPoDetailList()
         // if (materialReceiptHeaderData.poNo) {
         //     setPoModal(true);
         //     getPoDetailList()
@@ -69,9 +85,60 @@ const AddMaterialReceiptDetail = () => {
         }
     }
 
+    const handleCheckboxChange = (rowData) => {
+        if (selectedRows.includes(rowData)) {
+            setSelectedRows(selectedRows.filter(row => row !== rowData));
+        } else {
+            setSelectedRows([...selectedRows, rowData]);
+        }
+    };
+
+    const handleSelectedItem = () => {
+        if (selectAll) {
+            const updatedData = [...purchaseOrderProductDetailsList]
+            dispatch(materialReceiptDetailsAction(updatedData));
+        } else {
+            const updatedData = materialReceiptData.concat(selectedRows);
+            dispatch(materialReceiptDetailsAction(updatedData));
+        }
+
+        setPoModal(false);
+        setSelectAll(false);
+    }
+
+    const handleFieldChange = async (e, index) => {
+        const { name, value } = e.target;
+        var materialReceipt = [...rowData];
+        materialReceipt[index] = {
+            ...materialReceipt[index],
+            [name]: value
+        };
+
+        dispatch(materialReceiptDetailsAction(materialReceipt));
+
+        if (materialReceipt[index].encryptedMateialReceiptDetailId) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptDetailAdd: true
+            }))
+        }
+    }
+
     const onCancelClick = () => {
         setPoModal(false);
     }
+
+    const handleHeaderCheckboxChange = () => {
+        setSelectAll(!selectAll);
+        if (!selectAll) {
+            setSelectedRows([]);
+        }
+    };
 
     return (
         <>
@@ -142,13 +209,14 @@ const AddMaterialReceiptDetail = () => {
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
+                                            <th>S.No</th>
                                             <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
                                                 <Form.Check.Input
                                                     type="checkbox"
                                                     name="selectAll"
                                                     style={{ width: '15px', height: '15px' }}
-                                                // onChange={handleHeaderCheckboxChange}
-                                                // checked={selectAll}
+                                                    onChange={handleHeaderCheckboxChange}
+                                                    checked={selectAll}
                                                 />
                                             </Form.Check>
                                             </th>
@@ -169,6 +237,7 @@ const AddMaterialReceiptDetail = () => {
                                         {
                                             purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.map((data, index) =>
                                                 <tr>
+                                                    <td>{index + 1}</td>
                                                     <td key={index}>
                                                         <Form.Check type="checkbox" className="mb-1">
                                                             <Form.Check.Input
@@ -289,18 +358,24 @@ const AddMaterialReceiptDetail = () => {
                                         </td>
 
                                         <td key={index}>
-                                            <Form.Select
+                                            {/* <Form.Select
                                                 type="text"
                                                 name="unitCode"
                                                 className="form-control select"
-                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.unitCode}
                                             >
                                                 <option value=''>Select </option>
-                                                {/* {quantityUnitList.map((option, index) => (
+                                                {quantityUnitList.map((option, index) => (
                                                     <option key={index} value={option.value}>{option.key}</option>
-                                                ))} */}
-                                            </Form.Select>
+                                                ))}
+                                            </Form.Select> */}
+                                            <EnlargableTextbox
+                                                name="unitName"
+                                                placeholder="Product Category"
+                                                value={materialReceiptDetailData.unitName}
+                                                disabled
+                                            />
                                         </td>
 
                                         <td key={index}>
@@ -308,7 +383,7 @@ const AddMaterialReceiptDetail = () => {
                                                 name="quantity"
                                                 placeholder="Quantity"
                                                 maxLength={5}
-                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.quantity}
                                                 required
                                             />
@@ -319,10 +394,9 @@ const AddMaterialReceiptDetail = () => {
                                                 name="receivedQuantity"
                                                 placeholder="Received Qty"
                                                 maxLength={10}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                value={poProductDetailData.poRate}
+                                                onChange={(e) => handleFieldChange(e, index)}
+                                                value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
                                                 required
-                                                disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                             />
                                         </td>
 
@@ -330,14 +404,15 @@ const AddMaterialReceiptDetail = () => {
                                             <EnlargableTextbox
                                                 name="rejectedQuantity"
                                                 placeholder="Rejected Quantity"
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.vendorRate}
+                                                onChange={(e) => handleFieldChange(e, index)}
+                                                value={materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : ""}
                                                 maxLength={10}
                                             />
                                         </td>
 
                                         <td key={index}>
-                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                            {/* <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} /> */}
+                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" />
                                         </td>
                                     </tr>
                                 ))}
