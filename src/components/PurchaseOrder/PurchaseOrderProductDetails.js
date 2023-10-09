@@ -738,6 +738,15 @@ const PurchaseOrderProductDetails = () => {
                                                     value={poProductDetailData.quantity}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
                                                 />
                                             </td>
 
@@ -750,6 +759,15 @@ const PurchaseOrderProductDetails = () => {
                                                     value={poProductDetailData.poRate}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
                                                 />
                                             </td>
 
@@ -787,6 +805,15 @@ const PurchaseOrderProductDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.taxRate}
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
                                                 />
                                             </td>
 
@@ -809,6 +836,15 @@ const PurchaseOrderProductDetails = () => {
                                                     value={poProductDetailData.poAmt}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
                                                 />
                                             </td>
 

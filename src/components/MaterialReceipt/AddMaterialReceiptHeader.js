@@ -30,7 +30,8 @@ const AddMaterialReceiptHeader = () => {
             "gstNo": "",
             "panNo": "",
             "tinNo": "",
-            "personName": ""
+            "personName": "",
+            "materialStatus": "Draft"
         }))
     }
 
@@ -271,7 +272,11 @@ const AddMaterialReceiptHeader = () => {
                                 Delivery Date
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate" value={Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD")} onChange={handleFieldChange} />
+                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate"
+                                    value={materialReceiptHeaderData.materialReceiptDate ?
+                                        Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
+                                    onChange={handleFieldChange}
+                                />
                             </Col>
                         </Form.Group>
                     </Col>
@@ -306,10 +311,22 @@ const AddMaterialReceiptHeader = () => {
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                             <Form.Label column sm="3">
-                                Person NAme
+                                Person Name
                             </Form.Label>
                             <Col sm="8">
                                 <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} />
+                            </Col>
+                        </Form.Group>
+
+                        <Form.Group as={Row} controlId="formPlaintextPassword">
+                            <Form.Label column sm="3">
+                                Status
+                            </Form.Label>
+                            <Col sm="8">
+                                <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange}>
+                                    <option value="Draft">Draft</option>
+                                    <option value="Approved">Approved</option>
+                                </Form.Select>
                             </Col>
                         </Form.Group>
                     </Col>

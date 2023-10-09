@@ -30,6 +30,9 @@ const AddMaterialReceiptDetail = () => {
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
+    const materialReceiptErrorReducer = useSelector((state) => state.rootReducer.materialReceiptErrorReducer)
+    const materialDataErr = materialReceiptErrorReducer.materialReceiptError;
+
     const columnsArray = [
         'S.No',
         'Product Category',
@@ -253,7 +256,7 @@ const AddMaterialReceiptDetail = () => {
                 <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
                     <Form
                         noValidate
-                        // validated={formHasError || (purchaseOrderErr.poProductDetailsErr && purchaseOrderErr.poProductDetailsErr.invalidPoProductDetail)}
+                        validated={formHasError || (materialDataErr.materialReceiptDetailErr && materialDataErr.materialReceiptDetailErr.invalidMaterialReceiptDetail)}
                         className="details-form"
                         id="AddMaterialReceipteDetailsForm"
                     >

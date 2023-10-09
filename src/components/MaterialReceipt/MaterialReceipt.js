@@ -223,6 +223,7 @@ const MaterialReceipt = () => {
         setModalShow(false);
 
         const vendorErr = {};
+        const materialReceiptDetailErr = {};
 
         let isValid = true;
 
@@ -231,9 +232,19 @@ const MaterialReceipt = () => {
             isValid = false;
         }
 
+        if(materialReceiptList && materialReceiptList.length > 0){
+            materialReceiptList.forEach((row, index) => {
+                if(!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity){
+                    materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
+                    isValid = false;
+                }
+            })
+        }
+
         if (!isValid) {
             var errorObject = {
-                vendorErr
+                vendorErr,
+                materialReceiptDetailErr
             }
 
             dispatch(materialReceiptErrorAction(errorObject))

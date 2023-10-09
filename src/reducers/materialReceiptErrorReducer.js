@@ -1,6 +1,7 @@
 const initialState = {
     materialReceiptError: {
-        vendorErr: {}
+        vendorErr: {},
+        materialReceiptDetailErr: {}
     }
 };
 
