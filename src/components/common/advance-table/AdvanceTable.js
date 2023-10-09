@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction } from '../../../actions/index';
+import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -121,6 +121,16 @@ const AdvanceTable = ({
       dispatch(purchaseOrderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
+      dispatch(tabInfoAction({
+        title1: `${localStorage.getItem("CompanyName")}`
+      }))
+    }
+    else if(rowData.hasOwnProperty('encryptedMaterialReceiptId')){
+      localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
+      dispatch(materialReceiptHeaderDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
         title1: `${localStorage.getItem("CompanyName")}`

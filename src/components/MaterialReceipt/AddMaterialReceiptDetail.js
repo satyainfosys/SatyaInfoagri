@@ -159,53 +159,6 @@ const AddMaterialReceiptDetail = () => {
                     <Modal.Body className="max-five-rows">
                         <Form className="details-form" id="OemDetailsForm" >
                             <Row>
-                                {/* <Col className="me-3 ms-3" md="4">
-                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="2">
-                                            Search
-                                        </Form.Label>
-                                        <Col sm="8">
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
-                                        </Col>
-                                    </Form.Group>
-                                </Col>
-                                <Col className="me-2 ms-3" md="4">
-                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Col sm="8">
-                                            <Form.Select
-                                                type="text"
-                                                name="productCategoryCode"
-                                                onChange={handleProductCategoryChange}
-                                                value={productCategory}
-                                                className="form-control"
-                                            >
-                                                <option value=''>Select Product Category</option>
-                                                {productCategoryList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
-                                            </Form.Select>
-                                        </Col>
-                                    </Form.Group>
-                                </Col>
-                                <Col className="me-2 ms-3" md="3">
-                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Col sm="8">
-                                            <Form.Select
-                                                type="text"
-                                                name="productCode"
-                                                onChange={handleProductChange}
-                                                value={product}
-                                                className="form-control"
-                                            >
-                                                <option value=''>Select Product</option>
-                                                {productMasterList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
-                                            </Form.Select>
-                                        </Col>
-                                    </Form.Group>
-                                </Col> */}
-
                                 <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                     <thead className='custom-bg-200'>
                                         <tr>
@@ -385,6 +338,15 @@ const AddMaterialReceiptDetail = () => {
                                                 maxLength={5}
                                                 onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.quantity}
+                                                onKeyPress={(e) => {
+                                                    const keyCode = e.which || e.keyCode;
+                                                    const keyValue = String.fromCharCode(keyCode);
+                                                    const regex = /^[^A-Za-z]+$/;
+
+                                                    if (!regex.test(keyValue)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
                                                 required
                                             />
                                         </td>
@@ -396,6 +358,15 @@ const AddMaterialReceiptDetail = () => {
                                                 maxLength={10}
                                                 onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
+                                                onKeyPress={(e) => {
+                                                    const keyCode = e.which || e.keyCode;
+                                                    const keyValue = String.fromCharCode(keyCode);
+                                                    const regex = /^[^A-Za-z]+$/;
+
+                                                    if (!regex.test(keyValue)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
                                                 required
                                             />
                                         </td>
@@ -406,6 +377,15 @@ const AddMaterialReceiptDetail = () => {
                                                 placeholder="Rejected Quantity"
                                                 onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : ""}
+                                                onKeyPress={(e) => {
+                                                    const keyCode = e.which || e.keyCode;
+                                                    const keyValue = String.fromCharCode(keyCode);
+                                                    const regex = /^[^A-Za-z]+$/;
+
+                                                    if (!regex.test(keyValue)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
                                                 maxLength={10}
                                             />
                                         </td>

@@ -143,6 +143,10 @@ const MaterialReceipt = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if (materialReceiptList.length <= 0) {
+            getMaterialReceiptDetailList();
+        }
     })
 
     const newDetails = () => {
@@ -191,6 +195,22 @@ const MaterialReceipt = () => {
         }
 
         setModalShow(false);
+    }
+
+    const getMaterialReceiptDetailList = async () => {
+        const request = {
+            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-material-receipt-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(materialReceiptDetailsAction(response.data.data));
+            }
+        }
     }
 
     const clearMaterialReceiptReducers = () => {

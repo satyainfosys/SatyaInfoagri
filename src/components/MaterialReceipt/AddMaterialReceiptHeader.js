@@ -149,37 +149,26 @@ const AddMaterialReceiptHeader = () => {
                             <Form.Label column sm="4">
                                 Vendor Name
                             </Form.Label>
-                            {/* {
-                                purchaseOrderData.encryptedPoNo ?
+                            {
+                                materialReceiptHeaderData.encryptedMaterialReceiptId ?
                                     <Col sm="8">
-                                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={purchaseOrderData.vendorName} disabled />
+                                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={materialReceiptHeaderData.vendorName} disabled />
                                     </Col>
                                     :
                                     <Col sm="8">
-                                        <Form.Select id="txtVendorName" name="vendorCode" onClick={() => handleVendorClick()} onChange={handleFieldChange} value={purchaseOrderData.vendorCode} >
+                                        <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
                                             <option value=''>Select Vendor</option>
-                                            {vendorList.map((option, index) => (
-                                                <option key={index} value={option.value}>{option.key}</option>
+                                            {vendorList.map((vendor) => (
+                                                <option key={vendor.vendorName} value={vendor.vendorCode}>
+                                                    {vendor.vendorName}
+                                                </option>
                                             ))}
                                         </Form.Select>
-                                        {Object.keys(purchaseOrderErr.vendorErr).map((key) => {
-                                            return <span className="error-message">{purchaseOrderErr.vendorErr[key]}</span>
+                                        {Object.keys(materialDataErr.vendorErr).map((key) => {
+                                            return <span className="error-message">{materialDataErr.vendorErr[key]}</span>
                                         })}
                                     </Col>
-                            } */}
-                            <Col sm="8">
-                                <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
-                                    <option value=''>Select Vendor</option>
-                                    {vendorList.map((vendor) => (
-                                        <option key={vendor.vendorName} value={vendor.vendorCode}>
-                                            {vendor.vendorName}
-                                        </option>
-                                    ))}
-                                </Form.Select>
-                                {Object.keys(materialDataErr.vendorErr).map((key) => {
-                                    return <span className="error-message">{materialDataErr.vendorErr[key]}</span>
-                                })}
-                            </Col>
+                            }
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -224,14 +213,21 @@ const AddMaterialReceiptHeader = () => {
                             <Form.Label column sm="4">
                                 PO Number
                             </Form.Label>
-                            <Col sm="8">
-                                <Form.Select id="txtPoNumber" name="poNo" onChange={handleFieldChange} value={materialReceiptHeaderData.poNo} >
-                                    <option value=''>Select PO</option>
-                                    {poList.map((option, index) => (
-                                        <option key={index} value={option.value}>{option.key}</option>
-                                    ))}
-                                </Form.Select>
-                            </Col>
+                            {
+                                materialReceiptHeaderData.encryptedMaterialReceiptId ?
+                                    <Col sm="8">
+                                        <Form.Control id="txtPoNumber" name="poNo" placeholder="PO number" value={materialReceiptHeaderData.poNo} disabled />
+                                    </Col>
+                                    :
+                                    <Col sm="8">
+                                        <Form.Select id="txtPoNumber" name="poNo" onChange={handleFieldChange} value={materialReceiptHeaderData.poNo} >
+                                            <option value=''>Select PO</option>
+                                            {poList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                            }
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
