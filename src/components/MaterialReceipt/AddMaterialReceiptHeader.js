@@ -320,7 +320,7 @@ const AddMaterialReceiptHeader = () => {
 
                         <Form.Group as={Row} controlId="formPlaintextPassword">
                             <Form.Label column sm="3">
-                                Status
+                                Material Status
                             </Form.Label>
                             <Col sm="8">
                                 <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange}>
