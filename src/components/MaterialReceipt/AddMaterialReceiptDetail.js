@@ -233,7 +233,7 @@ const AddMaterialReceiptDetail = () => {
 
             <Card className="h-100 mb-2">
                 <FalconCardHeader
-                    title="Product Details"
+                    title="Material Details"
                     titleTag="h6"
                     className="py-2"
                     light

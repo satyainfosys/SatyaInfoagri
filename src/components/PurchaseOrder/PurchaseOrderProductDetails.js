@@ -735,7 +735,7 @@ const PurchaseOrderProductDetails = () => {
                                                     placeholder="Quantity"
                                                     maxLength={5}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.quantity}
+                                                    value={poProductDetailData.quantity ? poProductDetailData.quantity : ""}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                     onKeyPress={(e) => {
@@ -756,7 +756,7 @@ const PurchaseOrderProductDetails = () => {
                                                     placeholder="PO Rate"
                                                     maxLength={10}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.poRate}
+                                                    value={poProductDetailData.poRate ? poProductDetailData.poRate : ""}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                     onKeyPress={(e) => {
@@ -803,7 +803,7 @@ const PurchaseOrderProductDetails = () => {
                                                     placeholder="Tax Rate"
                                                     maxLength={10}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.taxRate}
+                                                    value={poProductDetailData.taxRate ? poProductDetailData.taxRate : ""}
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                     onKeyPress={(e) => {
                                                         const keyCode = e.which || e.keyCode;
@@ -833,7 +833,7 @@ const PurchaseOrderProductDetails = () => {
                                                     placeholder="Amount"
                                                     maxLength={13}
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.poAmt}
+                                                    value={poProductDetailData.poAmt ? poProductDetailData.poAmt : ""}
                                                     required
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                     onKeyPress={(e) => {

@@ -232,9 +232,18 @@ const MaterialReceipt = () => {
             isValid = false;
         }
 
-        if(materialReceiptList && materialReceiptList.length > 0){
+        if (materialReceiptList.length < 1) {
+            materialReceiptDetailErr.materialReceiptDetailEmpty = "At least one material details required";
+            setTimeout(() => {
+                toast.error(materialReceiptDetailErr.materialReceiptDetailEmpty, {
+                    theme: 'colored'
+                });
+            }, 1000);
+            isValid = false;
+        }
+        else if (materialReceiptList && materialReceiptList.length > 0) {
             materialReceiptList.forEach((row, index) => {
-                if(!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity){
+                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity) {
                     materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
                     isValid = false;
                 }
@@ -333,6 +342,59 @@ const MaterialReceipt = () => {
                         });
                     }
                 })
+        }
+    }
+
+    const updateMaaterialReceiptDetails = async () => {
+        if (materialReceiptValidation()) {
+            if (!formChangedData.materialReceiptHeaderDetailUpdate &&
+                !(formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
+                return;
+            }
+
+            var deleteMaterialReceiptDetailIds = localStorage.getItem("DeleteMaterialReceiptDetailIds");
+
+            const updateRequestData = {
+                encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorCode: materialReceiptHeaderData.vendorCode,
+                poNo: materialReceiptHeaderData.poNo ? materialReceiptHeaderData.poNo : "",
+                materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                    Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            const keys = ["modifyUser", "personName"]
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+            }
+
+            var hasError = false;
+            if (formChangedData.materialReceiptHeaderDetailUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-header', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        }
+                    })
+            }
+
+            if (!hasError) {
+                clearMaterialReceiptReducers();
+                updateMaterialReceiptCallback();
+            }
         }
     }
 
