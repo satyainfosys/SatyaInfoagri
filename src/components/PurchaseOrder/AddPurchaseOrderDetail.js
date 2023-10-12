@@ -173,7 +173,7 @@ const AddPurchaseOrderDetail = () => {
                 purchaseOrderData &&
                 <Form>
                     <Row>
-                        <Col className="me-2 ms-2" md="4">
+                        <Col md="4">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="4">
                                     Vendor Name
@@ -236,7 +236,7 @@ const AddPurchaseOrderDetail = () => {
                             </Form.Group>
                         </Col>
 
-                        <Col className="me-2 ms-2" md="3">
+                        <Col md="4">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="4">
                                     PO Number
@@ -291,7 +291,7 @@ const AddPurchaseOrderDetail = () => {
                             </Form.Group>
                         </Col>
 
-                        <Col className="me-2 ms-2" md="4">
+                        <Col md="4">
                             <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                 <Form.Label column sm="3">
                                     Gst No

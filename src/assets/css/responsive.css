@@ -52,6 +52,28 @@
         max-height: 291px;
         overflow-y: scroll;
     }
+
+    .nav-tabs .nav-link,
+    .form-label, 
+    .form-select, 
+    .form-control,
+    input::placeholder,
+    .table-striped
+    {
+        font-size: 10px !important;
+    }
+
+    .btn{
+        font-size: 12px !important;
+    }
+
+    .h4, h4 {
+        font-size: 1rem !important;
+    }
+
+    h5, h6{
+        font-size: .8rem !important;
+    }
 }
 
 @media (min-width: 1200px) {
@@ -137,7 +159,7 @@
     }
 
     h5 {
-        font-size: 0.9rem !important;
+        font-size: 0.8rem !important;
     }
     
     .micro-form label{
