@@ -130,12 +130,21 @@ const MaterialReceipt = () => {
     }
 
     $('[data-rr-ui-event-key*="Material List"]').off('click').on('click', function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
-        localStorage.removeItem("EncryptedMaterialReceiptId");
-        dispatch(materialReceiptHeaderDetailsAction(undefined));
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
+            clearMaterialReceiptReducers();
+            localStorage.removeItem("EncryptedMaterialReceiptId");
+            dispatch(materialReceiptHeaderDetailsAction(undefined));
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Material"]').off('click').on('click', function () {
@@ -293,6 +302,7 @@ const MaterialReceipt = () => {
                 challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
                 activeStatus: "A",
                 addUser: localStorage.getItem("LoginUserName"),
+                materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
                 materialReceiptDetails: materialReceiptList
             }
 
@@ -345,7 +355,7 @@ const MaterialReceipt = () => {
         }
     }
 
-    const updateMaaterialReceiptDetails = async () => {
+    const updateMaterialReceiptDetails = async () => {
         if (materialReceiptValidation()) {
             if (!formChangedData.materialReceiptHeaderDetailUpdate &&
                 !(formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
@@ -423,7 +433,7 @@ const MaterialReceipt = () => {
                         <h5>Do you want to save changes?</h5>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" onClick={addMaterialReceiptDetails}>Save</Button>
+                        <Button variant="success" onClick={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateMaterialReceiptDetails : addMaterialReceiptDetails}>Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
@@ -434,8 +444,7 @@ const MaterialReceipt = () => {
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="MaterialReceipt"
-                // saveDetails={purchaseOrderData.encryptedPoNo ? updatePurchaseOrderDetails : addPurchaseOrderDetails}
-                saveDetails={addMaterialReceiptDetails}
+                saveDetails={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateMaterialReceiptDetails : addMaterialReceiptDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}

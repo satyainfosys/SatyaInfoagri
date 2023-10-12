@@ -40,8 +40,10 @@ const AddMaterialReceiptDetail = () => {
         'Variety',
         'Brand',
         'Unit',
-        'Qty',
+        'Qty',        
         'Receive Qty',
+        'Rate',
+        'Amount',
         'Rejected Qty',
         'Delete'
     ];
@@ -118,6 +120,22 @@ const AddMaterialReceiptDetail = () => {
         };
 
         dispatch(materialReceiptDetailsAction(materialReceipt));
+
+        if(e.target.name == "receivedQuantity"){
+            if(materialReceipt[index].rate){
+                var totalAmount = parseFloat(e.target.value) * parseFloat(materialReceipt[index].rate)
+                materialReceipt[index].amount = totalAmount.toString();
+                dispatch(materialReceiptDetailsAction(materialReceipt))
+            }
+        }
+
+        if(e.target.name == "rate"){
+            if(materialReceipt[index].receivedQuantity){
+                var totalAmount = parseFloat(e.target.value) * parseFloat(materialReceipt[index].receivedQuantity);
+                materialReceipt[index].amount = totalAmount.toString();
+                dispatch(materialReceiptDetailsAction(materialReceipt))
+            }
+        }
 
         if (materialReceipt[index].encryptedMateialReceiptDetailId) {
             dispatch(formChangedAction({
@@ -358,7 +376,7 @@ const AddMaterialReceiptDetail = () => {
                                             <EnlargableTextbox
                                                 name="receivedQuantity"
                                                 placeholder="Received Qty"
-                                                maxLength={10}
+                                                maxLength={5}
                                                 onChange={(e) => handleFieldChange(e, index)}
                                                 value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
                                                 onKeyPress={(e) => {
@@ -370,6 +388,38 @@ const AddMaterialReceiptDetail = () => {
                                                         e.preventDefault();
                                                     }
                                                 }}
+                                                required
+                                            />
+                                        </td>
+
+                                        <td key={index}>
+                                            <EnlargableTextbox
+                                                name="rate"
+                                                placeholder="Rate"
+                                                maxLength={5}
+                                                onChange={(e) => handleFieldChange(e, index)}
+                                                value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
+                                                onKeyPress={(e) => {
+                                                    const keyCode = e.which || e.keyCode;
+                                                    const keyValue = String.fromCharCode(keyCode);
+                                                    const regex = /^[^A-Za-z]+$/;
+
+                                                    if (!regex.test(keyValue)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                                required
+                                            />
+                                        </td>
+
+                                        <td key={index}>
+                                            <EnlargableTextbox
+                                                name="amount"
+                                                placeholder="Amount"
+                                                maxLength={5}
+                                                onChange={(e) => handleFieldChange(e, index)}
+                                                value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}                                                
+                                                disabled
                                                 required
                                             />
                                         </td>
@@ -389,7 +439,7 @@ const AddMaterialReceiptDetail = () => {
                                                         e.preventDefault();
                                                     }
                                                 }}
-                                                maxLength={10}
+                                                maxLength={5}
                                             />
                                         </td>
 
