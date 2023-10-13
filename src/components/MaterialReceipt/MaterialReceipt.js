@@ -192,6 +192,7 @@ const MaterialReceipt = () => {
             localStorage.removeItem("EncryptedMaterialReceiptId");
             localStorage.removeItem("EncryptedCompanyCode");
             localStorage.removeItem("CompanyName");
+            localStorage.removeItem("DeleteMaterialReceiptDetailIds");
         }
     }
 
@@ -226,6 +227,7 @@ const MaterialReceipt = () => {
         dispatch(formChangedAction(undefined));
         dispatch(materialReceiptDetailsAction([]));
         dispatch(materialReceiptErrorAction(undefined));
+        localStorage.removeItem("DeleteMaterialReceiptDetailIds");
     }
 
     const materialReceiptValidation = () => {
@@ -252,7 +254,7 @@ const MaterialReceipt = () => {
         }
         else if (materialReceiptList && materialReceiptList.length > 0) {
             materialReceiptList.forEach((row, index) => {
-                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity) {
+                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity || !row.rate || !row.amount) {
                     materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
                     isValid = false;
                 }
@@ -399,6 +401,123 @@ const MaterialReceipt = () => {
                             hasError = true;
                         }
                     })
+            }
+
+            var materialReceiptDetailIndex = 1;
+
+            //MaterialReceiptDetail ADD, UPDATE, DELETE
+            if (!hasError && (formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
+                if (!hasError && formChangedData.materialReceiptDetailDelete) {
+                    var deleteMaterialReceiptDetailList = deleteMaterialReceiptDetailIds ? deleteMaterialReceiptDetailIds.split(',') : null;
+                    if (deleteMaterialReceiptDetailList) {
+                        var deletMaterialReceiptDetailIndex = 1;
+
+                        for (let i = 0; i < deleteMaterialReceiptDetailList.length; i++) {
+                            const deleteId = deleteMaterialReceiptDetailList[i];
+                            const data = { encryptedMaterialReceiptDetailId: deleteId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-material-receipt-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deletMaterialReceiptDetailIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < materialReceiptList.length; i++) {
+                    const materialReceiptDetailData = materialReceiptList[i];
+
+                    const keys = ["modifyUser", "varietyName", "brandName"];
+                    for (const key of Object.keys(materialReceiptDetailData).filter((key) => keys.includes(key))) {
+                        materialReceiptDetailData[key] = materialReceiptDetailData[key] ? materialReceiptDetailData[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.materialReceiptDetailUpdate && materialReceiptDetailData.encryptedMaterialReceiptDetailId) {
+                        const requestData = {
+                            encryptedMaterialReceiptDetailId: materialReceiptDetailData.encryptedMaterialReceiptDetailId,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                            vendorCode: materialReceiptDetailData.vendorCode,
+                            productLineCode: materialReceiptDetailData.productLineCode,
+                            productCategoryCode: materialReceiptDetailData.productCategoryCode,
+                            productCode: materialReceiptDetailData.productCode,
+                            poDetailId: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poDetailId : 0,
+                            receivedQuantity: parseFloat(materialReceiptDetailData.receivedQuantity),
+                            rejectedQuantity: materialReceiptDetailData.rejectedQuantity ? parseFloat(materialReceiptDetailData.rejectedQuantity) : 0,
+                            varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
+                            brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
+                            unitCode: materialReceiptDetailData.unitCode ? parseInt(materialReceiptDetailData.unitCode) : 0,
+                            modifyUser: localStorage.getItem("LoginUserName"),
+                            rate: parseFloat(materialReceiptDetailData.rate),
+                            amount: parseFloat(materialReceiptDetailData.amount)
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.materialReceiptDetailAdd && !materialReceiptDetailData.encryptedMaterialReceiptDetailId) {
+                        const requestData = {
+                            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            vendorCode: materialReceiptHeaderData.vendorCode,
+                            poDetailId: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poDetailId : 0,
+                            productLineCode: materialReceiptDetailData.productLineCode,
+                            productCategoryCode: materialReceiptDetailData.productCategoryCode,
+                            productCode: materialReceiptDetailData.productCode,
+                            receivedQuantity: materialReceiptDetailData.receivedQuantity,
+                            rejectedQuantity: materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : "",
+                            varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
+                            brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
+                            rate: materialReceiptDetailData.rate,
+                            amount: materialReceiptDetailData.amount,
+                            unitCode: materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : "",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                        else {
+                            const updateMaterialReceiptDetailList = [...materialReceiptList]
+                            updateMaterialReceiptDetailList[i] = {
+                                ...updateMaterialReceiptDetailList[i],
+                                encryptedMaterialReceiptDetailId: addResponse.data.data.encryptedMaterialReceiptDetailId
+                            };
+
+                            dispatch(materialReceiptDetailsAction(updateMaterialReceiptDetailList));
+                        }
+                    }
+
+                    materialReceiptDetailIndex++
+                }
             }
 
             if (!hasError) {

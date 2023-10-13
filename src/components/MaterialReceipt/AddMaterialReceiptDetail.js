@@ -17,6 +17,8 @@ const AddMaterialReceiptDetail = () => {
     const [poModal, setPoModal] = useState(false);
     const [selectAll, setSelectAll] = useState(false);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [modalShow, setModalShow] = useState(false);
+    const [paramsData, setParamsData] = useState({});
 
     const materialReceiptDetailsReducer = useSelector((state) => state.rootReducer.materialReceiptDetailsReducer)
     var materialReceiptData = materialReceiptDetailsReducer.materialReceiptDetails;
@@ -40,7 +42,7 @@ const AddMaterialReceiptDetail = () => {
         'Variety',
         'Brand',
         'Unit',
-        'Qty',        
+        'Qty',
         'Receive Qty',
         'Rate',
         'Amount',
@@ -121,23 +123,23 @@ const AddMaterialReceiptDetail = () => {
 
         dispatch(materialReceiptDetailsAction(materialReceipt));
 
-        if(e.target.name == "receivedQuantity"){
-            if(materialReceipt[index].rate){
+        if (e.target.name == "receivedQuantity") {
+            if (materialReceipt[index].rate) {
                 var totalAmount = parseFloat(e.target.value) * parseFloat(materialReceipt[index].rate)
                 materialReceipt[index].amount = totalAmount.toString();
                 dispatch(materialReceiptDetailsAction(materialReceipt))
             }
         }
 
-        if(e.target.name == "rate"){
-            if(materialReceipt[index].receivedQuantity){
+        if (e.target.name == "rate") {
+            if (materialReceipt[index].receivedQuantity) {
                 var totalAmount = parseFloat(e.target.value) * parseFloat(materialReceipt[index].receivedQuantity);
                 materialReceipt[index].amount = totalAmount.toString();
                 dispatch(materialReceiptDetailsAction(materialReceipt))
             }
         }
 
-        if (materialReceipt[index].encryptedMateialReceiptDetailId) {
+        if (materialReceipt[index].encryptedMaterialReceiptDetailId) {
             dispatch(formChangedAction({
                 ...formChangedData,
                 materialReceiptDetailUpdate: true
@@ -161,8 +163,62 @@ const AddMaterialReceiptDetail = () => {
         }
     };
 
+    const ModalPreview = (encryptedMateialReceiptDetailId) => {
+        setModalShow(true);
+        setParamsData({ encryptedMateialReceiptDetailId });
+    }
+
+    const deleteMaterialReceiptDetail = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = materialReceiptDetailsReducer.materialReceiptDetails.findIndex(x => x.encryptedMateialReceiptDetailId == paramsData.encryptedMateialReceiptDetailId);
+        materialReceiptDetailsReducer.materialReceiptDetails.splice(objectIndex, 1);
+
+        var deleteMaterialReceiptDetailId = localStorage.getItem("DeleteMaterialReceiptDetailIds");
+
+        if (paramsData.encryptedMateialReceiptDetailId) {
+            var deleteMaterialReceiptDetail = deleteMaterialReceiptDetailId ? deleteMaterialReceiptDetailId + "," + paramsData.encryptedMateialReceiptDetailId : paramsData.encryptedMateialReceiptDetailId;
+            localStorage.setItem("DeleteMaterialReceiptDetailIds", deleteMaterialReceiptDetail);
+        }
+
+        toast.success("Material details deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(materialReceiptDetailsAction(materialReceiptData))
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            materialReceiptDetailDelete: true
+        }));
+
+        setModalShow(false);
+    }
+
     return (
         <>
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this Material detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteMaterialReceiptDetail()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
 
             {
                 poModal &&
@@ -418,7 +474,7 @@ const AddMaterialReceiptDetail = () => {
                                                 placeholder="Amount"
                                                 maxLength={5}
                                                 onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}                                                
+                                                value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}
                                                 disabled
                                                 required
                                             />
@@ -444,8 +500,7 @@ const AddMaterialReceiptDetail = () => {
                                         </td>
 
                                         <td key={index}>
-                                            {/* <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} /> */}
-                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" />
+                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />                                            
                                         </td>
                                     </tr>
                                 ))}
