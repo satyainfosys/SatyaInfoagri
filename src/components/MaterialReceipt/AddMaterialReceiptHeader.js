@@ -136,7 +136,7 @@ const AddMaterialReceiptHeader = () => {
         <>
             <Form>
                 <Row>
-                    <Col className="me-3 ms-3" md="4">
+                    <Col md="4">
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                             <Form.Label column sm="4">
                                 Material Receipt No
@@ -209,7 +209,7 @@ const AddMaterialReceiptHeader = () => {
                         </Form.Group>
                     </Col>
 
-                    <Col className="me-3 ms-3" md="4">
+                    <Col md="4">
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                             <Form.Label column sm="4">
                                 PO Number
@@ -281,7 +281,7 @@ const AddMaterialReceiptHeader = () => {
                         </Form.Group>
                     </Col>
 
-                    <Col className="me-3 ms-3" md="3">
+                    <Col md="4">
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                             <Form.Label column sm="3">
                                 Gst No
