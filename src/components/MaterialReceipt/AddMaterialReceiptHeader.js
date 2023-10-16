@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
-import { formChangedAction, materialReceiptHeaderDetailsAction } from 'actions';
+import { formChangedAction, materialReceiptDetailsAction, materialReceiptHeaderDetailsAction } from 'actions';
 
 const AddMaterialReceiptHeader = () => {
 
@@ -103,14 +103,27 @@ const AddMaterialReceiptHeader = () => {
             e.target.value && fetchPurchaseOrder(e.target.value)
         }
         else if (e.target.name == "poNo") {
-            const poNumberDetail = poListData.find(po => po.poNo == e.target.value);
-            dispatch(materialReceiptHeaderDetailsAction({
-                ...materialReceiptHeaderData,
-                poNo: e.target.value,
-                poDate: poNumberDetail.poDate,
-                poStatus: poNumberDetail.poStatus,
-                deliveryLocation: poNumberDetail.deliveryLocation
-            }))
+            if (e.target.value) {
+                const poNumberDetail = poListData.find(po => po.poNo == e.target.value);
+                dispatch(materialReceiptHeaderDetailsAction({
+                    ...materialReceiptHeaderData,
+                    poNo: e.target.value,
+                    poDate: poNumberDetail.poDate,
+                    poStatus: poNumberDetail.poStatus,
+                    deliveryLocation: poNumberDetail.deliveryLocation
+                }))
+                dispatch(materialReceiptDetailsAction([]));
+            }
+            else if (!e.target.value) {
+                dispatch(materialReceiptDetailsAction([]));
+                dispatch(materialReceiptHeaderDetailsAction({
+                    ...materialReceiptHeaderData,
+                    poNo: e.target.value,
+                    poDate: '',
+                    poStatus: '',
+                    deliveryLocation: ''
+                }))
+            }
         }
         else {
             dispatch(materialReceiptHeaderDetailsAction({

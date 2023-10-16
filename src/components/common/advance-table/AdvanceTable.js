@@ -128,7 +128,8 @@ const AdvanceTable = ({
     }
     else if(rowData.hasOwnProperty('encryptedMaterialReceiptId')){
       localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
-      dispatch(materialReceiptHeaderDetailsAction(rowData));
+      // localStorage.setItem("MaterialStatus", rowData.materialStatus)
+      dispatch(materialReceiptHeaderDetailsAction(rowData));      
       $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
       $('#btnSave').attr('disabled', true);
