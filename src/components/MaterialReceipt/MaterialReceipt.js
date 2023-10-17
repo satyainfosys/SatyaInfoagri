@@ -143,6 +143,7 @@ const MaterialReceipt = () => {
             $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', true);
             clearMaterialReceiptReducers();
             localStorage.removeItem("EncryptedMaterialReceiptId");
+            localStorage.removeItem("OldMaterialStatus");
             dispatch(materialReceiptHeaderDetailsAction(undefined));
         }
     })
@@ -341,6 +342,9 @@ const MaterialReceipt = () => {
                             }))
                         }, 50);
                         localStorage.setItem("EncryptedMaterialReceiptId", res.data.data.encryptedMaterialReceiptId);
+                        if (materialReceiptHeaderData.materialStatus == "Approved") {
+                            $('#btnSave').attr('disabled', true);
+                        }
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
@@ -399,6 +403,10 @@ const MaterialReceipt = () => {
                                 autoClose: 10000
                             });
                             hasError = true;
+                        }else{
+                            if (updateRequestData.materialStatus == "Approved") {
+                                $('#btnSave').attr('disabled', true);
+                            }
                         }
                     })
             }

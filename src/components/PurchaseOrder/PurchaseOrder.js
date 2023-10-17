@@ -159,6 +159,7 @@ const PurchaseOrder = () => {
             dispatch(purchaseOrderDetailsAction(undefined));
             dispatch(vendorProductCatalogueDetailsAction([]));
             localStorage.removeItem("EncryptedPoNo");
+            localStorage.removeItem("OldPoStatus");
         }
     })
 
@@ -414,6 +415,7 @@ const PurchaseOrder = () => {
                             }))
                         }, 50);
                         localStorage.setItem("EncryptedPoNo", res.data.data.encryptedPoNo);
+                        localStorage.setItem("OldPoStatus", requestData.poStatus);
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
@@ -472,6 +474,8 @@ const PurchaseOrder = () => {
                                 autoClose: 10000
                             });
                             hasError = true;
+                        }else{
+                            localStorage.setItem("OldPoStatus", updateRequestData.poStatus)
                         }
                     })
             }

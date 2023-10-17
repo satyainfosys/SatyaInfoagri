@@ -19,8 +19,6 @@ const AddMaterialReceiptDetail = () => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [modalShow, setModalShow] = useState(false);
     const [paramsData, setParamsData] = useState({});
-    // const [tableDisable, setTableDisable] = useState(false);
-    const [tableDisable] = localStorage.getItem("MaterialStatus");
     const [productCategoryList, setProductCategoryList] = useState([]);
     const [productCategoryDataList, setProductCategoryDataList] = useState([]);
     const [productMasterList, setProductMasterList] = useState([]);
@@ -101,7 +99,7 @@ const AddMaterialReceiptDetail = () => {
 
     }, [materialReceiptData, materialReceiptDetailsReducer])
 
-    const getUnitList = async (type) => {
+    const getUnitList = async () => {
 
         let requestData = {
             UnitType: "W"
@@ -495,13 +493,20 @@ const AddMaterialReceiptDetail = () => {
                         >
                             <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                 <thead className='custom-bg-200'>
-                                    {rowData && <tr>
-                                        {columnsArray.map((column, index) => (
-                                            <th className="text-left" key={index}>
-                                                {column}
-                                            </th>
-                                        ))}
-                                    </tr>}
+                                    {rowData &&
+                                        (<tr>
+                                            {columnsArray.map((column, index) => {
+                                                if (column === 'Delete' && materialReceiptHeaderData.materialStatus == "Approved") {
+                                                    return null;
+                                                }
+                                                return (
+                                                    <th className="text-left" key={index}>
+                                                        {column}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                        )}
                                 </thead>
                                 <tbody id="tbody" className="details-form">
                                     {rowData.map((materialReceiptDetailData, index) => (
@@ -573,6 +578,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
+                                                        disabled
                                                     />
                                                 </td>
 
@@ -593,6 +599,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -613,6 +620,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -644,12 +652,16 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         maxLength={5}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
-                                                <td key={index}>
-                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
-                                                </td>
+                                                {
+                                                    materialReceiptHeaderData.materialStatus != "Approved" &&
+                                                    <td key={index}>
+                                                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
+                                                    </td>
+                                                }
                                             </tr>
                                             :
                                             <tr key={index}>
@@ -665,6 +677,7 @@ const AddMaterialReceiptDetail = () => {
                                                         value={materialReceiptDetailData.productCategoryCode}
                                                         className="form-control"
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select</option>
                                                         {productCategoryList.map((option, index) => (
@@ -681,6 +694,7 @@ const AddMaterialReceiptDetail = () => {
                                                         value={materialReceiptDetailData.productCode}
                                                         className="form-control"
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select</option>
                                                         {productMasterList[index] && productMasterList[index].map((option, mapIndex) => (
@@ -696,6 +710,7 @@ const AddMaterialReceiptDetail = () => {
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         placeholder="Variety"
                                                         maxLength={20}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -706,6 +721,7 @@ const AddMaterialReceiptDetail = () => {
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         placeholder="Brand"
                                                         maxLength={20}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -716,6 +732,7 @@ const AddMaterialReceiptDetail = () => {
                                                         className="form-control select"
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.unitCode}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select </option>
                                                         {unitList.map((option, index) => (
@@ -740,6 +757,7 @@ const AddMaterialReceiptDetail = () => {
                                                                 e.preventDefault();
                                                             }
                                                         }}
+                                                        disabled
                                                     />
                                                 </td>
 
@@ -760,6 +778,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -780,6 +799,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -811,12 +831,16 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         maxLength={5}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                                     />
                                                 </td>
 
-                                                <td key={index}>
-                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
-                                                </td>
+                                                {
+                                                    materialReceiptHeaderData.materialStatus != "Approved" &&
+                                                    <td key={index}>
+                                                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
+                                                    </td>
+                                                }
                                             </tr>
                                     ))}
                                 </tbody>
