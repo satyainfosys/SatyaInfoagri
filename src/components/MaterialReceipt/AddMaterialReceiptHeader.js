@@ -85,6 +85,8 @@ const AddMaterialReceiptHeader = () => {
     }
 
     const handleFieldChange = e => {
+        let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
+
         if (e.target.name == "vendorCode" && e.target.value) {
             const vendorDetail = vendorList.find(vendor => vendor.vendorCode == e.target.value);
             dispatch(materialReceiptHeaderDetailsAction({
@@ -142,6 +144,16 @@ const AddMaterialReceiptHeader = () => {
                 ...formChangedData,
                 materialReceiptHeaderDetailAdd: true
             }))
+        }
+
+        if (e.target.name == "materialStatus") {
+            if (materialReceiptHeaderData.encryptedMaterialReceiptId && (oldMaterialStatus != "Approved" && e.target.value == "Approved")) {
+                dispatch(formChangedAction({
+                    ...formChangedData,
+                    materialReceiptDetailUpdate: true,
+                    materialReceiptHeaderDetailUpdate: true
+                }))
+            }
         }
     }
 
@@ -276,7 +288,7 @@ const AddMaterialReceiptHeader = () => {
                                 Challan No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved" } />
+                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"} />
                             </Col>
                         </Form.Group>
 
@@ -289,7 +301,7 @@ const AddMaterialReceiptHeader = () => {
                                     value={materialReceiptHeaderData.materialReceiptDate ?
                                         Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
                                     onChange={handleFieldChange}
-                                    disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved" }
+                                    disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
                                 />
                             </Col>
                         </Form.Group>
@@ -328,7 +340,7 @@ const AddMaterialReceiptHeader = () => {
                                 Person Name
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved" } />
+                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"} />
                             </Col>
                         </Form.Group>
 

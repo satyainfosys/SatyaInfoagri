@@ -342,6 +342,7 @@ const MaterialReceipt = () => {
                             }))
                         }, 50);
                         localStorage.setItem("EncryptedMaterialReceiptId", res.data.data.encryptedMaterialReceiptId);
+                        localStorage.setItem("OldMaterialStatus", materialReceiptHeaderData.materialStatus)
                         if (materialReceiptHeaderData.materialStatus == "Approved") {
                             $('#btnSave').attr('disabled', true);
                         }
@@ -403,8 +404,9 @@ const MaterialReceipt = () => {
                                 autoClose: 10000
                             });
                             hasError = true;
-                        }else{
-                            if (updateRequestData.materialStatus == "Approved") {
+                        } else {
+                            localStorage.setItem("OldMaterialStatus", materialReceiptHeaderData.materialStatus);
+                            if (materialReceiptHeaderData.materialStatus == "Approved") {
                                 $('#btnSave').attr('disabled', true);
                             }
                         }
@@ -465,7 +467,8 @@ const MaterialReceipt = () => {
                             unitCode: materialReceiptDetailData.unitCode ? parseInt(materialReceiptDetailData.unitCode) : 0,
                             modifyUser: localStorage.getItem("LoginUserName"),
                             rate: parseFloat(materialReceiptDetailData.rate),
-                            amount: parseFloat(materialReceiptDetailData.amount)
+                            amount: parseFloat(materialReceiptDetailData.amount),
+                            materialStatus: materialReceiptHeaderData.materialStatus
                         }
                         setIsLoading(true);
                         const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-detail', requestData, {
@@ -498,7 +501,8 @@ const MaterialReceipt = () => {
                             rate: materialReceiptDetailData.rate,
                             amount: materialReceiptDetailData.amount,
                             unitCode: materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : "",
-                            addUser: localStorage.getItem("LoginUserName")
+                            addUser: localStorage.getItem("LoginUserName"),
+                            materialStatus: materialReceiptHeaderData.materialStatus
                         }
                         setIsLoading(true);
                         const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {

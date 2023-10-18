@@ -129,6 +129,7 @@ const AdvanceTable = ({
     }
     else if(rowData.hasOwnProperty('encryptedMaterialReceiptId')){
       localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
+      localStorage.setItem("OldMaterialStatus", rowData.materialStatus);
       dispatch(materialReceiptHeaderDetailsAction(rowData));      
       $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
