@@ -499,6 +499,14 @@ const AddMaterialReceiptDetail = () => {
                                                 if (column === 'Delete' && materialReceiptHeaderData.materialStatus == "Approved") {
                                                     return null;
                                                 }
+
+                                                if(column === 'Rate' && materialReceiptHeaderData.poNo){
+                                                    return null;
+                                                }
+
+                                                if(column === 'Amount' && materialReceiptHeaderData.poNo){
+                                                    return null;
+                                                }
                                                 return (
                                                     <th className="text-left" key={index}>
                                                         {column}
@@ -555,7 +563,7 @@ const AddMaterialReceiptDetail = () => {
                                                 <td key={index}>
                                                     <EnlargableTextbox
                                                         name="unitName"
-                                                        placeholder="Product Category"
+                                                        placeholder="Unit"
                                                         value={materialReceiptDetailData.unitName}
                                                         disabled
                                                     />
@@ -603,7 +611,7 @@ const AddMaterialReceiptDetail = () => {
                                                     />
                                                 </td>
 
-                                                <td key={index}>
+                                                {/* <td key={index}>
                                                     <EnlargableTextbox
                                                         name="rate"
                                                         placeholder="Rate"
@@ -634,7 +642,7 @@ const AddMaterialReceiptDetail = () => {
                                                         disabled
                                                         required
                                                     />
-                                                </td>
+                                                </td> */}
 
                                                 <td key={index}>
                                                     <EnlargableTextbox
