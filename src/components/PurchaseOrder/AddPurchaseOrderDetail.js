@@ -138,7 +138,6 @@ const AddPurchaseOrderDetail = () => {
         }
 
         if (e.target.name == "poStatus") {
-            debugger
             if (purchaseOrderData.encryptedPoNo && (oldPoStatus != "Approved" && e.target.value == "Approved")) {
                 $("#btnSave").attr('disabled', false);
             }

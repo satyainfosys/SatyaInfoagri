@@ -851,7 +851,12 @@ const PurchaseOrderProductDetails = () => {
                                             {
                                                 purchaseOrderData.poStatus != "Approved" &&
                                                 <td key={index}>
-                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                    {
+                                                        poProductDetailData.materialStatus === "Not Received" ?
+                                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                            :                                                           
+                                                            poProductDetailData.materialStatus
+                                                    }
                                                 </td>
                                             }
                                         </tr>

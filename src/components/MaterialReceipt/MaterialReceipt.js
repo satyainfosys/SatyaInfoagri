@@ -255,9 +255,14 @@ const MaterialReceipt = () => {
         }
         else if (materialReceiptList && materialReceiptList.length > 0) {
             materialReceiptList.forEach((row, index) => {
-                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity || !row.rate || !row.amount) {
+                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity) {
                     materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
                     isValid = false;
+                } else if (!row.poDetailId) {
+                    if (!row.rate || !row.amount) {
+                        materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
+                        isValid = false;
+                    }
                 }
             })
         }
@@ -498,8 +503,8 @@ const MaterialReceipt = () => {
                             rejectedQuantity: materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : "",
                             varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
                             brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
-                            rate: materialReceiptDetailData.rate,
-                            amount: materialReceiptDetailData.amount,
+                            rate: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poRate : materialReceiptDetailData.rate,
+                            amount: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poAmt : materialReceiptDetailData.amount,
                             unitCode: materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : "",
                             addUser: localStorage.getItem("LoginUserName"),
                             materialStatus: materialReceiptHeaderData.materialStatus

@@ -134,9 +134,15 @@ const AddMaterialReceiptDetail = () => {
 
         if (materialReceiptData && materialReceiptData.length > 0) {
             materialReceiptData.forEach((row, index) => {
-                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity || !row.rate || !row.amount) {
+                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity) {
                     isValid = false;
                     setFormError(true);
+                }
+                else if (!row.poDetailId) {
+                    if (!row.rate || !row.amount) {
+                        isValid = false;
+                        setFormError(true);
+                    }
                 }
             });
         }
@@ -500,11 +506,11 @@ const AddMaterialReceiptDetail = () => {
                                                     return null;
                                                 }
 
-                                                if(column === 'Rate' && materialReceiptHeaderData.poNo){
+                                                if (column === 'Rate' && materialReceiptHeaderData.poNo) {
                                                     return null;
                                                 }
 
-                                                if(column === 'Amount' && materialReceiptHeaderData.poNo){
+                                                if (column === 'Amount' && materialReceiptHeaderData.poNo) {
                                                     return null;
                                                 }
                                                 return (
@@ -617,7 +623,7 @@ const AddMaterialReceiptDetail = () => {
                                                         placeholder="Rate"
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
-                                                        value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
+                                                        value={materialReceiptDetailData.poRate ? materialReceiptDetailData.poRate : ""}
                                                         onKeyPress={(e) => {
                                                             const keyCode = e.which || e.keyCode;
                                                             const keyValue = String.fromCharCode(keyCode);
@@ -638,7 +644,7 @@ const AddMaterialReceiptDetail = () => {
                                                         placeholder="Amount"
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
-                                                        value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}
+                                                        value={materialReceiptDetailData.poAmount ? materialReceiptDetailData.poAmount : ""}
                                                         disabled
                                                         required
                                                     />
