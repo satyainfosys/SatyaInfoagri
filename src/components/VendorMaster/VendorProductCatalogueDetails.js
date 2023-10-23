@@ -80,9 +80,7 @@ export const VendorProductCatalogueDetails = () => {
 
     const handleAddItem = async () => {
         setOemModal(true);
-        if (oemProductList.length <= 0) {
-            getOemCatalogueMasterList();
-        }
+        getOemCatalogueMasterList();   
     }
 
     const oemProductCatalogueModalPreview = async (index, oemProductCatalogueCode) => {
@@ -188,10 +186,10 @@ export const VendorProductCatalogueDetails = () => {
         }
     }
 
-    const getOemCatalogueMasterList = async (searchText, productCategoryCode) => {
+    const getOemCatalogueMasterList = async (searchText, productCategoryCode, isManualFilter = false) => {
         const requestData = {
             SearchText: searchText,
-            ProductCategoryCode: productCategoryCode ? productCategoryCode : productCategory
+            ProductCategoryCode: isManualFilter ? productCategoryCode : productCategory
         }
 
         const response = await axios.post(process.env.REACT_APP_API_URL + '/get-oem-product-catalogue-master-list', requestData, {
@@ -201,6 +199,8 @@ export const VendorProductCatalogueDetails = () => {
             if (response.data && response.data.data.length > 0) {
                 dispatch(oemProductDetailsAction(response.data.data));
             }
+        } else {
+            dispatch(oemProductDetailsAction([]));
         }
     }
 
@@ -217,7 +217,7 @@ export const VendorProductCatalogueDetails = () => {
             const updatedData = [...oemProductList]
             dispatch(vendorProductCatalogueDetailsAction(updatedData));
         } else {
-            const updatedData = vendorProductCatalogueData.concat(selectedRows);
+            const updatedData = [...selectedRows, ...vendorProductCatalogueData];
             dispatch(vendorProductCatalogueDetailsAction(updatedData));
         }
         dispatch(formChangedAction({
@@ -227,6 +227,7 @@ export const VendorProductCatalogueDetails = () => {
 
         setOemModal(false);
         setSelectAll(false);
+        setProductCategory();
     }
 
     const handleSearchChange = (e) => {
@@ -297,7 +298,7 @@ export const VendorProductCatalogueDetails = () => {
 
     const handleProductCategoryChange = e => {
         setProductCategory(e.target.value);
-        getOemCatalogueMasterList("", e.target.value);
+        getOemCatalogueMasterList("", e.target.value, true);
     }
 
     return (
@@ -373,69 +374,74 @@ export const VendorProductCatalogueDetails = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                                    <thead className='custom-bg-200'>
-                                        <tr>
-                                            <th>Select <Form.Check type="checkbox" id="contactListChkBox" >
-                                                <Form.Check.Input
-                                                    type="checkbox"
-                                                    name="selectAll"
-                                                    style={{ width: '15px', height: '15px' }}
-                                                    onChange={handleHeaderCheckboxChange}
-                                                    checked={selectAll}
-                                                />
-                                            </Form.Check>
-                                            </th>
-                                            <th>OEM Name</th>
-                                            <th>Category</th>
-                                            <th>Product</th>
-                                            <th>Variety</th>
-                                            <th>Brand</th>
-                                            <th>Season</th>
-                                            <th>Area</th>
-                                            <th>Sowing</th>
-                                            <th>Org/Inorg</th>
-                                            <th>Type</th>
-                                            <th>Status</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            oemProductDetailsReducer.oemProductDetails.map((data, index) =>
+                                {
+                                    oemProductDetailsReducer && oemProductDetailsReducer.oemProductDetails.length > 0 ?
+                                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
                                                 <tr>
-                                                    <td key={index}>
-                                                        <Form.Check type="checkbox" className="mb-1">
-                                                            <Form.Check.Input
-                                                                type="checkbox"
-                                                                name="singleChkBox"
-                                                                style={{ width: '20px', height: '20px' }}
-                                                                onChange={() => handleCheckboxChange(data)}
-                                                                checked={selectAll || selectedRows.includes(data)}
-                                                            />
-                                                        </Form.Check>
-                                                    </td>
-                                                    <td>{data.oemName}</td>
-                                                    <td>{data.productCategoryName}</td>
-                                                    <td>{data.productName}</td>
-                                                    <td>{data.varietyName}</td>
-                                                    <td>{data.brandName}</td>
-                                                    <td>{data.season}</td>
-                                                    <td>{data.area}</td>
-                                                    <td>{data.sowing}</td>
-                                                    <td>{data.orgInorg}</td>
-                                                    <td>{data.type}</td>
-                                                    <td>{data.activeStatus}</td>
+                                                    <th>Select <Form.Check type="checkbox" id="contactListChkBox" >
+                                                        <Form.Check.Input
+                                                            type="checkbox"
+                                                            name="selectAll"
+                                                            style={{ width: '15px', height: '15px' }}
+                                                            onChange={handleHeaderCheckboxChange}
+                                                            checked={selectAll}
+                                                        />
+                                                    </Form.Check>
+                                                    </th>
+                                                    <th>OEM Name</th>
+                                                    <th>Category</th>
+                                                    <th>Product</th>
+                                                    <th>Variety</th>
+                                                    <th>Brand</th>
+                                                    <th>Season</th>
+                                                    <th>Area</th>
+                                                    <th>Sowing</th>
+                                                    <th>Org/Inorg</th>
+                                                    <th>Type</th>
+                                                    <th>Status</th>
                                                 </tr>
-                                            )
-                                        }
-                                    </tbody>
-                                </Table>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    oemProductDetailsReducer.oemProductDetails.map((data, index) =>
+                                                        <tr>
+                                                            <td key={index}>
+                                                                <Form.Check type="checkbox" className="mb-1">
+                                                                    <Form.Check.Input
+                                                                        type="checkbox"
+                                                                        name="singleChkBox"
+                                                                        style={{ width: '20px', height: '20px' }}
+                                                                        onChange={() => handleCheckboxChange(data)}
+                                                                        checked={selectAll || selectedRows.includes(data)}
+                                                                    />
+                                                                </Form.Check>
+                                                            </td>
+                                                            <td>{data.oemName}</td>
+                                                            <td>{data.productCategoryName}</td>
+                                                            <td>{data.productName}</td>
+                                                            <td>{data.varietyName}</td>
+                                                            <td>{data.brandName}</td>
+                                                            <td>{data.season}</td>
+                                                            <td>{data.area}</td>
+                                                            <td>{data.sowing}</td>
+                                                            <td>{data.orgInorg}</td>
+                                                            <td>{data.type}</td>
+                                                            <td>{data.activeStatus}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                        :
+                                        <h5>No record found</h5>
+                                }
                             </Row>
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={() => handleSelectedItem()} >Add</Button>
-                        <Button variant="danger" onClick={() => { setOemModal(false) }} >Cancel</Button>
+                        <Button variant="danger" onClick={() => { setOemModal(false), setProductCategory() }} >Cancel</Button>
                     </Modal.Footer>
                 </Modal >
             }
@@ -774,7 +780,7 @@ export const VendorProductCatalogueDetails = () => {
                                             <td key={index}>
                                                 <EnlargableTextbox
                                                     name="quantity"
-                                                    value={vendorProductCatalogueData.quantity}
+                                                    value={vendorProductCatalogueData.quantity ? vendorProductCatalogueData.quantity : ""}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Quantity"
                                                     maxLength={5}
@@ -787,7 +793,7 @@ export const VendorProductCatalogueDetails = () => {
                                                     name="unitCode"
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={vendorProductCatalogueData.unitCode}
+                                                    value={vendorProductCatalogueData.unitCode ? vendorProductCatalogueData.unitCode : ''}
                                                 >
                                                     <option value=''>Select </option>
                                                     {quantityUnitList.map((option, index) => (
@@ -800,7 +806,7 @@ export const VendorProductCatalogueDetails = () => {
                                                 <EnlargableTextbox
                                                     name="vendorRate"
                                                     // className="enlargeText"
-                                                    value={vendorProductCatalogueData.vendorRate}
+                                                    value={vendorProductCatalogueData.vendorRate ? vendorProductCatalogueData.vendorRate : ''}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Vendor Rate"
                                                     maxLength={13}
@@ -811,7 +817,7 @@ export const VendorProductCatalogueDetails = () => {
                                                 <EnlargableTextbox
                                                     name="vendorAmount"
                                                     // className="enlargeText"
-                                                    value={vendorProductCatalogueData.vendorAmount}
+                                                    value={vendorProductCatalogueData.vendorAmount ? vendorProductCatalogueData.vendorAmount : ''}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Amount"
                                                     maxLength={13}
@@ -821,7 +827,7 @@ export const VendorProductCatalogueDetails = () => {
                                             <td key={index}>
                                                 <EnlargableTextbox
                                                     name="oemRate"
-                                                    value={vendorProductCatalogueData.oemRate}
+                                                    value={vendorProductCatalogueData.oemRate ? vendorProductCatalogueData.oemRate : ''}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="OEM Rate"
                                                     maxLength={13}
@@ -846,7 +852,6 @@ export const VendorProductCatalogueDetails = () => {
                                                     type='date'
                                                     name="validTo"
                                                     placeholder="Select date"
-                                                    // className="form-control col-12 col-sm-6 col-md-4"
                                                     value={vendorProductCatalogueData.validTo ? Moment(vendorProductCatalogueData.validTo).format("YYYY-MM-DD") : ""}
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     required={vendorMasterErr.vendorProductCatalogueDetailErr && (vendorMasterErr.vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail ||
