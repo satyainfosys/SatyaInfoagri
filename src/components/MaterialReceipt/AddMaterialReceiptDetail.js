@@ -23,6 +23,7 @@ const AddMaterialReceiptDetail = () => {
     const [productCategoryDataList, setProductCategoryDataList] = useState([]);
     const [productMasterList, setProductMasterList] = useState([]);
     const [unitList, setUnitList] = useState([])
+    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
 
 
 
@@ -199,7 +200,7 @@ const AddMaterialReceiptDetail = () => {
             const updatedData = [...purchaseOrderProductDetailsList]
             dispatch(materialReceiptDetailsAction(updatedData));
         } else {
-            const updatedData = materialReceiptData.concat(selectedRows);
+            const updatedData = [...selectedRows, ...materialReceiptData];
             dispatch(materialReceiptDetailsAction(updatedData));
         }
 
@@ -264,22 +265,22 @@ const AddMaterialReceiptDetail = () => {
         }
     };
 
-    const ModalPreview = (encryptedMateialReceiptDetailId) => {
+    const ModalPreview = (encryptedMaterialReceiptDetailId) => {
         setModalShow(true);
-        setParamsData({ encryptedMateialReceiptDetailId });
+        setParamsData({ encryptedMaterialReceiptDetailId });
     }
 
     const deleteMaterialReceiptDetail = () => {
         if (!paramsData)
             return false;
 
-        var objectIndex = materialReceiptDetailsReducer.materialReceiptDetails.findIndex(x => x.encryptedMateialReceiptDetailId == paramsData.encryptedMateialReceiptDetailId);
+        var objectIndex = materialReceiptDetailsReducer.materialReceiptDetails.findIndex(x => x.encryptedMaterialReceiptDetailId == paramsData.encryptedMaterialReceiptDetailId);
         materialReceiptDetailsReducer.materialReceiptDetails.splice(objectIndex, 1);
 
         var deleteMaterialReceiptDetailId = localStorage.getItem("DeleteMaterialReceiptDetailIds");
 
-        if (paramsData.encryptedMateialReceiptDetailId) {
-            var deleteMaterialReceiptDetail = deleteMaterialReceiptDetailId ? deleteMaterialReceiptDetailId + "," + paramsData.encryptedMateialReceiptDetailId : paramsData.encryptedMateialReceiptDetailId;
+        if (paramsData.encryptedMaterialReceiptDetailId) {
+            var deleteMaterialReceiptDetail = deleteMaterialReceiptDetailId ? deleteMaterialReceiptDetailId + "," + paramsData.encryptedMaterialReceiptDetailId : paramsData.encryptedMaterialReceiptDetailId;
             localStorage.setItem("DeleteMaterialReceiptDetailIds", deleteMaterialReceiptDetail);
         }
 
@@ -397,65 +398,70 @@ const AddMaterialReceiptDetail = () => {
                     <Modal.Body className="max-five-rows">
                         <Form className="details-form" id="OemDetailsForm" >
                             <Row>
-                                <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                                    <thead className='custom-bg-200'>
-                                        <tr>
-                                            <th>S.No</th>
-                                            <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
-                                                <Form.Check.Input
-                                                    type="checkbox"
-                                                    name="selectAll"
-                                                    style={{ width: '15px', height: '15px' }}
-                                                    onChange={handleHeaderCheckboxChange}
-                                                    checked={selectAll}
-                                                />
-                                            </Form.Check>
-                                            </th>
-                                            <th>Product Category</th>
-                                            <th>Product</th>
-                                            <th>Variety</th>
-                                            <th>Brand</th>
-                                            <th>Unit</th>
-                                            <th>Quantity</th>
-                                            <th>Rate</th>
-                                            <th>Tax Basis</th>
-                                            <th>Tax Rate</th>
-                                            <th>Tax Amount</th>
-                                            <th>Total Amount</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.map((data, index) =>
+                                {
+                                    purchaseOrderProductDetailsReducer && purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.length > 0 ?
+                                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
                                                 <tr>
-                                                    <td>{index + 1}</td>
-                                                    <td key={index}>
-                                                        <Form.Check type="checkbox" className="mb-1">
-                                                            <Form.Check.Input
-                                                                type="checkbox"
-                                                                name="singleChkBox"
-                                                                style={{ width: '20px', height: '20px' }}
-                                                                onChange={() => handleCheckboxChange(data)}
-                                                                checked={selectAll || selectedRows.includes(data)}
-                                                            />
-                                                        </Form.Check>
-                                                    </td>
-                                                    <td>{data.productCategoryName}</td>
-                                                    <td>{data.productName}</td>
-                                                    <td>{data.varietyName}</td>
-                                                    <td>{data.brandName}</td>
-                                                    <td>{data.unitName}</td>
-                                                    <td>{data.quantity}</td>
-                                                    <td>{data.poRate}</td>
-                                                    <td>{data.taxBasis}</td>
-                                                    <td>{data.taxRate}</td>
-                                                    <td>{data.taxAmount}</td>
-                                                    <td>{data.poAmt}</td>
+                                                    <th>S.No</th>
+                                                    <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
+                                                        <Form.Check.Input
+                                                            type="checkbox"
+                                                            name="selectAll"
+                                                            style={{ width: '15px', height: '15px' }}
+                                                            onChange={handleHeaderCheckboxChange}
+                                                            checked={selectAll}
+                                                        />
+                                                    </Form.Check>
+                                                    </th>
+                                                    <th>Product Category</th>
+                                                    <th>Product</th>
+                                                    <th>Variety</th>
+                                                    <th>Brand</th>
+                                                    <th>Unit</th>
+                                                    <th>Quantity</th>
+                                                    <th>Rate</th>
+                                                    <th>Tax Basis</th>
+                                                    <th>Tax Rate</th>
+                                                    <th>Tax Amount</th>
+                                                    <th>Total Amount</th>
                                                 </tr>
-                                            )
-                                        }
-                                    </tbody>
-                                </Table>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.map((data, index) =>
+                                                        <tr>
+                                                            <td>{index + 1}</td>
+                                                            <td key={index}>
+                                                                <Form.Check type="checkbox" className="mb-1">
+                                                                    <Form.Check.Input
+                                                                        type="checkbox"
+                                                                        name="singleChkBox"
+                                                                        style={{ width: '20px', height: '20px' }}
+                                                                        onChange={() => handleCheckboxChange(data)}
+                                                                        checked={selectAll || selectedRows.includes(data)}
+                                                                    />
+                                                                </Form.Check>
+                                                            </td>
+                                                            <td>{data.productCategoryName}</td>
+                                                            <td>{data.productName}</td>
+                                                            <td>{data.varietyName}</td>
+                                                            <td>{data.brandName}</td>
+                                                            <td>{data.unitName}</td>
+                                                            <td>{data.quantity}</td>
+                                                            <td>{data.poRate}</td>
+                                                            <td>{data.taxBasis}</td>
+                                                            <td>{data.taxRate}</td>
+                                                            <td>{data.taxAmount}</td>
+                                                            <td>{data.poAmt}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                        :
+                                        <h5>No record found</h5>
+                                }
                             </Row>
                         </Form>
                     </Modal.Body>
@@ -474,17 +480,22 @@ const AddMaterialReceiptDetail = () => {
                     light
                     endEl={
                         <Flex>
-                            <div >
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="btn-reveal"
-                                    type="button"
-                                    onClick={() => handleAddItem()}
-                                >
-                                    Add Items
-                                </Button>
-                            </div>
+                            {
+                                materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
+                                    null
+                                    :
+                                    <div >
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            className="btn-reveal"
+                                            type="button"
+                                            onClick={() => handleAddItem()}
+                                        >
+                                            Add Items
+                                        </Button>
+                                    </div>
+                            }
                         </Flex>
                     }
                 />
@@ -502,7 +513,7 @@ const AddMaterialReceiptDetail = () => {
                                     {rowData &&
                                         (<tr>
                                             {columnsArray.map((column, index) => {
-                                                if (column === 'Delete' && materialReceiptHeaderData.materialStatus == "Approved") {
+                                                if (column === 'Delete' && materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved") {
                                                     return null;
                                                 }
 
@@ -613,7 +624,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -666,15 +677,17 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         maxLength={5}
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
                                                 {
-                                                    materialReceiptHeaderData.materialStatus != "Approved" &&
-                                                    <td key={index}>
-                                                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
-                                                    </td>
+                                                    materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
+                                                        null
+                                                        :
+                                                        <td key={index}>
+                                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
+                                                        </td>
                                                 }
                                             </tr>
                                             :
@@ -691,7 +704,7 @@ const AddMaterialReceiptDetail = () => {
                                                         value={materialReceiptDetailData.productCategoryCode}
                                                         className="form-control"
                                                         required
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select</option>
                                                         {productCategoryList.map((option, index) => (
@@ -708,7 +721,7 @@ const AddMaterialReceiptDetail = () => {
                                                         value={materialReceiptDetailData.productCode}
                                                         className="form-control"
                                                         required
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select</option>
                                                         {productMasterList[index] && productMasterList[index].map((option, mapIndex) => (
@@ -724,7 +737,7 @@ const AddMaterialReceiptDetail = () => {
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         placeholder="Variety"
                                                         maxLength={20}
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -735,7 +748,7 @@ const AddMaterialReceiptDetail = () => {
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         placeholder="Brand"
                                                         maxLength={20}
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -746,7 +759,7 @@ const AddMaterialReceiptDetail = () => {
                                                         className="form-control select"
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.unitCode}
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     >
                                                         <option value=''>Select </option>
                                                         {unitList.map((option, index) => (
@@ -792,7 +805,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -813,7 +826,7 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         required
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
@@ -845,15 +858,17 @@ const AddMaterialReceiptDetail = () => {
                                                             }
                                                         }}
                                                         maxLength={5}
-                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && materialReceiptHeaderData.materialStatus == "Approved"}
+                                                        disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
                                                 </td>
 
                                                 {
-                                                    materialReceiptHeaderData.materialStatus != "Approved" &&
-                                                    <td key={index}>
-                                                        <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
-                                                    </td>
+                                                    materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
+                                                        null
+                                                        :
+                                                        <td key={index}>
+                                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
+                                                        </td>
                                                 }
                                             </tr>
                                     ))}

@@ -94,7 +94,7 @@ const AddPurchaseOrderDetail = () => {
 
         let oldPoStatus = localStorage.getItem("OldPoStatus");
 
-        if (e.target.name == "vendorCode") {
+        if (e.target.name == "vendorCode" && e.target.value) {
             const vendorDetail = vendorMasterList.find(vendor => vendor.vendorCode == e.target.value);
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
@@ -107,6 +107,20 @@ const AddPurchaseOrderDetail = () => {
                 panNo: vendorDetail.vendorPanNo,
                 tinNo: vendorDetail.vendorTinNo,
                 vendorName: vendorDetail.vendorName
+            }))
+        }
+        else if(e.target.name == "vendorCode" && !e.target.value){
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                vendorCode: e.target.value,
+                poAddress: '',
+                poPincode: '',
+                state: '',
+                country: '',
+                gstNo: '',
+                panNo: '',
+                tinNo: '',
+                vendorName: ''
             }))
         }
         else if (e.target.name == "distributionCentreCode") {

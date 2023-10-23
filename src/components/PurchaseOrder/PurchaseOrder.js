@@ -565,7 +565,7 @@ const PurchaseOrder = () => {
                             poAmt: purchaseProductOrderDetailData.poAmt,
                             taxBasis: purchaseProductOrderDetailData.taxBasis ? purchaseProductOrderDetailData.taxBasis : "",
                             taxRate: purchaseProductOrderDetailData.taxRate ? purchaseProductOrderDetailData.taxRate : "",
-                            taxAmt: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
+                            taxAmount: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
                             vendorRate: purchaseProductOrderDetailData.vendorRate,
                             addUser: localStorage.getItem("LoginUserName")
                         }

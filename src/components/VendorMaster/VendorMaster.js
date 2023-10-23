@@ -492,6 +492,7 @@ const VendorMaster = () => {
                             vendorCode: vendorProductCatalogueDetail.vendorCode,
                             oemRate: vendorProductCatalogueDetail.oemRate ? parseFloat(vendorProductCatalogueDetail.oemRate) : 0,
                             vendorRate: vendorProductCatalogueDetail.vendorRate ? parseFloat(vendorProductCatalogueDetail.vendorRate) : 0,
+                            vendorAmount: vendorProductCatalogueDetail.vendorAmount ? parseFloat(vendorProductCatalogueDetail.vendorAmount) : 0,
                             quantity: vendorProductCatalogueDetail.quantity ? parseFloat(vendorProductCatalogueDetail.quantity) : 0,
                             unitCode: vendorProductCatalogueDetail.unitCode ? parseInt(vendorProductCatalogueDetail.unitCode) : 0,
                             validFrom: Moment(vendorProductCatalogueDetail.validFrom).format("YYYY-MM-DD"),
@@ -528,7 +529,9 @@ const VendorMaster = () => {
                             validFrom: Moment(vendorProductCatalogueDetail.validFrom).format("YYYY-MM-DD"),
                             validTo: Moment(vendorProductCatalogueDetail.validTo).format("YYYY-MM-DD"),
                             activeStatus: vendorProductCatalogueDetail.activeStatus,
-                            addUser: localStorage.getItem("LoginUserName")
+                            addUser: localStorage.getItem("LoginUserName"),
+                            productLineCode: vendorProductCatalogueDetail.productLineCode,
+                            productCategoryCode: vendorProductCatalogueDetail.productCategoryCode
                         }
                         setIsLoading(true);
                         const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-vendor-product-catalogue-detail', requestData, {
