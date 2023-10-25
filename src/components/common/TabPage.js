@@ -54,6 +54,7 @@ import PurchaseOrderTermDetails from 'components/PurchaseOrder/PurchaseOrderTerm
 
 import AddMaterialReceiptHeader from 'components/MaterialReceipt/AddMaterialReceiptHeader';
 import AddMaterialReceiptDetail from 'components/MaterialReceipt/AddMaterialReceiptDetail';
+import { InventoryDetailDashboard } from 'components/Inventory/InventoryDetailDashboard';
 
 const TabPage = ({
   listData,
@@ -186,6 +187,16 @@ const TabPage = ({
                   <FalconComponentCard>
                     <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
                       <AddMenuDetails />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+                </>
+              )}
+
+              {index == 0 && module == 'InventoryDetail' && (
+                <>
+                  <FalconComponentCard>
+                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
+                      <InventoryDetailDashboard />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
                 </>

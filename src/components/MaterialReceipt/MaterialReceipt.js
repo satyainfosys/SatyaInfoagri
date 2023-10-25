@@ -473,7 +473,9 @@ const MaterialReceipt = () => {
                             modifyUser: localStorage.getItem("LoginUserName"),
                             rate: parseFloat(materialReceiptDetailData.rate),
                             amount: parseFloat(materialReceiptDetailData.amount),
-                            materialStatus: materialReceiptHeaderData.materialStatus
+                            materialStatus: materialReceiptHeaderData.materialStatus,
+                            materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                                Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
                         }
                         setIsLoading(true);
                         const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-detail', requestData, {
@@ -507,7 +509,9 @@ const MaterialReceipt = () => {
                             amount: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poAmt : materialReceiptDetailData.amount,
                             unitCode: materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : "",
                             addUser: localStorage.getItem("LoginUserName"),
-                            materialStatus: materialReceiptHeaderData.materialStatus
+                            materialStatus: materialReceiptHeaderData.materialStatus,
+                            materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                                Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
                         }
                         setIsLoading(true);
                         const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {
