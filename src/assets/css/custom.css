@@ -111,6 +111,7 @@
 }
 
 .no-pb, .no-pb .card-body{
+    padding-top: 5px;
     padding-bottom: 0px !important;
     margin-bottom: 0px !important;
 }
@@ -178,3 +179,7 @@
     padding-top: 5px !important;
     padding-bottom: 5px !important;
 }
+
+/* .table-responsive{
+    overflow-x: unset !important;
+} */

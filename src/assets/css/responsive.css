@@ -74,6 +74,10 @@
     h5, h6{
         font-size: .8rem !important;
     }
+
+    tbody .form-control, tbody .form-select{
+        min-width: 120px;
+    }
 }
 
 @media (min-width: 1200px) {
