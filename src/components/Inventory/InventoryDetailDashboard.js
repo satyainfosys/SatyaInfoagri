@@ -18,58 +18,38 @@ export const InventoryDetailDashboard = () => {
             ) : null}
 
             <Form className="details-form" id="InventoryDetailDashboard">
-                <Row>
-                    <Row className='mb-3'>
-                        <Col className="me-2 ms-2">
-                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
-                                <Form.Label column sm={4}>
-                                    Company
-                                </Form.Label>
-                                <Col sm={7}>
+                    <Row className='mb-1'>
+                                <Col sm={2}>
                                     <Form.Select id="txtCompanyCode" name="vendorCode">
                                         <option value=''>Select</option>
                                     </Form.Select>
                                 </Col>
-                            </Form.Group>
-                        </Col>
-                        <Col className="me-1 ms-1">
-                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
-                                <Form.Label column sm={4}>
+                                <Form.Label column sm={1}>
                                     Start Date
                                 </Form.Label>
-                                <Col sm={7}>
+                                <Col sm={2} className="pl-5">
                                     <Form.Control type='date' id="dtStartDate" name="startDate" />
                                 </Col>
-                            </Form.Group>
-                        </Col>
-                        <Col className="me-1 ms-1">
-                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
-                                <Form.Label column sm={3}>
+                                <Form.Label column sm={1}>
                                     End Date
                                 </Form.Label>
-                                <Col sm={7}>
+                                <Col sm={2} className="pl-5">
                                     <Form.Control type='date' id="dtEndDate" name="endDate" />
                                 </Col>
-                            </Form.Group>
-                        </Col>
-                        <Col className="me-1 ms-1">
-                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
-                                <Form.Label column sm={5}>
-                                    Product Category
+                                <Form.Label column sm={1}>
+                                    Category
                                 </Form.Label>
-                                <Col sm={7}>
+                                <Col sm={2}>
                                     <Form.Select id="txtCategoryCode" name="productCategoryCode">
                                         <option value=''>Select</option>
                                     </Form.Select>
                                 </Col>
-                            </Form.Group>
-                        </Col>
-                        <Col className="me-0 ms-1">
+                        <Col sm={1} className='pl-5'>
                             <Button variant="success" >Search</Button>
                         </Col>
                     </Row>
 
-                    <Row style={{ paddingLeft: 9 }}>
+                    <Row className="no-padding">
                         <Table striped bordered responsive>
                             <thead className='custom-bg-200'>
                                 <tr>
@@ -86,7 +66,6 @@ export const InventoryDetailDashboard = () => {
                             </thead>
                         </Table>
                     </Row>
-                </Row>
             </Form>
         </>
     )
