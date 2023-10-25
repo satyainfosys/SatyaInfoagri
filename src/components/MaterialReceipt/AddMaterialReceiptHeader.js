@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
-import { formChangedAction, materialReceiptHeaderDetailsAction } from 'actions';
+import { formChangedAction, materialReceiptDetailsAction, materialReceiptHeaderDetailsAction } from 'actions';
 
 const AddMaterialReceiptHeader = () => {
 
@@ -11,6 +11,7 @@ const AddMaterialReceiptHeader = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [poList, setPoList] = useState([]);
     const [poListData, setPoListData] = useState([]);
+    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
 
     const resetMaterialReceiptHeaderDetails = () => {
         dispatch(materialReceiptHeaderDetailsAction({
@@ -84,7 +85,8 @@ const AddMaterialReceiptHeader = () => {
         }
     }
 
-    const handleFieldChange = e => {
+    const handleFieldChange = e => {        
+
         if (e.target.name == "vendorCode" && e.target.value) {
             const vendorDetail = vendorList.find(vendor => vendor.vendorCode == e.target.value);
             dispatch(materialReceiptHeaderDetailsAction({
@@ -102,15 +104,43 @@ const AddMaterialReceiptHeader = () => {
             setPoList([]);
             e.target.value && fetchPurchaseOrder(e.target.value)
         }
-        else if (e.target.name == "poNo") {
-            const poNumberDetail = poListData.find(po => po.poNo == e.target.value);
+        else if(e.target.name == "vendorCode" && !e.target.value){
             dispatch(materialReceiptHeaderDetailsAction({
                 ...materialReceiptHeaderData,
-                poNo: e.target.value,
-                poDate: poNumberDetail.poDate,
-                poStatus: poNumberDetail.poStatus,
-                deliveryLocation: poNumberDetail.deliveryLocation
+                vendorCode: e.target.value,
+                address: '',
+                pinCode: '',
+                state: '',
+                country: '',
+                gstNo: '',
+                panNo: '',
+                tinNo: '',
+                vendorName: ''
             }))
+            setPoList([]);
+        }
+        else if (e.target.name == "poNo") {
+            if (e.target.value) {
+                const poNumberDetail = poListData.find(po => po.poNo == e.target.value);
+                dispatch(materialReceiptHeaderDetailsAction({
+                    ...materialReceiptHeaderData,
+                    poNo: e.target.value,
+                    poDate: poNumberDetail.poDate,
+                    poStatus: poNumberDetail.poStatus,
+                    deliveryLocation: poNumberDetail.deliveryLocation
+                }))
+                dispatch(materialReceiptDetailsAction([]));
+            }
+            else if (!e.target.value) {
+                dispatch(materialReceiptDetailsAction([]));
+                dispatch(materialReceiptHeaderDetailsAction({
+                    ...materialReceiptHeaderData,
+                    poNo: e.target.value,
+                    poDate: '',
+                    poStatus: '',
+                    deliveryLocation: ''
+                }))
+            }
         }
         else {
             dispatch(materialReceiptHeaderDetailsAction({
@@ -129,6 +159,16 @@ const AddMaterialReceiptHeader = () => {
                 ...formChangedData,
                 materialReceiptHeaderDetailAdd: true
             }))
+        }
+
+        if (e.target.name == "materialStatus") {
+            if (materialReceiptHeaderData.encryptedMaterialReceiptId && (oldMaterialStatus != "Approved" && e.target.value == "Approved")) {
+                dispatch(formChangedAction({
+                    ...formChangedData,
+                    materialReceiptDetailUpdate: true,
+                    materialReceiptHeaderDetailUpdate: true
+                }))
+            }
         }
     }
 
@@ -263,7 +303,7 @@ const AddMaterialReceiptHeader = () => {
                                 Challan No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} />
+                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
                             </Col>
                         </Form.Group>
 
@@ -276,6 +316,7 @@ const AddMaterialReceiptHeader = () => {
                                     value={materialReceiptHeaderData.materialReceiptDate ?
                                         Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
                                     onChange={handleFieldChange}
+                                    disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                 />
                             </Col>
                         </Form.Group>
@@ -314,7 +355,7 @@ const AddMaterialReceiptHeader = () => {
                                 Person Name
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} />
+                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
                             </Col>
                         </Form.Group>
 
@@ -323,7 +364,7 @@ const AddMaterialReceiptHeader = () => {
                                 Material Status
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange}>
+                                <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}>
                                     <option value="Draft">Draft</option>
                                     <option value="Approved">Approved</option>
                                 </Form.Select>

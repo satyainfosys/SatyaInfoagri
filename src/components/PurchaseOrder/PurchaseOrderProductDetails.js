@@ -73,7 +73,7 @@ const PurchaseOrderProductDetails = () => {
         const totalPoAmount = purchaseOrderProductDetailsData.length > 1
             ? purchaseOrderProductDetailsData.reduce((acc, obj) => {
                 const poAmount = obj.poAmt !== "" ? parseFloat(obj.poAmt) : 0;
-                return acc + poAmount;
+                return acc + (isNaN(poAmount) ? 0 : poAmount);
             }, 0)
             : purchaseOrderProductDetailsData.length === 1
                 ? parseFloat(purchaseOrderProductDetailsData[0].poAmt)
@@ -81,7 +81,7 @@ const PurchaseOrderProductDetails = () => {
 
         dispatch(purchaseOrderDetailsAction({
             ...purchaseOrderData,
-            poAmount: totalPoAmount
+            poAmount: isNaN(totalPoAmount) ? 0 : totalPoAmount
         }))
 
         if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
@@ -99,12 +99,12 @@ const PurchaseOrderProductDetails = () => {
         getVendorProductCatalogueMasterList();
     }
 
-    const getVendorProductCatalogueMasterList = async (searchText, productCategoryCode, productCode) => {
+    const getVendorProductCatalogueMasterList = async (searchText, productCategoryCode, productCode, isManualFilter = false) => {
         const requestData = {
             vendorCode: purchaseOrderData.vendorCode,
             searchText: searchText,
-            ProductCategoryCode: productCategoryCode ? productCategoryCode : productCategory,
-            ProductCode: productCode ? productCode : product
+            ProductCategoryCode: isManualFilter ? productCategoryCode : productCategory,
+            ProductCode: isManualFilter ? productCode : product
         }
 
         const response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-product-catalogue-master-list', requestData, {
@@ -130,10 +130,19 @@ const PurchaseOrderProductDetails = () => {
 
     const handleSelectedItem = () => {
         if (selectAll) {
-            const updatedData = [...vendorProductCatalogueList]
+            const updatedData = vendorProductCatalogueList.map(item => ({
+                ...item,
+                materialStatus: "Not Received"
+            }));
+
             dispatch(purchaseOrderProductDetailsAction(updatedData));
         } else {
-            const updatedData = purchaseOrderProductDetailsData.concat(selectedRows);
+            const updatedRows = selectedRows.map(item => ({
+                ...item,
+                materialStatus: "Not Received"
+            }));
+
+            const updatedData = [...updatedRows, ...purchaseOrderProductDetailsData];
             dispatch(purchaseOrderProductDetailsAction(updatedData));
         }
         dispatch(formChangedAction({
@@ -197,18 +206,18 @@ const PurchaseOrderProductDetails = () => {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount)
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else if (purchaseOrderProductDetail[index].taxBasis == "Lumpsum" && purchaseOrderProductDetail[index].taxRate) {
                     const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate)
                     purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate)
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
             }
@@ -220,30 +229,30 @@ const PurchaseOrderProductDetails = () => {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(e.target.value))
                     const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value) + parseFloat(poTaxAmount);
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else if (purchaseOrderProductDetail[index].taxBasis == "Lumpsum" && purchaseOrderProductDetail[index].taxRate) {
                     const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value) + parseFloat(purchaseOrderProductDetail[index].taxRate)
                     purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value)
-                    purchaseOrderProductDetail[index].poAmt = calculatedPoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
             }
             else if (parseFloat(purchaseOrderProductDetail[index].poAmt) > 0) {
                 if (purchaseOrderProductDetail[index].taxAmount) {
                     const calculatedQuantity = (parseFloat(purchaseOrderProductDetail[index].poAmt) - parseFloat(purchaseOrderProductDetail[index].taxAmount)) / parseFloat(e.target.value)
-                    purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
+                    purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatedQuantity = parseFloat(purchaseOrderProductDetail[index].poAmt) / parseFloat(e.target.value)
-                    purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
+                    purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
                         var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(e.target.value));
                         purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
@@ -257,12 +266,12 @@ const PurchaseOrderProductDetails = () => {
             if (purchaseOrderProductDetail[index].poRate) {
                 if (purchaseOrderProductDetail[index].taxAmount) {
                     const calculatedQuantity = (parseFloat(e.target.value) - parseFloat(purchaseOrderProductDetail[index].taxAmount)) / parseFloat(purchaseOrderProductDetail[index].poRate)
-                    purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
+                    purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatedQuantity = parseFloat(e.target.value) / parseFloat(purchaseOrderProductDetail[index].poRate)
-                    purchaseOrderProductDetail[index].quantity = calculatedQuantity.toString();
+                    purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
                     if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
                         var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), calculatedQuantity, parseFloat(purchaseOrderProductDetail[index].poRate));
                         purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
@@ -277,13 +286,13 @@ const PurchaseOrderProductDetails = () => {
                 if (parseFloat(e.target.value) > 0) {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = "";
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -292,12 +301,12 @@ const PurchaseOrderProductDetails = () => {
                 if (parseFloat(e.target.value) > 0) {
                     purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = "";
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -309,13 +318,13 @@ const PurchaseOrderProductDetails = () => {
                 if (parseFloat(purchaseOrderProductDetail[index].taxRate) > 0) {
                     var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(purchaseOrderProductDetail[index].quantity), parseFloat(purchaseOrderProductDetail[index].poRate))
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = poTaxAmount;
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = "";
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
@@ -324,19 +333,19 @@ const PurchaseOrderProductDetails = () => {
                 if (parseFloat(purchaseOrderProductDetail[index].taxRate) > 0) {
                     purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
                 else {
                     const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate);
-                    purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                    purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                     purchaseOrderProductDetail[index].taxAmount = "";
                     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
                 }
             }
             else {
                 const calculatePoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(purchaseOrderProductDetail[index].poRate)
-                purchaseOrderProductDetail[index].poAmt = calculatePoAmount.toString();
+                purchaseOrderProductDetail[index].poAmt = isNaN(calculatePoAmount) ? 0 : calculatePoAmount.toString();
                 dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
             }
         }
@@ -387,14 +396,17 @@ const PurchaseOrderProductDetails = () => {
         setModalShow(false);
     }
 
-    const handleProductCategoryChange = e => {
+    const handleProductCategoryChange = async (e) => {
         setProductCategory(e.target.value);
-        getVendorProductCatalogueMasterList("", e.target.value);
-        getProductList(e.target.value);
+        handleAPICall(e.target.value);
+    }
+
+    const handleAPICall = async (categoryCode) => {
+        await getVendorProductCatalogueMasterList("", categoryCode, "", true);
+        await getProductList(categoryCode);
     }
 
     const getProductCategoryList = async () => {
-
         let productCategoryData = [];
         let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -444,7 +456,7 @@ const PurchaseOrderProductDetails = () => {
 
     const handleProductChange = e => {
         setProduct(e.target.value);
-        getVendorProductCatalogueMasterList('', productCategory, e.target.value);
+        getVendorProductCatalogueMasterList('', productCategory, e.target.value, true);
     }
 
     const onCancelClick = async () => {
@@ -459,6 +471,10 @@ const PurchaseOrderProductDetails = () => {
             setSelectedRows([]);
         }
     };
+
+    const handleSearchChange = (e) => {
+        getVendorProductCatalogueMasterList(e.target.value)
+    }
 
     return (
         <>
@@ -505,7 +521,7 @@ const PurchaseOrderProductDetails = () => {
                                             Search
                                         </Form.Label>
                                         <Col sm="8">
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search" onChange={handleSearchChange} maxLength={45} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -546,67 +562,72 @@ const PurchaseOrderProductDetails = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                                    <thead className='custom-bg-200'>
-                                        <tr>
-                                            <th>S.No</th>
-                                            <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
-                                                <Form.Check.Input
-                                                    type="checkbox"
-                                                    name="selectAll"
-                                                    style={{ width: '15px', height: '15px' }}
-                                                    onChange={handleHeaderCheckboxChange}
-                                                    checked={selectAll}
-                                                />
-                                            </Form.Check>
-                                            </th>
-                                            <th>OEM Name</th>
-                                            <th>Product Category</th>
-                                            <th>Product</th>
-                                            <th>Variety</th>
-                                            <th>Brand</th>
-                                            <th>Type</th>
-                                            <th>Unit</th>
-                                            <th>Rate</th>
-                                            <th>Org/Inorg</th>
-                                            <th>Season</th>
-                                            <th>Area</th>
-                                            <th>Sowing</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {
-                                            vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.map((data, index) =>
+                                {
+                                    vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.length > 0 ?
+                                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
                                                 <tr>
-                                                    <td>{index + 1}</td>
-                                                    <td key={index}>
-                                                        <Form.Check type="checkbox" className="mb-1">
-                                                            <Form.Check.Input
-                                                                type="checkbox"
-                                                                name="singleChkBox"
-                                                                style={{ width: '20px', height: '20px' }}
-                                                                onChange={() => handleCheckboxChange(data)}
-                                                                checked={selectAll || selectedRows.includes(data)}
-                                                            />
-                                                        </Form.Check>
-                                                    </td>
-                                                    <td>{data.oemName}</td>
-                                                    <td>{data.productCategoryName}</td>
-                                                    <td>{data.productName}</td>
-                                                    <td>{data.varietyName}</td>
-                                                    <td>{data.brandName}</td>
-                                                    <td>{data.type}</td>
-                                                    <td>{data.unitName}</td>
-                                                    <td>{data.vendorRate}</td>
-                                                    <td>{data.orgInorg}</td>
-                                                    <td>{data.season}</td>
-                                                    <td>{data.area}</td>
-                                                    <td>{data.sowing}</td>
+                                                    <th>S.No</th>
+                                                    <th>Select <Form.Check type="checkbox" id="vendorListChkbox" >
+                                                        <Form.Check.Input
+                                                            type="checkbox"
+                                                            name="selectAll"
+                                                            style={{ width: '15px', height: '15px' }}
+                                                            onChange={handleHeaderCheckboxChange}
+                                                            checked={selectAll}
+                                                        />
+                                                    </Form.Check>
+                                                    </th>
+                                                    <th>OEM Name</th>
+                                                    <th>Product Category</th>
+                                                    <th>Product</th>
+                                                    <th>Variety</th>
+                                                    <th>Brand</th>
+                                                    <th>Type</th>
+                                                    <th>Unit</th>
+                                                    <th>Rate</th>
+                                                    <th>Org/Inorg</th>
+                                                    <th>Season</th>
+                                                    <th>Area</th>
+                                                    <th>Sowing</th>
                                                 </tr>
-                                            )
-                                        }
-                                    </tbody>
-                                </Table>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails.map((data, index) =>
+                                                        <tr>
+                                                            <td>{index + 1}</td>
+                                                            <td key={index}>
+                                                                <Form.Check type="checkbox" className="mb-1">
+                                                                    <Form.Check.Input
+                                                                        type="checkbox"
+                                                                        name="singleChkBox"
+                                                                        style={{ width: '20px', height: '20px' }}
+                                                                        onChange={() => handleCheckboxChange(data)}
+                                                                        checked={selectAll || selectedRows.includes(data)}
+                                                                    />
+                                                                </Form.Check>
+                                                            </td>
+                                                            <td>{data.oemName}</td>
+                                                            <td>{data.productCategoryName}</td>
+                                                            <td>{data.productName}</td>
+                                                            <td>{data.varietyName}</td>
+                                                            <td>{data.brandName}</td>
+                                                            <td>{data.type}</td>
+                                                            <td>{data.unitName}</td>
+                                                            <td>{data.vendorRate}</td>
+                                                            <td>{data.orgInorg}</td>
+                                                            <td>{data.season}</td>
+                                                            <td>{data.area}</td>
+                                                            <td>{data.sowing}</td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                        :
+                                        <h5>No record found</h5>
+                                }
                             </Row>
                         </Form>
                     </Modal.Body>
@@ -627,18 +648,20 @@ const PurchaseOrderProductDetails = () => {
                     endEl={
                         <Flex>
                             {
-                                purchaseOrderData.poStatus != "Approved" &&
-                                <div >
-                                    <Button
-                                        variant="primary"
-                                        size="sm"
-                                        className="btn-reveal"
-                                        type="button"
-                                        onClick={() => handleAddItem()}
-                                    >
-                                        Add Item
-                                    </Button>
-                                </div>
+                                purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
+                                    null
+                                    :
+                                    <div >
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            className="btn-reveal"
+                                            type="button"
+                                            onClick={() => handleAddItem()}
+                                        >
+                                            Add Item
+                                        </Button>
+                                    </div>
                             }
                         </Flex>
                     }
@@ -788,7 +811,7 @@ const PurchaseOrderProductDetails = () => {
                                                     name="taxBasis"
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
-                                                    value={poProductDetailData.taxBasis}
+                                                    value={poProductDetailData.taxBasis ? poProductDetailData.taxBasis : ''}
                                                     disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                                 >
                                                     <option value=''>Select </option>
@@ -822,7 +845,7 @@ const PurchaseOrderProductDetails = () => {
                                                     name="taxAmount"
                                                     placeholder="Tax Amount"
                                                     maxLength={13}
-                                                    value={poProductDetailData.taxAmount}
+                                                    value={poProductDetailData.taxAmount ? poProductDetailData.taxAmount : ""}
                                                     disabled
                                                 />
                                             </td>
@@ -851,7 +874,12 @@ const PurchaseOrderProductDetails = () => {
                                             {
                                                 purchaseOrderData.poStatus != "Approved" &&
                                                 <td key={index}>
-                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                    {
+                                                        poProductDetailData.materialStatus === "Not Received" ?
+                                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                            :
+                                                            poProductDetailData.materialStatus
+                                                    }
                                                 </td>
                                             }
                                         </tr>

@@ -91,7 +91,10 @@ const AddPurchaseOrderDetail = () => {
     }
 
     const handleFieldChange = e => {
-        if (e.target.name == "vendorCode") {
+
+        let oldPoStatus = localStorage.getItem("OldPoStatus");
+
+        if (e.target.name == "vendorCode" && e.target.value) {
             const vendorDetail = vendorMasterList.find(vendor => vendor.vendorCode == e.target.value);
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
@@ -104,6 +107,20 @@ const AddPurchaseOrderDetail = () => {
                 panNo: vendorDetail.vendorPanNo,
                 tinNo: vendorDetail.vendorTinNo,
                 vendorName: vendorDetail.vendorName
+            }))
+        }
+        else if(e.target.name == "vendorCode" && !e.target.value){
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                vendorCode: e.target.value,
+                poAddress: '',
+                poPincode: '',
+                state: '',
+                country: '',
+                gstNo: '',
+                panNo: '',
+                tinNo: '',
+                vendorName: ''
             }))
         }
         else if (e.target.name == "distributionCentreCode") {
@@ -122,11 +139,7 @@ const AddPurchaseOrderDetail = () => {
             }))
         }
 
-        if (purchaseOrderData.encryptedPoNo && e.target.name == "poStatus" && e.target.value == "Approved") {
-            dispatch(formChangedAction(undefined))
-            $("#btnSave").attr('disabled', true);
-        }
-        else if (purchaseOrderData.encryptedPoNo) {
+        if (purchaseOrderData.encryptedPoNo) {
             dispatch(formChangedAction({
                 ...formChangedData,
                 purchaseOrderDetailUpdate: true
@@ -136,6 +149,21 @@ const AddPurchaseOrderDetail = () => {
                 ...formChangedData,
                 purchaseOrderDetailAdd: true
             }))
+        }
+
+        if (e.target.name == "poStatus") {
+            if (purchaseOrderData.encryptedPoNo && (oldPoStatus != "Approved" && e.target.value == "Approved")) {
+                $("#btnSave").attr('disabled', false);
+            }
+
+            if (purchaseOrderData.encryptedPoNo && (oldPoStatus == "Approved" && e.target.value != "Approved")) {
+                $("#btnSave").attr('disabled', false);
+            }
+
+            if (purchaseOrderData.encryptedPoNo && (oldPoStatus === "Approved" && e.target.value === "Approved")) {
+                $("#btnSave").attr('disabled', true);
+                dispatch(formChangedAction(undefined));
+            }
         }
     }
 
@@ -324,7 +352,7 @@ const AddPurchaseOrderDetail = () => {
                                     DC Name
                                 </Form.Label>
                                 <Col sm="8">
-                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} >
+                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} >
                                         <option value=''>Select Distribution</option>
                                         {distributionList &&
                                             distributionList.map((option, index) => (
@@ -340,7 +368,7 @@ const AddPurchaseOrderDetail = () => {
                                     Collection Centre
                                 </Form.Label>
                                 <Col sm={8}>
-                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode}>
+                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}>
                                         <option value=''>Select Collection Centre</option>
                                         {collectionCentreList &&
                                             collectionCentreList.map((option, index) => (

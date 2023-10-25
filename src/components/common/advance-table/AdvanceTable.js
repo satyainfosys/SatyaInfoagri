@@ -118,6 +118,7 @@ const AdvanceTable = ({
     }
     else if (rowData.hasOwnProperty('encryptedPoNo')) {
       localStorage.setItem('EncryptedPoNo', rowData.encryptedPoNo);
+      localStorage.setItem('OldPoStatus', rowData.poStatus)
       dispatch(purchaseOrderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
@@ -128,7 +129,8 @@ const AdvanceTable = ({
     }
     else if(rowData.hasOwnProperty('encryptedMaterialReceiptId')){
       localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
-      dispatch(materialReceiptHeaderDetailsAction(rowData));
+      localStorage.setItem("OldMaterialStatus", rowData.materialStatus);
+      dispatch(materialReceiptHeaderDetailsAction(rowData));      
       $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
       $('#btnSave').attr('disabled', true);
