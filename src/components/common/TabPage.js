@@ -195,7 +195,7 @@ const TabPage = ({
               {index == 0 && module == 'InventoryDetail' && (
                 <>
                   <FalconComponentCard>
-                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body">
+                    <FalconComponentCard.Body language="jsx" className="full-tab-page-card-body pt-2">
                       <InventoryDetailDashboard />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>

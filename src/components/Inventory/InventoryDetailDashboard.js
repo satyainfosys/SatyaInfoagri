@@ -53,7 +53,7 @@ export const InventoryDetailDashboard = () => {
                     </Row>
 
                     <Row className="no-padding">
-                        <Table striped bordered responsive>
+                        <Table striped bordered responsive className="table-sm overflow-hidden">
                             <thead className='custom-bg-200'>
                                 <tr>
                                     <th>Product Line</th>
