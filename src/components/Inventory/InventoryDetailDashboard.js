@@ -18,33 +18,36 @@ export const InventoryDetailDashboard = () => {
             ) : null}
 
             <Form className="details-form" id="InventoryDetailDashboard">
-                    <Row className='mb-1'>
-                                <Col sm={2}>
+                    <Row className='mb-1 justify-content-center'>
+                                <Form.Label column className='col-auto'>
+                                    Company
+                                </Form.Label>
+                                <Col className='col-auto'>
                                     <Form.Select id="txtCompanyCode" name="vendorCode">
                                         <option value=''>Select</option>
                                     </Form.Select>
                                 </Col>
-                                <Form.Label column sm={1}>
+                                <Form.Label column className='col-auto'>
                                     Start Date
                                 </Form.Label>
-                                <Col sm={2} className="pl-5">
+                                <Col className='col-auto'>
                                     <Form.Control type='date' id="dtStartDate" name="startDate" />
                                 </Col>
-                                <Form.Label column sm={1}>
+                                <Form.Label column className='col-auto'>
                                     End Date
                                 </Form.Label>
-                                <Col sm={2} className="pl-5">
+                                <Col  className='col-auto'>
                                     <Form.Control type='date' id="dtEndDate" name="endDate" />
                                 </Col>
-                                <Form.Label column sm={1}>
+                                <Form.Label column className='col-auto'>
                                     Category
                                 </Form.Label>
-                                <Col sm={2}>
+                                <Col className='col-auto'>
                                     <Form.Select id="txtCategoryCode" name="productCategoryCode">
                                         <option value=''>Select</option>
                                     </Form.Select>
                                 </Col>
-                        <Col sm={1} className='pl-5'>
+                        <Col className='col-auto'>
                             <Button variant="success" >Search</Button>
                         </Col>
                     </Row>
