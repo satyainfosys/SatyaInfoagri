@@ -78,14 +78,14 @@ export const InventoryDetailDashboard = () => {
     }
 
     const handleFieldChange = e => {
-        let isNull =false;
+        let isNull = false;
 
         if (e.target.name == "companyCode") {
             setFormData({
                 ...formData,
                 [e.target.name]: !e.target.value ? "" : e.target.value
             })
-            if(!e.target.value) isNull = true
+            if (!e.target.value) isNull = true
             fetchInventoryDetailList(e.target.value, isNull)
         }
         else {
@@ -96,24 +96,33 @@ export const InventoryDetailDashboard = () => {
         }
     }
 
-    const validateSearchClick = (companyCode, isNull) => {
+    const validateSearchClick = (isNull = true, companyCode) => {
+        debugger
         let isValid = true
 
-        if (!formData.companyCode && !companyCode && isNull === true) {
+        if (isNull) {
+            toast.error("Select Company", {
+                theme: 'colored'
+            });
+            isValid = false;
+            setInventoryDetailList([]);
+        }
+        else if (!formData.companyCode && !companyCode) {
             toast.error("Select company", {
                 theme: 'colored'
             });
             isValid = false;
+            setInventoryDetailList([]);
         }
 
         if (formData.startDate && !formData.endDate) {
-            toast.error("Select end date", {
+            toast.error("Select To Date", {
                 theme: 'colored'
             });
             isValid = false;
         }
         else if (formData.endDate && !formData.startDate) {
-            toast.error("Select start date", {
+            toast.error("Select From Date", {
                 theme: 'colored'
             });
             isValid = false;
@@ -122,8 +131,8 @@ export const InventoryDetailDashboard = () => {
         return isValid;
     }
 
-    const fetchInventoryDetailList = async (companyCode, isNull) => {
-        if (validateSearchClick(companyCode, isNull)) {
+    const fetchInventoryDetailList = async (companyCode, isNull = false) => {
+        if (validateSearchClick(isNull, companyCode)) {
             const requestData = {
                 EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 EncryptedCompanyCode: companyCode ? companyCode : formData.companyCode,
@@ -173,13 +182,13 @@ export const InventoryDetailDashboard = () => {
                         </Form.Select>
                     </Col>
                     <Form.Label column className='col-auto'>
-                        Start Date
+                        From Date
                     </Form.Label>
                     <Col className='col-auto'>
                         <Form.Control type='date' id="dtStartDate" name="startDate" onChange={handleFieldChange} value={formData.startDate} />
                     </Col>
                     <Form.Label column className='col-auto'>
-                        End Date
+                        To Date
                     </Form.Label>
                     <Col className='col-auto'>
                         <Form.Control type='date' id="dtEndDate" name="endDate" onChange={handleFieldChange} value={formData.endDate} />
@@ -206,7 +215,7 @@ export const InventoryDetailDashboard = () => {
                             <Table striped bordered responsive className="table-sm overflow-hidden">
                                 <thead className='custom-bg-200'>
                                     <tr>
-                                        <th>S.No</th>
+                                        <th>S. No</th>
                                         <th>Product Line</th>
                                         <th>Product Category</th>
                                         <th>Product</th>
@@ -225,11 +234,11 @@ export const InventoryDetailDashboard = () => {
                                                 <td>{index + 1}</td>
                                                 <td>{item.productLineName}</td>
                                                 <td>{item.productCategoryName}</td>
-                                                <td>{"-"}</td>
+                                                <td>{item.productName}</td>
                                                 <td>{"-"}</td>
                                                 <td>{"-"}</td>
                                                 <td>{item.availableQty}</td>
-                                                <td>{"-"}</td>
+                                                <td>{item.unitName}</td>
                                                 <td>{item.avgPrice}</td>
                                                 <td>{item.totalAmount}</td>
                                             </tr>
