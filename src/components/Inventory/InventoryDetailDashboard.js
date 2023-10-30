@@ -22,12 +22,12 @@ export const InventoryDetailDashboard = () => {
     });
 
 
-    useEffect(() => {
+    useEffect(() => {     
         if (companyList.length <= 0)
             getCompany();
         if (productCategoryList.length <= 0)
             fetchProductCategoryList();
-    },)
+    }, [])
 
     const getCompany = async () => {
         let companyData = [];
@@ -78,41 +78,20 @@ export const InventoryDetailDashboard = () => {
     }
 
     const handleFieldChange = e => {
-        let isNull = false;
-
-        if (e.target.name == "companyCode") {
-            setFormData({
-                ...formData,
-                [e.target.name]: !e.target.value ? "" : e.target.value
-            })
-            if (!e.target.value) isNull = true
-            fetchInventoryDetailList(e.target.value, isNull)
-        }
-        else {
-            setFormData({
-                ...formData,
-                [e.target.name]: e.target.value
-            })
-        }
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        })
     }
 
-    const validateSearchClick = (isNull = true, companyCode) => {
-        debugger
+    const validateSearchClick = () => {
         let isValid = true
 
-        if (isNull) {
-            toast.error("Select Company", {
-                theme: 'colored'
-            });
-            isValid = false;
-            setInventoryDetailList([]);
-        }
-        else if (!formData.companyCode && !companyCode) {
+        if (!formData.companyCode) {
             toast.error("Select company", {
                 theme: 'colored'
             });
             isValid = false;
-            setInventoryDetailList([]);
         }
 
         if (formData.startDate && !formData.endDate) {
@@ -123,6 +102,12 @@ export const InventoryDetailDashboard = () => {
         }
         else if (formData.endDate && !formData.startDate) {
             toast.error("Select From Date", {
+                theme: 'colored'
+            });
+            isValid = false;
+        }
+        else if (formData.startDate > formData.endDate || formData.endDate < formData.startDate) {
+            toast.error("From Date cannot be greater than To Date", {
                 theme: 'colored'
             });
             isValid = false;
@@ -157,6 +142,9 @@ export const InventoryDetailDashboard = () => {
                 }, 500)
             }
         }
+        else {
+            setInventoryDetailList([]);
+        }
     }
 
     return (
@@ -185,13 +173,13 @@ export const InventoryDetailDashboard = () => {
                         From Date
                     </Form.Label>
                     <Col className='col-auto'>
-                        <Form.Control type='date' id="dtStartDate" name="startDate" onChange={handleFieldChange} value={formData.startDate} />
+                        <Form.Control type='date' id="dtStartDate" name="startDate" onChange={handleFieldChange} value={formData.startDate} max={Moment().format("YYYY-MM-DD")} />
                     </Col>
                     <Form.Label column className='col-auto'>
                         To Date
                     </Form.Label>
                     <Col className='col-auto'>
-                        <Form.Control type='date' id="dtEndDate" name="endDate" onChange={handleFieldChange} value={formData.endDate} />
+                        <Form.Control type='date' id="dtEndDate" name="endDate" onChange={handleFieldChange} value={formData.endDate} max={Moment().format("YYYY-MM-DD")} />
                     </Col>
                     <Form.Label column className='col-auto'>
                         Category
