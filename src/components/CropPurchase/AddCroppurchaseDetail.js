@@ -91,7 +91,7 @@ const AddCroppurchaseDetail = () => {
                                     )}
                             </thead>
                             <tbody id="tbody" className="details-form">
-                                {rowData.map((materialReceiptDetailData, index) => (
+                                {/* {rowData.map((materialReceiptDetailData, index) => (
                                     <tr key={index}>
                                         <td>
                                             {index + 1}
@@ -259,7 +259,7 @@ const AddCroppurchaseDetail = () => {
                                                 </td>
                                         }
                                     </tr>
-                                ))}
+                                ))} */}
                             </tbody>
                         </Table>
                     </Form>
