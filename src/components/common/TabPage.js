@@ -54,7 +54,11 @@ import PurchaseOrderTermDetails from 'components/PurchaseOrder/PurchaseOrderTerm
 
 import AddMaterialReceiptHeader from 'components/MaterialReceipt/AddMaterialReceiptHeader';
 import AddMaterialReceiptDetail from 'components/MaterialReceipt/AddMaterialReceiptDetail';
+
 import { InventoryDetailDashboard } from 'components/Inventory/InventoryDetailDashboard';
+
+import AddCropPurchase from 'components/CropPurchase/AddCropPurchase';
+import AddCroppurchaseDetail from 'components/CropPurchase/AddCroppurchaseDetail';
 
 const TabPage = ({
   listData,
@@ -176,7 +180,7 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material'
+                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material' || tab == "Add Crop Purchase"
                     ? 'border p-1 tab-page-tab'
                     : ''
               }
@@ -447,6 +451,20 @@ const TabPage = ({
                   <AddMaterialReceiptDetail />
                 </>
               )}
+
+              {index == 1 && module == 'CropPurchase' && (
+                <>
+                  <TabInfoRow />
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddCropPurchase />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <AddCroppurchaseDetail />
+                </>
+              )}
+
             </Tab>
           );
         })}

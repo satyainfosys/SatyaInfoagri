@@ -32,8 +32,8 @@ import OemMaster from 'components/OemMaster/OemMaster';
 import VendorMaster from 'components/VendorMaster/VendorMaster';
 import PurchaseOrder from 'components/PurchaseOrder/PurchaseOrder';
 import MaterialReceipt from 'components/MaterialReceipt/MaterialReceipt';
-import { InventoryDetailDashboard } from 'components/Inventory/InventoryDetailDashboard';
 import InventoryDetail from 'components/Inventory/InventoryDetail';
+import CropPurchase from 'components/CropPurchase/CropPurchase';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -112,6 +112,9 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/inventory-dashboard" element={<InventoryDetail />} />
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/crop-purchase" element={<CropPurchase />} />
         </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
