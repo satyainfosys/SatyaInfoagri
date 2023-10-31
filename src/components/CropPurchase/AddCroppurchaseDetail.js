@@ -34,10 +34,12 @@ const AddCroppurchaseDetail = () => {
         'S.No',
         'Product Category',
         'Product',
+        'Unit',
         'Qty',
         'Grade',
         'O/I',
         'Rate',
+        'Amount',
         'Delete'
     ];
 
@@ -78,18 +80,7 @@ const AddCroppurchaseDetail = () => {
                             <thead className='custom-bg-200'>
                                 {rowData &&
                                     (<tr>
-                                        {columnsArray.map((column, index) => {
-                                            // if (column === 'Delete' && materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved") {
-                                            //     return null;
-                                            // }
-
-                                            // if (column === 'Rate' && materialReceiptHeaderData.poNo) {
-                                            //     return null;
-                                            // }
-
-                                            // if (column === 'Amount' && materialReceiptHeaderData.poNo) {
-                                            //     return null;
-                                            // }
+                                        {columnsArray.map((column, index) => {                                            
                                             return (
                                                 <th className="text-left" key={index}>
                                                     {column}
@@ -110,16 +101,13 @@ const AddCroppurchaseDetail = () => {
                                             <Form.Select
                                                 type="text"
                                                 name="productCategoryCode"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.productCategoryCode}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.productCategoryCode}
                                                 className="form-control"
                                                 required
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             >
-                                                <option value=''>Select</option>
-                                                {productCategoryList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
+                                                <option value=''>Select</option>                                                
                                             </Form.Select>
                                         </td>
 
@@ -127,38 +115,34 @@ const AddCroppurchaseDetail = () => {
                                             <Form.Select
                                                 type="text"
                                                 name="productCode"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.productCode}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.productCode}
                                                 className="form-control"
                                                 required
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             >
-                                                <option value=''>Select</option>
-                                                {productMasterList[index] && productMasterList[index].map((option, mapIndex) => (
-                                                    <option key={mapIndex} value={option.value}>{option.key}</option>
-                                                ))}
+                                                <option value=''>Select</option>                                                
                                             </Form.Select>
                                         </td>
 
                                         <td key={index}>
                                             <EnlargableTextbox
                                                 name="varietyName"
-                                                value={materialReceiptDetailData.varietyName}
-                                                onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.varietyName}
+                                                // onChange={(e) => handleFieldChange(e, index)}
                                                 placeholder="Variety"
                                                 maxLength={20}
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
                                         </td>
 
                                         <td key={index}>
                                             <EnlargableTextbox
                                                 name="brandName"
-                                                value={materialReceiptDetailData.brandName}
-                                                onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.brandName}
+                                                // onChange={(e) => handleFieldChange(e, index)}
                                                 placeholder="Brand"
                                                 maxLength={20}
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
                                         </td>
 
@@ -167,14 +151,10 @@ const AddCroppurchaseDetail = () => {
                                                 type="text"
                                                 name="unitCode"
                                                 className="form-control select"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.unitCode}
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.unitCode}                                                
                                             >
-                                                <option value=''>Select </option>
-                                                {unitList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
+                                                <option value=''>Select </option>                                                
                                             </Form.Select>
                                         </td>
 
@@ -194,7 +174,6 @@ const AddCroppurchaseDetail = () => {
                                                         e.preventDefault();
                                                     }
                                                 }}
-                                                disabled
                                             />
                                         </td>
 
@@ -215,7 +194,6 @@ const AddCroppurchaseDetail = () => {
                                                     }
                                                 }}
                                                 required
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
                                         </td>
 
