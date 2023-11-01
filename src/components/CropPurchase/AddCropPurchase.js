@@ -1,14 +1,38 @@
 import React, { useState, useEffect } from 'react';
 import { Col, Form, Row, Button, Modal, Table } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 
 export const AddCropPurchase = () => {
 
     const dispatch = useDispatch();
     const [farmerModal, setFarmerModal] = useState(false);
+    const [farmerDetailsList, setFarmerDetailsList] = useState([]);
 
     const onSelectFarmerClick = async () => {
         setFarmerModal(true);
+        getFarmerDetailsList();
+    }
+
+    const getFarmerDetailsList = async () => {
+        const requestData = {
+            pageNumber: 1,
+            pageSize: 10,
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/farmer-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                setFarmerDetailsList(response.data.data)
+            }
+        }
+        else {
+            setFarmerDetailsList([]);
+        }
     }
 
     return (
@@ -41,24 +65,34 @@ export const AddCropPurchase = () => {
                                     </Form.Group>
                                 </Col>
 
-                                <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                                    <thead className='custom-bg-200'>
-                                        <tr>
-                                            <th>Name</th>
-                                            <th>Phone Number</th>
-                                            <th>Father Name</th>
-                                            <th>Select</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Ankush Raval</td>
-                                            <td>3110231842</td>
-                                            <td>Mr Raval</td>
-                                            <td><Button variant="success" onClick={() => setFarmerModal(false)} >Select</Button></td>
-                                        </tr>
-                                    </tbody>
-                                </Table>
+                                {
+                                    farmerDetailsList && farmerDetailsList.length > 0 ?
+                                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Phone Number</th>
+                                                    <th>Father Name</th>
+                                                    <th>Select</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    farmerDetailsList.map((data, index) =>
+                                                        <tr>
+                                                            <td>{data.farmerName}</td>
+                                                            <td>{data.mobile ? data.mobile : "-"}</td>
+                                                            <td>{data.farmerFatherName}</td>
+                                                            <td><Button variant="success" onClick={() => setFarmerModal(false)} >Select</Button></td>
+                                                        </tr>
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                        :
+                                        <h5>No record found</h5>
+                                }
+
                             </Row>
                         </Form>
                     </Modal.Body>
