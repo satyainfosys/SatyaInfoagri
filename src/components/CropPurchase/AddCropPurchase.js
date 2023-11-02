@@ -14,11 +14,12 @@ export const AddCropPurchase = () => {
         getFarmerDetailsList();
     }
 
-    const getFarmerDetailsList = async () => {
+    const getFarmerDetailsList = async (searchText) => {
         const requestData = {
             pageNumber: 1,
             pageSize: 10,
-            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            searchText: searchText
         }
 
         let response = await axios.post(process.env.REACT_APP_API_URL + '/farmer-list', requestData, {
@@ -33,6 +34,10 @@ export const AddCropPurchase = () => {
         else {
             setFarmerDetailsList([]);
         }
+    }
+
+    const handleSearchChange = (e) => {
+        getFarmerDetailsList(e.target.value)
     }
 
     return (
@@ -60,7 +65,7 @@ export const AddCropPurchase = () => {
                                             Search
                                         </Form.Label>
                                         <Col sm="8">
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search" onChange={handleSearchChange} maxLength={45} />
                                         </Col>
                                     </Form.Group>
                                 </Col>
