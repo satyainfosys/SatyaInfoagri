@@ -79,7 +79,7 @@ const AddMaterialReceiptDetail = () => {
     useEffect(() => {
 
         if (unitList.length <= 0) {
-            getUnitList("L");
+            getUnitList();
         }
 
         if (materialReceiptDetailsReducer.materialReceiptDetails.length > 0) {

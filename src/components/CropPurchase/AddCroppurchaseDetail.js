@@ -6,13 +6,19 @@ import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Flex from 'components/common/Flex';
+import { materialReceiptDetailsAction } from 'actions';
+import axios from 'axios';
 
 const AddCroppurchaseDetail = () => {
 
     const dispatch = useDispatch();
     const [rowData, setRowData] = useState([]);
     const [formHasError, setFormError] = useState(false);
-
+    const [productCategoryList, setProductCategoryList] = useState([]);
+    const [productCategoryDataList, setProductCategoryDataList] = useState([]);
+    const [productMasterList, setProductMasterList] = useState([]);
+    const [unitList, setUnitList] = useState([])
+    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
 
     const emptyRow = {
         id: rowData.length + 1,
@@ -22,6 +28,8 @@ const AddCroppurchaseDetail = () => {
         productLineCode: '',
         productCategoryCode: '',
         productCode: '',
+        varietyName: '',
+        brandName: '',
         quantity: '',
         grade: '',
         inOrg: '',
@@ -30,10 +38,21 @@ const AddCroppurchaseDetail = () => {
         modifyUser: localStorage.getItem("LoginUserName"),
     }
 
+    const materialReceiptDetailsReducer = useSelector((state) => state.rootReducer.materialReceiptDetailsReducer)
+    var materialReceiptData = materialReceiptDetailsReducer.materialReceiptDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
+    var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
+
     const columnsArray = [
         'S.No',
         'Product Category',
         'Product',
+        'Variety',
+        'Brand',
         'Unit',
         'Qty',
         'Grade',
@@ -42,6 +61,123 @@ const AddCroppurchaseDetail = () => {
         'Amount',
         'Delete'
     ];
+
+    useEffect(() => {
+        if (unitList.length <= 0) {
+            getUnitList();
+        }
+
+        if (materialReceiptDetailsReducer.materialReceiptDetails.length > 0) {
+            setRowData(materialReceiptData);
+        } else {
+            setRowData([]);
+        }
+
+        setTimeout(function () {
+            setProductMasterValue();
+        }, 50)
+
+        if (productCategoryList.length <= 0) {
+            getProductCategoryList();
+        }
+
+    }, [materialReceiptData, materialReceiptDetailsReducer])
+
+    const getUnitList = async () => {
+
+        let requestData = {
+            UnitType: "W"
+        }
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
+        let unitListData = [];
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(units => {
+                    unitListData.push({
+                        key: units.unitName,
+                        value: units.unitCode
+                    })
+                })
+                setUnitList(unitListData);
+            }
+        }
+        else {
+            setUnitList([]);
+        }
+    }
+
+    const setProductMasterValue = () => {
+        materialReceiptData.map((row, index) => {
+            getProductMasterList(row.productCategoryCode, index);
+        })
+    }
+
+    const handleAddItem = () => {
+        materialReceiptData.unshift(emptyRow);
+        dispatch(materialReceiptDetailsAction(materialReceiptData));
+        setProductMasterList(prevProductList => [...prevProductList, []]);
+    }
+
+    const getProductCategoryList = async () => {
+
+        let productCategoryData = [];
+        let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (productCategoryResponse.data.status == 200) {
+            if (productCategoryResponse.data && productCategoryResponse.data.data.length > 0) {
+                setProductCategoryDataList(productCategoryResponse.data.data);
+                productCategoryResponse.data.data.forEach(productCategory => {
+                    productCategoryData.push({
+                        key: productCategory.productCategoryName,
+                        value: productCategory.productCategoryCode
+                    })
+                })
+            }
+            setProductCategoryList(productCategoryData);
+        } else {
+            setProductCategoryList([]);
+        }
+
+
+    }
+
+    const getProductMasterList = async (productCategoryCode, index) => {
+        const request = {
+            pageNumber: 1,
+            pageSize: 1,
+            ProductCategoryCode: productCategoryCode
+        }
+
+        let productData = [];
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-master-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(product => {
+                    productData.push({
+                        key: product.productName,
+                        value: product.code
+                    })
+                })
+            }
+            setProductMasterList(prevProductList => {
+                const newProductList = [...prevProductList];
+                newProductList[index] = productData;
+                return newProductList;
+            })
+        } else {
+            setProductMasterList(prevProductList => {
+                const newProductList = [...prevProductList];
+                newProductList[index] = productData;
+                return newProductList;
+            })
+        }
+    }
 
     return (
         <>
@@ -60,7 +196,7 @@ const AddCroppurchaseDetail = () => {
                                     size="sm"
                                     className="btn-reveal"
                                     type="button"
-                                // onClick={() => handleAddItem()}
+                                    onClick={() => handleAddItem()}
                                 >
                                     Add Items
                                 </Button>
@@ -80,7 +216,7 @@ const AddCroppurchaseDetail = () => {
                             <thead className='custom-bg-200'>
                                 {rowData &&
                                     (<tr>
-                                        {columnsArray.map((column, index) => {                                            
+                                        {columnsArray.map((column, index) => {
                                             return (
                                                 <th className="text-left" key={index}>
                                                     {column}
@@ -91,7 +227,7 @@ const AddCroppurchaseDetail = () => {
                                     )}
                             </thead>
                             <tbody id="tbody" className="details-form">
-                                {/* {rowData.map((materialReceiptDetailData, index) => (
+                                {rowData.map((materialReceiptDetailData, index) => (
                                     <tr key={index}>
                                         <td>
                                             {index + 1}
@@ -105,9 +241,12 @@ const AddCroppurchaseDetail = () => {
                                                 // value={materialReceiptDetailData.productCategoryCode}
                                                 className="form-control"
                                                 required
-                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             >
-                                                <option value=''>Select</option>                                                
+                                                <option value=''>Select</option>
+                                                {productCategoryList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </td>
 
@@ -119,9 +258,12 @@ const AddCroppurchaseDetail = () => {
                                                 // value={materialReceiptDetailData.productCode}
                                                 className="form-control"
                                                 required
-                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             >
-                                                <option value=''>Select</option>                                                
+                                                <option value=''>Select</option>
+                                                {productMasterList[index] && productMasterList[index].map((option, mapIndex) => (
+                                                    <option key={mapIndex} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </td>
 
@@ -142,7 +284,7 @@ const AddCroppurchaseDetail = () => {
                                                 // onChange={(e) => handleFieldChange(e, index)}
                                                 placeholder="Brand"
                                                 maxLength={20}
-                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
                                         </td>
 
@@ -151,10 +293,13 @@ const AddCroppurchaseDetail = () => {
                                                 type="text"
                                                 name="unitCode"
                                                 className="form-control select"
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.unitCode}                                                
+                                            // onChange={(e) => handleFieldChange(e, index)}
+                                            // value={materialReceiptDetailData.unitCode}                                                
                                             >
-                                                <option value=''>Select </option>                                                
+                                                <option value=''>Select </option>
+                                                {unitList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
+                                                ))}
                                             </Form.Select>
                                         </td>
 
@@ -246,7 +391,7 @@ const AddCroppurchaseDetail = () => {
                                                     }
                                                 }}
                                                 maxLength={5}
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
                                         </td>
 
@@ -259,7 +404,7 @@ const AddCroppurchaseDetail = () => {
                                                 </td>
                                         }
                                     </tr>
-                                ))} */}
+                                ))}
                             </tbody>
                         </Table>
                     </Form>

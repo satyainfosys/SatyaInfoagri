@@ -1,13 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Col, Form, Row, Button, Modal, Table } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import Moment from "moment";
 import axios from 'axios';
+import { materialReceiptHeaderDetailsAction } from 'actions';
 
 export const AddCropPurchase = () => {
 
     const dispatch = useDispatch();
     const [farmerModal, setFarmerModal] = useState(false);
     const [farmerDetailsList, setFarmerDetailsList] = useState([]);
+    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
+
+    const resetMaterialReceiptHeaderDetails = () => {
+        dispatch(materialReceiptHeaderDetailsAction({
+            "encryptedMaterialReceiptId": "",
+            "materialReceiptId": "",
+            "farmerName": "",
+            "farmerFatherName": "",
+            "farmerPhoneNumber": "",
+            "vendorCode": "",
+            "address": "",
+            "pinCode": "",
+            "state": "",
+            "country": "",
+            "poNo": "",
+            "poDate": "",
+            "poStatus": "",
+            "deliveryLocation": "",
+            "challanNo": "",
+            "materialReceiptDate": Moment().format('YYYY-MM-DD'),
+            "gstNo": "",
+            "panNo": "",
+            "tinNo": "",
+            "personName": "",
+            "materialStatus": "Draft"
+        }))
+    }
+
+    const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
+    var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const vendorMasterDetailsListReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsListReducer)
+    var vendorList = vendorMasterDetailsListReducer.vendorMasterListDetails;
+
+    if (!materialReceiptHeaderReducer.materialReceiptHeaderDetails ||
+        Object.keys(materialReceiptHeaderReducer.materialReceiptHeaderDetails).length <= 0) {
+        resetMaterialReceiptHeaderDetails();
+    }
 
     const onSelectFarmerClick = async () => {
         setFarmerModal(true);
@@ -38,6 +81,79 @@ export const AddCropPurchase = () => {
 
     const handleSearchChange = (e) => {
         getFarmerDetailsList(e.target.value)
+    }
+
+    const handleFieldChange = e => {
+
+        if (e.target.name == "vendorCode" && e.target.value) {
+            const vendorDetail = vendorList.find(vendor => vendor.vendorCode == e.target.value);
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                vendorCode: e.target.value,
+                address: vendorDetail.vendorAddress,
+                pinCode: vendorDetail.vendorPincode,
+                state: vendorDetail.stateName,
+                country: vendorDetail.countryName,
+                gstNo: vendorDetail.vendorGstNo,
+                panNo: vendorDetail.vendorPanNo,
+                tinNo: vendorDetail.vendorTinNo,
+                vendorName: vendorDetail.vendorName
+            }))
+        }
+        else if (e.target.name == "vendorCode" && !e.target.value) {
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                vendorCode: e.target.value,
+                address: '',
+                pinCode: '',
+                state: '',
+                country: '',
+                gstNo: '',
+                panNo: '',
+                tinNo: '',
+                vendorName: ''
+            }))
+        }
+        else {
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                [e.target.name]: e.target.value
+            }))
+        }
+
+        // if (materialReceiptHeaderData.encryptedMaterialReceiptId) {
+        //     dispatch(formChangedAction({
+        //         ...formChangedData,
+        //         materialReceiptHeaderDetailUpdate: true
+        //     }))
+        // } else {
+        //     dispatch(formChangedAction({
+        //         ...formChangedData,
+        //         materialReceiptHeaderDetailAdd: true
+        //     }))
+        // }
+
+        // if (e.target.name == "materialStatus") {
+        //     if (materialReceiptHeaderData.encryptedMaterialReceiptId && (oldMaterialStatus != "Approved" && e.target.value == "Approved")) {
+        //         dispatch(formChangedAction({
+        //             ...formChangedData,
+        //             materialReceiptDetailUpdate: true,
+        //             materialReceiptHeaderDetailUpdate: true
+        //         }))
+        //     }
+        // }
+    }
+
+    const onFarmerSelect = (farmerCode) => {
+        const farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode == farmerCode);
+        dispatch(materialReceiptHeaderDetailsAction({
+            ...materialReceiptHeaderData,
+            farmerCode: farmerDetail.farmerCode,
+            farmerName: farmerDetail.farmerName,
+            farmerFatherName: farmerDetail.farmerFatherName,
+            farmerPhoneNumber: farmerDetail.farmerPhoneNumber
+        }))
+        setFarmerModal(false);
     }
 
     return (
@@ -86,9 +202,9 @@ export const AddCropPurchase = () => {
                                                     farmerDetailsList.map((data, index) =>
                                                         <tr>
                                                             <td>{data.farmerName}</td>
-                                                            <td>{data.mobile ? data.mobile : "-"}</td>
+                                                            <td>{data.farmerPhoneNumber ? data.farmerPhoneNumber : "-"}</td>
                                                             <td>{data.farmerFatherName}</td>
-                                                            <td><Button variant="success" onClick={() => setFarmerModal(false)} >Select</Button></td>
+                                                            <td><Button variant="success" onClick={() => onFarmerSelect(data.farmerCode)} >Select</Button></td>
                                                         </tr>
                                                     )
                                                 }
@@ -122,7 +238,7 @@ export const AddCropPurchase = () => {
                                 Farmer Name
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtFarmerName" name="farmerName" placeholder="Farmer Name" disabled />
+                                <Form.Control id="txtFarmerName" name="farmerName" placeholder="Farmer Name" value={materialReceiptHeaderData.farmerName} disabled />
                             </Col>
                         </Form.Group>
 
@@ -131,7 +247,7 @@ export const AddCropPurchase = () => {
                                 Farmer Father Name
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtAddress" name="address" placeholder="Address" disabled />
+                                <Form.Control id="txtAddress" name="farmerFatherName" placeholder="Father Name" value={materialReceiptHeaderData.farmerFatherName} disabled />
                             </Col>
                         </Form.Group>
 
@@ -140,7 +256,7 @@ export const AddCropPurchase = () => {
                                 Phone Number
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtMaterialReceiptNo" name="materialReceiptId" placeholder="Material Receipt No" disabled />
+                                <Form.Control id="txtMaterialReceiptNo" name="farmerPhoneNumber" placeholder="Phone Number" value={materialReceiptHeaderData.farmerPhoneNumber} disabled />
                             </Col>
                         </Form.Group>
                     </Col>
@@ -150,11 +266,23 @@ export const AddCropPurchase = () => {
                             <Form.Label column sm="4">
                                 Vendor Name
                             </Form.Label>
-                            <Col sm="8">
-                                <Form.Select id="txtVendorName" name="vendorCode" >
-                                    <option value=''>Select Vendor</option>
-                                </Form.Select>
-                            </Col>
+                            {
+                                materialReceiptHeaderData.encryptedMaterialReceiptId ?
+                                    <Col sm="8">
+                                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={materialReceiptHeaderData.vendorName} disabled />
+                                    </Col>
+                                    :
+                                    <Col sm="8">
+                                        <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
+                                            <option value=''>Select Vendor</option>
+                                            {vendorList.map((vendor) => (
+                                                <option key={vendor.vendorName} value={vendor.vendorCode}>
+                                                    {vendor.vendorName}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                    </Col>
+                            }
                         </Form.Group>
 
                         <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -162,7 +290,7 @@ export const AddCropPurchase = () => {
                                 Address
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtAddress" name="address" placeholder="Address" disabled />
+                                <Form.Control id="txtAddress" name="address" placeholder="Address" value={materialReceiptHeaderData.address} disabled />
                             </Col>
                         </Form.Group>
 
@@ -171,7 +299,7 @@ export const AddCropPurchase = () => {
                                 Pincode
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" disabled />
+                                <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={materialReceiptHeaderData.pinCode} disabled />
                             </Col>
                         </Form.Group>
 
@@ -180,7 +308,7 @@ export const AddCropPurchase = () => {
                                 State
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtState" name="state" placeholder="State" disabled />
+                                <Form.Control id="txtState" name="state" placeholder="State" value={materialReceiptHeaderData.state} disabled />
                             </Col>
                         </Form.Group>
 
@@ -189,7 +317,7 @@ export const AddCropPurchase = () => {
                                 Country
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtCountry" name="country" placeholder="Country" disabled />
+                                <Form.Control id="txtCountry" name="country" placeholder="Country" value={materialReceiptHeaderData.country} disabled />
                             </Col>
                         </Form.Group>
 
@@ -198,7 +326,7 @@ export const AddCropPurchase = () => {
                                 Challan No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" />
+                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} />
                             </Col>
                         </Form.Group>
                     </Col>
@@ -209,7 +337,11 @@ export const AddCropPurchase = () => {
                                 Delivery Date
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate" />
+                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate"
+                                    value={materialReceiptHeaderData.materialReceiptDate ?
+                                        Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
+                                    onChange={handleFieldChange}
+                                />
                             </Col>
                         </Form.Group>
 
@@ -218,7 +350,7 @@ export const AddCropPurchase = () => {
                                 Gst No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtGstNo" name="gstNo" placeholder="GST No" disabled />
+                                <Form.Control id="txtGstNo" name="gstNo" placeholder="GST No" value={materialReceiptHeaderData.gstNo} disabled />
                             </Col>
                         </Form.Group>
 
@@ -227,7 +359,7 @@ export const AddCropPurchase = () => {
                                 Pan No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPanNo" name="panNo" placeholder="PAN No" disabled />
+                                <Form.Control id="txtPanNo" name="panNo" placeholder="PAN No" value={materialReceiptHeaderData.panNo} disabled />
                             </Col>
                         </Form.Group>
 
@@ -236,7 +368,7 @@ export const AddCropPurchase = () => {
                                 Tin No
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtTinNo" name="tinNo" placeholder="TIN No" disabled />
+                                <Form.Control id="txtTinNo" name="tinNo" placeholder="TIN No" value={materialReceiptHeaderData.tinNo} disabled />
                             </Col>
                         </Form.Group>
 
@@ -245,7 +377,7 @@ export const AddCropPurchase = () => {
                                 Person Name
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" />
+                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} />
                             </Col>
                         </Form.Group>
 
@@ -254,7 +386,7 @@ export const AddCropPurchase = () => {
                                 Material Status
                             </Form.Label>
                             <Col sm="8">
-                                <Form.Select id="txtMaterialStatus" name="materialStatus" >
+                                <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange} >
                                     <option value="Draft">Draft</option>
                                     <option value="Approved">Approved</option>
                                 </Form.Select>
