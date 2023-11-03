@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { formChangedAction, materialReceiptDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsListAction } from 'actions';
+import { formChangedAction, materialReceiptDetailsAction, materialReceiptErrorAction, materialReceiptHeaderDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsListAction } from 'actions';
 import { toast } from 'react-toastify';
 import materialReceiptErrorReducer from 'reducers/materialReceiptErrorReducer';
+import Moment from "moment";
+import { Spinner, Modal, Button } from 'react-bootstrap';
 
 const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
 
@@ -27,12 +29,24 @@ const CropPurchase = () => {
     const [activeTabName, setActiveTabName] = useState();
     const [companyList, setCompanyList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
         localStorage.removeItem("EncryptedMaterialReceiptId");
         getCompany();
     }, [])
+
+    const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
+    var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
+    const materialReceiptDetailsReducer = useSelector((state) => state.rootReducer.materialReceiptDetailsReducer)
+    var materialReceiptList = materialReceiptDetailsReducer.materialReceiptDetails;
+
+    let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
     const getCompany = async () => {
         let companyData = [];
@@ -119,10 +133,22 @@ const CropPurchase = () => {
     }
 
     $('[data-rr-ui-event-key*="Crop Purchase List"]').off('click').on('click', function () {
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+            clearMaterialReceiptReducers();
+            localStorage.removeItem("EncryptedMaterialReceiptId");
+            localStorage.removeItem("OldMaterialStatus");
+            dispatch(materialReceiptHeaderDetailsAction(undefined));
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Crop Purchase"]').off('click').on('click', function () {
@@ -130,6 +156,10 @@ const CropPurchase = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if (materialReceiptList.length <= 0) {
+            getMaterialReceiptDetailList();
+        }
     })
 
     const newDetails = () => {
@@ -181,31 +211,31 @@ const CropPurchase = () => {
         // setModalShow(false);
     }
 
-    // const getMaterialReceiptDetailList = async () => {
-    //     const request = {
-    //         encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId")
-    //     }
+    const getMaterialReceiptDetailList = async () => {
+        const request = {
+            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId")
+        }
 
-    //     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-material-receipt-detail-list', request, {
-    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    //     })
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-material-receipt-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
 
-    //     if (response.data.status == 200) {
-    //         if (response.data.data && response.data.data.length > 0) {
-    //             dispatch(materialReceiptDetailsAction(response.data.data));
-    //         }
-    //     }
-    // }
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(materialReceiptDetailsAction(response.data.data));
+            }
+        }
+    }
 
     const clearMaterialReceiptReducers = () => {
         dispatch(formChangedAction(undefined));
         dispatch(materialReceiptDetailsAction([]));
-        // dispatch(materialReceiptErrorAction(undefined));
-        localStorage.removeItem("DeleteMaterialReceiptDetailIds");
+        dispatch(materialReceiptErrorAction(undefined));
+        // localStorage.removeItem("DeleteMaterialReceiptDetailIds");
     }
 
     const cropPurchaseValidation = () => {
-        // setModalShow(false);
+        setModalShow(false);
 
         const vendorErr = {};
         const materialReceiptDetailErr = {};
@@ -236,14 +266,9 @@ const CropPurchase = () => {
         }
         else if (materialReceiptList && materialReceiptList.length > 0) {
             materialReceiptList.forEach((row, index) => {
-                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity) {
+                if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.receivedQuantity || !row.rate || !row.amount) {
                     materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
                     isValid = false;
-                } else if (!row.poDetailId) {
-                    if (!row.rate || !row.amount) {
-                        materialReceiptDetailErr.invalidMaterialReceiptDetail = "Fill the required fields"
-                        isValid = false;
-                    }
                 }
             })
         }
@@ -254,23 +279,322 @@ const CropPurchase = () => {
                 materialReceiptDetailErr
             }
 
-            dispatch(materialReceiptErrorReducer(errorObject))
+            dispatch(materialReceiptErrorAction(errorObject))
         }
 
         return isValid;
     }
 
+    const updateCropPurchaseCallback = (isAddCropPurchase = false) => {
+        // setModalShow(false);
+
+        if (!isAddCropPurchase) {
+            toast.success("Crop purchase details updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearMaterialReceiptReducers();
+
+        fetchMaterialReceiptHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addCropPurchaseDetails = () => {
+        if (cropPurchaseValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorCode: materialReceiptHeaderData.vendorCode,
+                farmerCode: materialReceiptHeaderData.farmerCode,
+                materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                    Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                activeStatus: "A",
+                addUser: localStorage.getItem("LoginUserName"),
+                materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
+                materialReceiptDetails: materialReceiptList
+            }
+
+            const keys = ["addUser", "personName"]
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+            }
+
+            const materialReceiptDetailKeys = ['addUser', 'varietyName', 'brandName']
+            var index = 0;
+            for (var obj in requestData.materialReceiptDetails) {
+                var materialReceiptObject = requestData.materialReceiptDetails[obj];
+
+                for (const key of Object.keys(materialReceiptObject).filter((key) => materialReceiptDetailKeys.includes(key))) {
+                    materialReceiptObject[key] = materialReceiptObject[key] ? materialReceiptObject[key].toUpperCase() : "";
+                }
+
+                requestData.materialReceiptDetails[index] = materialReceiptObject;
+                index++;
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-header', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(materialReceiptHeaderDetailsAction({
+                                ...materialReceiptHeaderData,
+                                encryptedMaterialReceiptId: res.data.data.encryptedMaterialReceiptId,
+                                materialReceiptId: res.data.data.materialReceiptId
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedMaterialReceiptId", res.data.data.encryptedMaterialReceiptId);
+                        localStorage.setItem("OldMaterialStatus", materialReceiptHeaderData.materialStatus)
+                        if (materialReceiptHeaderData.materialStatus == "Approved") {
+                            $('#btnSave').attr('disabled', true);
+                        }
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateCropPurchaseCallback(true);
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
+
+    const updateCropPurchaseDetails = async () => {
+        if (cropPurchaseValidation()) {
+            if (!formChangedData.materialReceiptHeaderDetailUpdate &&
+                !(formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
+                return;
+            }
+
+            var deleteMaterialReceiptDetailIds = localStorage.getItem("DeleteCropPurchaseDetailIds");
+
+            const updateRequestData = {
+                encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                vendorCode: materialReceiptHeaderData.vendorCode,
+                farmerCode: materialReceiptHeaderData.farmerCode,
+                materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                    Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
+                modifyUser: localStorage.getItem("LoginUserName"),
+            }
+
+            const keys = ["modifyUser", "personName"]
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+            }
+
+            var hasError = false;
+            if (formChangedData.materialReceiptHeaderDetailUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-header', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        } else {
+                            localStorage.setItem("OldMaterialStatus", materialReceiptHeaderData.materialStatus);
+                            if (materialReceiptHeaderData.materialStatus == "Approved") {
+                                $('#btnSave').attr('disabled', true);
+                            }
+                        }
+                    })
+            }
+
+            var materialReceiptDetailIndex = 1;
+
+            //MaterialReceiptDetail ADD, UPDATE, DELETE
+            if (!hasError && (formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
+                if (!hasError && formChangedData.materialReceiptDetailDelete) {
+                    var deleteMaterialReceiptDetailList = deleteMaterialReceiptDetailIds ? deleteMaterialReceiptDetailIds.split(',') : null;
+                    if (deleteMaterialReceiptDetailList) {
+                        var deletMaterialReceiptDetailIndex = 1;
+
+                        for (let i = 0; i < deleteMaterialReceiptDetailList.length; i++) {
+                            const deleteId = deleteMaterialReceiptDetailList[i];
+                            const data = { encryptedMaterialReceiptDetailId: deleteId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-material-receipt-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deletMaterialReceiptDetailIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < materialReceiptList.length; i++) {
+                    const materialReceiptDetailData = materialReceiptList[i];
+
+                    const keys = ["modifyUser", "varietyName", "brandName"];
+                    for (const key of Object.keys(materialReceiptDetailData).filter((key) => keys.includes(key))) {
+                        materialReceiptDetailData[key] = materialReceiptDetailData[key] ? materialReceiptDetailData[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.materialReceiptDetailUpdate && materialReceiptDetailData.encryptedMaterialReceiptDetailId) {
+                        const requestData = {
+                            encryptedMaterialReceiptDetailId: materialReceiptDetailData.encryptedMaterialReceiptDetailId,
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                            vendorCode: materialReceiptDetailData.vendorCode,
+                            productLineCode: materialReceiptDetailData.productLineCode,
+                            productCategoryCode: materialReceiptDetailData.productCategoryCode,
+                            productCode: materialReceiptDetailData.productCode,
+                            poDetailId: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poDetailId : 0,
+                            receivedQuantity: parseFloat(materialReceiptDetailData.receivedQuantity),
+                            rejectedQuantity: materialReceiptDetailData.rejectedQuantity ? parseFloat(materialReceiptDetailData.rejectedQuantity) : 0,
+                            varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
+                            brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
+                            unitCode: materialReceiptDetailData.unitCode ? parseInt(materialReceiptDetailData.unitCode) : 0,
+                            modifyUser: localStorage.getItem("LoginUserName"),
+                            rate: parseFloat(materialReceiptDetailData.rate),
+                            amount: parseFloat(materialReceiptDetailData.amount),
+                            materialStatus: materialReceiptHeaderData.materialStatus,
+                            materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                                Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.materialReceiptDetailAdd && !materialReceiptDetailData.encryptedMaterialReceiptDetailId) {
+                        const requestData = {
+                            encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            vendorCode: materialReceiptHeaderData.vendorCode,
+                            poDetailId: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poDetailId : 0,
+                            productLineCode: materialReceiptDetailData.productLineCode,
+                            productCategoryCode: materialReceiptDetailData.productCategoryCode,
+                            productCode: materialReceiptDetailData.productCode,
+                            receivedQuantity: materialReceiptDetailData.receivedQuantity,
+                            rejectedQuantity: materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : "",
+                            varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
+                            brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
+                            rate: materialReceiptDetailData.rate,
+                            amount: materialReceiptDetailData.amount,
+                            unitCode: materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : "",
+                            addUser: localStorage.getItem("LoginUserName"),
+                            materialStatus: materialReceiptHeaderData.materialStatus,
+                            materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
+                                Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                        else {
+                            const updateMaterialReceiptDetailList = [...materialReceiptList]
+                            updateMaterialReceiptDetailList[i] = {
+                                ...updateMaterialReceiptDetailList[i],
+                                encryptedMaterialReceiptDetailId: addResponse.data.data.encryptedMaterialReceiptDetailId
+                            };
+
+                            dispatch(materialReceiptDetailsAction(updateMaterialReceiptDetailList));
+                        }
+                    }
+
+                    materialReceiptDetailIndex++
+                }
+            }
+
+            if (!hasError) {
+                clearMaterialReceiptReducers();
+                updateCropPurchaseCallback();
+            }
+        }
+    }
+
     return (
         <>
+            {isLoading ? (
+                <Spinner
+                    className="position-absolute start-50 loader-color"
+                    animation="border"
+                />
+            ) : null}
+
+            {
+                modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Do you want to save changes?</h5>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={addCropPurchaseDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="CropPurchase"
-                // saveDetails={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateMaterialReceiptDetails : addMaterialReceiptDetails}
+                saveDetails={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateCropPurchaseDetails : addCropPurchaseDetails}
                 newDetails={newDetails}
-                // cancelClick={cancelClick}
-                // exitModule={exitModule}
+                cancelClick={cancelClick}
+                exitModule={exitModule}
                 tableFilterOptions={companyList}
                 tableFilterName={'Company'}
                 supportingMethod1={handleFieldChange}
