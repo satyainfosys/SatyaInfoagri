@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { formChangedAction, materialReceiptDetailsAction, materialReceiptErrorAction, materialReceiptHeaderDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsListAction } from 'actions';
 import { toast } from 'react-toastify';
-import materialReceiptErrorReducer from 'reducers/materialReceiptErrorReducer';
 import Moment from "moment";
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
@@ -13,12 +12,12 @@ const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'materialReceiptId', Header: 'Material Receipt No' },
-    { accessor: 'vendorName', Header: 'Vendor Name' },
-    { accessor: 'materialReceiptDate', Header: 'Delivery Date' },
-    { accessor: 'personName', Header: 'Person Name' },
+    { accessor: 'materialReceiptDate', Header: 'Receipt Date' },
+    { accessor: 'personName', Header: 'Receiver Name' },
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Farmer Father Name' },
     { accessor: 'farmerPhoneNumber', Header: 'Farmer Phone Name' },
+    { accessor: 'materialStatus', Header: 'Print' }
 ]
 
 const CropPurchase = () => {
@@ -193,10 +192,10 @@ const CropPurchase = () => {
             window.location.href = '/dashboard';
             dispatch(materialReceiptHeaderDetailsAction(undefined));
             dispatch(vendorMasterDetailsListAction([]));
-            // localStorage.removeItem("EncryptedMaterialReceiptId");
-            // localStorage.removeItem("EncryptedCompanyCode");
-            // localStorage.removeItem("CompanyName");
-            // localStorage.removeItem("DeleteMaterialReceiptDetailIds");
+            localStorage.removeItem("EncryptedMaterialReceiptId");
+            localStorage.removeItem("EncryptedCompanyCode");
+            localStorage.removeItem("CompanyName");
+            localStorage.removeItem("DeleteCropPurchaseDetailIds");
         }
     }
 
@@ -207,8 +206,7 @@ const CropPurchase = () => {
         else {
             $('[data-rr-ui-event-key*="Crop Purchase List"]').trigger('click');
         }
-
-        // setModalShow(false);
+        setModalShow(false);
     }
 
     const getMaterialReceiptDetailList = async () => {
@@ -231,13 +229,12 @@ const CropPurchase = () => {
         dispatch(formChangedAction(undefined));
         dispatch(materialReceiptDetailsAction([]));
         dispatch(materialReceiptErrorAction(undefined));
-        // localStorage.removeItem("DeleteMaterialReceiptDetailIds");
+        localStorage.removeItem("DeleteCropPurchaseDetailIds");
     }
 
     const cropPurchaseValidation = () => {
         setModalShow(false);
 
-        const vendorErr = {};
         const materialReceiptDetailErr = {};
 
         let isValid = true;
@@ -248,15 +245,10 @@ const CropPurchase = () => {
             });
 
             isValid = false;
-        }
-
-        if (!materialReceiptHeaderData.vendorCode) {
-            vendorErr.empty = "Select vendor";
-            isValid = false;
-        }
+        }       
 
         if (materialReceiptList.length < 1) {
-            materialReceiptDetailErr.materialReceiptDetailEmpty = "At least one material details required";
+            materialReceiptDetailErr.materialReceiptDetailEmpty = "At least one crop purchase details required";
             setTimeout(() => {
                 toast.error(materialReceiptDetailErr.materialReceiptDetailEmpty, {
                     theme: 'colored'
@@ -275,7 +267,6 @@ const CropPurchase = () => {
 
         if (!isValid) {
             var errorObject = {
-                vendorErr,
                 materialReceiptDetailErr
             }
 
@@ -308,11 +299,10 @@ const CropPurchase = () => {
             const requestData = {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                vendorCode: materialReceiptHeaderData.vendorCode,
                 farmerCode: materialReceiptHeaderData.farmerCode,
                 materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
                     Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
-                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                personName: localStorage.getItem("Name"),
                 challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
                 activeStatus: "A",
                 addUser: localStorage.getItem("LoginUserName"),
@@ -357,7 +347,7 @@ const CropPurchase = () => {
                         if (materialReceiptHeaderData.materialStatus == "Approved") {
                             $('#btnSave').attr('disabled', true);
                         }
-                        toast.success(res.data.message, {
+                        toast.success("Crop purchase details added successfully!", {
                             theme: 'colored',
                             autoClose: 10000
                         })
@@ -386,11 +376,10 @@ const CropPurchase = () => {
                 encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                vendorCode: materialReceiptHeaderData.vendorCode,
                 farmerCode: materialReceiptHeaderData.farmerCode,
                 materialReceiptDate: materialReceiptHeaderData.materialReceiptDate ?
                     Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
-                personName: materialReceiptHeaderData.personName ? materialReceiptHeaderData.personName : "",
+                personName: localStorage.getItem("Name"),
                 challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
                 materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
                 modifyUser: localStorage.getItem("LoginUserName"),
@@ -466,7 +455,6 @@ const CropPurchase = () => {
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
                             encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
-                            vendorCode: materialReceiptDetailData.vendorCode,
                             productLineCode: materialReceiptDetailData.productLineCode,
                             productCategoryCode: materialReceiptDetailData.productCategoryCode,
                             productCode: materialReceiptDetailData.productCode,
@@ -501,9 +489,7 @@ const CropPurchase = () => {
                         const requestData = {
                             encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
                             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                            vendorCode: materialReceiptHeaderData.vendorCode,
-                            poDetailId: materialReceiptDetailData.poDetailId ? materialReceiptDetailData.poDetailId : 0,
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),                            
                             productLineCode: materialReceiptDetailData.productLineCode,
                             productCategoryCode: materialReceiptDetailData.productCategoryCode,
                             productCode: materialReceiptDetailData.productCode,

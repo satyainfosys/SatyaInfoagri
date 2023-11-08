@@ -16,6 +16,7 @@ const listColumnArray = [
     { accessor: 'vendorName', Header: 'Vendor Name' },
     { accessor: 'materialReceiptDate', Header: 'Delivery Date' },
     { accessor: 'personName', Header: 'Person Name' },
+    { accessor: 'materialStatus', Header: 'Print' },
 ]
 
 const MaterialReceipt = () => {

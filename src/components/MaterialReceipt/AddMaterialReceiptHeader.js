@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
-import { Col, Form, Row } from 'react-bootstrap';
+import { Col, Form, Row, Card } from 'react-bootstrap';
 import axios from 'axios';
 import { formChangedAction, materialReceiptDetailsAction, materialReceiptHeaderDetailsAction } from 'actions';
+import IconButton from 'components/common/IconButton';
+import FalconComponentCard from 'components/common/FalconComponentCard';
 
 const AddMaterialReceiptHeader = () => {
 
@@ -85,7 +87,7 @@ const AddMaterialReceiptHeader = () => {
         }
     }
 
-    const handleFieldChange = e => {        
+    const handleFieldChange = e => {
 
         if (e.target.name == "vendorCode" && e.target.value) {
             const vendorDetail = vendorList.find(vendor => vendor.vendorCode == e.target.value);
@@ -104,7 +106,7 @@ const AddMaterialReceiptHeader = () => {
             setPoList([]);
             e.target.value && fetchPurchaseOrder(e.target.value)
         }
-        else if(e.target.name == "vendorCode" && !e.target.value){
+        else if (e.target.name == "vendorCode" && !e.target.value) {
             dispatch(materialReceiptHeaderDetailsAction({
                 ...materialReceiptHeaderData,
                 vendorCode: e.target.value,
@@ -174,205 +176,237 @@ const AddMaterialReceiptHeader = () => {
 
     return (
         <>
-            <Form>
-                <Row>
-                    <Col md="4">
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Material Receipt No
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtMaterialReceiptNo" name="materialReceiptId" placeholder="Material Receipt No" value={materialReceiptHeaderData.materialReceiptId} disabled />
-                            </Col>
-                        </Form.Group>
+            <Card className="mb-1">
+                <Card.Body>
+                    <Row className="justify-content-between align-items-center">
+                        <Col sm={6} lg={4} className='no-pd-card'>
+                            <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
+                        </Col>
+                        <Col xs="auto">
+                            {materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" &&
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Vendor Name
-                            </Form.Label>
-                            {
-                                materialReceiptHeaderData.encryptedMaterialReceiptId ?
-                                    <Col sm="8">
-                                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={materialReceiptHeaderData.vendorName} disabled />
-                                    </Col>
-                                    :
-                                    <Col sm="8">
-                                        <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
-                                            <option value=''>Select Vendor</option>
-                                            {vendorList.map((vendor) => (
-                                                <option key={vendor.vendorName} value={vendor.vendorCode}>
-                                                    {vendor.vendorName}
-                                                </option>
-                                            ))}
-                                        </Form.Select>
-                                        {Object.keys(materialDataErr.vendorErr).map((key) => {
-                                            return <span className="error-message">{materialDataErr.vendorErr[key]}</span>
-                                        })}
-                                    </Col>
+                                <IconButton
+                                    variant="falcon-default"
+                                    size="sm"
+                                    icon="print"
+                                    iconClassName="me-1"
+                                    className="me-1 mb-2 mb-sm-1"
+                                    onClick={() => {
+                                        const url = `/material-receipt/${materialReceiptHeaderData.encryptedMaterialReceiptId}`;
+                                        window.open(url, '_blank');
+                                    }}
+                                >
+                                    Print
+                                </IconButton>
                             }
-                        </Form.Group>
+                        </Col>
+                    </Row>
+                </Card.Body>
+            </Card>
 
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Address
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtAddress" name="address" placeholder="Address" value={materialReceiptHeaderData.address} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Pincode
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={materialReceiptHeaderData.pinCode} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                State
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtState" name="state" placeholder="State" value={materialReceiptHeaderData.state} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Country
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtCountry" name="country" placeholder="Country" value={materialReceiptHeaderData.country} disabled />
-                            </Col>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md="4">
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                PO Number
-                            </Form.Label>
-                            {
-                                materialReceiptHeaderData.encryptedMaterialReceiptId ?
+            <FalconComponentCard className="no-pb mb-1">
+                <FalconComponentCard.Body language="jsx">
+                    <Form>
+                        <Row>
+                            <Col md="4">
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Material Receipt No
+                                    </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtPoNumber" name="poNo" placeholder="PO number" value={materialReceiptHeaderData.poNo} disabled />
+                                        <Form.Control id="txtMaterialReceiptNo" name="materialReceiptId" placeholder="Material Receipt No" value={materialReceiptHeaderData.materialReceiptId} disabled />
                                     </Col>
-                                    :
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Vendor Name
+                                    </Form.Label>
+                                    {
+                                        materialReceiptHeaderData.encryptedMaterialReceiptId ?
+                                            <Col sm="8">
+                                                <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={materialReceiptHeaderData.vendorName} disabled />
+                                            </Col>
+                                            :
+                                            <Col sm="8">
+                                                <Form.Select id="txtVendorName" name="vendorCode" value={materialReceiptHeaderData.vendorCode} onChange={handleFieldChange} >
+                                                    <option value=''>Select Vendor</option>
+                                                    {vendorList.map((vendor) => (
+                                                        <option key={vendor.vendorName} value={vendor.vendorCode}>
+                                                            {vendor.vendorName}
+                                                        </option>
+                                                    ))}
+                                                </Form.Select>
+                                                {Object.keys(materialDataErr.vendorErr).map((key) => {
+                                                    return <span className="error-message">{materialDataErr.vendorErr[key]}</span>
+                                                })}
+                                            </Col>
+                                    }
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Address
+                                    </Form.Label>
                                     <Col sm="8">
-                                        <Form.Select id="txtPoNumber" name="poNo" onChange={handleFieldChange} value={materialReceiptHeaderData.poNo} >
-                                            <option value=''>Select PO</option>
-                                            {poList.map((option, index) => (
-                                                <option key={index} value={option.value}>{option.key}</option>
-                                            ))}
+                                        <Form.Control id="txtAddress" name="address" placeholder="Address" value={materialReceiptHeaderData.address} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Pincode
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={materialReceiptHeaderData.pinCode} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        State
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtState" name="state" placeholder="State" value={materialReceiptHeaderData.state} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Country
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtCountry" name="country" placeholder="Country" value={materialReceiptHeaderData.country} disabled />
+                                    </Col>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md="4">
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        PO Number
+                                    </Form.Label>
+                                    {
+                                        materialReceiptHeaderData.encryptedMaterialReceiptId ?
+                                            <Col sm="8">
+                                                <Form.Control id="txtPoNumber" name="poNo" placeholder="PO number" value={materialReceiptHeaderData.poNo} disabled />
+                                            </Col>
+                                            :
+                                            <Col sm="8">
+                                                <Form.Select id="txtPoNumber" name="poNo" onChange={handleFieldChange} value={materialReceiptHeaderData.poNo} >
+                                                    <option value=''>Select PO</option>
+                                                    {poList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </Col>
+                                    }
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        PO Date
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={materialReceiptHeaderData.poDate} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        PO Status
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPOStatus" name="poStatus" placeholder="PO Status" value={materialReceiptHeaderData.poStatus} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Delivery Location
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtDeliveryLocation" name="deliveryLocation" placeholder="Delivery Location" value={materialReceiptHeaderData.deliveryLocation} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Challan No
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Delivery Date
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate"
+                                            value={materialReceiptHeaderData.materialReceiptDate ?
+                                                Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
+                                            onChange={handleFieldChange}
+                                            disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                        />
+                                    </Col>
+                                </Form.Group>
+                            </Col>
+
+                            <Col md="4">
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="3">
+                                        Gst No
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtGstNo" name="gstNo" placeholder="GST No" value={materialReceiptHeaderData.gstNo} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="3">
+                                        Pan No
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPanNo" name="panNo" placeholder="PAN No" value={materialReceiptHeaderData.panNo} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="3">
+                                        Tin No
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtTinNo" name="tinNo" placeholder="TIN No" value={materialReceiptHeaderData.tinNo} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="3">
+                                        Person Name
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} controlId="formPlaintextPassword">
+                                    <Form.Label column sm="3">
+                                        Material Status
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}>
+                                            <option value="Draft">Draft</option>
+                                            <option value="Approved">Approved</option>
                                         </Form.Select>
                                     </Col>
-                            }
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                PO Date
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={materialReceiptHeaderData.poDate} disabled />
+                                </Form.Group>
                             </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                PO Status
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtPOStatus" name="poStatus" placeholder="PO Status" value={materialReceiptHeaderData.poStatus} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Delivery Location
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtDeliveryLocation" name="deliveryLocation" placeholder="Delivery Location" value={materialReceiptHeaderData.deliveryLocation} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Challan No
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="4">
-                                Delivery Date
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control type='date' id="txtMaterialReceiptDate" name="materialReceiptDate"
-                                    value={materialReceiptHeaderData.materialReceiptDate ?
-                                        Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format('YYYY-MM-DD')}
-                                    onChange={handleFieldChange}
-                                    disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                />
-                            </Col>
-                        </Form.Group>
-                    </Col>
-
-                    <Col md="4">
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Gst No
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtGstNo" name="gstNo" placeholder="GST No" value={materialReceiptHeaderData.gstNo} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Pan No
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtPanNo" name="panNo" placeholder="PAN No" value={materialReceiptHeaderData.panNo} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Tin No
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtTinNo" name="tinNo" placeholder="TIN No" value={materialReceiptHeaderData.tinNo} disabled />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Person Name
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
-                            </Col>
-                        </Form.Group>
-
-                        <Form.Group as={Row} controlId="formPlaintextPassword">
-                            <Form.Label column sm="3">
-                                Material Status
-                            </Form.Label>
-                            <Col sm="8">
-                                <Form.Select id="txtMaterialStatus" name="materialStatus" value={materialReceiptHeaderData.materialStatus} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}>
-                                    <option value="Draft">Draft</option>
-                                    <option value="Approved">Approved</option>
-                                </Form.Select>
-                            </Col>
-                        </Form.Group>
-                    </Col>
-                </Row>
-            </Form>
+                        </Row>
+                    </Form>
+                </FalconComponentCard.Body>
+            </FalconComponentCard>
         </>
     )
 }

@@ -3,11 +3,12 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { clientContactDetailsAction, companyDetailsAction, commonContactDetailsListAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction } from '../../../actions/index';
+import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
-import $ from 'jquery'
+import IconButton from '../IconButton';
+import $ from 'jquery';
 
 const AdvanceTable = ({
   getTableProps,
@@ -127,16 +128,22 @@ const AdvanceTable = ({
         title1: `${localStorage.getItem("CompanyName")}`
       }))
     }
-    else if(rowData.hasOwnProperty('encryptedMaterialReceiptId')){
+    else if (rowData.hasOwnProperty('encryptedMaterialReceiptId')) {
       localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
       localStorage.setItem("OldMaterialStatus", rowData.materialStatus);
-      dispatch(materialReceiptHeaderDetailsAction(rowData));      
-      $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
-      $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
+      dispatch(materialReceiptHeaderDetailsAction(rowData));
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
         title1: `${localStorage.getItem("CompanyName")}`
       }))
+      if (rowData.farmerCode) {
+        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add Crop Purchase"]').trigger('click');
+      }
+      else if (rowData.vendorCode) {
+        $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add Material"]').trigger('click');
+      }
     }
     else if (!rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(clientDetailsAction(rowData));
@@ -258,6 +265,18 @@ const AdvanceTable = ({
     }
   }
 
+  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId) => {
+    var url = "";
+    if (farmerCode) {
+      url = `/crop-purchase-receipt/${encryptedMaterialReceiptId}`;
+    }
+    else if(vendorCode){
+      url = `/material-receipt/${encryptedMaterialReceiptId}`;
+    }
+
+    window.open(url, '_blank');
+  }
+
   return (
     <>
       <Table id="advanceTable" {...getTableProps(tableProps)}>
@@ -302,7 +321,7 @@ const AdvanceTable = ({
                         {...cell.getCellProps(cell.column.cellProps)}
                       >
                         {
-                          cell.column.id != "status" && cell.column.id != "approvalStatus" ?
+                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== "materialStatus" ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -310,7 +329,8 @@ const AdvanceTable = ({
                                 bg="success"
                               >
                                 {cell.render('Cell')}
-                              </Badge> :
+                              </Badge>
+                              :
                               cell.column.id == "status" && cell.row.values.status == "Suspended" ?
                                 <Badge
                                   pill
@@ -349,7 +369,19 @@ const AdvanceTable = ({
                                         >
                                           {cell.render('Cell')}
                                         </Badge>
-                                        : ''
+                                        :
+                                        cell.column.id == "materialStatus" && cell.row.values.materialStatus == "Approved" ?
+                                          <IconButton
+                                            variant="falcon-default"
+                                            size="sm"
+                                            icon="print"
+                                            iconClassName="me-1"
+                                            className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                            onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                          >
+                                            Print
+                                          </IconButton>
+                                          : ''
                         }
                       </td>
                     </>

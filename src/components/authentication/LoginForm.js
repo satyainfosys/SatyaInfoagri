@@ -99,6 +99,7 @@ const LoginForm = ({ hasLabel }) => {
     localStorage.setItem('LoginUserMobileNumber', data.loginUserMobileNumber);
     localStorage.setItem('NoOfCompany', data.noOfCompany);
     localStorage.setItem('GSTNumber', data.gstNumber);
+    localStorage.setItem('Name', data.name);
   };
 
   const handleFieldChange = e => {

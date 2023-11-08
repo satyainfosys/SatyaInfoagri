@@ -441,12 +441,7 @@ const TabPage = ({
 
               {index == 1 && module == 'MaterialReceipt' && (
                 <>
-                  <TabInfoRow />
-                  <FalconComponentCard className="no-pb mb-1">
-                    <FalconComponentCard.Body language="jsx">
-                      <AddMaterialReceiptHeader />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <AddMaterialReceiptHeader />
 
                   <AddMaterialReceiptDetail />
                 </>
@@ -454,12 +449,7 @@ const TabPage = ({
 
               {index == 1 && module == 'CropPurchase' && (
                 <>
-                  <TabInfoRow />
-                  <FalconComponentCard className="no-pb mb-1">
-                    <FalconComponentCard.Body language="jsx">
-                      <AddCropPurchase />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <AddCropPurchase />
 
                   <AddCroppurchaseDetail />
                 </>

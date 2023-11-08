@@ -34,6 +34,7 @@ import PurchaseOrder from 'components/PurchaseOrder/PurchaseOrder';
 import MaterialReceipt from 'components/MaterialReceipt/MaterialReceipt';
 import InventoryDetail from 'components/Inventory/InventoryDetail';
 import CropPurchase from 'components/CropPurchase/CropPurchase';
+import Invoice from 'components/common/Invoice';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -65,6 +66,9 @@ const Layout = () => {
 
         <Route path="/spinners" element={<Spinners />} />
 
+        <Route path="/crop-purchase-receipt/:id" element={<Invoice />} />
+        <Route path="/material-receipt/:id" element={<Invoice />} />
+        
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
         </Route>
@@ -115,7 +119,7 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/crop-purchase" element={<CropPurchase />} />
-        </Route>
+        </Route>              
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>
