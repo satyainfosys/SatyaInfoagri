@@ -6,15 +6,22 @@ import { useParams } from "react-router-dom";
 
 const Invoice = () => {
     const { id } = useParams();
+    const { poNo } = useParams();
     const [materialHeaderData, setMaterialHeaderData] = useState();
-    const [materialReceiptListData, setMaterialReceiptListData] = useState([]);
+    const [tableData, setTableData] = useState([]);
     const [subTotal, setSubTotal] = useState();
     const [totalAmount, setTotalAmount] = useState();
     const [taxableValue, setTaxableValue] = useState();
 
     useEffect(() => {
-        getMaterialReceiptHeaderData();
-        getMaterialReceiptDetailList();
+        if (poNo) {
+            getPurchaseOrderDetail();
+            getPurchaseOrderDetailList();
+        } else {
+            getMaterialReceiptHeaderData();
+            getMaterialReceiptDetailList();
+        }
+
         setTimeout(() => {
             window.print();
         }, 1000);
@@ -49,12 +56,99 @@ const Invoice = () => {
 
         if (response.data.status == 200) {
             if (response.data.data && response.data.data.length > 0) {
-                setMaterialReceiptListData(response.data.data)
-                setSubTotal(response.data.data.reduce((acc, item) => acc + parseFloat(item.amount), 0));
-                setTotalAmount(response.data.data.reduce((acc, item) => acc + parseFloat(item.amount), 0) + 0);
+                setTableData(response.data.data)
+
+                const total = response.data.data.reduce((acc, item) => {
+                    const subAmount = parseFloat(item.amount);
+                    if (!isNaN(subAmount)) {
+                        return acc + subAmount;
+                    }
+                    return acc;
+                }, 0); 
+
+                setSubTotal(total);
+
+                setTotalAmount(total);
             }
         } else {
-            setMaterialReceiptListData([])
+            setTableData([])
+        }
+    }
+
+    const getPurchaseOrderDetail = async () => {
+        const request = {
+            encryptedPoNo: poNo
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-header-detail', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            setMaterialHeaderData(response.data.data)
+        }
+        else {
+            setMaterialHeaderData()
+        }
+    }
+
+    const getPurchaseOrderDetailList = async () => {
+        const request = {
+            encryptedPoNo: poNo
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                setTableData(response.data.data)
+
+                const total = response.data.data.reduce((acc, item) => {
+                    const subAmount = parseFloat(item.poAmt);
+                    if (!isNaN(subAmount)) {
+                        return acc + subAmount;
+                    }
+                    return acc;
+                }, 0);                
+
+                const taxableAmount = response.data.data.reduce((acc, item) => {
+                    const taxAmount = parseFloat(item.taxAmount);
+                    if (!isNaN(taxAmount)) {
+                        return acc + taxAmount;
+                    }
+                    return acc;
+                }, 0)
+
+                setSubTotal(total - taxableAmount);
+
+                setTaxableValue(taxableAmount);
+
+                setTotalAmount(total);
+
+                // setSubTotal(response.data.data.reduce((acc, item) => acc + parseFloat(item.poAmt), 0) - response.data.data.reduce((acc, item) => {
+                //     const taxAmount = parseFloat(item.taxAmount);
+                //     if (!isNaN(taxAmount)) {
+                //         return acc + taxAmount;
+                //     }
+                //     return acc;
+                // }, 0));
+
+                // setTaxableValue(
+                //     response.data.data.reduce((acc, item) => {
+                //         const taxAmount = parseFloat(item.taxAmount);
+                //         if (!isNaN(taxAmount)) {
+                //             return acc + taxAmount;
+                //         }
+                //         return acc;
+                //     }, 0)
+                // );
+
+                setTotalAmount(response.data.data.reduce((acc, item) => acc + parseFloat(item.poAmt), 0));
+            }
+        } else {
+            setTableData([])
         }
     }
 
@@ -68,7 +162,7 @@ const Invoice = () => {
                         <Card.Body>
                             <Row className="justify-content-between align-items-center">
                                 <Col md>
-                                    <h5 className="mb-2 mb-md-0">#{materialHeaderData.materialReceiptId}</h5>
+                                    <h5 className="mb-2 mb-md-0">#{materialHeaderData.poNo ? materialHeaderData.poNo : materialHeaderData.materialReceiptId}</h5>
                                 </Col>
                                 <Col xs="auto">
                                     <IconButton
@@ -106,8 +200,8 @@ const Invoice = () => {
                                         <Table borderless size="sm" className="fs--1 table">
                                             <tbody>
                                                 <tr>
-                                                    <th className="text-sm-end">Material Receipt No:</th>
-                                                    <td>{materialHeaderData.materialReceiptId}</td>
+                                                    <th className="text-sm-end">{materialHeaderData.poNo ? "PO No: " : "Material Receipt No: "}</th>
+                                                    <td>{materialHeaderData.poNo ? materialHeaderData.poNo : materialHeaderData.materialReceiptId}</td>
                                                 </tr>
                                                 {
                                                     materialHeaderData.challanNo &&
@@ -117,9 +211,17 @@ const Invoice = () => {
                                                     </tr>
                                                 }
                                                 <tr>
-                                                    <th className="text-sm-end">Receipt Date:</th>
-                                                    <td>{materialHeaderData.materialReceiptDate}</td>
+                                                    <th className="text-sm-end">{materialHeaderData.poDate ? "PO Date:" : "Receipt Date:"}</th>
+                                                    <td>{materialHeaderData.poDate ? materialHeaderData.poDate : materialHeaderData.materialReceiptDate}</td>
                                                 </tr>
+
+                                                {
+                                                    materialHeaderData.poAmt &&
+                                                    <tr className="alert alert-success fw-bold">
+                                                        <th className="text-sm-end">PO Amount:</th>
+                                                        <td>{materialHeaderData.poAmt.toLocaleString('en-IN')} Rs.</td>
+                                                    </tr>
+                                                }
                                             </tbody>
                                         </Table>
                                     </div>
@@ -134,7 +236,6 @@ const Invoice = () => {
                                     materialHeaderData.farmerCode &&
 
                                     <Col>
-                                        {/* <h6 className="text-">To</h6> */}
                                         <h6 className="text-">Farmer Detail</h6>
                                         <h5>{materialHeaderData.farmerName}</h5>
                                         <p className="fs--1">
@@ -152,7 +253,6 @@ const Invoice = () => {
                                 {
                                     materialHeaderData.vendorCode &&
                                     <Col>
-                                        {/* <h6 className="text-">To</h6> */}
                                         <h6 className="text-">Supplier / Vendor Name </h6>
                                         <h5>{materialHeaderData.vendorName}</h5>
                                         <p className="fs--1">
@@ -181,7 +281,7 @@ const Invoice = () => {
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {materialReceiptListData.map((item, index) =>
+                                        {tableData.map((item, index) =>
                                             <tr>
                                                 <td className="align-middle text-start">{index + 1}</td>
                                                 <td className="align-middle text-start">
@@ -191,12 +291,17 @@ const Invoice = () => {
                                                     <p className="mb-0 text-start">{item.productName}</p>
                                                 </td>
                                                 <td className="align-middle text-start">{"{HSN}"}</td>
-                                                <td className="align-middle text-start">{item.receivedQuantity}</td>
+                                                <td className="align-middle text-start">{item.quantity ? item.quantity : item.receivedQuantity}</td>
                                                 <td className="align-middle text-start">{item.unitName}</td>
-                                                <td className="align-middle text-start">{item.rate}</td>
-                                                <td className="align-middle text-start">{item.amount}</td>
+                                                <td className="align-middle text-start">{item.poRate ? item.poRate : item.rate}</td>
+                                                <td className="align-middle text-start">{item.poAmt ? item.poAmt : item.amount}</td>
                                                 <td className="align-middle text-start">{"{Discount}"}</td>
-                                                <td className="align-middle text-start">{"{Taxable Value}"}</td>
+                                                {
+                                                    item.poNo ?
+                                                        <td className="align-middle text-start">{item.taxAmount ? item.taxAmount : "0"}</td>
+                                                        :
+                                                        <td className="align-middle text-start">{"{Taxable Value}"}</td>
+                                                }
                                                 <td className="align-middle text-start">{"{CGST}"}</td>
                                                 <td className="align-middle text-start">{"{SGST}"}</td>
                                                 <td className="align-middle text-start">{"{IGST}"}</td>
@@ -212,15 +317,15 @@ const Invoice = () => {
                                         <tbody>
                                             <tr>
                                                 <th className="text-900">Sub Total:</th>
-                                                <td className="fw-semi-bold">{subTotal} Rs.</td>
+                                                <td className="fw-semi-bold">{subTotal.toLocaleString('en-IN')} Rs.</td>
                                             </tr>
                                             <tr>
                                                 <th className="text-900">Tax:</th>
-                                                <td className="fw-semi-bold">{"0"}</td>
+                                                <td className="fw-semi-bold">{taxableValue ? taxableValue.toLocaleString('en-IN') : "0"} Rs.</td>
                                             </tr>
                                             <tr className="border-top">
                                                 <th className="text-900">Total:</th>
-                                                <td className="fw-semi-bold">{totalAmount} Rs.</td>
+                                                <td className="fw-semi-bold">{totalAmount.toLocaleString('en-IN')} Rs.</td>
                                             </tr>
                                         </tbody>
                                     </Table>

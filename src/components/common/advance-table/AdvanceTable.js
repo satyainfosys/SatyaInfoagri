@@ -265,13 +265,16 @@ const AdvanceTable = ({
     }
   }
 
-  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId) => {
+  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId, encryptedPoNo) => {
     var url = "";
     if (farmerCode) {
       url = `/crop-purchase-receipt/${encryptedMaterialReceiptId}`;
     }
-    else if(vendorCode){
+    else if (vendorCode) {
       url = `/material-receipt/${encryptedMaterialReceiptId}`;
+    }
+    else if(encryptedPoNo){
+      url = `/purchase-order-receipt/${encryptedPoNo}`;
     }
 
     window.open(url, '_blank');
@@ -321,7 +324,7 @@ const AdvanceTable = ({
                         {...cell.getCellProps(cell.column.cellProps)}
                       >
                         {
-                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== "materialStatus" ?
+                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== "materialStatus" && cell.column.id !== 'print' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -381,7 +384,19 @@ const AdvanceTable = ({
                                           >
                                             Print
                                           </IconButton>
-                                          : ''
+                                          :
+                                          cell.column.id == "print" && cell.row.values.poStatus == "Approved" ?
+                                            <IconButton
+                                              variant="falcon-default"
+                                              size="sm"
+                                              icon="print"
+                                              iconClassName="me-1"
+                                              className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                              onClick={() => generatePdf('','','',cell.row.original.encryptedPoNo)}
+                                            >
+                                              Print
+                                            </IconButton>
+                                            : ''
                         }
                       </td>
                     </>

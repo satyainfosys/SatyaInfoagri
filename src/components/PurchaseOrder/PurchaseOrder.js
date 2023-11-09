@@ -16,7 +16,8 @@ const listColumnArray = [
     { accessor: 'poDate', Header: 'PO Date' },
     { accessor: 'poAmount', Header: 'PO Amount' },
     { accessor: 'vendorName', Header: 'Vendor Name' },
-    { accessor: 'poStatus', Header: 'PO Status' }
+    { accessor: 'poStatus', Header: 'PO Status' },
+    { accessor: 'print', Header: 'Print' },
 ]
 
 const PurchaseOrder = () => {
