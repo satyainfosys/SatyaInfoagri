@@ -315,18 +315,22 @@ const AddCroppurchaseDetail = () => {
                     light
                     endEl={
                         <Flex>
-
-                            <div >
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="btn-reveal"
-                                    type="button"
-                                    onClick={() => handleAddItem()}
-                                >
-                                    Add Items
-                                </Button>
-                            </div>
+                            {
+                                materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
+                                    null
+                                    :
+                                    <div >
+                                        <Button
+                                            variant="primary"
+                                            size="sm"
+                                            className="btn-reveal"
+                                            type="button"
+                                            onClick={() => handleAddItem()}
+                                        >
+                                            Add Items
+                                        </Button>
+                                    </div>
+                            }
                         </Flex>
                     }
                 />

@@ -122,6 +122,18 @@ export const AddCropPurchase = () => {
             farmerPhoneNumber: farmerDetail.farmerPhoneNumber
         }))
         setFarmerModal(false);
+        
+        if (materialReceiptHeaderData.encryptedMaterialReceiptId) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptHeaderDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                materialReceiptHeaderDetailAdd: true
+            }))
+        }
     }
 
     return (
@@ -195,18 +207,7 @@ export const AddCropPurchase = () => {
                             <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
                         </Col>
                         <Col xs="auto">
-                            <IconButton
-                                variant="falcon-success"
-                                size="sm"
-                                icon="plus"
-                                className="me-2 mb-2 mb-sm-1"
-                                onClick={() => onSelectFarmerClick()}
-                            >
-                                Select Farmer
-                            </IconButton>
-
-                            {materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" &&
-
+                            {materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
                                 <IconButton
                                     variant="falcon-default"
                                     size="sm"
@@ -220,7 +221,16 @@ export const AddCropPurchase = () => {
                                 >
                                     Print
                                 </IconButton>
-
+                                :
+                                <IconButton
+                                    variant="falcon-success"
+                                    size="sm"
+                                    icon="plus"
+                                    className="me-2 mb-2 mb-sm-1"
+                                    onClick={() => onSelectFarmerClick()}
+                                >
+                                    {materialReceiptHeaderData.farmerCode ? "Change Farmer" : "Select Farmer"}
+                                </IconButton>
                             }
                         </Col>
                     </Row>

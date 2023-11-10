@@ -263,7 +263,7 @@ const Invoice = () => {
                             </Row>
 
                             <div className="mt-4">
-                                <Table striped className="border-bottom">
+                                <Table striped responsive className="border-bottom">
                                     <thead className="light">
                                         <tr className="bg-primary text-white dark__bg-1000">
                                             <th className="border-0 text-start">S.No</th>
