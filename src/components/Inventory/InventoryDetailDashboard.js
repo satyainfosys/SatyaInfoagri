@@ -14,6 +14,8 @@ export const InventoryDetailDashboard = () => {
     const [inventoryDetailList, setInventoryDetailList] = useState([]);
     const [productCategoryList, setProductCategoryList] = useState([]);
 
+    const [mergedInventoryDetailList, setMergedInventoryDetailList] = useState([]);
+
     const [formData, setFormData] = useState({
         companyCode: "",
         startDate: null,
@@ -22,12 +24,18 @@ export const InventoryDetailDashboard = () => {
     });
 
 
-    useEffect(() => {     
+    useEffect(() => {
         if (companyList.length <= 0)
             getCompany();
         if (productCategoryList.length <= 0)
             fetchProductCategoryList();
-    }, [])
+
+        if (inventoryDetailList && inventoryDetailList.length > 0) {
+            // Combine rows with the same productLineName
+            const mergedList = mergeRowsByProductLineName(inventoryDetailList);
+            setMergedInventoryDetailList(mergedList);
+        }
+    }, [inventoryDetailList])
 
     const getCompany = async () => {
         let companyData = [];
@@ -147,6 +155,24 @@ export const InventoryDetailDashboard = () => {
         }
     }
 
+    const mergeRowsByProductLineName = (list) => {
+        const groupedByProductLineAndCategory = {};
+
+        list.forEach((item) => {
+            const key = `${item.productLineName}_${item.productCategoryName}`;
+
+            if (!groupedByProductLineAndCategory[key]) {
+                groupedByProductLineAndCategory[key] = [item];
+            } else {
+                groupedByProductLineAndCategory[key].push(item);
+            }
+        });
+
+        const mergedList = Object.values(groupedByProductLineAndCategory);
+
+        return mergedList;
+    };
+
     return (
         <>
             {isLoading ? (
@@ -198,7 +224,7 @@ export const InventoryDetailDashboard = () => {
                 </Row>
 
                 {
-                    inventoryDetailList && inventoryDetailList.length > 0 ?
+                    mergedInventoryDetailList && mergedInventoryDetailList.length > 0 ?
                         <Row className="no-padding">
                             <Table striped bordered responsive className="table-sm overflow-hidden">
                                 <thead className='custom-bg-200'>
@@ -216,22 +242,28 @@ export const InventoryDetailDashboard = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {
-                                        inventoryDetailList.map((item, index) =>
-                                            <tr>
-                                                <td>{index + 1}</td>
-                                                <td>{item.productLineName}</td>
-                                                <td>{item.productCategoryName}</td>
-                                                <td>{item.productName}</td>
-                                                <td>{"-"}</td>
-                                                <td>{"-"}</td>
-                                                <td>{item.availableQty}</td>
-                                                <td>{item.unitName}</td>
-                                                <td>{item.avgPrice}</td>
-                                                <td>{item.totalAmount}</td>
-                                            </tr>
-                                        )
-                                    }
+                                    {mergedInventoryDetailList.map((group, groupIndex) => (
+                                        <React.Fragment key={groupIndex}>
+                                            {group.map((item, index) => (
+                                                <tr key={`${groupIndex}_${index}`}>
+                                                    {index === 0 && (
+                                                        <>
+                                                            <td rowSpan={group.length}>{groupIndex + 1}</td>
+                                                            <td rowSpan={group.length}>{item.productLineName}</td>
+                                                            <td rowSpan={group.length}>{item.productCategoryName}</td>
+                                                        </>
+                                                    )}
+                                                    <td className='pl-5'>{item.productName}</td>
+                                                    <td>{"-"}</td>
+                                                    <td>{"-"}</td>
+                                                    <td>{item.availableQty}</td>
+                                                    <td>{item.unitName}</td>
+                                                    <td>{item.avgPrice}</td>
+                                                    <td>{item.totalAmount}</td>
+                                                </tr>
+                                            ))}
+                                        </React.Fragment>
+                                    ))}
                                 </tbody>
                             </Table>
                         </Row>
