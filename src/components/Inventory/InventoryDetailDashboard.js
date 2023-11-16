@@ -4,7 +4,7 @@ import { Col, Form, Row, Button, Modal, Table } from 'react-bootstrap';
 import axios from 'axios';
 import Moment from "moment";
 import { toast } from 'react-toastify';
-import { formatRange } from '@fullcalendar/react';
+import TablePagination from 'components/common/TablePagination';
 
 export const InventoryDetailDashboard = () => {
 
@@ -13,15 +13,24 @@ export const InventoryDetailDashboard = () => {
     const [companyList, setCompanyList] = useState([]);
     const [inventoryDetailList, setInventoryDetailList] = useState([]);
     const [productCategoryList, setProductCategoryList] = useState([]);
+    const [pageNumber, setPageNumber] = useState(1);
+    const [pageSize, setPageSize] = useState(5);
+    const [inventoryCount, setInventoryCount] = useState(0);
+    const pageCount = Math.ceil(inventoryCount / pageSize);
 
     const [mergedInventoryDetailList, setMergedInventoryDetailList] = useState([]);
+    const [isSearch, setIsSearch] = useState(false);
 
     const [formData, setFormData] = useState({
         companyCode: "",
         startDate: null,
         endDate: null,
         productCategoryCode: "",
+        searchText: ""
     });
+
+    const isPreviousDisabled = pageNumber === 1;
+    const isNextDisabled = pageNumber === pageCount;
 
 
     useEffect(() => {
@@ -31,7 +40,6 @@ export const InventoryDetailDashboard = () => {
             fetchProductCategoryList();
 
         if (inventoryDetailList && inventoryDetailList.length > 0) {
-            // Combine rows with the same productLineName
             const mergedList = mergeRowsByProductLineName(inventoryDetailList);
             setMergedInventoryDetailList(mergedList);
         }
@@ -90,6 +98,11 @@ export const InventoryDetailDashboard = () => {
             ...formData,
             [e.target.name]: e.target.value
         })
+
+        if (e.target.value) {
+            setIsSearch(true);
+            setPageNumber(1);
+        }
     }
 
     const validateSearchClick = () => {
@@ -100,6 +113,8 @@ export const InventoryDetailDashboard = () => {
                 theme: 'colored'
             });
             isValid = false;
+            setInventoryDetailList([]);
+            setMergedInventoryDetailList([]);
         }
 
         if (formData.startDate && !formData.endDate) {
@@ -124,14 +139,18 @@ export const InventoryDetailDashboard = () => {
         return isValid;
     }
 
-    const fetchInventoryDetailList = async (companyCode, isNull = false) => {
+    const fetchInventoryDetailList = async (companyCode, isNull = false, newPageNumber, newPageSize) => {
         if (validateSearchClick(isNull, companyCode)) {
             const requestData = {
                 EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 EncryptedCompanyCode: companyCode ? companyCode : formData.companyCode,
                 StartDate: formData.startDate ? Moment(formData.startDate).format("YYYY-MM-DD") : null,
                 EndDate: formData.endDate ? Moment(formData.endDate).format("YYYY-MM-DD") : null,
-                ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : ""
+                ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : "",
+                SearchText: formData.searchText,
+                // PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
+                PageNumber: formData.searchText || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
+                PageSize: newPageSize ? newPageSize : pageSize
             }
 
             let response = await axios.post(process.env.REACT_APP_API_URL + '/get-inventory-detail-list', requestData, {
@@ -139,12 +158,14 @@ export const InventoryDetailDashboard = () => {
             })
 
             if (response.data.status == 200) {
-                if (response.data && response.data.data.length > 0) {
-                    setInventoryDetailList(response.data.data)
+                if (response.data && response.data.data.inventoryList.length > 0) {
+                    setInventoryDetailList(response.data.data.inventoryList)
+                    setInventoryCount(response.data.data.inventoryCount)
                 }
             }
             else {
                 setInventoryDetailList([]);
+                setMergedInventoryDetailList([]);
                 setTimeout(function () {
                     $('#no-inventory-message').html('No data found!');
                 }, 500)
@@ -152,6 +173,7 @@ export const InventoryDetailDashboard = () => {
         }
         else {
             setInventoryDetailList([]);
+            setMergedInventoryDetailList([]);
         }
     }
 
@@ -172,6 +194,47 @@ export const InventoryDetailDashboard = () => {
 
         return mergedList;
     };
+
+    const updateSearchStatus = async () => {
+        setIsSearch(false);
+    }
+
+    const onPageClick = async ({ selected }) => {
+        setPageNumber(selected + 1);
+        // await updateSearchStatus();
+        fetchInventoryDetailList(formData.companyCode, false, selected + 1)
+        // setTimeout(() => {
+        //     fetchInventoryDetailList(formData.companyCode, false, selected + 1)
+        // }, 100);
+    }
+
+    const handlePageSize = async (e) => {
+        setPageSize(e.target.value);
+        // await updateSearchStatus();
+        setPageNumber(1);
+        fetchInventoryDetailList(formData.companyCode, false, 1, e.target.value)
+        // setTimeout(() => {
+        //     fetchInventoryDetailList(formData.companyCode, false, 1, e.target.value)
+        // }, 100);
+    }
+
+    const handlePreviousClick = async () => {
+        setPageNumber(pageNumber - 1);
+        // await updateSearchStatus();
+        fetchInventoryDetailList(formData.companyCode, false, pageNumber - 1)
+        // setTimeout(() => {
+        //     fetchInventoryDetailList(formData.companyCode, false, pageNumber - 1)
+        // }, 1000);
+    }
+
+    const handleNextClick = async () => {
+        setPageNumber(pageNumber + 1);
+        // await updateSearchStatus();
+        fetchInventoryDetailList(formData.companyCode, false, pageNumber + 1)
+        // setTimeout(() => {
+        //     fetchInventoryDetailList(formData.companyCode, false, pageNumber + 1)
+        // }, 1000);
+    }
 
     return (
         <>
@@ -217,6 +280,12 @@ export const InventoryDetailDashboard = () => {
                                 <option key={index} value={option.value}>{option.key}</option>
                             ))}
                         </Form.Select>
+                    </Col>
+                    <Form.Label column className='col-auto'>
+                        Search
+                    </Form.Label>
+                    <Col className='col-auto'>
+                        <Form.Control id="txtSearch" name="searchText" placeholder="Search" onChange={handleFieldChange} value={formData.searchText} maxLength={45} />
                     </Col>
                     <Col className='col-auto'>
                         <Button variant="success" onClick={() => fetchInventoryDetailList()} >Search</Button>
@@ -271,6 +340,18 @@ export const InventoryDetailDashboard = () => {
                         <h4 id="no-inventory-message"></h4>
                 }
             </Form>
+            <Row>
+                <TablePagination
+                    pageCount={pageCount}
+                    handlePageClick={onPageClick}
+                    pageSize={pageSize}
+                    handlePageSizeChange={handlePageSize}
+                    isDisablePrevious={isPreviousDisabled}
+                    isDisableNext={isNextDisabled}
+                    previousClick={handlePreviousClick}
+                    nextClick={handleNextClick}
+                />
+            </Row>
         </>
     )
 }
