@@ -9,7 +9,7 @@ import Flex from 'components/common/Flex';
 import { formChangedAction, materialReceiptDetailsAction } from 'actions';
 import axios from 'axios';
 
-const AddCroppurchaseDetail = () => {
+const AddCroppurchaseDetailV1 = () => {
 
     const dispatch = useDispatch();
     const [rowData, setRowData] = useState([]);
@@ -544,4 +544,4 @@ const AddCroppurchaseDetail = () => {
     )
 }
 
-export default AddCroppurchaseDetail
+export default AddCroppurchaseDetailV1

@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Moment from "moment";
 import { Spinner, Modal, Button } from 'react-bootstrap';
 
-const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
+const tabArray = ['Crop Purchase ListV1', 'Add Crop PurchaseV1']
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
@@ -20,7 +20,7 @@ const listColumnArray = [
     { accessor: 'materialStatus', Header: 'Print' }
 ]
 
-const CropPurchase = () => {
+const CropPurchaseV1 = () => {
 
     const dispatch = useDispatch();
     const [listData, setListData] = useState([]);
@@ -31,7 +31,7 @@ const CropPurchase = () => {
     const [modalShow, setModalShow] = useState(false);
 
     useEffect(() => {
-        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').attr('disabled', true);
         localStorage.removeItem("EncryptedMaterialReceiptId");
         getCompany();
     }, [])
@@ -131,7 +131,7 @@ const CropPurchase = () => {
         }
     }
 
-    $('[data-rr-ui-event-key*="Crop Purchase List"]').off('click').on('click', function () {
+    $('[data-rr-ui-event-key*="Crop Purchase ListV1"]').off('click').on('click', function () {
         let isDiscard = $('#btnDiscard').attr('isDiscard');
         if (isDiscard != 'true' && isFormChanged) {
             setModalShow(true);
@@ -142,7 +142,7 @@ const CropPurchase = () => {
             $("#btnNew").show();
             $("#btnSave").hide();
             $("#btnCancel").hide();
-            $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+            $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').attr('disabled', true);
             clearMaterialReceiptReducers();
             localStorage.removeItem("EncryptedMaterialReceiptId");
             localStorage.removeItem("OldMaterialStatus");
@@ -150,8 +150,8 @@ const CropPurchase = () => {
         }
     })
 
-    $('[data-rr-ui-event-key*="Add Crop Purchase"]').off('click').on('click', function () {
-        setActiveTabName("Add Crop Purchase")
+    $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').off('click').on('click', function () {
+        setActiveTabName("Add Crop PurchaseV1")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
@@ -163,8 +163,8 @@ const CropPurchase = () => {
 
     const newDetails = () => {
         if (localStorage.getItem("EncryptedCompanyCode")) {
-            $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', false);
-            $('[data-rr-ui-event-key*="Add Crop Purchase"]').trigger('click');
+            $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').attr('disabled', false);
+            $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').trigger('click');
             $('#btnSave').attr('disabled', false);
             dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
         } else {
@@ -180,7 +180,7 @@ const CropPurchase = () => {
         if (isFormChanged) {
             setModalShow(true);
         } else {
-            $('[data-rr-ui-event-key*="Crop Purchase List"]').trigger('click');
+            $('[data-rr-ui-event-key*="Crop Purchase ListV1"]').trigger('click');
         }
     }
 
@@ -204,7 +204,7 @@ const CropPurchase = () => {
         if ($('#btnExit').attr('isExit') == 'true')
             window.location.href = '/dashboard';
         else {
-            $('[data-rr-ui-event-key*="Crop Purchase List"]').trigger('click');
+            $('[data-rr-ui-event-key*="Crop Purchase ListV1"]').trigger('click');
         }
         setModalShow(false);
     }
@@ -576,7 +576,7 @@ const CropPurchase = () => {
                 listData={listData}
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
-                module="CropPurchase"
+                module="CropPurchaseV1"
                 saveDetails={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateCropPurchaseDetails : addCropPurchaseDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
@@ -589,4 +589,4 @@ const CropPurchase = () => {
     )
 }
 
-export default CropPurchase
+export default CropPurchaseV1;

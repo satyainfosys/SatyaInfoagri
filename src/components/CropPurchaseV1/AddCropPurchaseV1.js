@@ -7,7 +7,7 @@ import { formChangedAction, materialReceiptHeaderDetailsAction } from 'actions';
 import IconButton from 'components/common/IconButton';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 
-export const AddCropPurchase = () => {
+export const AddCropPurchaseV1 = () => {
 
     const dispatch = useDispatch();
     const [farmerModal, setFarmerModal] = useState(false);
@@ -332,4 +332,4 @@ export const AddCropPurchase = () => {
     )
 }
 
-export default AddCropPurchase;
+export default AddCropPurchaseV1;

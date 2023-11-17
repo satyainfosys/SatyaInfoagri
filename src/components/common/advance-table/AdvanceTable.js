@@ -137,8 +137,8 @@ const AdvanceTable = ({
         title1: `${localStorage.getItem("CompanyName")}`
       }))
       if (rowData.farmerCode) {
-        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', false);
-        $('[data-rr-ui-event-key*="Add Crop Purchase"]').trigger('click');
+        $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').trigger('click');
       }
       else if (rowData.vendorCode) {
         $('[data-rr-ui-event-key*="Add Material"]').attr('disabled', false);
@@ -273,7 +273,7 @@ const AdvanceTable = ({
     else if (vendorCode) {
       url = `/material-receipt/${encryptedMaterialReceiptId}`;
     }
-    else if(encryptedPoNo){
+    else if (encryptedPoNo) {
       url = `/purchase-order-receipt/${encryptedPoNo}`;
     }
 
@@ -324,7 +324,8 @@ const AdvanceTable = ({
                         {...cell.getCellProps(cell.column.cellProps)}
                       >
                         {
-                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== "materialStatus" && cell.column.id !== 'print' ?
+                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'print' && 
+                          cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -374,29 +375,45 @@ const AdvanceTable = ({
                                         </Badge>
                                         :
                                         cell.column.id == "materialStatus" && cell.row.values.materialStatus == "Approved" ?
-                                          <IconButton
-                                            variant="falcon-default"
-                                            size="sm"
-                                            icon="print"
-                                            iconClassName="me-1"
-                                            className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                            onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                          <Badge
+                                            pill
+                                            bg="success"
                                           >
-                                            Print
-                                          </IconButton>
+                                            {cell.render('Cell')}
+                                          </Badge>
                                           :
-                                          cell.column.id == "print" && cell.row.values.poStatus == "Approved" ?
-                                            <IconButton
-                                              variant="falcon-default"
-                                              size="sm"
-                                              icon="print"
-                                              iconClassName="me-1"
-                                              className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                              onClick={() => generatePdf('','','',cell.row.original.encryptedPoNo)}
+                                          cell.column.id == "materialStatus" && cell.row.values.materialStatus == "Draft" ?
+                                            <Badge
+                                              pill
+                                              bg="info"
                                             >
-                                              Print
-                                            </IconButton>
-                                            : ''
+                                              {cell.render('Cell')}
+                                            </Badge>
+                                            :
+                                            cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
+                                              <IconButton
+                                                variant="falcon-default"
+                                                size="sm"
+                                                icon="print"
+                                                iconClassName="me-1"
+                                                className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                              >
+                                                Print
+                                              </IconButton>
+                                              :
+                                              cell.column.id == "print" && cell.row.values.poStatus == "Approved" ?
+                                                <IconButton
+                                                  variant="falcon-default"
+                                                  size="sm"
+                                                  icon="print"
+                                                  iconClassName="me-1"
+                                                  className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                  onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
+                                                >
+                                                  Print
+                                                </IconButton>
+                                                : ''
                         }
                       </td>
                     </>

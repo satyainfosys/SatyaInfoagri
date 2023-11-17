@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { Tabs, Tab, Button, Modal } from 'react-bootstrap';
+import { Tabs, Tab, Button, Modal, Col, Row } from 'react-bootstrap';
 import TabPageMainMenu from 'components/navbar/top/TabPageMainMenu';
 import { useSelector } from 'react-redux';
 import $ from 'jquery';
@@ -57,8 +57,11 @@ import AddMaterialReceiptDetail from 'components/MaterialReceipt/AddMaterialRece
 
 import { InventoryDetailDashboard } from 'components/Inventory/InventoryDetailDashboard';
 
-import AddCropPurchase from 'components/CropPurchase/AddCropPurchase';
-import AddCroppurchaseDetail from 'components/CropPurchase/AddCroppurchaseDetail';
+import AddCropPurchaseV1 from 'components/CropPurchaseV1/AddCropPurchaseV1';
+import AddCroppurchaseDetailV1 from 'components/CropPurchaseV1/AddCroppurchaseDetailV1';
+import AddCropPurchase from 'components/CropPurchaseV2/AddCropPurchase';
+import AddCropPurchaseDetail from 'components/CropPurchaseV2/AddCropPurchaseDetail';
+import CommodityList from 'components/CropPurchaseV2/CommodityList';
 
 const TabPage = ({
   listData,
@@ -180,8 +183,8 @@ const TabPage = ({
                 index == 0
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material' || tab == "Add Crop Purchase"
-                    ? 'border p-1 tab-page-tab'
+                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material' || tab == "Add Crop PurchaseV1"
+                    || tab == 'Add Crop Purchase' ? 'border p-1 tab-page-tab'
                     : ''
               }
             >
@@ -447,11 +450,31 @@ const TabPage = ({
                 </>
               )}
 
+              {index == 1 && module == 'CropPurchaseV1' && (
+                <>
+                  <AddCropPurchaseV1 />
+
+                  <AddCroppurchaseDetailV1 />
+                </>
+              )}
+
               {index == 1 && module == 'CropPurchase' && (
                 <>
                   <AddCropPurchase />
 
-                  <AddCroppurchaseDetail />
+                  <Row>
+                    <Col sm={8} className='no-right-pad'
+                    // style={{ paddingRight: "0px" }}
+                    >
+                      <AddCropPurchaseDetail />
+                    </Col>
+                    <Col sm={4}
+                      // style={{ paddingLeft: "5px" }}
+                      className='col-left-pad'
+                    >
+                      <CommodityList />
+                    </Col>
+                  </Row>
                 </>
               )}
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Flex from './Flex';
-import { Form, Button, Col, Row } from 'react-bootstrap';
+import { Form, Button, Col} from 'react-bootstrap';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import classNames from 'classnames';
 
@@ -12,14 +12,15 @@ const TablePagination = ({
     previousClick,
     nextClick,
     isDisablePrevious,
-    isDisableNext
+    isDisableNext,
+    pageIndex
 }) => {
 
     const [rowsPerPage, setRowsPerPage] = useState([5, 10, 20, 30, 40])
 
     return (
         <>
-            <Flex >
+            <Flex alignItems="center" justifyContent="center">
                 <Form.Label column className='col-auto'>
                     Rows per page:
                 </Form.Label>
@@ -42,9 +43,9 @@ const TablePagination = ({
                     {
                         pageCount > 0 &&
                         <>
-                            <Flex alignItems="center" justifyContent="center">
+                            <Flex className="ms-5">
                                 <Button
-                                    size="sm"
+                                    size="lg"
                                     variant="falcon-default"
                                     className={classNames({ disabled: isDisablePrevious })}
                                     onClick={previousClick}
@@ -54,9 +55,9 @@ const TablePagination = ({
 
                                 <ul className="pagination mb-0 mx-1">
                                     {Array.from(Array(pageCount).keys()).map((page, index) => (
-                                        <li key={page} className={classNames({ active: page })}>
+                                        <li key={page} className={classNames({ active: pageIndex == page })}>
                                             <Button
-                                                size="sm"
+                                                size="lg"
                                                 variant="falcon-default"
                                                 className={classNames('page', {
                                                     'me-1': index + 1 !== pageCount
@@ -70,10 +71,9 @@ const TablePagination = ({
                                 </ul>
 
                                 <Button
-                                    size="sm"
+                                    size="lg"
                                     variant="falcon-default"
                                     onClick={nextClick}
-                                    // disabled={isDisableNext}
                                     className={classNames({ disabled: isDisableNext })}
                                 >
                                     <FontAwesomeIcon icon="chevron-right" />

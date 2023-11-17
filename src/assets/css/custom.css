@@ -184,6 +184,14 @@
     padding-left: 5px !important;
 }
 
+.no-right-pad{
+    padding-right: 0px !important;
+}
+
+.col-left-pad{
+    padding-left: 5px !important;
+}
+
 /* .table-responsive{
     overflow-x: unset !important;
 } */

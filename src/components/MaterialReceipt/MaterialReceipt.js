@@ -12,11 +12,13 @@ const tabArray = ["Material List", "Add Material"]
 
 const listColumnArray = [
     { accessor: 's1', Header: 'S.No' },
+    { accessor: 'poNo', Header: 'Po No' },
     { accessor: 'materialReceiptId', Header: 'Material Receipt No' },
     { accessor: 'vendorName', Header: 'Vendor Name' },
     { accessor: 'materialReceiptDate', Header: 'Delivery Date' },
     { accessor: 'personName', Header: 'Person Name' },
-    { accessor: 'materialStatus', Header: 'Print' },
+    { accessor: 'materialStatus', Header: 'Material Status' },
+    { accessor: 'printStatus', Header: 'Print' },
 ]
 
 const MaterialReceipt = () => {

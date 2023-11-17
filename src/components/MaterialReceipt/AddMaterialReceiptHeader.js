@@ -335,7 +335,7 @@ const AddMaterialReceiptHeader = () => {
                                         Challan No
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
+                                        <Form.Control id="txtChallanNo" name="challanNo" placeholder="Challan No" maxLength={20} value={materialReceiptHeaderData.challanNo} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
                                     </Col>
                                 </Form.Group>
 
@@ -387,7 +387,7 @@ const AddMaterialReceiptHeader = () => {
                                         Person Name
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} onChange={handleFieldChange} disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"} />
+                                        <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} maxLength={45} disabled />
                                     </Col>
                                 </Form.Group>
 

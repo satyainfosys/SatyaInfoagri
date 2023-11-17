@@ -16,10 +16,10 @@ export const InventoryDetailDashboard = () => {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [inventoryCount, setInventoryCount] = useState(0);
-    const pageCount = Math.ceil(inventoryCount / pageSize);
+    let pageCount = Math.ceil(inventoryCount / pageSize);
 
     const [mergedInventoryDetailList, setMergedInventoryDetailList] = useState([]);
-    const [isSearch, setIsSearch] = useState(false);
+    let isSearch = false;
 
     const [formData, setFormData] = useState({
         companyCode: "",
@@ -100,7 +100,7 @@ export const InventoryDetailDashboard = () => {
         })
 
         if (e.target.value) {
-            setIsSearch(true);
+            isSearch = true;
             setPageNumber(1);
         }
     }
@@ -115,6 +115,7 @@ export const InventoryDetailDashboard = () => {
             isValid = false;
             setInventoryDetailList([]);
             setMergedInventoryDetailList([]);
+            setInventoryCount(0);
         }
 
         if (formData.startDate && !formData.endDate) {
@@ -134,7 +135,7 @@ export const InventoryDetailDashboard = () => {
                 theme: 'colored'
             });
             isValid = false;
-        }
+        }        
 
         return isValid;
     }
@@ -148,8 +149,7 @@ export const InventoryDetailDashboard = () => {
                 EndDate: formData.endDate ? Moment(formData.endDate).format("YYYY-MM-DD") : null,
                 ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : "",
                 SearchText: formData.searchText,
-                // PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
-                PageNumber: formData.searchText || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
+                PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
                 PageSize: newPageSize ? newPageSize : pageSize
             }
 
@@ -195,45 +195,29 @@ export const InventoryDetailDashboard = () => {
         return mergedList;
     };
 
-    const updateSearchStatus = async () => {
-        setIsSearch(false);
-    }
-
     const onPageClick = async ({ selected }) => {
         setPageNumber(selected + 1);
-        // await updateSearchStatus();
+        isSearch = false;
         fetchInventoryDetailList(formData.companyCode, false, selected + 1)
-        // setTimeout(() => {
-        //     fetchInventoryDetailList(formData.companyCode, false, selected + 1)
-        // }, 100);
     }
 
     const handlePageSize = async (e) => {
         setPageSize(e.target.value);
-        // await updateSearchStatus();
         setPageNumber(1);
+        isSearch = false;
         fetchInventoryDetailList(formData.companyCode, false, 1, e.target.value)
-        // setTimeout(() => {
-        //     fetchInventoryDetailList(formData.companyCode, false, 1, e.target.value)
-        // }, 100);
     }
 
     const handlePreviousClick = async () => {
         setPageNumber(pageNumber - 1);
-        // await updateSearchStatus();
+        isSearch = false;
         fetchInventoryDetailList(formData.companyCode, false, pageNumber - 1)
-        // setTimeout(() => {
-        //     fetchInventoryDetailList(formData.companyCode, false, pageNumber - 1)
-        // }, 1000);
     }
 
     const handleNextClick = async () => {
         setPageNumber(pageNumber + 1);
-        // await updateSearchStatus();
+        isSearch = false;
         fetchInventoryDetailList(formData.companyCode, false, pageNumber + 1)
-        // setTimeout(() => {
-        //     fetchInventoryDetailList(formData.companyCode, false, pageNumber + 1)
-        // }, 1000);
     }
 
     return (
@@ -295,7 +279,7 @@ export const InventoryDetailDashboard = () => {
                 {
                     mergedInventoryDetailList && mergedInventoryDetailList.length > 0 ?
                         <Row className="no-padding">
-                            <Table striped bordered responsive className="table-sm overflow-hidden">
+                            <Table striped bordered responsive className="table-md overflow-hidden">
                                 <thead className='custom-bg-200'>
                                     <tr>
                                         <th>S. No</th>
@@ -340,7 +324,7 @@ export const InventoryDetailDashboard = () => {
                         <h4 id="no-inventory-message"></h4>
                 }
             </Form>
-            <Row>
+            <Row style={{position:'absolute', bottom:'30px', align:'centre'}}>
                 <TablePagination
                     pageCount={pageCount}
                     handlePageClick={onPageClick}
@@ -350,6 +334,7 @@ export const InventoryDetailDashboard = () => {
                     isDisableNext={isNextDisabled}
                     previousClick={handlePreviousClick}
                     nextClick={handleNextClick}
+                    pageIndex={pageNumber - 1}
                 />
             </Row>
         </>
