@@ -79,7 +79,8 @@ const TabPage = ({
   tableFilterOptions1,
   tableFilterName1,
   filterValue1,
-  supportingMethod2
+  supportingMethod2,
+  supportingButtonClick
 }) => {
   $.fn.extend({
     trackChanges: function () {
@@ -224,6 +225,8 @@ const TabPage = ({
                         filterName1={tableFilterName1}
                         filterValue1={filterValue1}
                         handleFilterChange1={supportingMethod2}
+                        module={module}
+                        buttonClick={supportingButtonClick}
                       />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
@@ -462,19 +465,19 @@ const TabPage = ({
                 <>
                   <AddCropPurchase />
 
-                  <Row>
+                  <AddCropPurchaseDetail />
+
+                  {/* <Row>
                     <Col sm={8} className='no-right-pad'
-                    // style={{ paddingRight: "0px" }}
                     >
                       <AddCropPurchaseDetail />
                     </Col>
                     <Col sm={4}
-                      // style={{ paddingLeft: "5px" }}
                       className='col-left-pad'
                     >
                       <CommodityList />
                     </Col>
-                  </Row>
+                  </Row> */}
                 </>
               )}
 

@@ -19,6 +19,11 @@ const AddCropPurchaseDetail = () => {
     const [unitList, setUnitList] = useState([])
     const [paramsData, setParamsData] = useState({});
     const [modalShow, setModalShow] = useState(false);
+    const [productModal, setProductModal] = useState(false);
+    const [productLineList, setProductLineList] = useState(false);
+    const [productCategory, setProductCategory] = useState();
+    const [product, setProduct] = useState();
+    const [searchValue, setSearchValue] = useState();
 
     let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
 
@@ -33,15 +38,16 @@ const AddCropPurchaseDetail = () => {
 
     const columnsArray = [
         'S.No',
-        'Product Category',
-        'Product',
-        'Variety',
-        'Brand',
+        'Item Name',
+        'Grade',
+        'I/O',
         'Unit',
-        'Quantity',
-        'PO Rate',      
-        'Amt',
-        'Delete',
+        'Pack',
+        'Cerate',
+        'Rate',
+        'Wt',
+        'Final Amt',
+        'Action',
     ];
 
     useEffect(() => {
@@ -118,8 +124,6 @@ const AddCropPurchaseDetail = () => {
     }
 
     const getProductCategoryList = async () => {
-
-        let productCategoryData = [];
         let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         })
@@ -133,7 +137,7 @@ const AddCropPurchaseDetail = () => {
         }
     }
 
-    const getProductMasterList = async (productCategoryCode, index) => {
+    const getProductMasterList = async (productCategoryCode) => {
         const request = {
             pageNumber: 1,
             pageSize: 1,
@@ -147,35 +151,184 @@ const AddCropPurchaseDetail = () => {
 
         if (response.data.status == 200) {
             if (response.data && response.data.data.length > 0) {
-                response.data.data.forEach(product => {
-                    productData.push({
-                        key: product.productName,
-                        value: product.code
-                    })
-                })
+                setProductMasterList(response.data.data);
             }
-            setProductMasterList(prevProductList => {
-                const newProductList = [...prevProductList];
-                newProductList[index] = productData;
-                return newProductList;
-            })
+
         } else {
-            setProductMasterList(prevProductList => {
-                const newProductList = [...prevProductList];
-                newProductList[index] = productData;
-                return newProductList;
-            })
+            setProductMasterList([]);
         }
     }
 
     const handleAddItem = () => {
-        purchaseOrderProductDetailsData.unshift(emptyRow);
-        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetailsData));
-        setProductMasterList(prevProductList => [...prevProductList, []]);
+        setProductModal(true);
+        getProductLineMasterList();
+    }
+
+    const getProductLineMasterList = async (searchText, productCategoryCode, productCode, isManualFilter = false) => {
+        const requestData = {
+            SearchText: searchText ? searchText : searchValue,
+            ProductCategoryCode: isManualFilter ? productCategoryCode : productCategory,
+            ProductCode: isManualFilter ? productCode : product
+        }
+
+        const response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-line-master-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                setProductLineList(response.data.data)
+            }
+        }
+        else {
+            setProductLineList([]);
+        }
+    }
+
+    const handleProductCategoryChange = async (e) => {
+        setProductCategory(e.target.value);
+        handleAPICall(e.target.value);
+    }
+
+    const handleAPICall = async (categoryCode) => {
+        await getProductLineMasterList("", categoryCode, "", true);
+        await getProductMasterList(categoryCode);
+    }
+
+    const handleProductChange = e => {
+        setProduct(e.target.value);
+        getProductLineMasterList('', productCategory, e.target.value, true);
+    }
+
+    const onProductModalClose = async () => {
+        setProductModal(false);
+        setProductCategory();
+        setProduct();
+    }
+
+    const handleSearchChange = (e) => {
+        setSearchValue(e.target.value)
+        getProductLineMasterList(e.target.value)
     }
 
     return (
         <>
+
+            {
+                productModal &&
+                <Modal
+                    show={productModal}
+                    onHide={() => onProductModalClose()}
+                    size="xl"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Product Line</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body className="max-five-rows">
+                        <Form className="details-form" id="OemDetailsForm" >
+                            <Row>
+                                <Col className="me-3 ms-3" md="4">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Form.Label column sm="2">
+                                            Search
+                                        </Form.Label>
+                                        <Col sm="8">
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} onChange={handleSearchChange} />
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                                <Col className="me-2 ms-3" md="4">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Col sm="8">
+                                            <Form.Select
+                                                type="text"
+                                                name="productCategoryCode"
+                                                onChange={handleProductCategoryChange}
+                                                value={productCategory}
+                                                className="form-control"
+                                            >
+                                                <option value=''>Select Product Category</option>
+                                                {productCategoryList.map((category) => (
+                                                    <option key={category.productCategoryName} value={category.productCategoryCode}>
+                                                        {category.productCategoryName}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                                <Col className="me-2 ms-3" md="3">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Col sm="8">
+                                            <Form.Select
+                                                type="text"
+                                                name="productCode"
+                                                onChange={handleProductChange}
+                                                value={product}
+                                                className="form-control"
+                                            >
+                                                <option value=''>Select Product</option>
+                                                {productMasterList.map((product) => (
+                                                    <option key={product.productName} value={product.code}>
+                                                        {product.productName}
+                                                    </option>
+                                                ))}
+                                            </Form.Select>
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                                {
+                                    (productLineList && productLineList.length > 0) ?
+                                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
+                                                <tr>
+                                                    <th>S.No</th>
+                                                    <th>Select</th>
+                                                    <th>Product Line</th>
+                                                    <th>Product Category</th>
+                                                    <th>Product</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {
+                                                    productLineList.map((data, index) =>
+                                                        <tr>
+                                                            <td>{index + 1}</td>
+                                                            <td key={index}>
+                                                                <Form.Check type="checkbox" className="mb-1">
+                                                                    <Form.Check.Input
+                                                                        type="checkbox"
+                                                                        name="singleChkBox"
+                                                                        style={{ width: '20px', height: '20px' }}
+                                                                    // onChange={() => handleCheckboxChange(data)}
+                                                                    // checked={selectAll || selectedRows.includes(data)}
+                                                                    />
+                                                                </Form.Check>
+                                                            </td>
+                                                            <td>{data.productLineName}</td>
+                                                            <td>{data.productCategoryName}</td>
+                                                            <td>{data.productName}</td>
+                                                        </tr>
+
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                        :
+                                        <h5>No record found</h5>
+                                }
+                            </Row>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" >Add</Button>
+                    </Modal.Footer>
+                </Modal >
+            }
+
             <Card className="h-100 mb-2">
                 <FalconCardHeader
                     title="Crop Purchase Details"
@@ -231,59 +384,38 @@ const AddCropPurchaseDetail = () => {
                                         </td>
 
                                         <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="productCategoryCode"
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.productCategoryCode}
-                                                className="form-control"
-                                                required
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                            >
-                                                <option value=''>Select</option>
-                                                {productCategoryList.map((category) => (
-                                                    <option key={category.productCategoryName} value={category.productCategoryCode}>
-                                                        {category.productCategoryName}
-                                                    </option>
-                                                ))}
-                                            </Form.Select>
+                                            <EnlargableTextbox
+                                                name="product"
+                                                placeholder="Product"
+                                                disabled
+                                            />
                                         </td>
 
                                         <td key={index}>
                                             <Form.Select
                                                 type="text"
                                                 name="productCode"
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.productCode}
                                                 className="form-control"
                                                 required
                                             // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             >
                                                 <option value=''>Select</option>
-                                                {productMasterList[index] && productMasterList[index].map((option, mapIndex) => (
-                                                    <option key={mapIndex} value={option.value}>{option.key}</option>
-                                                ))}
                                             </Form.Select>
                                         </td>
 
                                         <td key={index}>
-                                            <EnlargableTextbox
-                                                name="varietyName"
-                                                // value={materialReceiptDetailData.varietyName}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="Variety"
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="brandName"
-                                                // value={materialReceiptDetailData.brandName}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                placeholder="Brand"
-                                                disabled
-                                            />
+                                            <Form.Select
+                                                type="text"
+                                                name="unitCode"
+                                                className="form-control select"
+                                            // onChange={(e) => handleFieldChange(e, index)}
+                                            // value={materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : ""}
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            >
+                                                <option value=''>Select </option>
+                                                <option value='Organic'>Organic </option>
+                                                <option value='Inorganic'>Inorganic </option>
+                                            </Form.Select>
                                         </td>
 
                                         <td key={index}>
@@ -305,7 +437,7 @@ const AddCropPurchaseDetail = () => {
                                         <td key={index}>
                                             <EnlargableTextbox
                                                 name="quantity"
-                                                placeholder="Quantity"
+                                                placeholder="Pack"
                                                 maxLength={5}
                                                 // onChange={(e) => handleFieldChange(e, index)}
                                                 // value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
@@ -323,22 +455,13 @@ const AddCropPurchaseDetail = () => {
                                             />
                                         </td>
 
-                                        {/* <td key={index}>
+                                        <td key={index}>
                                             <EnlargableTextbox
-                                                name="grade"
-                                                placeholder="Grade"
-                                                maxLength={5}
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.grade ? materialReceiptDetailData.grade : ""}
-                                            />
-                                        </td> */}
-
-                                        {/* <td key={index}>
-                                            <EnlargableTextbox
-                                                name="inOrg"
-                                                placeholder="Organic Inorgani"
-                                                onChange={(e) => handleFieldChange(e, index)}
-                                                value={materialReceiptDetailData.inOrg ? materialReceiptDetailData.inOrg : ""}
+                                                name="cerate"
+                                                placeholder="Cerate"
+                                                maxLength={13}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
                                                 onKeyPress={(e) => {
                                                     const keyCode = e.which || e.keyCode;
                                                     const keyValue = String.fromCharCode(keyCode);
@@ -348,10 +471,10 @@ const AddCropPurchaseDetail = () => {
                                                         e.preventDefault();
                                                     }
                                                 }}
-                                                maxLength={5}
-                                                disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                required
+                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
-                                        </td> */}
+                                        </td>
 
                                         <td key={index}>
                                             <EnlargableTextbox
@@ -372,7 +495,27 @@ const AddCropPurchaseDetail = () => {
                                                 required
                                             // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                             />
-                                        </td>                                        
+                                        </td>
+
+                                        <td key={index}>
+                                            <EnlargableTextbox
+                                                name="wt"
+                                                placeholder="WT"
+                                                maxLength={13}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}
+                                                onKeyPress={(e) => {
+                                                    const keyCode = e.which || e.keyCode;
+                                                    const keyValue = String.fromCharCode(keyCode);
+                                                    const regex = /^[^A-Za-z]+$/;
+
+                                                    if (!regex.test(keyValue)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                                required
+                                            />
+                                        </td>
 
                                         <td key={index}>
                                             <EnlargableTextbox

@@ -4,8 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import Moment from "moment";
-import { Spinner, Modal, Button } from 'react-bootstrap';
-import { object } from 'is_js';
+import { Spinner, Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { distributionCentreListAction, tabInfoAction } from 'actions';
 
 const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
@@ -31,6 +30,7 @@ const CropPurchase = () => {
     const [companyList, setCompanyList] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [modalShow, setModalShow] = useState(false);
+    const [generateReportModal, setGenerateReportModal] = useState(false);
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
@@ -228,6 +228,10 @@ const CropPurchase = () => {
         setModalShow(false);
     }
 
+    const handleButtonClick = () => {
+        setGenerateReportModal(true);
+    }
+
     return (
         <>
             {isLoading ? (
@@ -236,6 +240,51 @@ const CropPurchase = () => {
                     animation="border"
                 />
             ) : null}
+
+            {
+                generateReportModal &&
+                <Modal
+                    show={generateReportModal}
+                    onHide={() => setGenerateReportModal(false)}
+                    size="xl"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Purchase Report</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <Form className="details-form" id="FarmerDetails" >
+                            <Row>
+                                <Col className="me-3 ms-3" md="5">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Form.Label column sm="2">
+                                            Start Date
+                                        </Form.Label>
+                                        <Col sm="8">
+                                            <Form.Control type='date' id="txtStartDate" name="startDate" />
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                                <Col className="me-3 ms-3" md="4">
+                                    <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
+                                        <Form.Label column sm="2">
+                                            End Date
+                                        </Form.Label>
+                                        <Col sm="8">
+                                            <Form.Control type='date' id="txtEndDate" name="endDate" />
+                                        </Col>
+                                    </Form.Group>
+                                </Col>
+                            </Row>
+                        </Form>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" id='btnGenerateReport'>Generate Report</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
 
             <TabPage
                 listData={listData}
@@ -249,6 +298,7 @@ const CropPurchase = () => {
                 tableFilterOptions={companyList}
                 tableFilterName={'Company'}
                 supportingMethod1={handleFieldChange}
+                supportingButtonClick={handleButtonClick}
             />
         </>
     )

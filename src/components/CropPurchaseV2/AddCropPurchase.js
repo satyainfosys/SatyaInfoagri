@@ -136,9 +136,15 @@ const AddCropPurchase = () => {
                                         <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
                                             <thead className='custom-bg-200'>
                                                 <tr>
+                                                    <th>Farmer Code</th>
                                                     <th>Name</th>
                                                     <th>Phone Number</th>
                                                     <th>Father Name</th>
+                                                    <th>Village</th>
+                                                    <th>District</th>
+                                                    <th>State</th>
+                                                    <th>Country</th>
+                                                    <th>Approval Status</th>
                                                     <th>Select</th>
                                                 </tr>
                                             </thead>
@@ -146,9 +152,15 @@ const AddCropPurchase = () => {
                                                 {
                                                     farmerDetailsList.map((data, index) =>
                                                         <tr>
+                                                            <td>{data.farmerCode}</td>
                                                             <td>{data.farmerName}</td>
                                                             <td>{data.farmerPhoneNumber ? data.farmerPhoneNumber : "-"}</td>
                                                             <td>{data.farmerFatherName}</td>
+                                                            <td>{data.village}</td>
+                                                            <td>{data.districtName}</td>
+                                                            <td>{data.stateName}</td>
+                                                            <td>{data.countryName}</td>
+                                                            <td>{data.approvalStatus}</td>
                                                             {/* <td><Button variant="success" onClick={() => onFarmerSelect(data.farmerCode)} >Select</Button></td> */}
                                                             <td><Button variant="success" >Select</Button></td>
                                                         </tr>
@@ -220,21 +232,19 @@ const AddCropPurchase = () => {
                             <Col className="me-3 ms-3" md="7">
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        PO Number
+                                        Card No
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" value={purchaseOrderData.poNo} disabled /> */}
-                                        <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" disabled />
+                                        <Form.Control id="txtCardNo" name="cardNo" placeholder="Card No" maxLength={10} />
                                     </Col>
                                 </Form.Group>
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        PO Amount
+                                        Farmer Code
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} /> */}
-                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" maxLength={15} />
+                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -250,21 +260,30 @@ const AddCropPurchase = () => {
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Farmer Father Name
+                                        Mobile No
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtAddress" name="farmerFatherName" placeholder="Father Name" value={materialReceiptHeaderData.farmerFatherName} disabled /> */}
-                                        <Form.Control id="txtAddress" name="farmerFatherName" placeholder="Father Name" disabled />
+                                        {/* <Form.Control id="txtMaterialReceiptNo" name="farmerPhoneNumber" placeholder="Phone Number" value={materialReceiptHeaderData.farmerPhoneNumber} disabled /> */}
+                                        <Form.Control id="txtMobileNumber" name="farmerPhoneNumber" placeholder="Mobile No" disabled />
                                     </Col>
                                 </Form.Group>
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Phone Number
+                                        Village
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtMaterialReceiptNo" name="farmerPhoneNumber" placeholder="Phone Number" value={materialReceiptHeaderData.farmerPhoneNumber} disabled /> */}
-                                        <Form.Control id="txtMaterialReceiptNo" name="farmerPhoneNumber" placeholder="Phone Number" disabled />
+                                        <Form.Control id="txtVillage" name="farmerVillage" placeholder="Village" disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Father Name
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        {/* <Form.Control id="txtAddress" name="farmerFatherName" placeholder="Father Name" value={materialReceiptHeaderData.farmerFatherName} disabled /> */}
+                                        <Form.Control id="txtFarmerFatherName" name="farmerFatherName" placeholder="Father Name" disabled />
                                     </Col>
                                 </Form.Group>
                             </Col>
@@ -272,7 +291,7 @@ const AddCropPurchase = () => {
                             <Col className="me-3 ms-3" md="4">
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        PO Date
+                                        Purchase Date
                                     </Form.Label>
                                     <Col sm="8">
                                         {/* <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
@@ -285,26 +304,21 @@ const AddCropPurchase = () => {
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        PO Status
+                                        Material Receipt No
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus} > */}
-                                        <Form.Select id="txtStatus" name="poStatus" >
-                                            <option value="Draft">Draft</option>
-                                            <option value="Approved">Approved</option>
-                                            <option value="Rejected">Rejected</option>
-                                            <option value="Hold">Hold</option>
-                                        </Form.Select>
+                                        {/* <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" value={purchaseOrderData.poNo} disabled /> */}
+                                        <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" disabled />
                                     </Col>
                                 </Form.Group>
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Delivery Location
+                                        Total Amount
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} /> */}
-                                        <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" />
+                                        {/* <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} /> */}
+                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" maxLength={15} />
                                     </Col>
                                 </Form.Group>
 
@@ -342,7 +356,22 @@ const AddCropPurchase = () => {
                                     </Col>
                                 </Form.Group>
 
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Status
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        {/* <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus} > */}
+                                        <Form.Select id="txtStatus" name="poStatus" >
+                                            <option value="Draft">Draft</option>
+                                            <option value="Approved">Approved</option>
+                                            <option value="Rejected">Rejected</option>
+                                            <option value="Hold">Hold</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Form.Group>
                             </Col>
+
                         </Row>
                     </Form>
                 </FalconComponentCard.Body>
