@@ -7,7 +7,7 @@ import FalconCardHeader from 'components/common/FalconCardHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Flex from 'components/common/Flex';
 import axios from 'axios';
-import { purchaseOrderProductDetailsAction } from 'actions';
+import { formChangedAction, purchaseOrderProductDetailsAction } from 'actions';
 
 const AddCropPurchaseDetail = () => {
 
@@ -24,6 +24,8 @@ const AddCropPurchaseDetail = () => {
     const [productCategory, setProductCategory] = useState();
     const [product, setProduct] = useState();
     const [searchValue, setSearchValue] = useState();
+    const [selectedRows, setSelectedRows] = useState([]);
+    const [selectAll, setSelectAll] = useState(false);
 
     let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
 
@@ -51,22 +53,26 @@ const AddCropPurchaseDetail = () => {
     ];
 
     useEffect(() => {
-        if (unitList.length <= 0) {
-            getUnitList();
-        }
 
         if (purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.length > 0) {
             setRowData(purchaseOrderProductDetailsData);
+            setSelectedRows([]);
+            getUnitList();
         } else {
             setRowData([]);
+            setSelectedRows([]);
         }
 
-        setTimeout(function () {
-            setProductMasterValue();
-        }, 50)
+        // setTimeout(function () {
+        //     setProductMasterValue();
+        // }, 50)
 
         if (productCategoryList.length <= 0) {
             getProductCategoryList();
+        }
+
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
         }
 
     }, [purchaseOrderProductDetailsData, purchaseOrderProductDetailsReducer])
@@ -117,11 +123,11 @@ const AddCropPurchaseDetail = () => {
         }
     }
 
-    const setProductMasterValue = () => {
-        purchaseOrderProductDetailsData.map((row, index) => {
-            getProductMasterList(row.productCategoryCode, index);
-        })
-    }
+    // const setProductMasterValue = () => {
+    //     purchaseOrderProductDetailsData.map((row, index) => {
+    //         getProductMasterList(row.productCategoryCode, index);
+    //     })
+    // }
 
     const getProductCategoryList = async () => {
         let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
@@ -151,9 +157,14 @@ const AddCropPurchaseDetail = () => {
 
         if (response.data.status == 200) {
             if (response.data && response.data.data.length > 0) {
-                setProductMasterList(response.data.data);
+                response.data.data.forEach(product => {
+                    productData.push({
+                        key: product.productName,
+                        value: product.code
+                    })
+                })
             }
-
+            setProductMasterList(productData);
         } else {
             setProductMasterList([]);
         }
@@ -204,12 +215,59 @@ const AddCropPurchaseDetail = () => {
         setProductModal(false);
         setProductCategory();
         setProduct();
+        setSearchValue();
     }
 
     const handleSearchChange = (e) => {
         setSearchValue(e.target.value)
         getProductLineMasterList(e.target.value)
     }
+
+    const handleCheckboxChange = (rowData) => {
+        if (selectedRows.includes(rowData)) {
+            setSelectedRows(selectedRows.filter(row => row !== rowData));
+        } else {
+            setSelectedRows([...selectedRows, rowData]);
+        }
+    };
+
+    const handleSelectedItem = () => {
+        if (selectAll) {
+            const updatedData = productLineList.map(item => ({
+                ...item,
+                materialStatus: "Not Received"
+            }));
+
+            const updatedRows = [...updatedData, ...purchaseOrderProductDetailsData];
+            dispatch(purchaseOrderProductDetailsAction(updatedRows));
+        } else {
+            const updatedRows = selectedRows.map(item => ({
+                ...item,
+                materialStatus: "Not Received"
+            }));
+
+            const updatedData = [...updatedRows, ...purchaseOrderProductDetailsData];
+            dispatch(purchaseOrderProductDetailsAction(updatedData));
+        }
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            purchaseOrderProductDetailsAdd: true
+        }))
+
+        setSelectAll(false);
+        setProductModal(false);
+        setProductCategory();
+        setProduct();
+        setSearchValue();
+    }
+
+    const handleHeaderCheckboxChange = () => {
+        setSelectAll(!selectAll);
+        if (!selectAll) {
+            setSelectedRows([]);
+        }
+    };
 
     return (
         <>
@@ -271,10 +329,8 @@ const AddCropPurchaseDetail = () => {
                                                 className="form-control"
                                             >
                                                 <option value=''>Select Product</option>
-                                                {productMasterList.map((product) => (
-                                                    <option key={product.productName} value={product.code}>
-                                                        {product.productName}
-                                                    </option>
+                                                {productMasterList.map((option, index) => (
+                                                    <option key={index} value={option.value}>{option.key}</option>
                                                 ))}
                                             </Form.Select>
                                         </Col>
@@ -286,7 +342,17 @@ const AddCropPurchaseDetail = () => {
                                             <thead className='custom-bg-200'>
                                                 <tr>
                                                     <th>S.No</th>
-                                                    <th>Select</th>
+                                                    <th>Select
+                                                        <Form.Check type="checkbox" id="vendorListChkbox" >
+                                                            <Form.Check.Input
+                                                                type="checkbox"
+                                                                name="selectAll"
+                                                                style={{ width: '15px', height: '15px' }}
+                                                                onChange={handleHeaderCheckboxChange}
+                                                                checked={selectAll}
+                                                            />
+                                                        </Form.Check>
+                                                    </th>
                                                     <th>Product Line</th>
                                                     <th>Product Category</th>
                                                     <th>Product</th>
@@ -303,8 +369,8 @@ const AddCropPurchaseDetail = () => {
                                                                         type="checkbox"
                                                                         name="singleChkBox"
                                                                         style={{ width: '20px', height: '20px' }}
-                                                                    // onChange={() => handleCheckboxChange(data)}
-                                                                    // checked={selectAll || selectedRows.includes(data)}
+                                                                        onChange={() => handleCheckboxChange(data)}
+                                                                        checked={selectAll || selectedRows.includes(data)}
                                                                     />
                                                                 </Form.Check>
                                                             </td>
@@ -324,7 +390,7 @@ const AddCropPurchaseDetail = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" >Add</Button>
+                        <Button variant="success" onClick={() => handleSelectedItem()}>Add</Button>
                     </Modal.Footer>
                 </Modal >
             }
@@ -364,9 +430,9 @@ const AddCropPurchaseDetail = () => {
                                 {rowData &&
                                     (<tr>
                                         {columnsArray.map((column, index) => {
-                                            // if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
-                                            //     return null;
-                                            // }
+                                            if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
+                                                return null;
+                                            }
                                             return (
                                                 <th className="text-left" key={index}>
                                                     {column}
@@ -385,8 +451,9 @@ const AddCropPurchaseDetail = () => {
 
                                         <td key={index}>
                                             <EnlargableTextbox
-                                                name="product"
+                                                name="productName"
                                                 placeholder="Product"
+                                                value={poProductDetailData.productName}
                                                 disabled
                                             />
                                         </td>
@@ -406,11 +473,12 @@ const AddCropPurchaseDetail = () => {
                                         <td key={index}>
                                             <Form.Select
                                                 type="text"
-                                                name="unitCode"
+                                                name="cropType"
                                                 className="form-control select"
-                                            // onChange={(e) => handleFieldChange(e, index)}
-                                            // value={materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : ""}
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                                // onChange={(e) => handleFieldChange(e, index)}
+                                                // value={materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : ""}
+                                                // disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                                required
                                             >
                                                 <option value=''>Select </option>
                                                 <option value='Organic'>Organic </option>
@@ -424,8 +492,8 @@ const AddCropPurchaseDetail = () => {
                                                 name="unitCode"
                                                 className="form-control select"
                                             // onChange={(e) => handleFieldChange(e, index)}
-                                            // value={materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : ""}
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
+                                            // value={purchaseOrderData.unitCode ? purchaseOrderData.unitCode : ""}
+                                            // disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
                                             >
                                                 <option value=''>Select </option>
                                                 {unitList.map((option, index) => (

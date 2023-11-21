@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Col, Form, Row, Button, Modal, Table, Card } from 'react-bootstrap';
+import { Col, Form, Row, Button, Modal, Table, Card, Badge } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import Moment from "moment";
 import axios from 'axios';
 import IconButton from 'components/common/IconButton';
 import FalconComponentCard from 'components/common/FalconComponentCard';
+import { formChangedAction, purchaseOrderDetailsAction } from 'actions';
+import { toast } from 'react-toastify';
 
 const AddCropPurchase = () => {
 
@@ -14,16 +16,43 @@ const AddCropPurchase = () => {
     const [farmerDetailsList, setFarmerDetailsList] = useState([]);
     const [collectionCentreList, setCollectionCentreList] = useState([]);
 
-    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
+    const resetPurchaseOrderDetailsData = () => {
+        dispatch(purchaseOrderDetailsAction({
+            "encryptedPoNo": "",
+            "poNo": "",
+            "poDate": "",
+            "poAmount": "",
+            "poStatus": "Draft",
+            "distributionCentreCode": "",
+            "collectionCentreCode": "",
+            "farmerCode": "",
+            "farmerName": "",
+            "farmerFatherName": "",
+            "farmerPhoneNumber": "",
+            "farmerVillage": "",
+            "cardNo": ""
+        }))
+    }
 
     const distributionCentreListReducer = useSelector((state) => state.rootReducer.distributionCentreListReducer)
     const distributionList = distributionCentreListReducer.distributionCentreList
 
+    const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
+    var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
+
+    const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+    var formChangedData = formChangedReducer.formChanged;
+
     useEffect(() => {
-        // if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
-        //     $("#btnSave").attr('disabled', true);
-        // }
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     }, [])
+
+    if (!purchaseOrderDetailsReducer.purchaseOrderDetails ||
+        Object.keys(purchaseOrderDetailsReducer.purchaseOrderDetails).length <= 0) {
+        resetPurchaseOrderDetailsData();
+    }
 
     const onSelectFarmerClick = async () => {
         setFarmerModal(true);
@@ -52,29 +81,30 @@ const AddCropPurchase = () => {
         }
     }
 
-    // const onFarmerSelect = (farmerCode) => {
-    //     const farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode == farmerCode);
-    //     dispatch(materialReceiptHeaderDetailsAction({
-    //         ...materialReceiptHeaderData,
-    //         farmerCode: farmerDetail.farmerCode,
-    //         farmerName: farmerDetail.farmerName,
-    //         farmerFatherName: farmerDetail.farmerFatherName,
-    //         farmerPhoneNumber: farmerDetail.farmerPhoneNumber
-    //     }))
-    //     setFarmerModal(false);
+    const onFarmerSelect = (farmerCode) => {
+        const farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode == farmerCode);
+        dispatch(purchaseOrderDetailsAction({
+            ...purchaseOrderData,
+            farmerCode: farmerDetail.farmerCode,
+            farmerName: farmerDetail.farmerName,
+            farmerFatherName: farmerDetail.farmerFatherName,
+            farmerPhoneNumber: farmerDetail.farmerPhoneNumber,
+            farmerVillage: farmerDetail.village
+        }))
+        setFarmerModal(false);
 
-    //     if (materialReceiptHeaderData.encryptedMaterialReceiptId) {
-    //         dispatch(formChangedAction({
-    //             ...formChangedData,
-    //             materialReceiptHeaderDetailUpdate: true
-    //         }))
-    //     } else {
-    //         dispatch(formChangedAction({
-    //             ...formChangedData,
-    //             materialReceiptHeaderDetailAdd: true
-    //         }))
-    //     }
-    // }
+        if (purchaseOrderData.encryptedPoNo) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseDetailAdd: true
+            }))
+        }
+    }
 
     const getCollectionCentre = async (distributionCentreCode) => {
         const requestData = {
@@ -96,6 +126,86 @@ const AddCropPurchase = () => {
                 })
             }
             setCollectionCentreList(collectionCentreData);
+        }
+    }
+
+    const getFarmerDetail = async (card) => {
+        const requestData = {
+            CardNo: card,
+            EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-detail', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                farmerCode: response.data.data.farmerCode,
+                farmerName: response.data.data.farmerName,
+                farmerFatherName: response.data.data.farmerFatherName,
+                farmerPhoneNumber: response.data.data.farmerPhoneNumber,
+                farmerVillage: response.data.data.village
+            }))
+        }
+        else {
+            if (response.data.status == 205) {
+                toast.error("Provided card number is inactive", {
+                    theme: 'colored'
+                });
+            } else {
+                toast.error(response.data.message, {
+                    theme: 'colored'
+                });
+            }
+
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                farmerCode: "",
+                farmerName: "",
+                farmerFatherName: "",
+                farmerPhoneNumber: "",
+                farmerVillage: ""
+            }))
+        }
+    }
+
+    const handleFieldChange = e => {
+        let oldPoStatus = localStorage.getItem("OldPoStatus");
+
+        if (e.target.name == "distributionCentreCode") {
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                distributionCentreCode: e.target.value,
+                collectionCentreCode: null
+            }))
+            setCollectionCentreList([]);
+            e.target.value && getCollectionCentre(e.target.value)
+        }
+        else {
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                [e.target.name]: e.target.value
+            }))
+        }
+
+        if (e.target.name == "cardNo" && e.target.value) {
+            if (e.target.value.length == 10) {
+                getFarmerDetail(e.target.value);
+            }
+        }
+
+        if (purchaseOrderData.encryptedPoNo) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseDetailUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseDetailAdd: true
+            }))
         }
     }
 
@@ -160,9 +270,48 @@ const AddCropPurchase = () => {
                                                             <td>{data.districtName}</td>
                                                             <td>{data.stateName}</td>
                                                             <td>{data.countryName}</td>
-                                                            <td>{data.approvalStatus}</td>
-                                                            {/* <td><Button variant="success" onClick={() => onFarmerSelect(data.farmerCode)} >Select</Button></td> */}
-                                                            <td><Button variant="success" >Select</Button></td>
+                                                            {
+                                                                data.approvalStatus == "Approved" ?
+                                                                    <td>
+                                                                        <Badge
+                                                                            pill
+                                                                            bg="success"
+                                                                        >
+                                                                            {data.approvalStatus}
+                                                                        </Badge>
+                                                                    </td>
+                                                                    :
+                                                                    data.approvalStatus == "Suspended" ?
+                                                                        <td>
+                                                                            <Badge
+                                                                                pill
+                                                                                bg="danger"
+                                                                            >
+                                                                                {data.approvalStatus}
+                                                                            </Badge>
+                                                                        </td>
+                                                                        :
+                                                                        data.approvalStatus == "Send for Verification" ?
+                                                                            <td>
+                                                                                <Badge
+                                                                                    pill
+                                                                                    bg="warning"
+                                                                                >
+                                                                                    {data.approvalStatus}
+                                                                                </Badge>
+                                                                            </td>
+                                                                            :
+                                                                            <td>
+                                                                                <Badge
+                                                                                    pill
+                                                                                    bg="info"
+                                                                                >
+                                                                                    {data.approvalStatus}
+                                                                                </Badge>
+                                                                            </td>
+
+                                                            }
+                                                            <td><Button variant="success" onClick={() => onFarmerSelect(data.farmerCode)} >Select</Button></td>
                                                         </tr>
                                                     )
                                                 }
@@ -185,7 +334,7 @@ const AddCropPurchase = () => {
                             <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
                         </Col>
                         <Col xs="auto">
-                            {/* {materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
+                            {purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
                                 <IconButton
                                     variant="falcon-default"
                                     size="sm"
@@ -193,7 +342,7 @@ const AddCropPurchase = () => {
                                     iconClassName="me-1"
                                     className="me-1 mb-2 mb-sm-1"
                                     onClick={() => {
-                                        const url = `/crop-purchase-receipt/${materialReceiptHeaderData.encryptedMaterialReceiptId}`;
+                                        const url = `/crop-purchase-receipt/${purchaseOrderData.encryptedPoNo}`;
                                         window.open(url, '_blank');
                                     }}
                                 >
@@ -207,19 +356,9 @@ const AddCropPurchase = () => {
                                     className="me-2 mb-2 mb-sm-1"
                                     onClick={() => onSelectFarmerClick()}
                                 >
-                                    {materialReceiptHeaderData.farmerCode ? "Change Farmer" : "Select Farmer"}
+                                    {purchaseOrderData.farmerCode ? "Change Farmer" : "Select Farmer"}
                                 </IconButton>
-                            } */}
-                            <IconButton
-                                variant="falcon-success"
-                                size="sm"
-                                icon="plus"
-                                className="me-2 mb-2 mb-sm-1"
-                                onClick={() => onSelectFarmerClick()}
-                            >
-                                {/* {materialReceiptHeaderData.farmerCode ? "Change Farmer" : "Select Farmer"} */}
-                                Select Farmer
-                            </IconButton>
+                            }
                         </Col>
                     </Row>
                 </Card.Body>
@@ -235,7 +374,7 @@ const AddCropPurchase = () => {
                                         Card No
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtCardNo" name="cardNo" placeholder="Card No" maxLength={10} />
+                                        <Form.Control id="txtCardNo" name="cardNo" placeholder="Card No" onChange={handleFieldChange} value={purchaseOrderData.cardNo} maxLength={10} />
                                     </Col>
                                 </Form.Group>
 
@@ -244,7 +383,7 @@ const AddCropPurchase = () => {
                                         Farmer Code
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" disabled />
+                                        <Form.Control id="txtFarmerCode" name="farmerCode" placeholder="Farmer Code" value={purchaseOrderData.farmerCode} disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -253,8 +392,7 @@ const AddCropPurchase = () => {
                                         Farmer Name
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtFarmerName" name="farmerName" placeholder="Farmer Name" value={materialReceiptHeaderData.farmerName} disabled /> */}
-                                        <Form.Control id="txtFarmerName" name="farmerName" placeholder="Farmer Name" disabled />
+                                        <Form.Control id="txtFarmerName" name="farmerName" placeholder="Farmer Name" value={purchaseOrderData.farmerName} disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -263,8 +401,7 @@ const AddCropPurchase = () => {
                                         Mobile No
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtMaterialReceiptNo" name="farmerPhoneNumber" placeholder="Phone Number" value={materialReceiptHeaderData.farmerPhoneNumber} disabled /> */}
-                                        <Form.Control id="txtMobileNumber" name="farmerPhoneNumber" placeholder="Mobile No" disabled />
+                                        <Form.Control id="txtMobileNumber" name="farmerPhoneNumber" value={purchaseOrderData.farmerPhoneNumber} placeholder="Mobile No" disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -273,7 +410,7 @@ const AddCropPurchase = () => {
                                         Village
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtVillage" name="farmerVillage" placeholder="Village" disabled />
+                                        <Form.Control id="txtVillage" name="farmerVillage" placeholder="Village" value={purchaseOrderData.farmerVillage} disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -282,8 +419,7 @@ const AddCropPurchase = () => {
                                         Father Name
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtAddress" name="farmerFatherName" placeholder="Father Name" value={materialReceiptHeaderData.farmerFatherName} disabled /> */}
-                                        <Form.Control id="txtFarmerFatherName" name="farmerFatherName" placeholder="Father Name" disabled />
+                                        <Form.Control id="txtFarmerFatherName" name="farmerFatherName" placeholder="Father Name" value={purchaseOrderData.farmerFatherName} disabled />
                                     </Col>
                                 </Form.Group>
                             </Col>
@@ -294,11 +430,11 @@ const AddCropPurchase = () => {
                                         Purchase Date
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
-                                        {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
+                                        <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
+                                        {/* {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
                                             return <span className="error-message">{purchaseOrderErr.poDateErr[key]}</span>
                                         })} */}
-                                        <Form.Control type='date' id="txtPODate" name="poDate" />
+                                        {/* <Form.Control type='date' id="txtPODate" name="poDate" /> */}
                                     </Col>
                                 </Form.Group>
 
@@ -307,8 +443,7 @@ const AddCropPurchase = () => {
                                         Material Receipt No
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" value={purchaseOrderData.poNo} disabled /> */}
-                                        <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" disabled />
+                                        <Form.Control id="txtPONumber" name="poNo" placeholder="PO Number" value={purchaseOrderData.poNo} disabled />
                                     </Col>
                                 </Form.Group>
 
@@ -317,8 +452,7 @@ const AddCropPurchase = () => {
                                         Total Amount
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} /> */}
-                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" maxLength={15} />
+                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
                                     </Col>
                                 </Form.Group>
 
@@ -327,8 +461,7 @@ const AddCropPurchase = () => {
                                         DC Name
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} > */}
-                                        <Form.Select id="txtDistributionCentre" name="distributionCentreCode" >
+                                        <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} >
                                             <option value=''>Select Distribution</option>
                                             {distributionList &&
                                                 distributionList.map((option, index) => (
@@ -344,8 +477,7 @@ const AddCropPurchase = () => {
                                         Collection Centre
                                     </Form.Label>
                                     <Col sm={8}>
-                                        {/* <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}> */}
-                                        <Form.Select id="txtCollectionCentre" name="collectionCentreCode">
+                                        <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}>
                                             <option value=''>Select Collection Centre</option>
                                             {collectionCentreList &&
                                                 collectionCentreList.map((option, index) => (
@@ -361,8 +493,7 @@ const AddCropPurchase = () => {
                                         Status
                                     </Form.Label>
                                     <Col sm="8">
-                                        {/* <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus} > */}
-                                        <Form.Select id="txtStatus" name="poStatus" >
+                                        <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus} >
                                             <option value="Draft">Draft</option>
                                             <option value="Approved">Approved</option>
                                             <option value="Rejected">Rejected</option>
