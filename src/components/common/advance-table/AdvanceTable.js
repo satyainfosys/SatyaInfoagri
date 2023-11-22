@@ -121,12 +121,19 @@ const AdvanceTable = ({
       localStorage.setItem('EncryptedPoNo', rowData.encryptedPoNo);
       localStorage.setItem('OldPoStatus', rowData.poStatus)
       dispatch(purchaseOrderDetailsAction(rowData));
-      $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
-      $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
       $('#btnSave').attr('disabled', true);
       dispatch(tabInfoAction({
         title1: `${localStorage.getItem("CompanyName")}`
       }))
+
+      if (rowData.farmerCode) {
+        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add Crop Purchase"]').trigger('click');
+      }
+      else if (rowData.vendorCode) {
+        $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add PO"]').trigger('click');
+      }
     }
     else if (rowData.hasOwnProperty('encryptedMaterialReceiptId')) {
       localStorage.setItem("EncryptedMaterialReceiptId", rowData.encryptedMaterialReceiptId);
@@ -324,8 +331,8 @@ const AdvanceTable = ({
                         {...cell.getCellProps(cell.column.cellProps)}
                       >
                         {
-                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'print' && 
-                          cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' ?
+                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -390,30 +397,62 @@ const AdvanceTable = ({
                                               {cell.render('Cell')}
                                             </Badge>
                                             :
-                                            cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
-                                              <IconButton
-                                                variant="falcon-default"
-                                                size="sm"
-                                                icon="print"
-                                                iconClassName="me-1"
-                                                className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                            cell.column.id == "poStatus" && cell.row.values.poStatus == "Approved" ?
+                                              <Badge
+                                                pill
+                                                bg="success"
                                               >
-                                                Print
-                                              </IconButton>
+                                                {cell.render('Cell')}
+                                              </Badge>
                                               :
-                                              cell.column.id == "print" && cell.row.values.poStatus == "Approved" ?
-                                                <IconButton
-                                                  variant="falcon-default"
-                                                  size="sm"
-                                                  icon="print"
-                                                  iconClassName="me-1"
-                                                  className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                  onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
+                                              cell.column.id == "poStatus" && cell.row.values.poStatus == "Draft" ?
+                                                <Badge
+                                                  pill
+                                                  bg="info"
                                                 >
-                                                  Print
-                                                </IconButton>
-                                                : ''
+                                                  {cell.render('Cell')}
+                                                </Badge>
+                                                :
+                                                cell.column.id == "poStatus" && cell.row.values.poStatus == "Rejected" ?
+                                                  <Badge
+                                                    pill
+                                                    bg="danger"
+                                                  >
+                                                    {cell.render('Cell')}
+                                                  </Badge>
+                                                  :
+                                                  cell.column.id == "poStatus" && cell.row.values.poStatus == "Hold" ?
+                                                    <Badge
+                                                      pill
+                                                      bg="warning"
+                                                    >
+                                                      {cell.render('Cell')}
+                                                    </Badge>
+                                                    :
+                                                    cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
+                                                      <IconButton
+                                                        variant="falcon-default"
+                                                        size="sm"
+                                                        icon="print"
+                                                        iconClassName="me-1"
+                                                        className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                        onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                                      >
+                                                        Print
+                                                      </IconButton>
+                                                      :
+                                                      cell.column.id == "poPrintStatus" && cell.row.values.poPrintStatus == "Approved" ?
+                                                        <IconButton
+                                                          variant="falcon-default"
+                                                          size="sm"
+                                                          icon="print"
+                                                          iconClassName="me-1"
+                                                          className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                          onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
+                                                        >
+                                                          Print
+                                                        </IconButton>
+                                                        : ''
                         }
                       </td>
                     </>

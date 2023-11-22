@@ -16,9 +16,9 @@ const listColumnArray = [
     { accessor: 'poAmount', Header: 'PO Amount' },
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Farmer Father Name' },
-    { accessor: 'farmerPhoneNumber', Header: 'Farmer Phone Name' },
+    { accessor: 'farmerPhoneNumber', Header: 'Farmer Phone Number' },
     { accessor: 'poStatus', Header: 'PO Status' },
-    { accessor: 'print', Header: 'Print' }
+    { accessor: 'poPrintStatus', Header: 'Print' }
 ]
 
 const CropPurchase = () => {
@@ -79,7 +79,7 @@ const CropPurchase = () => {
             }
             setCompanyList(companyData)
             if (companyResponse.data.data.length == 1) {
-                // fetchPurchaseOrderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                fetchPurchaseOrderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 fetchDistributionCentreList(e.target.value);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
@@ -94,33 +94,34 @@ const CropPurchase = () => {
         const selectedOption = e.target.options[e.target.selectedIndex];
         const selectedKey = selectedOption.dataset.key || selectedOption.label;
         localStorage.setItem("CompanyName", selectedKey)
-        // fetchPurchaseOrderList(1, perPage, e.target.value);
+        fetchPurchaseOrderList(1, perPage, e.target.value);
         fetchDistributionCentreList(e.target.value);
     }
 
-    // const fetchPurchaseOrderList = async (page, size = perPage, encryptedCompanyCode) => {
+    const fetchPurchaseOrderList = async (page, size = perPage, encryptedCompanyCode) => {
 
-    //     let token = localStorage.getItem('Token');
+        let token = localStorage.getItem('Token');
 
-    //     const listFilter = {
-    //         pageNumber: page,
-    //         pageSize: size,
-    //         EncryptedCompanyCode: encryptedCompanyCode
-    //     }
+        const listFilter = {
+            pageNumber: page,
+            pageSize: size,
+            EncryptedCompanyCode: encryptedCompanyCode,
+            isCropPurchase: true
+        }
 
-    //     setIsLoading(true);
-    //     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-header-list', listFilter, {
-    //         headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
-    //     })
+        setIsLoading(true);
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-header-list', listFilter, {
+            headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+        })
 
-    //     if (response.data.status == 200) {
-    //         setIsLoading(false);
-    //         setListData(response.data.data);
-    //     } else {
-    //         setIsLoading(false);
-    //         setListData([])
-    //     }
-    // }
+        if (response.data.status == 200) {
+            setIsLoading(false);
+            setListData(response.data.data);
+        } else {
+            setIsLoading(false);
+            setListData([])
+        }
+    }
 
     const fetchDistributionCentreList = async (encryptedCompanyCode) => {
         const request = {
