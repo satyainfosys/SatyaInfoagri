@@ -126,25 +126,7 @@ const Invoice = () => {
                 setTaxableValue(taxableAmount);
 
                 setTotalAmount(total);
-
-                // setSubTotal(response.data.data.reduce((acc, item) => acc + parseFloat(item.poAmt), 0) - response.data.data.reduce((acc, item) => {
-                //     const taxAmount = parseFloat(item.taxAmount);
-                //     if (!isNaN(taxAmount)) {
-                //         return acc + taxAmount;
-                //     }
-                //     return acc;
-                // }, 0));
-
-                // setTaxableValue(
-                //     response.data.data.reduce((acc, item) => {
-                //         const taxAmount = parseFloat(item.taxAmount);
-                //         if (!isNaN(taxAmount)) {
-                //             return acc + taxAmount;
-                //         }
-                //         return acc;
-                //     }, 0)
-                // );
-
+            
                 setTotalAmount(response.data.data.reduce((acc, item) => acc + parseFloat(item.poAmt), 0));
             }
         } else {

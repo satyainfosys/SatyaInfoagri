@@ -67,7 +67,7 @@ const Layout = () => {
 
         <Route path="/spinners" element={<Spinners />} />
 
-        <Route path="/crop-purchase-receipt/:id" element={<Invoice />} />
+        <Route path="/crop-purchase-receipt/:poNo" element={<Invoice />} />
         <Route path="/material-receipt/:id" element={<Invoice />} />
         <Route path="/purchase-order-receipt/:poNo" element={<Invoice />} />
 
