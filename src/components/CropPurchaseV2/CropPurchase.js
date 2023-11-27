@@ -5,7 +5,7 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Moment from "moment";
 import { Spinner, Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { distributionCentreListAction, tabInfoAction } from 'actions';
+import { distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, tabInfoAction } from 'actions';
 
 const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
 
@@ -31,16 +31,15 @@ const CropPurchase = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [modalShow, setModalShow] = useState(false);
     const [generateReportModal, setGenerateReportModal] = useState(false);
+    const [formHasError, setFormError] = useState(false);
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
-        // localStorage.removeItem("EncryptedMaterialReceiptId");
         getCompany();
-        // localStorage.removeItem("EncryptedPoNo");
-        // localStorage.removeItem("EncryptedCompanyCode");
-        // if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
-        //     $("#btnSave").attr('disabled', true);
-        // }
+        localStorage.removeItem("EncryptedPoNo");
+        if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     }, [])
 
     const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
@@ -48,9 +47,6 @@ const CropPurchase = () => {
 
     let purchaseOrderProductDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderProductDetailsReducer)
     let purchaseOrderProductDetailsList = purchaseOrderProductDetailsReducer.purchaseOrderProductDetails;
-
-    let purchaseOrderTermDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderTermDetailsReducer)
-    let purchaseOrderTermList = purchaseOrderTermDetailsReducer.purchaseOrderTermDetails;
 
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
@@ -147,35 +143,34 @@ const CropPurchase = () => {
     }
 
     $('[data-rr-ui-event-key*="Crop Purchase List"]').off('click').on('click', function () {
-        // let isDiscard = $('#btnDiscard').attr('isDiscard');
-        // if (isDiscard != 'true' && isFormChanged) {
-        //     setModalShow(true);
-        //     setTimeout(function () {
-        //         $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
-        //     }, 50);
-        // } else {
-        //     $("#btnNew").show();
-        //     $("#btnSave").hide();
-        //     $("#btnCancel").hide();
-        //     $('[data-rr-ui-event-key*="Add PO"]').attr('disabled', true);
-        //     $('[data-rr-ui-event-key*="Add Term"]').attr('disabled', true);
-        //     clearPurchaseOrderReducers();
-        //     dispatch(purchaseOrderDetailsAction(undefined));
-        //     dispatch(vendorProductCatalogueDetailsAction([]));
-        //     localStorage.removeItem("EncryptedPoNo");
-        //     localStorage.removeItem("OldPoStatus");
-        // }
-        $("#btnNew").show();
-        $("#btnSave").hide();
-        $("#btnCancel").hide();
-        $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+        let isDiscard = $('#btnDiscard').attr('isDiscard');
+        if (isDiscard != 'true' && isFormChanged) {
+            setModalShow(true);
+            setTimeout(function () {
+                $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+            }, 50);
+        } else {
+            $("#btnNew").show();
+            $("#btnSave").hide();
+            $("#btnCancel").hide();
+            $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
+            clearCropPurchaseOrderReducers();
+            dispatch(purchaseOrderDetailsAction(undefined));
+            localStorage.removeItem("EncryptedPoNo");
+            localStorage.removeItem("OldPoStatus");
+        }
     })
 
     $('[data-rr-ui-event-key*="Add Crop Purchase"]').off('click').on('click', function () {
-        setActiveTabName("Add PO")
+        setActiveTabName("Add Crop Purchase")
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+
+        if (purchaseOrderProductDetailsList.length <= 0 &&
+            !(localStorage.getItem("DeleteCropPurchaseIds"))) {
+            getPurchaseOrderProductDetailsList()
+        }
     })
 
     const newDetails = () => {
@@ -184,6 +179,7 @@ const CropPurchase = () => {
             $('[data-rr-ui-event-key*="Add Crop Purchase"]').trigger('click');
             $('#btnSave').attr('disabled', false);
             dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+            dispatch(purchaseOrderDetailsAction(undefined));
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -231,6 +227,407 @@ const CropPurchase = () => {
 
     const handleButtonClick = () => {
         setGenerateReportModal(true);
+    }
+
+    const getPurchaseOrderProductDetailsList = async () => {
+        const request = {
+            EncryptedPoNo: localStorage.getItem("EncryptedPoNo")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-po-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(purchaseOrderProductDetailsAction(response.data.data));
+            }
+        }
+    }
+
+    const clearCropPurchaseOrderReducers = () => {
+        dispatch(formChangedAction(undefined));
+        dispatch(purchaseOrderProductDetailsAction([]));
+        dispatch(purchaseOrderDetailsErrAction(undefined));
+        localStorage.removeItem("DeleteCropPurchaseIds");
+    }
+
+    const cropPurchaseValidation = () => {
+        setModalShow(false);
+
+        const poDateErr = {};
+        const poProductDetailsErr = {};
+
+        let isValid = true;
+
+        if (!purchaseOrderData.farmerCode) {
+            toast.error("Select Farmer", {
+                theme: 'colored'
+            });
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (!purchaseOrderData.poDate) {
+            poDateErr.empty = "Select PO date";
+            isValid = false;
+            setFormError(true);
+        }
+
+        if (purchaseOrderProductDetailsList.length < 1) {
+            poProductDetailsErr.poProductDetailEmpty = "At least one crop purchase detail is required";
+            setTimeout(() => {
+                toast.error(poProductDetailsErr.poProductDetailEmpty, {
+                    theme: 'colored'
+                });
+            }, 1000);
+            isValid = false;
+        }
+        else if (purchaseOrderProductDetailsList && purchaseOrderProductDetailsList.length > 0) {
+            purchaseOrderProductDetailsList.forEach((row, index) => {
+                if (!row.unitCode || !row.quantity || !row.poRate || !row.poAmt || !row.gradeCode || !row.cropType || !row.pack || !row.carate) {
+                    poProductDetailsErr.invalidPoProductDetail = "Fill the required fields in crop purchase detail";
+                    isValid = false;
+                    setFormError(true);
+                }
+            })
+        }
+
+        if (!isValid) {
+            var errorObject = {
+                poDateErr,
+                poProductDetailsErr
+            }
+
+            dispatch(purchaseOrderDetailsErrAction(errorObject))
+        }
+
+        return isValid;
+    }
+
+    const updateCropPurchaseCallback = (isAddCropPurchaseOrder = false) => {
+        setModalShow(false);
+
+        if (!isAddCropPurchaseOrder) {
+            toast.success("Crop purchase details updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearCropPurchaseOrderReducers();
+
+        fetchPurchaseOrderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+    const addCropPurchaseDetails = () => {
+        if (cropPurchaseValidation()) {
+            const requestData = {
+                encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+                collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+                farmerCode: purchaseOrderData.farmerCode,
+                poDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+                poAmount: parseFloat(purchaseOrderData.poAmount),
+                poStatus: purchaseOrderData.poStatus ? purchaseOrderData.poStatus : "Draft",
+                activeStatus: "A",
+                purchaseOrderProductDetails: purchaseOrderProductDetailsList,
+                addUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['addUser']
+            for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+                requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+            }
+
+            setIsLoading(true);
+            axios.post(process.env.REACT_APP_API_URL + '/add-po-header-detail', requestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                    if (res.data.status == 200) {
+                        setIsLoading(false)
+                        setTimeout(function () {
+                            dispatch(purchaseOrderDetailsAction({
+                                ...purchaseOrderData,
+                                encryptedPoNo: res.data.data.encryptedPoNo,
+                                poNo: res.data.data.poNo
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedPoNo", res.data.data.encryptedPoNo);
+                        localStorage.setItem("OldPoStatus", requestData.poStatus);
+                        if (purchaseOrderData.poStatus == "Approved") {
+                            $('#btnSave').attr('disabled', true);
+                            createdInventoryDetail(true);
+                        } else {
+                            updateCropPurchaseCallback(true);
+                        }
+                        toast.success("Crop purchase details added successfully!", {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                    } else {
+                        setIsLoading(false)
+                        toast.error(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                    }
+                })
+        }
+    }
+
+    const updateCropPurchaseDetails = async () => {
+        if (cropPurchaseValidation()) {
+            if (!formChangedData.cropPurchaseDetailUpdate &&
+                !(formChangedData.cropPurchaseProductDetailsAdd || formChangedData.cropPurchaseProductDetailsUpdate || formChangedData.cropPurchaseProductDetailsDelete)) {
+                return;
+            }
+
+            const updateRequestData = {
+                encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                poDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+                poAmount: parseFloat(purchaseOrderData.poAmount),
+                poStatus: purchaseOrderData.poStatus ? purchaseOrderData.poStatus : "Draft",
+                distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+                collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+                farmerCode: purchaseOrderData.farmerCode,
+                modifyUser: localStorage.getItem("LoginUserName")
+            }
+
+            const keys = ['modifyUser']
+            for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+                updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+            }
+
+            var hasError = false;
+
+            if (formChangedData.cropPurchaseDetailUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-po-header-detail', updateRequestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status !== 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        } else {
+                            localStorage.setItem("OldPoStatus", updateRequestData.poStatus)
+                        }
+                    })
+            }
+
+            var deleteCropPurchaseDetailIds = localStorage.getItem("DeleteCropPurchaseIds");
+            var cropPurchaseProductDetailsIndex = 1;
+
+            //CropPurchaseProductDetail ADD, UPDATE, DELETE
+
+            if (!hasError && (formChangedData.cropPurchaseProductDetailsAdd || formChangedData.cropPurchaseProductDetailsUpdate || formChangedData.cropPurchaseProductDetailsDelete)) {
+                if (!hasError && formChangedData.cropPurchaseProductDetailsDelete) {
+                    var deleteCropPurchaseProductDetailList = deleteCropPurchaseDetailIds ? deleteCropPurchaseDetailIds.split(',') : null;
+                    if (deleteCropPurchaseProductDetailList) {
+                        var deleteCropPurchaseDetailIndex = 1;
+
+                        for (let i = 0; i < deleteCropPurchaseProductDetailList.length; i++) {
+                            const deleteId = deleteCropPurchaseProductDetailList[i];
+                            const data = { encryptedPoDetailId: deleteId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-po-detail', { headers, data });
+                            if (deleteResponse.data.status != 200) {
+                                toast.error(deleteResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                            deleteCropPurchaseDetailIndex++
+                        }
+                    }
+                }
+
+                for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
+                    const cropPurchaseProductDetailData = purchaseOrderProductDetailsList[i]
+
+                    const keys = ["modifyUser"];
+                    for (const key of Object.keys(cropPurchaseProductDetailData).filter((key) => keys.includes(key))) {
+                        cropPurchaseProductDetailData[key] = cropPurchaseProductDetailData[key] ? cropPurchaseProductDetailData[key].toUpperCase() : "";
+                    }
+
+                    if (!hasError && formChangedData.cropPurchaseProductDetailsUpdate && cropPurchaseProductDetailData.encryptedPoDetailId) {
+                        const requestData = {
+                            encryptedPoDetailId: cropPurchaseProductDetailData.encryptedPoDetailId,
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            productLineCode: cropPurchaseProductDetailData.productLineCode,
+                            productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
+                            productCode: cropPurchaseProductDetailData.productCode,
+                            quantity: parseFloat(cropPurchaseProductDetailData.quantity),
+                            unitCode: parseInt(cropPurchaseProductDetailData.unitCode),
+                            poRate: parseFloat(cropPurchaseProductDetailData.poRate),
+                            poAmt: parseFloat(cropPurchaseProductDetailData.poAmt),
+                            cropType: cropPurchaseProductDetailData.cropType && cropPurchaseProductDetailData.cropType == "Organic" ? "O" : "I",
+                            gradeCode: cropPurchaseProductDetailData.gradeCode,
+                            pack: parseInt(cropPurchaseProductDetailData.pack),
+                            carate: parseFloat(cropPurchaseProductDetailData.carate),
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-po-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateResponse.data.status != 200) {
+                            toast.error(updateResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.cropPurchaseProductDetailsAdd && !cropPurchaseProductDetailData.encryptedPoDetailId) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                            encryptedPoNo: localStorage.getItem("EncryptedPoNo"),
+                            productLineCode: cropPurchaseProductDetailData.productLineCode,
+                            productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
+                            productCode: cropPurchaseProductDetailData.productCode,
+                            quantity: cropPurchaseProductDetailData.quantity,
+                            unitCode: cropPurchaseProductDetailData.unitCode,
+                            poRate: cropPurchaseProductDetailData.poRate,
+                            poAmt: cropPurchaseProductDetailData.poAmt,
+                            cropType: cropPurchaseProductDetailData.cropType,
+                            gradeCode: cropPurchaseProductDetailData.gradeCode,
+                            pack: cropPurchaseProductDetailData.pack.toString(),
+                            carate: cropPurchaseProductDetailData.carate.toString(),
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-po-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addResponse.data.status != 200) {
+                            toast.error(addResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                        else {
+                            const updatedPurchaseOrderProductDetailsList = [...purchaseOrderProductDetailsList]
+                            updatedPurchaseOrderProductDetailsList[i] = {
+                                ...updatedPurchaseOrderProductDetailsList[i],
+                                encryptedPoDetailId: addResponse.data.data.encryptedPoDetailId
+                            };
+
+                            dispatch(purchaseOrderProductDetailsAction(updatedPurchaseOrderProductDetailsList))
+                        }
+                    }
+
+                    cropPurchaseProductDetailsIndex++;
+                }
+            }
+
+            if (!hasError) {
+                if (purchaseOrderData.poStatus == "Approved") {
+                    createdInventoryDetail(false);
+                } else {
+                    clearCropPurchaseOrderReducers();
+                    updateCropPurchaseCallback();
+                }
+            }
+        }
+    }
+
+    const createdInventoryDetail = async (isAdd) => {
+        var hasInventoryError = false;
+
+        var inventoryDetailIndex = 1;
+
+
+        for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
+            const inventoryDetailData = purchaseOrderProductDetailsList[i];
+            if (!hasInventoryError) {
+
+                const headerRequest = {
+                    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                    distributionCentreCode: inventoryDetailData.distributionCentreCode ? inventoryDetailData.distributionCentreCode : "",
+                    productLineCode: inventoryDetailData.productLineCode,
+                    productCategoryCode: inventoryDetailData.productCategoryCode,
+                    productCode: inventoryDetailData.productCode,
+                    quantity: inventoryDetailData.quantity,
+                    amount: inventoryDetailData.poAmt,
+                    unitCode: inventoryDetailData.unitCode,
+                    addUser: localStorage.getItem("LoginUserName")
+                }
+                setIsLoading(true);
+                const addHeaderResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-inventory-header-detail', headerRequest, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                });
+                setIsLoading(true);
+                if (addHeaderResponse.data.status != 200) {
+                    toast.error(addHeaderResponse.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                    hasInventoryError = true;
+                    break;
+                }
+
+                const detailRequest = {
+                    encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                    encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                    distributionCentreCode: inventoryDetailData.distributionCentreCode ? inventoryDetailData.distributionCentreCode : "",
+                    productLineCode: inventoryDetailData.productLineCode,
+                    productCategoryCode: inventoryDetailData.productCategoryCode,
+                    productCode: inventoryDetailData.productCode,
+                    grade: inventoryDetailData.gradeCode,
+                    quantity: inventoryDetailData.quantity,
+                    rate: inventoryDetailData.poRate,
+                    amount: inventoryDetailData.poAmt,
+                    unitCode: inventoryDetailData.unitCode,
+                    availableQuantity: inventoryDetailData.quantity,
+                    orgIng: inventoryDetailData.cropType,
+                    receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+                    addUser: localStorage.getItem("LoginUserName")
+                }
+                setIsLoading(true);
+                const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-inventory-detail', detailRequest, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                });
+                setIsLoading(true);
+                if (addDetailResponse.data.status != 200) {
+                    toast.error(addDetailResponse.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                    hasInventoryError = true;
+                    break;
+                }
+
+            }
+            inventoryDetailIndex++;
+
+        }
+
+        if (!hasInventoryError) {
+            updateCropPurchaseCallback(isAdd);
+        }
     }
 
     return (
@@ -287,12 +684,35 @@ const CropPurchase = () => {
                 </Modal>
             }
 
+            {
+                modalShow &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h5>Do you want to save changes?</h5>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={purchaseOrderData.encryptedPoNo ? updateCropPurchaseDetails : addCropPurchaseDetails}>Save</Button>
+                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
+
             <TabPage
                 listData={listData}
                 listColumnArray={listColumnArray}
                 tabArray={tabArray}
                 module="CropPurchase"
-                // saveDetails={materialReceiptHeaderData.encryptedMaterialReceiptId ? updateCropPurchaseDetails : addCropPurchaseDetails}
+                saveDetails={purchaseOrderData.encryptedPoNo ? updateCropPurchaseDetails : addCropPurchaseDetails}
                 newDetails={newDetails}
                 cancelClick={cancelClick}
                 exitModule={exitModule}

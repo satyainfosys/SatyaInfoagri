@@ -15,6 +15,7 @@ const AddCropPurchase = () => {
     const [farmerModal, setFarmerModal] = useState(false);
     const [farmerDetailsList, setFarmerDetailsList] = useState([]);
     const [collectionCentreList, setCollectionCentreList] = useState([]);
+    let oldPoStatus = localStorage.getItem("OldPoStatus");
 
     const resetPurchaseOrderDetailsData = () => {
         dispatch(purchaseOrderDetailsAction({
@@ -175,7 +176,6 @@ const AddCropPurchase = () => {
     }
 
     const handleFieldChange = e => {
-        let oldPoStatus = localStorage.getItem("OldPoStatus");
 
         if (e.target.name == "distributionCentreCode") {
             dispatch(purchaseOrderDetailsAction({
@@ -216,17 +216,13 @@ const AddCropPurchase = () => {
         }
 
         if (e.target.name == "poStatus") {
-            if (purchaseOrderData.encryptedPoNo && (oldPoStatus != "Approved" && e.target.value == "Approved")) {
-                $("#btnSave").attr('disabled', false);
-            }
-
-            if (purchaseOrderData.encryptedPoNo && (oldPoStatus == "Approved" && e.target.value != "Approved")) {
-                $("#btnSave").attr('disabled', false);
-            }
-
             if (purchaseOrderData.encryptedPoNo && (oldPoStatus === "Approved" && e.target.value === "Approved")) {
                 $("#btnSave").attr('disabled', true);
-                dispatch(formChangedAction(undefined));
+                dispatch(formChangedAction({
+                    ...formChangedData,
+                    cropPurchaseDetailUpdate: true,
+                    cropPurchaseProductDetailsUpdate: true
+                }))
             }
         }
     }
@@ -518,7 +514,10 @@ const AddCropPurchase = () => {
                                         Status
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus} >
+                                        <Form.Select id="txtStatus" name="poStatus"
+                                            onChange={handleFieldChange} value={purchaseOrderData.poStatus}
+                                            disabled={purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved"}
+                                        >
                                             <option value="Draft">Draft</option>
                                             <option value="Approved">Approved</option>
                                             <option value="Rejected">Rejected</option>

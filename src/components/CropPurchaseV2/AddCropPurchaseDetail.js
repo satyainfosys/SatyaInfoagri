@@ -7,7 +7,7 @@ import FalconCardHeader from 'components/common/FalconCardHeader';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Flex from 'components/common/Flex';
 import axios from 'axios';
-import { formChangedAction, purchaseOrderProductDetailsAction } from 'actions';
+import { formChangedAction, purchaseOrderDetailsAction, purchaseOrderProductDetailsAction } from 'actions';
 
 const AddCropPurchaseDetail = () => {
 
@@ -26,8 +26,8 @@ const AddCropPurchaseDetail = () => {
     const [searchValue, setSearchValue] = useState();
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
-
-    let oldMaterialStatus = localStorage.getItem("OldMaterialStatus");
+    const [gradeList, setGradeList] = useState([]);
+    let oldPoStatus = localStorage.getItem("OldPoStatus");
 
     const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
     var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
@@ -38,16 +38,19 @@ const AddCropPurchaseDetail = () => {
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
 
+    const purchaseOrderDetailsErrorReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsErrorReducer)
+    const purchaseOrderErr = purchaseOrderDetailsErrorReducer.purchaseOrderDetailsError;
+
     const columnsArray = [
         'S.No',
-        'Item Name',
+        'Product Name',
         'Grade',
         'I/O',
         'Unit',
         'Pack',
-        'Cerate',
+        'Carate',
+        'Qty',
         'Rate',
-        'Wt',
         'Final Amt',
         'Action',
     ];
@@ -57,15 +60,30 @@ const AddCropPurchaseDetail = () => {
         if (purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.length > 0) {
             setRowData(purchaseOrderProductDetailsData);
             setSelectedRows([]);
-            getUnitList();
+            if (unitList.length <= 0) {
+                getUnitList("W");
+            }
+            if (gradeList.length <= 0) {
+                getGradeList();
+            }
         } else {
             setRowData([]);
             setSelectedRows([]);
         }
 
-        // setTimeout(function () {
-        //     setProductMasterValue();
-        // }, 50)
+        const totalPoAmount = purchaseOrderProductDetailsData.length > 1
+            ? purchaseOrderProductDetailsData.reduce((acc, obj) => {
+                const poAmount = obj.poAmt !== "" ? parseFloat(obj.poAmt) : 0;
+                return acc + (isNaN(poAmount) ? 0 : poAmount);
+            }, 0)
+            : purchaseOrderProductDetailsData.length === 1
+                ? parseFloat(purchaseOrderProductDetailsData[0].poAmt)
+                : 0;
+
+        dispatch(purchaseOrderDetailsAction({
+            ...purchaseOrderData,
+            poAmount: isNaN(totalPoAmount) ? 0 : totalPoAmount
+        }))
 
         if (productCategoryList.length <= 0) {
             getProductCategoryList();
@@ -122,12 +140,6 @@ const AddCropPurchaseDetail = () => {
             setUnitList([]);
         }
     }
-
-    // const setProductMasterValue = () => {
-    //     purchaseOrderProductDetailsData.map((row, index) => {
-    //         getProductMasterList(row.productCategoryCode, index);
-    //     })
-    // }
 
     const getProductCategoryList = async () => {
         let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
@@ -235,7 +247,9 @@ const AddCropPurchaseDetail = () => {
         if (selectAll) {
             const updatedData = productLineList.map(item => ({
                 ...item,
-                materialStatus: "Not Received"
+                materialStatus: "Not Received",
+                cropType: "Inorganic",
+                carate: "1"
             }));
 
             const updatedRows = [...updatedData, ...purchaseOrderProductDetailsData];
@@ -243,7 +257,9 @@ const AddCropPurchaseDetail = () => {
         } else {
             const updatedRows = selectedRows.map(item => ({
                 ...item,
-                materialStatus: "Not Received"
+                materialStatus: "Not Received",
+                cropType: "Inorganic",
+                carate: "1"
             }));
 
             const updatedData = [...updatedRows, ...purchaseOrderProductDetailsData];
@@ -252,7 +268,7 @@ const AddCropPurchaseDetail = () => {
 
         dispatch(formChangedAction({
             ...formChangedData,
-            purchaseOrderProductDetailsAdd: true
+            cropPurchaseProductDetailsAdd: true
         }))
 
         setSelectAll(false);
@@ -269,8 +285,141 @@ const AddCropPurchaseDetail = () => {
         }
     };
 
+    const handleFieldChange = (e, index) => {
+        const { name, value } = e.target;
+        var purchaseOrderProductDetail = [...rowData];
+        purchaseOrderProductDetail[index] = {
+            ...purchaseOrderProductDetail[index],
+            [name]: value
+        };
+
+        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+
+        if (e.target.name == "quantity") {
+            if (purchaseOrderProductDetail[index].poRate) {
+                const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate);
+                purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
+                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+            }
+        }
+
+        if (e.target.name == "poRate") {
+            if (purchaseOrderProductDetail[index].quantity) {
+                const calculatedPoAmount = parseFloat(purchaseOrderProductDetail[index].quantity) * parseFloat(e.target.value)
+                purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
+                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+            }
+            else if (parseFloat(purchaseOrderProductDetail[index].poAmt) > 0) {
+                const calculatedQuantity = parseFloat(purchaseOrderProductDetail[index].poAmt) / parseFloat(e.target.value)
+                purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
+                dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+            }
+        }
+
+        if (e.target.name == "poAmt") {
+            if (purchaseOrderProductDetail[index].poRate) {
+                const calculatedQuantity = parseFloat(e.target.value) / parseFloat(purchaseOrderProductDetail[index].poRate)
+                purchaseOrderProductDetail[index].quantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
+            }
+            dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+        }
+
+        if (purchaseOrderProductDetail[index].encryptedPoDetailId) {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseProductDetailsUpdate: true
+            }))
+        } else {
+            dispatch(formChangedAction({
+                ...formChangedData,
+                cropPurchaseProductDetailsAdd: true
+            }))
+        }
+    }
+
+    const getGradeList = async () => {
+        let gradeData = [];
+
+        const requestData = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/grade-master-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(grade => {
+                    gradeData.push({
+                        key: grade.gradeName,
+                        value: grade.gradeCode
+                    });
+                });
+            }
+            setGradeList(gradeData);
+        }
+        else {
+            setGradeList([]);
+        }
+    }
+
+    const ModalPreview = (encryptedPoDetailId) => {
+        setModalShow(true);
+        setParamsData({ encryptedPoDetailId });
+    }
+
+    const deleteCropPurchaseDetail = () => {
+        if (!paramsData)
+            return false;
+
+        var objectIndex = purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.findIndex(x => x.encryptedPoDetailId == paramsData.encryptedPoDetailId);
+        purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.splice(objectIndex, 1)
+
+        var deleteCropPurchaseDetailId = localStorage.getItem("DeleteCropPurchaseIds");
+
+        if (paramsData.encryptedPoDetailId) {
+            var deleteCropPurchaseDetail = deleteCropPurchaseDetailId ? deleteCropPurchaseDetailId + "," + paramsData.encryptedPoDetailId : paramsData.encryptedPoDetailId;
+            localStorage.setItem("DeleteCropPurchaseIds", deleteCropPurchaseDetail);
+        }
+
+        toast.success("Crop purhase details deleted successfully", {
+            theme: 'colored'
+        });
+
+        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetailsData));
+
+        dispatch(formChangedAction({
+            ...formChangedData,
+            cropPurchaseProductDetailsDelete: true
+        }))
+
+        setModalShow(false);
+    }
+
     return (
         <>
+
+            {modalShow && paramsData &&
+                <Modal
+                    show={modalShow}
+                    onHide={() => setModalShow(false)}
+                    size="md"
+                    aria-labelledby="contained-modal-title-vcenter"
+                    centered
+                    backdrop="static"
+                >
+                    <Modal.Header closeButton>
+                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h4>Are you sure, you want to delete this Crop purchase detail?</h4>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+                        <Button variant="danger" onClick={() => deleteCropPurchaseDetail()}>Delete</Button>
+                    </Modal.Footer>
+                </Modal>
+            }
 
             {
                 productModal &&
@@ -391,6 +540,7 @@ const AddCropPurchaseDetail = () => {
                     </Modal.Body>
                     <Modal.Footer>
                         <Button variant="success" onClick={() => handleSelectedItem()}>Add</Button>
+                        <Button variant="danger" onClick={() => onProductModalClose()} >Cancel</Button>
                     </Modal.Footer>
                 </Modal >
             }
@@ -404,225 +554,243 @@ const AddCropPurchaseDetail = () => {
                     endEl={
                         <Flex>
                             <div >
-                                <Button
-                                    variant="primary"
-                                    size="sm"
-                                    className="btn-reveal"
-                                    type="button"
-                                    onClick={() => handleAddItem()}
-                                >
-                                    Add Items
-                                </Button>
+                                {
+                                    purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved" ?
+                                        null
+                                        :
+                                        <div >
+                                            <Button
+                                                variant="primary"
+                                                size="sm"
+                                                className="btn-reveal"
+                                                type="button"
+                                                onClick={() => handleAddItem()}
+                                            >
+                                                Add Item
+                                            </Button>
+                                        </div>
+                                }
                             </div>
                         </Flex>
                     }
                 />
 
-                <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
-                    <Form
-                        noValidate
-                        // validated={formHasError || (materialDataErr.materialReceiptDetailErr && materialDataErr.materialReceiptDetailErr.invalidMaterialReceiptDetail)}
-                        className="details-form"
-                        id="AddCropPurchaseDetails"
-                    >
-                        <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-                            <thead className='custom-bg-200'>
-                                {rowData &&
-                                    (<tr>
-                                        {columnsArray.map((column, index) => {
-                                            if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
-                                                return null;
+                {
+                    purchaseOrderProductDetailsData && purchaseOrderProductDetailsData.length > 0 &&
+                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                        <Form
+                            noValidate
+                            validated={formHasError || (purchaseOrderErr.poProductDetailsErr && purchaseOrderErr.poProductDetailsErr.invalidPoProductDetail)}
+                            className="details-form"
+                            id="AddCropPurchaseDetails"
+                        >
+                            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                <thead className='custom-bg-200'>
+                                    {rowData &&
+                                        (<tr>
+                                            {columnsArray.map((column, index) => {
+                                                if (column === 'Action' && purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved") {
+                                                    return null;
+                                                }
+                                                return (
+                                                    <th className="text-left" key={index}>
+                                                        {column}
+                                                    </th>
+                                                );
+                                            })}
+                                        </tr>
+                                        )}
+                                </thead>
+                                <tbody id="tbody" className="details-form">
+                                    {rowData.map((poProductDetailData, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                {index + 1}
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="productName"
+                                                    placeholder="Product"
+                                                    value={poProductDetailData.productName}
+                                                    disabled
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    name="gradeCode"
+                                                    className="form-control"
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.gradeCode ? poProductDetailData.gradeCode : ""}
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    required
+                                                >
+                                                    <option value=''>Select</option>
+                                                    {gradeList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    name="cropType"
+                                                    className="form-control select"
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.cropType ? poProductDetailData.cropType : ""}
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    required
+                                                >
+                                                    <option value='Inorganic'>Inorganic </option>
+                                                    <option value='Organic'>Organic </option>
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <Form.Select
+                                                    type="text"
+                                                    name="unitCode"
+                                                    className="form-control select"
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.unitCode ? poProductDetailData.unitCode : ""}
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    required
+                                                >
+                                                    <option value=''>Select </option>
+                                                    {unitList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="pack"
+                                                    placeholder="Pack"
+                                                    maxLength={5}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.pack ? poProductDetailData.pack : ""}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    required
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="carate"
+                                                    placeholder="Carate"
+                                                    maxLength={13}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.carate ? poProductDetailData.carate : ""}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    required
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="quantity"
+                                                    placeholder="Qty."
+                                                    maxLength={13}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.quantity ? poProductDetailData.quantity : ""}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    required
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="poRate"
+                                                    placeholder="Rate"
+                                                    maxLength={13}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.poRate ? poProductDetailData.poRate : ""}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    required
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                />
+                                            </td>
+
+                                            <td key={index}>
+                                                <EnlargableTextbox
+                                                    name="poAmt"
+                                                    placeholder="Amount"
+                                                    maxLength={13}
+                                                    onChange={(e) => handleFieldChange(e, index)}
+                                                    value={poProductDetailData.poAmt ? poProductDetailData.poAmt : ""}
+                                                    onKeyPress={(e) => {
+                                                        const keyCode = e.which || e.keyCode;
+                                                        const keyValue = String.fromCharCode(keyCode);
+                                                        const regex = /^[^A-Za-z]+$/;
+
+                                                        if (!regex.test(keyValue)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }}
+                                                    required
+                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                />
+                                            </td>
+
+                                            {
+                                                purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved" ?
+                                                    null
+                                                    :
+                                                    <td key={index}>
+                                                        {
+                                                            poProductDetailData.materialStatus === "Not Received" ?
+                                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                                :
+                                                                poProductDetailData.materialStatus
+                                                        }
+                                                    </td>
                                             }
-                                            return (
-                                                <th className="text-left" key={index}>
-                                                    {column}
-                                                </th>
-                                            );
-                                        })}
-                                    </tr>
-                                    )}
-                            </thead>
-                            <tbody id="tbody" className="details-form">
-                                {rowData.map((poProductDetailData, index) => (
-                                    <tr key={index}>
-                                        <td>
-                                            {index + 1}
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="productName"
-                                                placeholder="Product"
-                                                value={poProductDetailData.productName}
-                                                disabled
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="productCode"
-                                                className="form-control"
-                                                required
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                            >
-                                                <option value=''>Select</option>
-                                            </Form.Select>
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="cropType"
-                                                className="form-control select"
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.unitCode ? materialReceiptDetailData.unitCode : ""}
-                                                // disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
-                                                required
-                                            >
-                                                <option value=''>Select </option>
-                                                <option value='Organic'>Organic </option>
-                                                <option value='Inorganic'>Inorganic </option>
-                                            </Form.Select>
-                                        </td>
-
-                                        <td key={index}>
-                                            <Form.Select
-                                                type="text"
-                                                name="unitCode"
-                                                className="form-control select"
-                                            // onChange={(e) => handleFieldChange(e, index)}
-                                            // value={purchaseOrderData.unitCode ? purchaseOrderData.unitCode : ""}
-                                            // disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
-                                            >
-                                                <option value=''>Select </option>
-                                                {unitList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
-                                            </Form.Select>
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="quantity"
-                                                placeholder="Pack"
-                                                maxLength={5}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
-                                                onKeyPress={(e) => {
-                                                    const keyCode = e.which || e.keyCode;
-                                                    const keyValue = String.fromCharCode(keyCode);
-                                                    const regex = /^[^A-Za-z]+$/;
-
-                                                    if (!regex.test(keyValue)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                                // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                                required
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="cerate"
-                                                placeholder="Cerate"
-                                                maxLength={13}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
-                                                onKeyPress={(e) => {
-                                                    const keyCode = e.which || e.keyCode;
-                                                    const keyValue = String.fromCharCode(keyCode);
-                                                    const regex = /^[^A-Za-z]+$/;
-
-                                                    if (!regex.test(keyValue)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                                required
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="poRate"
-                                                placeholder="Rate"
-                                                maxLength={13}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
-                                                onKeyPress={(e) => {
-                                                    const keyCode = e.which || e.keyCode;
-                                                    const keyValue = String.fromCharCode(keyCode);
-                                                    const regex = /^[^A-Za-z]+$/;
-
-                                                    if (!regex.test(keyValue)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                                required
-                                            // disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="wt"
-                                                placeholder="WT"
-                                                maxLength={13}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}
-                                                onKeyPress={(e) => {
-                                                    const keyCode = e.which || e.keyCode;
-                                                    const keyValue = String.fromCharCode(keyCode);
-                                                    const regex = /^[^A-Za-z]+$/;
-
-                                                    if (!regex.test(keyValue)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                                required
-                                            />
-                                        </td>
-
-                                        <td key={index}>
-                                            <EnlargableTextbox
-                                                name="poAmt"
-                                                placeholder="Amount"
-                                                maxLength={13}
-                                                // onChange={(e) => handleFieldChange(e, index)}
-                                                // value={materialReceiptDetailData.amount ? materialReceiptDetailData.amount : ""}
-                                                onKeyPress={(e) => {
-                                                    const keyCode = e.which || e.keyCode;
-                                                    const keyValue = String.fromCharCode(keyCode);
-                                                    const regex = /^[^A-Za-z]+$/;
-
-                                                    if (!regex.test(keyValue)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }}
-                                                required
-                                            />
-                                        </td>
-
-                                        {/* {
-                                            materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved" ?
-                                                null
-                                                :
-                                                <td key={index}>
-                                                    <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(materialReceiptDetailData.encryptedMaterialReceiptDetailId) }} />
-                                                </td>                                                
-                                        } */}
-
-                                        <td key={index}>
-                                            <FontAwesomeIcon icon={'trash'} className="fa-2x" />
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </Table>
-                    </Form>
-                </Card.Body>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </Table>
+                        </Form>
+                    </Card.Body>
+                }
             </Card>
         </>
     )
