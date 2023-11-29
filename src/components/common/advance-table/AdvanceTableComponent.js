@@ -18,9 +18,7 @@ const AdvanceTableComponent = ({
   filterOptions1,
   filterName1,
   handleFilterChange1,
-  filterValue1,
-  module,
-  buttonClick
+  filterValue1
 }) => {
 
   return (
@@ -40,21 +38,14 @@ const AdvanceTableComponent = ({
                 <AdvanceTableFilter options={filterOptions} filterName={filterName} handleFilterChange={handleFilterChange} filterValue={filterValue} />
               </div>
             </Col>
-            {
-              module == "CropPurchase" ?
-                <Col xs="auto" className="me-1 flex-col" sm={5} lg={3}>
-                  <div className="text-left">
-                    <Button onClick={buttonClick}>Purchase Report</Button>
-                  </div>
-                </Col>
-                :
-                <Col xs="auto" className="me-1 flex-col" sm={5} lg={3}>
-                  <div className="text-left">
-                    <AdvanceTableFilter options={filterOptions1} filterName={filterName1} handleFilterChange={handleFilterChange1} filterValue={filterValue1} />
-                  </div>
-                </Col>
 
-            }
+            <Col xs="auto" className="me-1 flex-col" sm={5} lg={3}>
+              <div className="text-left">
+                <AdvanceTableFilter options={filterOptions1} filterName={filterName1} handleFilterChange={handleFilterChange1} filterValue={filterValue1} />
+              </div>
+            </Col>
+
+
             <Col xs="auto" className="me-1 flex-col" sm={6} lg={4}>
               <div className="text-right">
                 <AdvanceTableSearchBox table />

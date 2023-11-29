@@ -5,15 +5,16 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import Moment from "moment";
 import { Spinner, Modal, Button, Form, Row, Col } from 'react-bootstrap';
-import { distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, tabInfoAction } from 'actions';
+import { useNavigate } from 'react-router-dom';
+import { cropPurchaseReportAction, distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, tabInfoAction } from 'actions';
 
 const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
-    { accessor: 'poNo', Header: 'PO No.' },
-    { accessor: 'poDate', Header: 'PO Date' },
-    { accessor: 'poAmount', Header: 'PO Amount' },
+    { accessor: 'poNo', Header: 'Material Receipt No.' },
+    { accessor: 'poDate', Header: 'Purchase Date' },
+    { accessor: 'poAmount', Header: 'Total Amount' },
     { accessor: 'farmerName', Header: 'Farmer Name' },
     { accessor: 'farmerFatherName', Header: 'Farmer Father Name' },
     { accessor: 'farmerPhoneNumber', Header: 'Farmer Phone Number' },
@@ -24,6 +25,8 @@ const listColumnArray = [
 const CropPurchase = () => {
 
     const dispatch = useDispatch();
+    const navigate = useNavigate();
+
     const [listData, setListData] = useState([]);
     const [perPage, setPerPage] = useState(15);
     const [activeTabName, setActiveTabName] = useState();
@@ -32,6 +35,13 @@ const CropPurchase = () => {
     const [modalShow, setModalShow] = useState(false);
     const [generateReportModal, setGenerateReportModal] = useState(false);
     const [formHasError, setFormError] = useState(false);
+    const [formData, setFormData] = useState({
+        startDate: null,
+        endDate: null
+    })
+
+    const [startDateErr, setStartDateErr] = useState({});
+    const [endDateErr, setEndDateErr] = useState({});
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
@@ -226,7 +236,15 @@ const CropPurchase = () => {
     }
 
     const handleButtonClick = () => {
-        setGenerateReportModal(true);
+        if (localStorage.getItem("EncryptedCompanyCode")) {
+            setGenerateReportModal(true);
+        }
+        else {
+            toast.error("Please select company first", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
     }
 
     const getPurchaseOrderProductDetailsList = async () => {
@@ -261,7 +279,7 @@ const CropPurchase = () => {
         let isValid = true;
 
         if (!purchaseOrderData.farmerCode) {
-            toast.error("Select Farmer", {
+            toast.error("Please select farmer", {
                 theme: 'colored'
             });
             isValid = false;
@@ -269,7 +287,7 @@ const CropPurchase = () => {
         }
 
         if (!purchaseOrderData.poDate) {
-            poDateErr.empty = "Select PO date";
+            poDateErr.empty = "Select purchase date";
             isValid = false;
             setFormError(true);
         }
@@ -630,6 +648,69 @@ const CropPurchase = () => {
         }
     }
 
+    const validateGenerateReportModal = () => {
+
+        let startDateErr = {};
+        let endDateErr = {};
+
+        let isValid = true;
+
+        if (!formData.startDate) {
+            startDateErr.empty = "Select start date";
+            isValid = false;
+        }
+
+        if (!formData.endDate) {
+            endDateErr.empty = "Select end date";
+            isValid = false;
+        }
+
+        if (formData.startDate > formData.endDate || formData.endDate < formData.startDate) {
+            toast.error("Start date cannot be greater than end date", {
+                theme: 'colored',
+                autoClose: 5000
+            });
+        }
+
+        setStartDateErr(startDateErr);
+        setEndDateErr(endDateErr);
+        return isValid;
+    }
+
+    const handleReportFieldChange = e => {
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value
+        })
+    }
+
+    const getCropPurchaseReport = async () => {
+        if (validateGenerateReportModal()) {
+            const requestData = {
+                encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                startDate: Moment(formData.startDate).format("YYYY-MM-DD"),
+                endDate: Moment(formData.endDate).format("YYYY-MM-DD")
+            }
+
+            // let response = await axios.post(process.env.REACT_APP_API_URL + '/get-crop-purchase-report', requestData, {
+            //     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            // })
+
+            // if (response.data.status == 200) {
+            //     if (response.data && response.data.data.length > 0) {
+            //         dispatch(cropPurchaseReportAction(response.data.data));
+            //     }
+            // } else {
+            //     dispatch(cropPurchaseReportAction([]));
+            // }
+
+            const queryParams = new URLSearchParams(requestData);
+            const queryString = queryParams.toString();
+
+            window.open(`/crop-purchase-report?${queryString}`, '_blank');            
+        }
+    }
+
     return (
         <>
             {isLoading ? (
@@ -661,7 +742,10 @@ const CropPurchase = () => {
                                             Start Date
                                         </Form.Label>
                                         <Col sm="8">
-                                            <Form.Control type='date' id="txtStartDate" name="startDate" />
+                                            <Form.Control type='date' id="txtStartDate" name="startDate" onChange={handleReportFieldChange} value={formData.startDate} max={Moment().format("YYYY-MM-DD")} />
+                                            {Object.keys(startDateErr).map((key) => {
+                                                return <span className="error-message">{startDateErr[key]}</span>
+                                            })}
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -671,7 +755,10 @@ const CropPurchase = () => {
                                             End Date
                                         </Form.Label>
                                         <Col sm="8">
-                                            <Form.Control type='date' id="txtEndDate" name="endDate" />
+                                            <Form.Control type='date' id="txtEndDate" name="endDate" onChange={handleReportFieldChange} value={formData.endDate} max={Moment().format("YYYY-MM-DD")} />
+                                            {Object.keys(endDateErr).map((key) => {
+                                                return <span className="error-message">{endDateErr[key]}</span>
+                                            })}
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -679,7 +766,7 @@ const CropPurchase = () => {
                         </Form>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" id='btnGenerateReport'>Generate Report</Button>
+                        <Button variant="success" id='btnGenerateReport' onClick={() => getCropPurchaseReport()}>Generate Report</Button>
                     </Modal.Footer>
                 </Modal>
             }

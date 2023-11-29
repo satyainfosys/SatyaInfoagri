@@ -36,6 +36,7 @@ import InventoryDetail from 'components/Inventory/InventoryDetail';
 import Invoice from 'components/common/Invoice';
 import CropPurchaseV1 from 'components/CropPurchaseV1/CropPurchaseV1';
 import CropPurchase from 'components/CropPurchaseV2/CropPurchase';
+import CropPurchaseReport from 'components/CropPurchaseV2/CropPurchaseReport';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -70,6 +71,7 @@ const Layout = () => {
         <Route path="/crop-purchase-receipt/:poNo" element={<Invoice />} />
         <Route path="/material-receipt/:id" element={<Invoice />} />
         <Route path="/purchase-order-receipt/:poNo" element={<Invoice />} />
+        <Route path="/crop-purchase-report" element={<CropPurchaseReport />} />
 
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
@@ -124,7 +126,7 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/crop-purchase" element={<CropPurchase />} />
-        </Route>
+        </Route>        
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>

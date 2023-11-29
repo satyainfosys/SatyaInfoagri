@@ -64,7 +64,7 @@ const Invoice = () => {
                         return acc + subAmount;
                     }
                     return acc;
-                }, 0); 
+                }, 0);
 
                 setSubTotal(total);
 
@@ -111,7 +111,7 @@ const Invoice = () => {
                         return acc + subAmount;
                     }
                     return acc;
-                }, 0);                
+                }, 0);
 
                 const taxableAmount = response.data.data.reduce((acc, item) => {
                     const taxAmount = parseFloat(item.taxAmount);
@@ -126,7 +126,7 @@ const Invoice = () => {
                 setTaxableValue(taxableAmount);
 
                 setTotalAmount(total);
-            
+
                 setTotalAmount(response.data.data.reduce((acc, item) => acc + parseFloat(item.poAmt), 0));
             }
         } else {
@@ -177,37 +177,79 @@ const Invoice = () => {
                                     }
                                 </Col>
 
-                                <Col sm="4" className="ms-auto">
-                                    <div className="table-responsive">
-                                        <Table borderless size="sm" className="fs--1 table">
-                                            <tbody>
-                                                <tr>
-                                                    <th className="text-sm-end">{materialHeaderData.poNo ? "PO No: " : "Material Receipt No: "}</th>
-                                                    <td>{materialHeaderData.poNo ? materialHeaderData.poNo : materialHeaderData.materialReceiptId}</td>
-                                                </tr>
-                                                {
-                                                    materialHeaderData.challanNo &&
+                                {
+                                    materialHeaderData.materialReceiptId &&
+                                    <Col sm="4" className="ms-auto">
+                                        <div className="table-responsive">
+                                            <Table borderless size="sm" className="fs--1 table">
+                                                <tbody>
                                                     <tr>
-                                                        <th className="text-sm-end">Challan No:</th>
-                                                        <td>{materialHeaderData.challanNo}</td>
+                                                        <th className="text-sm-end">Material Receipt No: </th>
+                                                        <td>{materialHeaderData.materialReceiptId}</td>
                                                     </tr>
-                                                }
-                                                <tr>
-                                                    <th className="text-sm-end">{materialHeaderData.poDate ? "PO Date:" : "Receipt Date:"}</th>
-                                                    <td>{materialHeaderData.poDate ? materialHeaderData.poDate : materialHeaderData.materialReceiptDate}</td>
-                                                </tr>
+                                                    {
+                                                        materialHeaderData.challanNo &&
+                                                        <tr>
+                                                            <th className="text-sm-end">Challan No:</th>
+                                                            <td>{materialHeaderData.challanNo}</td>
+                                                        </tr>
+                                                    }
+                                                    <tr>
+                                                        <th className="text-sm-end">Receipt Date:</th>
+                                                        <td>{materialHeaderData.materialReceiptDate}</td>
+                                                    </tr>
 
-                                                {
-                                                    materialHeaderData.poAmt &&
-                                                    <tr className="alert alert-success fw-bold">
-                                                        <th className="text-sm-end">PO Amount:</th>
-                                                        <td>{materialHeaderData.poAmt.toLocaleString('en-IN')} Rs.</td>
-                                                    </tr>
-                                                }
-                                            </tbody>
-                                        </Table>
-                                    </div>
-                                </Col>
+                                                    {
+                                                        materialHeaderData.poAmt &&
+                                                        <tr className="alert alert-success fw-bold">
+                                                            <th className="text-sm-end">PO Amount:</th>
+                                                            <td>{materialHeaderData.poAmt.toLocaleString('en-IN')} Rs.</td>
+                                                        </tr>
+                                                    }
+                                                </tbody>
+                                            </Table>
+                                        </div>
+                                    </Col>
+                                }
+
+                                {
+                                    materialHeaderData.poNo && (
+                                        <>
+                                            <Col sm="4" className="ms-auto">
+                                                <div className="table-responsive">
+                                                    <Table borderless size="sm" className="fs--1 table">
+                                                        <tbody>
+                                                            <tr>
+                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "Material Receipt No: " : "PO No: "}</th>
+                                                                <td>{materialHeaderData.poNo}</td>
+                                                            </tr>
+                                                            {
+                                                                materialHeaderData.challanNo &&
+                                                                <tr>
+                                                                    <th className="text-sm-end">Challan No:</th>
+                                                                    <td>{materialHeaderData.challanNo}</td>
+                                                                </tr>
+                                                            }
+
+                                                            <tr>
+                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "Purchase Date" : "PO Date:"}</th>
+                                                                <td>{materialHeaderData.poDate}</td>
+                                                            </tr>
+
+                                                            {
+                                                                materialHeaderData.poAmt &&
+                                                                <tr className="alert alert-success fw-bold">
+                                                                    <th className="text-sm-end">{materialHeaderData.farmerCode ? "Total Amount" : "PO Amount:"}</th>
+                                                                    <td>{materialHeaderData.poAmt.toLocaleString('en-IN')} Rs.</td>
+                                                                </tr>
+                                                            }
+                                                        </tbody>
+                                                    </Table>
+                                                </div>
+                                            </Col>
+                                        </>
+                                    )
+                                }
 
                                 <Col xs={12}>
                                     <hr />

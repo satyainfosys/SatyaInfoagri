@@ -387,7 +387,7 @@ const AddMaterialReceiptHeader = () => {
                                         Person Name
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={materialReceiptHeaderData.personName} maxLength={45} disabled />
+                                        <Form.Control id="txtPersonName" name="personName" placeholder="Person Name" value={localStorage.getItem("Name")} maxLength={45} disabled />
                                     </Col>
                                 </Form.Group>
 

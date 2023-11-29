@@ -5,8 +5,8 @@ import { topNavbarBreakpoint } from 'config';
 import { Form, Row, Col, Button } from 'react-bootstrap';
 import TopNavRightSideNavItem from './TopNavRightSideNavItem';
 
-const TabPageMainMenu = ({newClick, cancelClick, exitClick, saveClick} ) => {
-  
+const TabPageMainMenu = ({ newClick, cancelClick, exitClick, saveClick, module, purchaseReportClick }) => {
+
   const [showDropShadow, setShowDropShadow] = useState(false);
 
   const setDropShadow = () => {
@@ -45,12 +45,18 @@ const TabPageMainMenu = ({newClick, cancelClick, exitClick, saveClick} ) => {
                 <Button className='btn btn-success me-1' id='btnSave' onClick={saveClick}>
                   <span class="fas fa-save me-1" data-fa-transform="shrink-3"></span>Save
                 </Button>
-                <Button className='btn btn-secondary me-1' id='btnCancel'  onClick={cancelClick}>
+                <Button className='btn btn-secondary me-1' id='btnCancel' onClick={cancelClick}>
                   <span class="fas fa-times me-1" data-fa-transform="shrink-3"></span>Cancel
                 </Button>
                 <Button className='btn btn-danger mr-4' id='btnExit' onClick={exitClick}>
                   <span class="fas fa-sign-out-alt me-1" data-fa-transform="shrink-3"></span>Exit
                 </Button>
+                {
+                  module == "CropPurchase" &&
+                  <Button className='ms-1' id='purchaseReport' onClick={purchaseReportClick}>
+                    <span class="me-1" data-fa-transform="shrink-3"></span>Purchase Report
+                  </Button>
+                }
               </div>
             </Col>
           </Row>

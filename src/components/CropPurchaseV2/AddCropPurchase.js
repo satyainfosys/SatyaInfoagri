@@ -93,7 +93,8 @@ const AddCropPurchase = () => {
             farmerName: farmerDetail.farmerName,
             farmerFatherName: farmerDetail.farmerFatherName,
             farmerPhoneNumber: farmerDetail.farmerPhoneNumber,
-            farmerVillage: farmerDetail.village
+            farmerVillage: farmerDetail.village,
+            cardNo: farmerDetail.cardNo
         }))
         setFarmerModal(false);
 
@@ -150,7 +151,8 @@ const AddCropPurchase = () => {
                 farmerName: response.data.data.farmerName,
                 farmerFatherName: response.data.data.farmerFatherName,
                 farmerPhoneNumber: response.data.data.farmerPhoneNumber,
-                farmerVillage: response.data.data.village
+                farmerVillage: response.data.data.village,
+                cardNo: response.data.data.cardNo
             }))
         }
         else {
@@ -176,7 +178,6 @@ const AddCropPurchase = () => {
     }
 
     const handleFieldChange = e => {
-
         if (e.target.name == "distributionCentreCode") {
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
@@ -186,21 +187,19 @@ const AddCropPurchase = () => {
             setCollectionCentreList([]);
             e.target.value && getCollectionCentre(e.target.value)
         }
-        else if (e.target.name == "cardNo" && e.target.value) {
-            dispatch(purchaseOrderDetailsAction({
-                ...purchaseOrderData,
-                [e.target.name]: e.target.value
-            }))
-
-            if (e.target.value.length == 10) {
-                getFarmerDetail(e.target.value);
-            }
-        }
         else {
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
                 [e.target.name]: e.target.value
             }))
+
+            if (e.target.name == "cardNo") {
+                console.log(e.target.value)
+                if (e.target.value.length == 10) {
+                    console.log(e.target.value)
+                    getFarmerDetail(e.target.value);
+                }
+            }
         }
 
         if (purchaseOrderData.encryptedPoNo) {
@@ -225,6 +224,15 @@ const AddCropPurchase = () => {
                 }))
             }
         }
+    }
+
+    const handleSearchChange = async (e) => {
+        getFarmerDetailsList(e.target.value)
+    }
+
+    if (purchaseOrderData.collectionCentreCode &&
+        !$('#txtCollectionCentre').val()) {
+        getCollectionCentre(purchaseOrderData.distributionCentreCode);
     }
 
     return (
@@ -253,8 +261,14 @@ const AddCropPurchase = () => {
                                             Search
                                         </Form.Label>
                                         <Col sm="8">
-                                            {/* <Form.Control id="txtSearch" name="search" placeholder="Search" onChange={handleSearchChange} maxLength={45} /> */}
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} />
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search"
+                                                onChange={handleSearchChange} maxLength={45}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            />
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -352,18 +366,7 @@ const AddCropPurchase = () => {
                             <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
                         </Col>
                         <Col xs="auto">
-                            <IconButton
-                                variant="falcon-success"
-                                size="sm"
-                                icon="plus"
-                                className="me-2 mb-2 mb-sm-1"
-                                onClick={() => onSelectFarmerClick()}
-                                disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
-                            >
-                                {purchaseOrderData.farmerCode ? "Change Farmer" : "Select Farmer"}
-                            </IconButton>
-
-                            {purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" &&
+                            {purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved" &&
                                 <IconButton
                                     variant="falcon-default"
                                     size="sm"
@@ -377,6 +380,21 @@ const AddCropPurchase = () => {
                                 >
                                     Print
                                 </IconButton>
+                            }
+
+                            {purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
+                                null
+                                :
+                                <IconButton
+                                    variant="falcon-success"
+                                    size="sm"
+                                    icon="plus"
+                                    className="me-2 mb-2 mb-sm-1"
+                                    onClick={() => onSelectFarmerClick()}
+                                >
+                                    {purchaseOrderData.farmerCode ? "Change Farmer" : "Select Farmer"}
+                                </IconButton>
+
                             }
                         </Col>
                     </Row>
@@ -452,7 +470,10 @@ const AddCropPurchase = () => {
                                         Purchase Date
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
+                                        <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange}
+                                            disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                            max={Moment().format("YYYY-MM-DD")}
+                                        />
                                         {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
                                             return <span className="error-message">{purchaseOrderErr.poDateErr[key]}</span>
                                         })}
@@ -473,7 +494,7 @@ const AddCropPurchase = () => {
                                         Total Amount
                                     </Form.Label>
                                     <Col sm="8">
-                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="Total Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} />
+                                        <Form.Control id="txtPOAmount" name="poAmount" placeholder="Total Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled />
                                     </Col>
                                 </Form.Group>
 

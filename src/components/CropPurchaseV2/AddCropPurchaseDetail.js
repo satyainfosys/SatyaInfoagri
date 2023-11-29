@@ -28,6 +28,7 @@ const AddCropPurchaseDetail = () => {
     const [selectAll, setSelectAll] = useState(false);
     const [gradeList, setGradeList] = useState([]);
     let oldPoStatus = localStorage.getItem("OldPoStatus");
+    let isSearch = false;
 
     const purchaseOrderDetailsReducer = useSelector((state) => state.rootReducer.purchaseOrderDetailsReducer)
     var purchaseOrderData = purchaseOrderDetailsReducer.purchaseOrderDetails;
@@ -49,7 +50,7 @@ const AddCropPurchaseDetail = () => {
         'Unit',
         'Pack',
         'Carate',
-        'Qty',
+        'Qty.',
         'Rate',
         'Final Amt',
         'Action',
@@ -188,8 +189,9 @@ const AddCropPurchaseDetail = () => {
     }
 
     const getProductLineMasterList = async (searchText, productCategoryCode, productCode, isManualFilter = false) => {
+        debugger
         const requestData = {
-            SearchText: searchText ? searchText : searchValue,
+            SearchText: isSearch ? searchText : searchValue,
             ProductCategoryCode: isManualFilter ? productCategoryCode : productCategory,
             ProductCode: isManualFilter ? productCode : product
         }
@@ -231,7 +233,9 @@ const AddCropPurchaseDetail = () => {
     }
 
     const handleSearchChange = (e) => {
-        setSearchValue(e.target.value)
+        debugger
+        isSearch = true;
+        setSearchValue(e.target.value)        
         getProductLineMasterList(e.target.value)
     }
 
@@ -443,7 +447,14 @@ const AddCropPurchaseDetail = () => {
                                             Search
                                         </Form.Label>
                                         <Col sm="8">
-                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45} onChange={handleSearchChange} />
+                                            <Form.Control id="txtSearch" name="search" placeholder="Search" maxLength={45}
+                                                onChange={handleSearchChange}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter') {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            />
                                         </Col>
                                     </Form.Group>
                                 </Col>
@@ -555,7 +566,7 @@ const AddCropPurchaseDetail = () => {
                         <Flex>
                             <div >
                                 {
-                                    purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved" ?
+                                    purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
                                         null
                                         :
                                         <div >
@@ -589,7 +600,7 @@ const AddCropPurchaseDetail = () => {
                                     {rowData &&
                                         (<tr>
                                             {columnsArray.map((column, index) => {
-                                                if (column === 'Action' && purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved") {
+                                                if (column === 'Action' && purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved") {
                                                     return null;
                                                 }
                                                 return (
@@ -624,7 +635,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.gradeCode ? poProductDetailData.gradeCode : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                     required
                                                 >
                                                     <option value=''>Select</option>
@@ -641,7 +652,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.cropType ? poProductDetailData.cropType : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                     required
                                                 >
                                                     <option value='Inorganic'>Inorganic </option>
@@ -656,7 +667,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.unitCode ? poProductDetailData.unitCode : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                     required
                                                 >
                                                     <option value=''>Select </option>
@@ -682,7 +693,7 @@ const AddCropPurchaseDetail = () => {
                                                             e.preventDefault();
                                                         }
                                                     }}
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                     required
                                                 />
                                             </td>
@@ -703,7 +714,7 @@ const AddCropPurchaseDetail = () => {
                                                             e.preventDefault();
                                                         }
                                                     }}
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                     required
                                                 />
                                             </td>
@@ -725,7 +736,7 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                 />
                                             </td>
 
@@ -746,7 +757,7 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                 />
                                             </td>
 
@@ -767,12 +778,12 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
                                                 />
                                             </td>
 
                                             {
-                                                purchaseOrderData.encryptedPoNo && oldPoStatus === "Approved" ?
+                                                purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved" ?
                                                     null
                                                     :
                                                     <td key={index}>

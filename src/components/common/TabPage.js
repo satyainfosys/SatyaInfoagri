@@ -172,6 +172,8 @@ const TabPage = ({
         saveClick={saveDetails}
         cancelClick={cancelClick}
         exitClick={exitModule}
+        module={module}
+        purchaseReportClick={supportingButtonClick}
       />
 
       <Tabs id="uncontrolled-tab-example" className="mb-2 mt-2">
@@ -224,9 +226,7 @@ const TabPage = ({
                         filterOptions1={tableFilterOptions1}
                         filterName1={tableFilterName1}
                         filterValue1={filterValue1}
-                        handleFilterChange1={supportingMethod2}
-                        module={module}
-                        buttonClick={supportingButtonClick}
+                        handleFilterChange1={supportingMethod2}                        
                       />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
