@@ -135,7 +135,7 @@ export const InventoryDetailDashboard = () => {
                 theme: 'colored'
             });
             isValid = false;
-        }        
+        }
 
         return isValid;
     }
@@ -307,8 +307,8 @@ export const InventoryDetailDashboard = () => {
                                                         </>
                                                     )}
                                                     <td className='pl-5'>{item.productName}</td>
-                                                    <td>{"-"}</td>
-                                                    <td>{"-"}</td>
+                                                    <td>{item.grade ? item.grade : "-"}</td>
+                                                    <td>{item.orgIng ? item.orgIng : "-"}</td>
                                                     <td>{item.availableQty}</td>
                                                     <td>{item.unitName}</td>
                                                     <td>{item.avgPrice}</td>
@@ -324,7 +324,7 @@ export const InventoryDetailDashboard = () => {
                         <h4 id="no-inventory-message"></h4>
                 }
             </Form>
-            <Row style={{position:'absolute', bottom:'30px', align:'centre'}}>
+            <Row style={{ position: 'absolute', bottom: '30px', align: 'centre' }}>
                 <TablePagination
                     pageCount={pageCount}
                     handlePageClick={onPageClick}

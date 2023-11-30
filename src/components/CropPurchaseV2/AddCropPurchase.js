@@ -177,6 +177,22 @@ const AddCropPurchase = () => {
         }
     }
 
+    useEffect(() => {
+        if (purchaseOrderData.cardNo && purchaseOrderData.cardNo.length === 10) {
+            getFarmerDetail(purchaseOrderData.cardNo);
+        }
+        else if (!purchaseOrderData.encryptedPoNo) {
+            dispatch(purchaseOrderDetailsAction({
+                ...purchaseOrderData,
+                farmerCode: "",
+                farmerName: "",
+                farmerFatherName: "",
+                farmerPhoneNumber: "",
+                farmerVillage: ""
+            }))
+        }
+    }, [purchaseOrderData.cardNo]);
+
     const handleFieldChange = e => {
         if (e.target.name == "distributionCentreCode") {
             dispatch(purchaseOrderDetailsAction({
@@ -191,15 +207,7 @@ const AddCropPurchase = () => {
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
                 [e.target.name]: e.target.value
-            }))
-
-            if (e.target.name == "cardNo") {
-                console.log(e.target.value)
-                if (e.target.value.length == 10) {
-                    console.log(e.target.value)
-                    getFarmerDetail(e.target.value);
-                }
-            }
+            }))           
         }
 
         if (purchaseOrderData.encryptedPoNo) {
@@ -414,6 +422,7 @@ const AddCropPurchase = () => {
                                         <Form.Control id="txtCardNo" name="cardNo" placeholder="Card No"
                                             onChange={handleFieldChange} value={purchaseOrderData.cardNo} maxLength={10}
                                             disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                            autoComplete='off'
                                         />
                                     </Col>
                                 </Form.Group>
@@ -467,7 +476,7 @@ const AddCropPurchase = () => {
                             <Col className="me-3 ms-3" md="4">
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Purchase Date
+                                        Purchase Date<span className="text-danger">*</span>
                                     </Form.Label>
                                     <Col sm="8">
                                         <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange}

@@ -6,7 +6,7 @@ import { toast } from 'react-toastify';
 import Moment from "moment";
 import { Spinner, Modal, Button, Form, Row, Col } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import { cropPurchaseReportAction, distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, tabInfoAction } from 'actions';
+import { distributionCentreListAction, formChangedAction, purchaseOrderDetailsAction, purchaseOrderDetailsErrAction, purchaseOrderProductDetailsAction, tabInfoAction } from 'actions';
 
 const tabArray = ['Crop Purchase List', 'Add Crop Purchase']
 
@@ -161,6 +161,7 @@ const CropPurchase = () => {
             }, 50);
         } else {
             $("#btnNew").show();
+            $("#purchaseReport").show();
             $("#btnSave").hide();
             $("#btnCancel").hide();
             $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
@@ -174,6 +175,7 @@ const CropPurchase = () => {
     $('[data-rr-ui-event-key*="Add Crop Purchase"]').off('click').on('click', function () {
         setActiveTabName("Add Crop Purchase")
         $("#btnNew").hide();
+        $("#purchaseReport").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
 
@@ -213,14 +215,12 @@ const CropPurchase = () => {
             setModalShow(true);
         } else {
             window.location.href = '/dashboard';
-            // clearPurchaseOrderReducers();
-            // dispatch(purchaseOrderDetailsAction(undefined));
-            // dispatch(vendorProductCatalogueDetailsAction([]));
-            // localStorage.removeItem("EncryptedPoNo");
-            // localStorage.removeItem("DeletePoProductDetailIds");
-            // localStorage.removeItem("DeletePoTermDetailIds");
-            // localStorage.removeItem("EncryptedCompanyCode");
-            // localStorage.removeItem("CompanyName");
+            clearCropPurchaseOrderReducers();
+            dispatch(purchaseOrderDetailsAction(undefined));
+            localStorage.removeItem("EncryptedPoNo");
+            localStorage.removeItem("DeleteCropPurchaseIds");
+            localStorage.removeItem("EncryptedCompanyCode");
+            localStorage.removeItem("CompanyName");
         }
     }
 
@@ -692,22 +692,11 @@ const CropPurchase = () => {
                 endDate: Moment(formData.endDate).format("YYYY-MM-DD")
             }
 
-            // let response = await axios.post(process.env.REACT_APP_API_URL + '/get-crop-purchase-report', requestData, {
-            //     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-            // })
-
-            // if (response.data.status == 200) {
-            //     if (response.data && response.data.data.length > 0) {
-            //         dispatch(cropPurchaseReportAction(response.data.data));
-            //     }
-            // } else {
-            //     dispatch(cropPurchaseReportAction([]));
-            // }
-
             const queryParams = new URLSearchParams(requestData);
             const queryString = queryParams.toString();
 
-            window.open(`/crop-purchase-report?${queryString}`, '_blank');            
+            window.open(`/crop-purchase-report?${queryString}`, '_blank');
+            setGenerateReportModal(false);
         }
     }
 
@@ -739,7 +728,7 @@ const CropPurchase = () => {
                                 <Col className="me-3 ms-3" md="5">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
                                         <Form.Label column sm="2">
-                                            Start Date
+                                            From Date
                                         </Form.Label>
                                         <Col sm="8">
                                             <Form.Control type='date' id="txtStartDate" name="startDate" onChange={handleReportFieldChange} value={formData.startDate} max={Moment().format("YYYY-MM-DD")} />
@@ -752,7 +741,7 @@ const CropPurchase = () => {
                                 <Col className="me-3 ms-3" md="4">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
                                         <Form.Label column sm="2">
-                                            End Date
+                                            To Date
                                         </Form.Label>
                                         <Col sm="8">
                                             <Form.Control type='date' id="txtEndDate" name="endDate" onChange={handleReportFieldChange} value={formData.endDate} max={Moment().format("YYYY-MM-DD")} />

@@ -1,14 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { Card, Col, Row, Table, Form } from 'react-bootstrap';
 import IconButton from 'components/common/IconButton';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import Moment from "moment";
 import axios from 'axios';
 
 
 const CropPurchaseReport = () => {
 
-    const dispatch = useDispatch();
     let totalAmountSum = 0;
     const [cropPurchaseData, setCropPurchaseData] = useState([]);
     const [startDate, setStartDate] = useState();
@@ -18,10 +17,6 @@ const CropPurchaseReport = () => {
     let companyCode = "";
     let fromDate = "";
     let toDate = "";
-
-
-    const cropPurchaseReportReducer = useSelector((state) => state.rootReducer.cropPurchaseReportReducer)
-    var cropPurchaseReportData = cropPurchaseReportReducer.cropPurchaseReportList;
 
     useEffect(() => {
         const currentUrl = window.location.href;
@@ -34,40 +29,39 @@ const CropPurchaseReport = () => {
         setStartDate(url.searchParams.get('startDate'));
         setEndDate(url.searchParams.get('endDate'));
 
-        // getCropPurchaseReport();
+        getCropPurchaseReport();
     }, [])
 
-    // const getCropPurchaseReport = async () => {
-    //     debugger
-    //     const requestData = {
-    //         encryptedCompanyCode: companyCode,
-    //         startDate: Moment(startDate).format("YYYY-MM-DD"),
-    //         endDate: Moment(endDate).format("YYYY-MM-DD")
-    //     }
+    const getCropPurchaseReport = async () => {
+        const requestData = {
+            encryptedCompanyCode: companyCode,
+            startDate: Moment(fromDate).format("YYYY-MM-DD"),
+            endDate: Moment(toDate).format("YYYY-MM-DD")
+        }
 
-    //     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-crop-purchase-report', requestData, {
-    //         headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    //     })
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-crop-purchase-report', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
 
-    //     if (response.data.status == 200) {
-    //         if (response.data && response.data.data.length > 0) {
-    //             console.log(response.data.data)
-    //             setCropPurchaseData(response.data.data);
-    //             totalAmountSum = response.data.data.reduce((sum, item) => sum + item.totalAmount, 0);
-    //             setTotalAmount(totalAmountSum);
-    //         }
-    //     }
-    //     else {
-    //         setCropPurchaseData([]);
-    //         setTimeout(function () {
-    //             $('#no-inventory-message').html('No data found!');
-    //         }, 500)
-    //     }
-    // }
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                setCropPurchaseData(response.data.data);
+                totalAmountSum = response.data.data.reduce((sum, item) => sum + item.totalAmount, 0);
+                setTotalAmount(totalAmountSum);
+            }
+        }
+        else {
+            setCropPurchaseData([]);
+            setTimeout(function () {
+                $('#no-inventory-message').html('No data found!');
+            }, 500)
+        }
+    }
 
     const cropPurchaseTableData = cropPurchaseData.map((item, index) => {
         return (
             <tr>
+                <td className="align-middle text-start">{index + 1}</td>
                 <td className="align-middle text-start">{item.collectionCentreName ? item.collectionCentreName : "-"}</td>
                 <td className="align-middle text-start">{item.farmerName + "/" + item.farmerCode}</td>
                 <td className="align-middle text-start">{item.materialReceiptNo}</td>
@@ -82,40 +76,34 @@ const CropPurchaseReport = () => {
         <>
             <Card className="mb-3">
                 <Card.Body>
+                    <Row className="justify-content-between align-items-center text-center">
+                        <Form.Label><u><b>Daily Purchase Report</b></u></Form.Label>
+                    </Row>
                     <Row className="justify-content-between align-items-center">
-                        <Col sm={6} lg={4}>
-                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                <Form.Label column sm="2">
-                                    From Date
-                                </Form.Label>
-                                <Col sm="6">
-                                    <Form.Control id="txtStartDate" name="startDate" placeholder="From Date" value={startDate} readOnly />
-                                </Col>
-                            </Form.Group>
+                        <Col className="me-2 ms-2">
+                            <Form.Label><b>From Date: {startDate}</b></Form.Label>
                         </Col>
-                        <Col sm={6} lg={4}>
-                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                <Form.Label column sm="2">
-                                    To Date
-                                </Form.Label>
-                                <Col sm="6">
-                                    <Form.Control id="txtEndDate" name="endDate" placeholder="To Date" value={endDate} readOnly />
-                                </Col>
-                            </Form.Group>
+                        <Col className="me-2 ms-2">
+                            <Form.Label><b>To Date: {endDate}</b></Form.Label>
                         </Col>
-                        <Col sm={6} lg={4}>
-                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                <Form.Label column sm="2">
-                                    Total Amount
-                                </Form.Label>
-                                <Col sm="6">
-                                    <Form.Control id="txtTotalAmount" name="totalAmount" placeholder="Total Amount" value={totalAmount} readOnly />
-                                </Col>
-                            </Form.Group>
+                        <Col className="me-2 ms-2">
+                            <Form.Label><b>Total Amount: {totalAmount}</b></Form.Label>
+                        </Col>
+                        <Col xs="auto">
+                            <IconButton
+                                variant="falcon-default"
+                                size="sm"
+                                icon="print"
+                                iconClassName="me-1"
+                                className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                onClick={() => window.print()}
+                            >
+                                Print
+                            </IconButton>
                         </Col>
                     </Row>
                 </Card.Body>
-            </Card>
+            </Card >
 
             <Card className="mb-3">
                 <Card.Body>
@@ -125,11 +113,12 @@ const CropPurchaseReport = () => {
                                 <Table borderless size="sm" className="fs--1 table">
                                     <thead className="light">
                                         <tr className="bg-primary text-white dark__bg-1000">
+                                            <th className="border-0 text-start">S.No</th>
                                             <th className="border-0 text-start">Collection Centre Name</th>
                                             <th className="border-0 text-start">Farmer Name/Code</th>
-                                            <th className="border-0 text-start">Material Receipt No</th>
-                                            <th className="border-0 text-start">Purchase Date</th>
-                                            <th className="border-0 text-start">Total Amount</th>
+                                            <th className="border-0 text-start">MR No</th>
+                                            <th className="border-0 text-start">Date</th>
+                                            <th className="border-0 text-start">Amount</th>
                                         </tr>
                                     </thead>
                                     <tbody>

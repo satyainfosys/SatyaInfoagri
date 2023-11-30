@@ -189,7 +189,6 @@ const AddCropPurchaseDetail = () => {
     }
 
     const getProductLineMasterList = async (searchText, productCategoryCode, productCode, isManualFilter = false) => {
-        debugger
         const requestData = {
             SearchText: isSearch ? searchText : searchValue,
             ProductCategoryCode: isManualFilter ? productCategoryCode : productCategory,
@@ -233,7 +232,6 @@ const AddCropPurchaseDetail = () => {
     }
 
     const handleSearchChange = (e) => {
-        debugger
         isSearch = true;
         setSearchValue(e.target.value)        
         getProductLineMasterList(e.target.value)

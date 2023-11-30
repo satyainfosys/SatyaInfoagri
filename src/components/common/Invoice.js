@@ -220,7 +220,7 @@ const Invoice = () => {
                                                     <Table borderless size="sm" className="fs--1 table">
                                                         <tbody>
                                                             <tr>
-                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "Material Receipt No: " : "PO No: "}</th>
+                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "MR No: " : "PO No: "}</th>
                                                                 <td>{materialHeaderData.poNo}</td>
                                                             </tr>
                                                             {
@@ -232,14 +232,14 @@ const Invoice = () => {
                                                             }
 
                                                             <tr>
-                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "Purchase Date" : "PO Date:"}</th>
+                                                                <th className="text-sm-end">{materialHeaderData.farmerCode ? "Date:" : "PO Date:"}</th>
                                                                 <td>{materialHeaderData.poDate}</td>
                                                             </tr>
 
                                                             {
                                                                 materialHeaderData.poAmt &&
                                                                 <tr className="alert alert-success fw-bold">
-                                                                    <th className="text-sm-end">{materialHeaderData.farmerCode ? "Total Amount" : "PO Amount:"}</th>
+                                                                    <th className="text-sm-end">{materialHeaderData.farmerCode ? "Amount:" : "PO Amount:"}</th>
                                                                     <td>{materialHeaderData.poAmt.toLocaleString('en-IN')} Rs.</td>
                                                                 </tr>
                                                             }
