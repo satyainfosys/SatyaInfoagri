@@ -34,11 +34,10 @@ const CropPurchase = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [modalShow, setModalShow] = useState(false);
     const [generateReportModal, setGenerateReportModal] = useState(false);
-    const [formHasError, setFormError] = useState(false);
-    const [formData, setFormData] = useState({
-        startDate: null,
-        endDate: null
-    })
+    const [formHasError, setFormError] = useState(false);    
+
+    const [fromDate, setFromDate] = useState(Moment().format('YYYY-MM-DD'));
+    const [endDate, setEndDate] = useState(Moment().format('YYYY-MM-DD'));
 
     const [startDateErr, setStartDateErr] = useState({});
     const [endDateErr, setEndDateErr] = useState({});
@@ -238,6 +237,8 @@ const CropPurchase = () => {
     const handleButtonClick = () => {
         if (localStorage.getItem("EncryptedCompanyCode")) {
             setGenerateReportModal(true);
+            setFromDate(Moment().format('YYYY-MM-DD'));
+            setEndDate(Moment().format('YYYY-MM-DD'));
         }
         else {
             toast.error("Please select company first", {
@@ -649,27 +650,29 @@ const CropPurchase = () => {
     }
 
     const validateGenerateReportModal = () => {
-
+        console.log(fromDate)
+        debugger
         let startDateErr = {};
         let endDateErr = {};
 
         let isValid = true;
 
-        if (!formData.startDate) {
+        if (!fromDate) {
             startDateErr.empty = "Select start date";
             isValid = false;
         }
 
-        if (!formData.endDate) {
+        if (!endDate) {
             endDateErr.empty = "Select end date";
             isValid = false;
         }
 
-        if (formData.startDate > formData.endDate || formData.endDate < formData.startDate) {
+        if (fromDate > endDate || endDate < fromDate) {
             toast.error("Start date cannot be greater than end date", {
                 theme: 'colored',
                 autoClose: 5000
             });
+            isValid = false;
         }
 
         setStartDateErr(startDateErr);
@@ -677,19 +680,12 @@ const CropPurchase = () => {
         return isValid;
     }
 
-    const handleReportFieldChange = e => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        })
-    }
-
     const getCropPurchaseReport = async () => {
         if (validateGenerateReportModal()) {
             const requestData = {
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-                startDate: Moment(formData.startDate).format("YYYY-MM-DD"),
-                endDate: Moment(formData.endDate).format("YYYY-MM-DD")
+                startDate: Moment(fromDate).format("YYYY-MM-DD"),
+                endDate: Moment(endDate).format("YYYY-MM-DD")
             }
 
             const queryParams = new URLSearchParams(requestData);
@@ -714,7 +710,7 @@ const CropPurchase = () => {
                 <Modal
                     show={generateReportModal}
                     onHide={() => setGenerateReportModal(false)}
-                    size="xl"
+                    size="lg"
                     aria-labelledby="contained-modal-title-vcenter"
                     centered
                     backdrop="static"
@@ -727,24 +723,24 @@ const CropPurchase = () => {
                             <Row>
                                 <Col className="me-3 ms-3" md="5">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="2">
+                                        <Form.Label column sm="3">
                                             From Date
                                         </Form.Label>
-                                        <Col sm="8">
-                                            <Form.Control type='date' id="txtStartDate" name="startDate" onChange={handleReportFieldChange} value={formData.startDate} max={Moment().format("YYYY-MM-DD")} />
+                                        <Col sm="6">
+                                            <Form.Control type='date' id="txtStartDate" name="startDate" onChange={e => setFromDate(e.target.value)} value={fromDate ? fromDate : Moment().format('YYYY-MM-DD')} max={Moment().format("YYYY-MM-DD")} />
                                             {Object.keys(startDateErr).map((key) => {
                                                 return <span className="error-message">{startDateErr[key]}</span>
                                             })}
                                         </Col>
                                     </Form.Group>
                                 </Col>
-                                <Col className="me-3 ms-3" md="4">
+                                <Col className="me-3 ms-3" md="5">
                                     <Form.Group as={Row} className="mb-2" controlId="formPlaintextPassword">
-                                        <Form.Label column sm="2">
+                                        <Form.Label column sm="3">
                                             To Date
                                         </Form.Label>
-                                        <Col sm="8">
-                                            <Form.Control type='date' id="txtEndDate" name="endDate" onChange={handleReportFieldChange} value={formData.endDate} max={Moment().format("YYYY-MM-DD")} />
+                                        <Col sm="6">
+                                            <Form.Control type='date' id="txtEndDate" name="endDate" onChange={e => setEndDate(e.target.value)} value={endDate ? endDate : Moment().format('YYYY-MM-DD')} max={Moment().format("YYYY-MM-DD")} />
                                             {Object.keys(endDateErr).map((key) => {
                                                 return <span className="error-message">{endDateErr[key]}</span>
                                             })}

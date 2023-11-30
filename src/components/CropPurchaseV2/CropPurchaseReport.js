@@ -66,7 +66,7 @@ const CropPurchaseReport = () => {
                 <td className="align-middle text-start">{item.farmerName + "/" + item.farmerCode}</td>
                 <td className="align-middle text-start">{item.materialReceiptNo}</td>
                 <td className="align-middle text-start">{item.purchaseDate}</td>
-                <td className="align-middle text-start">{item.totalAmount}</td>
+                <td className="align-middle text-start">{item.totalAmount.toLocaleString('en-IN')} Rs</td>
             </tr>
         )
     });
@@ -87,7 +87,7 @@ const CropPurchaseReport = () => {
                             <Form.Label><b>To Date: {endDate}</b></Form.Label>
                         </Col>
                         <Col className="me-2 ms-2">
-                            <Form.Label><b>Total Amount: {totalAmount}</b></Form.Label>
+                            <Form.Label><b>Total Amount: {totalAmount.toLocaleString('en-IN')} Rs</b></Form.Label>
                         </Col>
                         <Col xs="auto">
                             <IconButton
