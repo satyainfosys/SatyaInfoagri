@@ -86,6 +86,7 @@ const AddCropPurchase = () => {
     }
 
     const onFarmerSelect = (farmerCode) => {
+
         const farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode == farmerCode);
         dispatch(purchaseOrderDetailsAction({
             ...purchaseOrderData,
@@ -93,7 +94,7 @@ const AddCropPurchase = () => {
             farmerName: farmerDetail.farmerName,
             farmerFatherName: farmerDetail.farmerFatherName,
             farmerPhoneNumber: farmerDetail.farmerPhoneNumber,
-            farmerVillage: farmerDetail.village,
+            farmerVillage: farmerDetail.village + ", " + farmerDetail.districtName + ", " + farmerDetail.stateName,
             cardNo: farmerDetail.cardNo
         }))
         setFarmerModal(false);
@@ -151,7 +152,7 @@ const AddCropPurchase = () => {
                 farmerName: response.data.data.farmerName,
                 farmerFatherName: response.data.data.farmerFatherName,
                 farmerPhoneNumber: response.data.data.farmerPhoneNumber,
-                farmerVillage: response.data.data.village,
+                farmerVillage: response.data.data.village + ", " + response.data.data.districtName + ", " + response.data.data.stateName,
                 cardNo: response.data.data.cardNo
             }))
         }
@@ -202,12 +203,12 @@ const AddCropPurchase = () => {
             }))
             setCollectionCentreList([]);
             e.target.value && getCollectionCentre(e.target.value)
-        }
+        }        
         else {
             dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
                 [e.target.name]: e.target.value
-            }))           
+            }))
         }
 
         if (purchaseOrderData.encryptedPoNo) {
@@ -367,12 +368,48 @@ const AddCropPurchase = () => {
                 </Modal>
             }
 
-            <Card className="mb-1">
+            <Card className="mb-1" md>
                 <Card.Body>
                     <Row className="justify-content-between align-items-center">
-                        <Col sm={6} lg={4} className='no-pd-card'>
+                        <Col sm={4} lg={2} className='no-pd-card'>
                             <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
                         </Col>
+                        <Col sm={6} lg={4} className='no-pd-card'>
+                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                <Form.Label column sm="3">
+                                    DC Name
+                                </Form.Label>
+                                <Col sm="6">
+                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} >
+                                        <option value=''>Select Distribution</option>
+                                        {distributionList &&
+                                            distributionList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))
+                                        }
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+                        </Col>
+
+                        <Col sm={6} lg={4} className='no-pd-card'>
+                            <Form.Group as={Row} className="mb-1">
+                                <Form.Label column sm={4}>
+                                    Collection Centre
+                                </Form.Label>
+                                <Col sm={6}>
+                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}>
+                                        <option value=''>Select Collection Centre</option>
+                                        {collectionCentreList &&
+                                            collectionCentreList.map((option, index) => (
+                                                <option key={index} value={option.value}>{option.key}</option>
+                                            ))
+                                        }
+                                    </Form.Select>
+                                </Col>
+                            </Form.Group>
+                        </Col>
+
                         <Col xs="auto">
                             {purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved" &&
                                 <IconButton
@@ -407,7 +444,7 @@ const AddCropPurchase = () => {
                         </Col>
                     </Row>
                 </Card.Body>
-            </Card>
+            </Card >
 
             <FalconComponentCard className="no-pb mb-1">
                 <FalconComponentCard.Body language="jsx">
@@ -447,6 +484,15 @@ const AddCropPurchase = () => {
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
+                                        Father's Name
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtFarmerFatherName" name="farmerFatherName" placeholder="Father Name" value={purchaseOrderData.farmerFatherName} disabled />
+                                    </Col>
+                                </Form.Group>
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
                                         Mobile No
                                     </Form.Label>
                                     <Col sm="8">
@@ -456,24 +502,25 @@ const AddCropPurchase = () => {
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Village
+                                        Village/District
                                     </Form.Label>
                                     <Col sm="8">
                                         <Form.Control id="txtVillage" name="farmerVillage" placeholder="Village" value={purchaseOrderData.farmerVillage} disabled />
                                     </Col>
                                 </Form.Group>
-
-                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                    <Form.Label column sm="4">
-                                        Father Name
-                                    </Form.Label>
-                                    <Col sm="8">
-                                        <Form.Control id="txtFarmerFatherName" name="farmerFatherName" placeholder="Father Name" value={purchaseOrderData.farmerFatherName} disabled />
-                                    </Col>
-                                </Form.Group>
                             </Col>
 
                             <Col className="me-3 ms-3" md="4">
+
+                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                    <Form.Label column sm="4">
+                                        Material Receipt No
+                                    </Form.Label>
+                                    <Col sm="8">
+                                        <Form.Control id="txtPONumber" name="poNo" placeholder="Material Receipt No" value={purchaseOrderData.poNo} disabled />
+                                    </Col>
+                                </Form.Group>
+
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
                                         Purchase Date<span className="text-danger">*</span>
@@ -491,15 +538,6 @@ const AddCropPurchase = () => {
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
-                                        Material Receipt No
-                                    </Form.Label>
-                                    <Col sm="8">
-                                        <Form.Control id="txtPONumber" name="poNo" placeholder="Material Receipt No" value={purchaseOrderData.poNo} disabled />
-                                    </Col>
-                                </Form.Group>
-
-                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                    <Form.Label column sm="4">
                                         Total Amount
                                     </Form.Label>
                                     <Col sm="8">
@@ -507,7 +545,7 @@ const AddCropPurchase = () => {
                                     </Col>
                                 </Form.Group>
 
-                                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                                {/* <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">
                                         DC Name
                                     </Form.Label>
@@ -537,7 +575,7 @@ const AddCropPurchase = () => {
                                             }
                                         </Form.Select>
                                     </Col>
-                                </Form.Group>
+                                </Form.Group> */}
 
                                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                                     <Form.Label column sm="4">

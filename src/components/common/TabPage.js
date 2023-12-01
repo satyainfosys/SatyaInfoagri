@@ -226,7 +226,7 @@ const TabPage = ({
                         filterOptions1={tableFilterOptions1}
                         filterName1={tableFilterName1}
                         filterValue1={filterValue1}
-                        handleFilterChange1={supportingMethod2}                        
+                        handleFilterChange1={supportingMethod2}
                       />
                     </FalconComponentCard.Body>
                   </FalconComponentCard>
@@ -278,11 +278,7 @@ const TabPage = ({
               )}
               {index == 1 && module == 'User' && (
                 <>
-                  <FalconComponentCard className="no-pb mb-2">
-                    <FalconComponentCard.Body language="jsx" className='full-tab-page-card-body'>
-                      <UserDetails />
-                    </FalconComponentCard.Body>
-                  </FalconComponentCard>
+                  <UserDetails />
                 </>
               )}
               {index == 1 && module == 'Product' && (
