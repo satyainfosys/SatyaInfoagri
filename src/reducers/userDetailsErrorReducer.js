@@ -1,7 +1,8 @@
 const initialState = {
   userDetailsError: {
     clientErr: {},    
-    loginUserNameErr: {}
+    loginUserNameErr: {},
+    loginNameErr: {}
   }
 };
 
