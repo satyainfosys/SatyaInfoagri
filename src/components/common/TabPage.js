@@ -62,6 +62,7 @@ import AddCroppurchaseDetailV1 from 'components/CropPurchaseV1/AddCroppurchaseDe
 import AddCropPurchase from 'components/CropPurchaseV2/AddCropPurchase';
 import AddCropPurchaseDetail from 'components/CropPurchaseV2/AddCropPurchaseDetail';
 import CommodityList from 'components/CropPurchaseV2/CommodityList';
+import AddClientUser from 'components/ClientUsers/AddClientUser'
 
 const TabPage = ({
   listData,
@@ -477,6 +478,11 @@ const TabPage = ({
                 </>
               )}
 
+              {index == 1 && module == 'ClientUsers' && (
+                <>
+                  <AddClientUser />
+                </>
+              )}
             </Tab>
           );
         })}

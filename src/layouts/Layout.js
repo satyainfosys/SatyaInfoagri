@@ -37,6 +37,7 @@ import Invoice from 'components/common/Invoice';
 import CropPurchaseV1 from 'components/CropPurchaseV1/CropPurchaseV1';
 import CropPurchase from 'components/CropPurchaseV2/CropPurchase';
 import CropPurchaseReport from 'components/CropPurchaseV2/CropPurchaseReport';
+import ClientUser from 'components/ClientUsers/ClientUsers';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -126,7 +127,10 @@ const Layout = () => {
         </Route>
         <Route element={<MainLayout />}>
           <Route path="/crop-purchase" element={<CropPurchase />} />
-        </Route>        
+        </Route>  
+        <Route element={<MainLayout />}>
+          <Route path="/client-users" element={<ClientUser />} />
+        </Route>      
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>
