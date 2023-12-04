@@ -11,7 +11,8 @@ const tabArray = ['User List', 'User Detail'];
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
     { accessor: 'clientName', Header: 'Client Name' },
-    { accessor: 'loginUserName', Header: 'Username' },
+    { accessor: 'loginName', Header: 'User Name' },
+    { accessor: 'loginUserName', Header: 'Login User Id' },
     { accessor: 'loginUserEmailId', Header: 'Email Id' },
     { accessor: 'loginUserMobileNumber', Header: 'Mobile Number' },
     { accessor: 'lastLoginDate', Header: 'Last Login Date' },
@@ -141,6 +142,7 @@ export const User = () => {
     const userValidation = () => {
         const clientErr = {};
         const loginUserNameErr = {};
+        const loginNameErr = {};
 
         let isValid = true;
         if (!userData.encryptedClientCode) {
@@ -155,10 +157,17 @@ export const User = () => {
             setFormError(true);
         }
 
+        if(!userData.loginName){
+            loginNameErr.loginNameErrEmpty = "Enter name"
+            isValid = false;
+            setFormError(true);
+        }
+
         if (!isValid) {
             var errorObject = {
                 clientErr,
                 loginUserNameErr,
+                loginNameErr,
             }
             dispatch(userDetailsErrorAction(errorObject))
         }
@@ -201,6 +210,7 @@ export const User = () => {
             const requestData = {
                 encryptedClientCode: userData.encryptedClientCode,
                 clientName: userData.clientName,
+                loginName: userData.loginName,
                 loginUserEmailId: userData.loginUserEmailId,
                 loginUserMobileNumber: userData.loginUserMobileNumber,
                 loginUserName: userData.loginUserName,
@@ -266,6 +276,7 @@ export const User = () => {
             const updatedUserData = {
                 encryptedClientCode: userData.encryptedClientCode,
                 encryptedSecurityUserId: userData.encryptedSecurityUserId,
+                loginName : userData.loginName,
                 loginUserEmailId: userData.loginUserEmailId,
                 loginUserMobileNumber: userData.loginUserMobileNumber,
                 loginUserName: userData.loginUserName,

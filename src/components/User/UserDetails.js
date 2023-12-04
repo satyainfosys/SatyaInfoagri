@@ -51,6 +51,7 @@ export const UserDetails = () => {
     const resetUserDetail = () => {
         dispatch(userDetailsAction({
             "encryptedClientCode": "",
+            "loginName": "",
             "loginUserName": "",
             "loginUserEmailId": "",
             "loginUserMobileNumber": "",
@@ -189,6 +190,7 @@ export const UserDetails = () => {
                     ...userData,
                     encryptedClientCode: client.encryptedClientCode,
                     clientName: client.customerName,
+                    loginName: client.loginName,
                     loginUserEmailId: client.emailId,
                     loginUserMobileNumber: client.mobileNo,
                     noOfUser: client.noOfCreatedUser
@@ -292,86 +294,97 @@ export const UserDetails = () => {
                 </Form>
             } */}
 
-            <Row>
-                <Col lg={3} className="no-pd-card no-right-pad">
-                    <FalconComponentCard className="farmer-card-row1">
-                        <FalconCardBody className="full-tab-page-card-body">
-                            <Form noValidate validated={formHasError} className="details-form" id='UserDetailsForm'>
-                                <Row>
-                                    <Col className="me-3 ms-3">
-                                        <Row className="mb-3">
-                                            <Form.Label>Client<span className="text-danger">*</span></Form.Label>
-                                            <Form.Select id="txtClient" name="encryptedClientCode" onChange={handleFieldChange} required disabled={userData.encryptedSecurityUserId}>
-                                                <option value=''>Select Client</option>
-                                                {clientList.map((option, index) => (
-                                                    <option key={index} value={option.value}>{option.key}</option>
-                                                ))}
-                                            </Form.Select>
-                                            {Object.keys(userError.clientErr).map((key) => {
-                                                return <span className="error-message">{userError.clientErr[key]}</span>
-                                            })}
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>Country</Form.Label>
-                                            <Form.Control id="txtCountry" name="country" disabled />
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>State</Form.Label>
-                                            <Form.Control id="txtState" name="state" disabled />
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>Email</Form.Label>
-                                            <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>Mobile Number</Form.Label>
-                                            <EnlargableTextbox id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin}
-                                                onKeyPress={(e) => {
-                                                    const regex = /[0-9]|\./;
-                                                    const key = String.fromCharCode(e.charCode);
-                                                    if (!regex.test(key)) {
-                                                        e.preventDefault();
-                                                    }
-                                                }} />
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>Username<span className="text-danger">*</span></Form.Label>
-                                            <EnlargableTextbox id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} onChange={handleFieldChange} placeholder="Enter Username" required={true} />
-                                            {Object.keys(userError.loginUserNameErr).map((key) => {
-                                                return <span className="error-message">{userError.loginUserNameErr[key]}</span>
-                                            })}
-                                        </Row>
-                                        <Row className="mb-3">
-                                            <Form.Label>Status</Form.Label>
-                                            <Form.Select id="txtStatus" name="status" value={userData.status} onChange={handleFieldChange}>
-                                                <option value="Active">Active</option>
-                                                <option value="Suspended">Suspended</option>
-                                            </Form.Select>
-                                        </Row>
-                                    </Col>                                    
-                                </Row>
-                            </Form>
-                        </FalconCardBody>
-                    </FalconComponentCard>
-                </Col>
-                <Col lg={9} className="no-pd-card col-left-pad">
-                    <FalconComponentCard className="farmer-card-row1">
-                        <FalconCardBody className="full-tab-page-card-body" language="jsx">
-                            <Col className="me-3 ms-3">
-                                <Treeview
-                                    data={treeViewItems}
-                                    selection
-                                    defaultSelected={[]}
-                                    selectedItems={selectedItems}
-                                    setSelectedItems={setSelectedItems}
-                                // expanded={['1', '2', '3', '7', '18']}
-                                />
-                            </Col>
-                        </FalconCardBody>
-                    </FalconComponentCard>
-                </Col>
-            </Row>
+            {
+                userData &&
+                <Row>
+                    <Col lg={3} className="no-pd-card no-right-pad">
+                        <FalconComponentCard className="farmer-card-row1">
+                            <FalconCardBody className="full-tab-page-card-body">
+                                <Form noValidate validated={formHasError} className="details-form" id='UserDetailsForm'>
+                                    <Row>
+                                        <Col className="me-3 ms-3">
+                                            <Row className="mb-3">
+                                                <Form.Label>Client<span className="text-danger">*</span></Form.Label>
+                                                <Form.Select id="txtClient" name="encryptedClientCode" onChange={handleFieldChange} required disabled={userData.encryptedSecurityUserId}>
+                                                    <option value=''>Select Client</option>
+                                                    {clientList.map((option, index) => (
+                                                        <option key={index} value={option.value}>{option.key}</option>
+                                                    ))}
+                                                </Form.Select>
+                                                {Object.keys(userError.clientErr).map((key) => {
+                                                    return <span className="error-message">{userError.clientErr[key]}</span>
+                                                })}
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Country</Form.Label>
+                                                <Form.Control id="txtCountry" name="country" disabled />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>State</Form.Label>
+                                                <Form.Control id="txtState" name="state" disabled />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Email</Form.Label>
+                                                <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Mobile Number</Form.Label>
+                                                <EnlargableTextbox id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin}
+                                                    onKeyPress={(e) => {
+                                                        const regex = /[0-9]|\./;
+                                                        const key = String.fromCharCode(e.charCode);
+                                                        if (!regex.test(key)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }} />
+                                            </Row>
 
+                                            <Row className="mb-3">
+                                                <Form.Label>User Name<span className="text-danger">*</span></Form.Label>
+                                                <EnlargableTextbox id="txtName" name="loginName" maxLength={20} value={userData.loginName} onChange={handleFieldChange} placeholder="User Name" required={true} />
+                                                {Object.keys(userError.loginNameErr).map((key) => {
+                                                    return <span className="error-message">{userError.loginNameErr[key]}</span>
+                                                })}
+                                            </Row>
+
+                                            <Row className="mb-3">
+                                                <Form.Label>Login User Id<span className="text-danger">*</span></Form.Label>
+                                                <EnlargableTextbox id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} onChange={handleFieldChange} placeholder="Login User Id" required={true} />
+                                                {Object.keys(userError.loginUserNameErr).map((key) => {
+                                                    return <span className="error-message">{userError.loginUserNameErr[key]}</span>
+                                                })}
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Status</Form.Label>
+                                                <Form.Select id="txtStatus" name="status" value={userData.status} onChange={handleFieldChange}>
+                                                    <option value="Active">Active</option>
+                                                    <option value="Suspended">Suspended</option>
+                                                </Form.Select>
+                                            </Row>
+                                        </Col>
+                                    </Row>
+                                </Form>
+                            </FalconCardBody>
+                        </FalconComponentCard>
+                    </Col>
+                    <Col lg={9} className="no-pd-card col-left-pad">
+                        <FalconComponentCard className="farmer-card-row1">
+                            <FalconCardBody className="full-tab-page-card-body" language="jsx">
+                                <Col className="me-3 ms-3">
+                                    <Treeview
+                                        data={treeViewItems}
+                                        selection
+                                        defaultSelected={[]}
+                                        selectedItems={selectedItems}
+                                        setSelectedItems={setSelectedItems}
+                                    // expanded={['1', '2', '3', '7', '18']}
+                                    />
+                                </Col>
+                            </FalconCardBody>
+                        </FalconComponentCard>
+                    </Col>
+                </Row>
+            }
         </>
     )
 }
