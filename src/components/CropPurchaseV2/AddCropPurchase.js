@@ -368,18 +368,22 @@ const AddCropPurchase = () => {
                 </Modal>
             }
 
-            <Card className="mb-1" md>
-                <Card.Body>
-                    <Row className="justify-content-between align-items-center">
-                        <Col sm={4} lg={2} className='no-pd-card'>
-                            <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
+            <Card className="mb-1">
+                <Card.Body className='p5px'>
+                    <Row className="justify-content-center">
+                        <Col className='col-auto no-pd-card'>
+                            <Form.Group as={Row} className="mt-1">
+                                <h5 className='col-auto'>
+                                    {localStorage.getItem("CompanyName")}
+                                </h5>
+                            </Form.Group>
                         </Col>
-                        <Col sm={6} lg={4} className='no-pd-card'>
-                            <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                                <Form.Label column sm="3">
+                        <Col className='col-auto no-pd-card'>
+                            <Form.Group as={Row} controlId="formPlaintextPassword">
+                                <Form.Label className='col-auto' column>
                                     DC Name
                                 </Form.Label>
-                                <Col sm="6">
+                                <Col className='col-auto'>
                                     <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} >
                                         <option value=''>Select Distribution</option>
                                         {distributionList &&
@@ -392,12 +396,12 @@ const AddCropPurchase = () => {
                             </Form.Group>
                         </Col>
 
-                        <Col sm={6} lg={4} className='no-pd-card'>
-                            <Form.Group as={Row} className="mb-1">
-                                <Form.Label column sm={4}>
-                                    Collection Centre
+                        <Col className='no-pd-card col-auto'>
+                            <Form.Group as={Row}>
+                                <Form.Label className='col-auto' column>
+                                    Col. Centre
                                 </Form.Label>
-                                <Col sm={6}>
+                                <Col className='col-auto'>
                                     <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}>
                                         <option value=''>Select Collection Centre</option>
                                         {collectionCentreList &&
@@ -410,7 +414,7 @@ const AddCropPurchase = () => {
                             </Form.Group>
                         </Col>
 
-                        <Col xs="auto">
+                        <Col className='col-auto'>
                             {purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved" &&
                                 <IconButton
                                     variant="falcon-default"
@@ -434,7 +438,7 @@ const AddCropPurchase = () => {
                                     variant="falcon-success"
                                     size="sm"
                                     icon="plus"
-                                    className="me-2 mb-2 mb-sm-1"
+                                    className="me-2"
                                     onClick={() => onSelectFarmerClick()}
                                 >
                                     {purchaseOrderData.farmerCode ? "Change Farmer" : "Select Farmer"}
