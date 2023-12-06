@@ -668,7 +668,7 @@ const PurchaseOrderProductDetails = () => {
                 />
                 {
                     purchaseOrderProductDetailsData && purchaseOrderProductDetailsData.length > 0 &&
-                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                    <Card.Body className="position-relative pb-0 p3px cp-table-card">
                         <Form
                             noValidate
                             validated={formHasError || (purchaseOrderErr.poProductDetailsErr && purchaseOrderErr.poProductDetailsErr.invalidPoProductDetail)}

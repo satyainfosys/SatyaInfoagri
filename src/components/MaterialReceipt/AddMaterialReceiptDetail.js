@@ -474,7 +474,7 @@ const AddMaterialReceiptDetail = () => {
 
             <Card className="h-100 mb-2">
                 <FalconCardHeader
-                    title="Material Details"
+                    title="Material Details"
                     titleTag="h6"
                     className="py-2"
                     light
@@ -501,7 +501,7 @@ const AddMaterialReceiptDetail = () => {
                 />
                 {
                     materialReceiptData && materialReceiptData.length > 0 &&
-                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                    <Card.Body className="position-relative pb-0 p3px mr-table-card">
                         <Form
                             noValidate
                             validated={formHasError || (materialDataErr.materialReceiptDetailErr && materialDataErr.materialReceiptDetailErr.invalidMaterialReceiptDetail)}

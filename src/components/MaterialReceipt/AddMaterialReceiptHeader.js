@@ -177,7 +177,7 @@ const AddMaterialReceiptHeader = () => {
     return (
         <>
             <Card className="mb-1">
-                <Card.Body>
+                <Card.Body className="card-header">
                     <Row className="justify-content-between align-items-center">
                         <Col sm={6} lg={4} className='no-pd-card'>
                             <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
