@@ -97,6 +97,16 @@
         overflow-y: scroll;
     }
 
+    .cp-table-card {
+        min-height: 155px;
+        overflow-y: scroll;
+    }
+
+    .mr-table-card {
+        min-height: 155px;
+        overflow-y: scroll;
+    }
+
     .big-card-table {
         min-height: 320px;
         overflow-y: scroll;
@@ -156,6 +166,18 @@
     .tab-page-button-table-card {
         max-height: 162px;
         min-height: 162px;
+        overflow-y: scroll;
+    }
+
+    .cp-table-card {
+        max-height: 162px;
+        min-height: 162px;
+        overflow-y: scroll;
+    }
+
+    .mr-table-card {
+        min-height: 157px;
+        max-height: 157px;
         overflow-y: scroll;
     }
 
@@ -247,6 +269,18 @@
         overflow-y: scroll;
     }
 
+    .cp-table-card {
+        min-height: 233px;
+        max-height: 233px;
+        overflow-y: scroll;
+    }
+
+    .mr-table-card {
+        min-height: 226px;
+        max-height: 226px;
+        overflow-y: scroll;
+    }
+
     .big-card-table {
         min-height: 340px;
         overflow-y: scroll;
@@ -289,13 +323,25 @@
 
 @media (min-width:1600px) {
     .tab-page-tab {
-        max-height: 594px;
+        min-height: 627px;
+        max-height: 627px;
         overflow-y: scroll;
     }
 
     .tab-page-button-table-card {
         min-height: 237px;
         max-height: 237px;
+        overflow-y: scroll;
+    }
+
+    .cp-table-card {
+        min-height: 310px;
+        overflow-y: scroll;
+    }
+
+    .mr-table-card {
+        min-height: 323px;
+        max-height: 323px;
         overflow-y: scroll;
     }
 
@@ -338,7 +384,8 @@
     }
 
     .tab-page-tab {
-        max-height: 680px;
+        min-height: 676px;
+        max-height: 676px;
         overflow-y: scroll;
     }
 
@@ -356,6 +403,18 @@
     .tab-page-button-table-card {
         min-height: 262px;
         max-height: 262px;
+        overflow-y: scroll;
+    }
+
+    .cp-table-card {
+        min-height: 360px;
+        max-height: 360px;
+        overflow-y: scroll;
+    }
+
+    .mr-table-card {
+        min-height: 373px;
+        max-height: 373px;
         overflow-y: scroll;
     }
 

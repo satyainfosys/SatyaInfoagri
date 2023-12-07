@@ -554,9 +554,9 @@ const AddCropPurchaseDetail = () => {
                 </Modal >
             }
 
-            <Card className="h-100 mb-2">
+            <Card className="h-100">
                 <FalconCardHeader
-                    title="Crop Purchase Details"
+                    title="Crop Purchase Details"
                     titleTag="h6"
                     className="py-2"
                     light
@@ -586,7 +586,7 @@ const AddCropPurchaseDetail = () => {
 
                 {
                     purchaseOrderProductDetailsData && purchaseOrderProductDetailsData.length > 0 &&
-                    <Card.Body className="position-relative pb-0 p3px tab-page-button-table-card">
+                    <Card.Body className="position-relative pb-0 p3px cp-table-card">
                         <Form
                             noValidate
                             validated={formHasError || (purchaseOrderErr.poProductDetailsErr && purchaseOrderErr.poProductDetailsErr.invalidPoProductDetail)}
