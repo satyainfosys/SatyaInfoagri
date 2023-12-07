@@ -109,7 +109,7 @@ export const ClientUsers = () => {
 			$("#btnCancel").hide();
 			$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', true);
 			$('#ClientUserDetailsForm').get(0).reset();
-			localStorage.removeItem("EncryptedResponseSecurityUserId");
+			localStorage.removeItem("EncryptedClientSecurityUserId");
 			$("#btnDiscard").attr("isDiscard", false)
 			dispatch(userDetailsAction(undefined));
 			clearUserDetailsReducer();
@@ -149,7 +149,7 @@ export const ClientUsers = () => {
 		const stateErr = {};
 
 		let isValid = true;
-		if (!userData.encryptedCompanyCode) {
+		if (!userData.companyCode) {
 			companyErr.empty = "Select company";
 			isValid = false;
 			setFormError(true);
@@ -264,10 +264,10 @@ export const ClientUsers = () => {
 						setTimeout(function () {
                             dispatch(userDetailsAction({
                                 ...userData,
-                                EncryptedResponseSecurityUserId: res.data.data.encryptedSecurityUserId
+                                EncryptedClientSecurityUserId: res.data.data.encryptedSecurityUserId
                             }))
                         }, 50);
-                        localStorage.setItem("EncryptedResponseSecurityUserId", res.data.data.encryptedSecurityUserId);
+                        localStorage.setItem("EncryptedClientSecurityUserId", res.data.data.encryptedSecurityUserId);
                         toast.success(res.data.message, {
                             theme: 'colored',
                             autoClose: 10000
@@ -283,6 +283,137 @@ export const ClientUsers = () => {
 				})
 		}
 	}
+
+	const updateClientUserDetails = async () => {
+
+        let addUserAccessRights = [];
+        let deleteUserAccessRights = [];
+
+        if (userValidation()) {
+            let uniqueTreeIds = [...new Set(selectedProductItems)]
+
+            if (userData.treeIds && userData.treeIds.length > 0) {
+                for (let i = 0; i < uniqueTreeIds.length; i++) {
+                    if (!userData.treeIds.includes(uniqueTreeIds[i])) {
+                        addUserAccessRights.push(uniqueTreeIds[i]);
+                    }
+                }
+
+                for (let i = 0; i < userData.treeIds.length; i++) {
+                    if (!uniqueTreeIds.includes(userData.treeIds[i])) {
+                        deleteUserAccessRights.push(userData.treeIds[i]);
+                    }
+                }
+            } else if (uniqueTreeIds.length > 0) {
+                addUserAccessRights = uniqueTreeIds;
+            }
+
+            const updatedUserData = {
+                encryptedClientCode: userData.encryptedClientCode,
+                encryptedSecurityUserId: userData.EncryptedClientSecurityUserId,
+                loginName : userData.loginName,
+                loginUserEmailId: userData.loginUserEmailId,
+                loginUserMobileNumber: userData.loginUserMobileNumber,
+                loginUserName: userData.loginUserName,
+                ActiveStatus: !userData.status || userData.status == "Active" ? "A" : "S",
+                ModifyUser: localStorage.getItem("LoginUserName"),
+				countryCode: userData.countryCode,
+				stateCode: userData.stateCode,
+				distributionCentreCode: userData.distributionCentreCode,
+				collCentreCode: userData.collectionCentreCode,
+				encryptedCompanyCode: userData.encryptedCompanyCode,
+            }
+
+            const keys = ['loginUserName', 'ModifyUser']
+            for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
+                updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
+            }
+
+            var hasError = false;
+
+            if (formChangedData.userDetailUpdate) {
+                setIsLoading(true);
+                await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                })
+                    .then(res => {
+                        setIsLoading(false);
+                        if (res.data.status != 200) {
+                            toast.error(res.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                        }
+                    })
+            }
+
+            if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
+                if (!hasError && formChangedData.moduleDetailDelete) {
+                    if (deleteUserAccessRights) {
+                        var deleteUserAccessRightsIndex = 1;
+
+                        for (let i = 0; i < deleteUserAccessRights.length; i++) {
+                            const deleteUserAccessRightsId = deleteUserAccessRights[i]
+                            const data = {
+                                securityUserId: userData.securityUserId,
+                                treeId: deleteUserAccessRightsId
+                            }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            const deleteUserAccessRightsResponse =
+                                await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-user-access-rights', { headers, data });
+                            if (deleteUserAccessRightsResponse.data.status != 200) {
+                                toast.error(deleteUserAccessRightsResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteUserAccessRightsIndex++
+                    }
+                }
+
+                var moduleDetailIndex = 1;
+                for (let i = 0; i < addUserAccessRights.length; i++) {
+
+                    const treeId = addUserAccessRights[i];
+
+                    if (formChangedData.moduleDetailAdd) {
+                        const requestData = {
+                            securityUserId: userData.securityUserId,
+                            clientCode: userData.clientCode,
+                            treeId: treeId,
+                            addUser: localStorage.getItem("LoginUserName").toUpperCase()
+                        }
+
+                        setIsLoading(true);
+                        const addModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-user-access-rights', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (addModuleDetailResponse.data.status != 200) {
+                            toast.error(addModuleDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    moduleDetailIndex++
+                }
+            }
+            if (!hasError) {
+                updateClientUserCallback();
+                dispatch(userDetailsAction({
+                    ...userData,
+                    treeIds: uniqueTreeIds
+                }))
+            }
+        }
+    }
 
 	return (
 		<>
@@ -323,7 +454,7 @@ export const ClientUsers = () => {
 				newDetails={newDetails}
 				cancelClick={cancelClick}
 				exitModule={exitModule}
-				saveDetails={addClientUserDetails}
+				saveDetails={!userData.encryptedSecurityUserId ? addClientUserDetails : updateClientUserDetails}
 			/>
 		</>
 	)

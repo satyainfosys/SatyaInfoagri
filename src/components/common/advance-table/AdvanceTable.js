@@ -25,7 +25,14 @@ const AdvanceTable = ({
   var clientUserData = clientDataReducer.clientData;
 
   const toTabPage = (rowData) => {
-    if (rowData.hasOwnProperty('encryptedCompanyCode')) {
+    if (rowData.hasOwnProperty('encryptedSecurityUserId') && rowData.hasOwnProperty('isClientUser')) {
+      dispatch(userDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
+      localStorage.setItem('EncryptedClientSecurityUserId', rowData.encryptedSecurityUserId);
+      $('#btnSave').attr('disabled', true);
+    }
+    else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(companyDetailsAction(rowData));
       $("#contactListChkBoxRow").hide();
       $("#clientChkBoxRow").hide();

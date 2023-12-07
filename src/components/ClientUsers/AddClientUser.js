@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux';
 import { Col, Form, Row } from 'react-bootstrap';
 import axios from 'axios';
-import { selectedProductsAction, userDetailsAction, distributionCentreDetailsAction, collectionCentreDetailsAction, formChangedAction } from 'actions/index';
-import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import { selectedProductsAction, userDetailsAction, formChangedAction } from 'actions/index';
 import Treeview from 'components/common/Treeview';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import FalconCardBody from 'components/common/FalconCardBody';
@@ -19,6 +18,7 @@ export const AddClientUser = () => {
   const [countryList, setCountryList] = useState([]);
   const [stateList, setStateList] = useState([]);
   const [clientName, setClientName] = useState("");
+  const [companyMasterList, setCompanyMasterList] = useState([]);
 
   const userDetailsReducer = useSelector((state) => state.rootReducer.userDetailsReducer)
   var userData = userDetailsReducer.userDetails;
@@ -51,7 +51,7 @@ export const AddClientUser = () => {
       "loginUserEmailId": "",
       "loginUserMobileNumber": "",
       "distributionCentreCode": "",
-      "collectionCentreCode": "",
+      "collCentreCode": "",
       "countryCode": "",
       "stateCode": "",
       "status": "Active"
@@ -98,10 +98,11 @@ export const AddClientUser = () => {
     });
     if (companyResponse.data.status == 200) {
       if (companyResponse.data && companyResponse.data.data.length > 0) {
+        setCompanyMasterList(companyResponse.data.data);
         companyResponse.data.data.forEach(company => {
           companyData.push({
             key: company.companyName,
-            value: company.encryptedCompanyCode
+            value: company.companyCode
           })
         })
       }
@@ -224,6 +225,16 @@ export const AddClientUser = () => {
     fetchStates(userData.countryCode)
   }
 
+  if (userData.distributionCentreCode &&
+    !$('#txtDistributionCentreCode').val()) {
+      fetchDistributionCentreList(userData.encryptedCompanyCode)
+  }
+
+  if (userData.collCentreCode &&
+    !$('#txtCollectionCentreCode').val()) {
+      fetchCollectionCentreList(userData.distributionCentreCode)
+  }
+
   const getClientModuleDetail = async () => {
     const request = {
       encryptedClientCode: localStorage.getItem("EncryptedClientCode")
@@ -243,31 +254,35 @@ export const AddClientUser = () => {
 
   const handleFieldChange = e => {
     if (e.target.name === 'company') {
+      var companyDetail = companyMasterList.find(company => company.companyCode == e.target.value);
       dispatch(userDetailsAction({
         ...userData,
-        encryptedCompanyCode: e.target.value,
+        companyCode: e.target.value,
+        encryptedCompanyCode: companyDetail ? companyDetail.encryptedCompanyCode : "",
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         clientName: clientName,
         distributionCentreCode: null,
-        collectionCentreCode: null,
+        collCentreCode: null,
       }));
       setDistributionCentreList([]);
       setCollectionCentreList([]);
-      fetchDistributionCentreList(e.target.value);
+      fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
     }
-    else if (e.target.name === 'distributionCentre') {
+    else if (e.target.name === 'distributionCentreCode') {
+      var distributionDetail = setDistributionCentreList.find(distribution => distribution.distributionCentreCode == e.target.value);
       dispatch(userDetailsAction({
         ...userData,
+        encryptedDistributionCentreCode: distributionDetail.distributionCentreCode,
         distributionCentreCode: e.target.value,
-        collectionCentreCode: null
+        collCentreCode: null
       }));
       setCollectionCentreList([]);
       fetchCollectionCentreList(e.target.value);
     }
-    else if (e.target.name == 'collectionCentre') {
+    else if (e.target.name == 'collCentreCode') {
       dispatch(userDetailsAction({
         ...userData,
-        collectionCentreCode: e.target.value,
+        collCentreCode: e.target.value,
       }))
     }
     else if (e.target.name == 'country') {
@@ -321,7 +336,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Company<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCompany" name="company" onChange={handleFieldChange}
+                        <Form.Select id="txtCompany" name="company" value={userData.companyCode} onChange={handleFieldChange}
                         >
                           <option value=''>Select Company</option>
                           {companyList.map((option, index) => (
@@ -334,7 +349,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Distribution Centre<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtDistributionCentre" name="distributionCentre" onChange={handleFieldChange}
+                        <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={userData.distributionCentreCode} onChange={handleFieldChange}
                         >
                           <option value=''>Select Distribution Centre</option>
                           {distributionCentreList.map((option, index) => (
@@ -347,7 +362,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Collection Centre<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCollectionCentre" name="collectionCentre" onChange={handleFieldChange}
+                        <Form.Select id="txtCollectionCentreCode" name="collCentreCode" value={userData.collCentreCode}  onChange={handleFieldChange}
                         >
                           <option value=''>Select Collection Centre</option>
                           {collectionCentreList.map((option, index) => (
@@ -395,14 +410,14 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Email<span className="text-danger">*</span></Form.Label>
-                        <Form.Control id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} className="mb-1" placeholder="Email" onChange={handleFieldChange}/>
+                        <Form.Control id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} className="mb-1" placeholder="Email" onChange={handleFieldChange} />
                         {Object.keys(userError.emailErr).map((key) => {
                           return <span className="error-message">{userError.emailErr[key]}</span>
                         })}
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Country<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCountry" name="country" onChange={handleFieldChange}
+                        <Form.Select id="txtCountry" name="country" value={userData.countryCode} onChange={handleFieldChange}
                         >
                           <option value=''>Select Country</option>
                           {countryList.map((option, index) => (
@@ -415,7 +430,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>State<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtState" name="state" onChange={handleFieldChange}
+                        <Form.Select id="txtState" name="state" value={userData.stateCode} onChange={handleFieldChange}
                         >
                           <option value=''>Select State</option>
                           {stateList.map((option, index) => (
