@@ -2,7 +2,15 @@ const initialState = {
   userDetailsError: {
     clientErr: {},    
     loginUserNameErr: {},
-    loginNameErr: {}
+    loginNameErr: {},
+    companyErr: {},
+    distributionCentreErr: {},
+    collectionCentreNameErr: {},
+    userNameErr: {},
+    mobileNumberErr: {},
+    emailErr: {},
+    countryErr: {},
+    stateErr: {}, 
   }
 };
 

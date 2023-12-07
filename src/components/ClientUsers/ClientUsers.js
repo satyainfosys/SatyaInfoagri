@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
+import { userDetailsErrorAction, userDetailsAction, formChangedAction, selectedProductsAction } from '../../actions/index';
 
 const tabArray = ['Client Users List', 'Add Client User'];
 
@@ -24,19 +25,33 @@ export const ClientUsers = () => {
 	const [isLoading, setIsLoading] = useState(false);
 	const [modalShow, setModalShow] = useState(false);
 	const [perPage, setPerPage] = useState(15);
+	const [formHasError, setFormError] = useState(false);
+
+	const dispatch = useDispatch();
 
 	useEffect(() => {
 		$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', true);
-		fetchClientUsersList()
+		fetchClientUsersList(1)
 	}, []);
 
 	const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
 	var formChangedData = formChangedReducer.formChanged;
 
+	const userDetailsReducer = useSelector((state) => state.rootReducer.userDetailsReducer)
+	const userData = userDetailsReducer.userDetails;
+
 	let isFormChanged = Object.values(formChangedData).some(value => value === true);
+
+	const selectedProductsReducer = useSelector((state) => state.rootReducer.selectedProductsReducer)
+    var selectedProductItems = selectedProductsReducer.selectedProducts;
 
 	const [activeTabName, setActiveTabName] = useState();
 
+	const clearUserDetailsReducer = () => {
+		dispatch(userDetailsErrorAction(undefined));
+		dispatch(formChangedAction(undefined));
+		dispatch(selectedProductsAction([]));
+}
 
 	$('[data-rr-ui-event-key*="Add Client User"]').off('click').on('click', function () {
 		setActiveTabName("Add Client User")
@@ -78,7 +93,6 @@ export const ClientUsers = () => {
 			window.location.href = '/dashboard';
 		else
 			$('[data-rr-ui-event-key*="Client Users List"]').trigger('click');
-
 		setModalShow(false);
 	}
 
@@ -94,11 +108,13 @@ export const ClientUsers = () => {
 			$("#btnSave").hide();
 			$("#btnCancel").hide();
 			$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', true);
+			$('#ClientUserDetailsForm').get(0).reset();
 			localStorage.removeItem("EncryptedResponseSecurityUserId");
 			$("#btnDiscard").attr("isDiscard", false)
+			dispatch(userDetailsAction(undefined));
+			clearUserDetailsReducer();
 		}
 	})
-
 
 	const fetchClientUsersList = async (page, size = perPage) => {
 		let token = localStorage.getItem('Token');
@@ -121,6 +137,153 @@ export const ClientUsers = () => {
 			});
 	};
 
+	const userValidation = () => {
+		const companyErr = {};
+		const distributionCentreErr = {};
+		const collectionCentreNameErr = {};
+		const loginNameErr = {};
+		const userNameErr = {};
+		const mobileNumberErr = {};
+		const emailErr = {};
+		const countryErr = {};
+		const stateErr = {};
+
+		let isValid = true;
+		if (!userData.encryptedCompanyCode) {
+			companyErr.empty = "Select company";
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.distributionCentreCode) {
+			distributionCentreErr.distributionCentreEmpty = "Select distribution centre"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.collectionCentreCode) {
+			collectionCentreNameErr.collectionCentreNameEmpty = "Select collection centre"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.loginName) {
+			loginNameErr.loginNameEmpty = "Enter user name"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.loginUserName) {
+			userNameErr.userNameEmpty = "Enter login user id"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.loginUserMobileNumber) {
+			mobileNumberErr.mobileNumberEmpty = "Enter mobile number"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.loginUserEmailId) {
+			emailErr.emailEmpty = "Enter email"
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.countryCode) {
+			countryErr.empty = "Select country";
+			isValid = false;
+			setFormError(true);
+		}
+		if (!userData.stateCode) {
+			stateErr.empty = "Select state";
+			isValid = false;
+			setFormError(true);
+		}
+		if (!isValid) {
+			var errorObject = {
+				companyErr,
+				distributionCentreErr,
+				collectionCentreNameErr,
+				loginNameErr,
+				userNameErr,
+				mobileNumberErr,
+				emailErr,
+				countryErr,
+				stateErr,
+			}
+			dispatch(userDetailsErrorAction(errorObject))
+		}
+		return isValid;
+	}
+
+	const updateClientUserCallback = (clientUserDetailAdd = false) => {
+        setModalShow(false);
+
+        if (!clientUserDetailAdd) {
+            toast.success("Client user details updated successfully", {
+                time: 'colored'
+            })
+        }
+
+        $('#btnSave').attr('disabled', true)
+
+        clearUserDetailsReducer();
+
+        fetchClientUsersList(1, perPage);
+
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+    }
+
+	const addClientUserDetails = () => {
+		if (userValidation()) {
+			const requestData = {
+				encryptedClientCode: userData.encryptedClientCode,
+				encryptedCompanyCode: userData.encryptedCompanyCode,
+				clientName: userData.clientName,
+				loginName: userData.loginName,
+				loginUserEmailId: userData.loginUserEmailId,
+				loginUserMobileNumber: userData.loginUserMobileNumber,
+				loginUserName: userData.loginUserName,
+				moduleCode: localStorage.getItem("ModuleCode"),
+				distributionCentreCode: userData.distributionCentreCode,
+				collCentreCode: userData.collectionCentreCode,
+				treeIds: selectedProductItems,
+				activeStatus: userData.status == null || userData.status == "Active" ? "A" : "S",
+				addUser: localStorage.getItem("LoginUserName"),
+				countryCode: userData.countryCode,
+				stateCode: userData.stateCode
+			} 
+
+			const keys = ['loginUserName', 'addUser','clientName','loginName']
+			for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+				requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
+			}
+
+			setIsLoading(true);
+			axios.post(process.env.REACT_APP_API_URL + '/add-user', requestData, {
+				headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+			})
+				.then(res => {
+					if (res.data.status == 200) {
+						setIsLoading(false);
+						setTimeout(function () {
+                            dispatch(userDetailsAction({
+                                ...userData,
+                                EncryptedResponseSecurityUserId: res.data.data.encryptedSecurityUserId
+                            }))
+                        }, 50);
+                        localStorage.setItem("EncryptedResponseSecurityUserId", res.data.data.encryptedSecurityUserId);
+                        toast.success(res.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        })
+                        updateClientUserCallback(true);
+					} else {
+						setIsLoading(false);
+						toast.error(res.data.message, {
+							theme: 'colored',
+							autoClose: 10000
+						});
+					}
+				})
+		}
+	}
+
 	return (
 		<>
 			{isLoading ? (
@@ -130,7 +293,7 @@ export const ClientUsers = () => {
 				/>
 			) : null}
 
-			{/* {modalShow &&
+			{modalShow &&
                 <Modal
                     show={modalShow}
                     onHide={() => setModalShow(false)}
@@ -146,11 +309,11 @@ export const ClientUsers = () => {
                         <h4>Do you want to save changes?</h4>
                     </Modal.Body>
                     <Modal.Footer>
-                        <Button variant="success" >Save</Button>
+                        <Button variant="success" onClick={addClientUserDetails} >Save</Button>
                         <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
                     </Modal.Footer>
                 </Modal>
-            } */}
+            }
 
 			<TabPage
 				listData={listData}
@@ -160,6 +323,7 @@ export const ClientUsers = () => {
 				newDetails={newDetails}
 				cancelClick={cancelClick}
 				exitModule={exitModule}
+				saveDetails={addClientUserDetails}
 			/>
 		</>
 	)
