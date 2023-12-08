@@ -651,7 +651,6 @@ const CropPurchase = () => {
 
     const validateGenerateReportModal = () => {
         console.log(fromDate)
-        debugger
         let startDateErr = {};
         let endDateErr = {};
 

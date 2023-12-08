@@ -25,12 +25,22 @@ const AdvanceTable = ({
   var clientUserData = clientDataReducer.clientData;
 
   const toTabPage = (rowData) => {
-    if (rowData.hasOwnProperty('encryptedSecurityUserId') && rowData.hasOwnProperty('isClientUser')) {
-      dispatch(userDetailsAction(rowData));
-      $('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', false);
-      $('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
-      localStorage.setItem('EncryptedClientSecurityUserId', rowData.encryptedSecurityUserId);
-      $('#btnSave').attr('disabled', true);
+    if (rowData.hasOwnProperty('encryptedSecurityUserId')) {
+      if (rowData.isClientUser) {
+        dispatch(userDetailsAction(rowData));
+        $('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
+        localStorage.setItem('EncryptedClientSecurityUserId', rowData.encryptedSecurityUserId);
+        $('#btnSave').attr('disabled', true);
+      }
+      else {
+        dispatch(userDetailsAction(rowData));
+        $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', false);
+        $('[data-rr-ui-event-key*="User Detail"]').trigger('click');
+        localStorage.setItem('EncryptedResponseSecurityUserId', rowData.encryptedSecurityUserId);
+        $('#btnSave').attr('disabled', true);
+        getClientDetail(rowData.clientName);
+      }
     }
     else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(companyDetailsAction(rowData));
@@ -41,14 +51,6 @@ const AdvanceTable = ({
       $('#btnSave').attr('disabled', true);
       getCommonContactDetailsList(rowData.encryptedCompanyCode);
       localStorage.setItem('EncryptedResponseCompanyCode', rowData.encryptedCompanyCode);
-    }
-    else if (rowData.hasOwnProperty('encryptedSecurityUserId')) {
-      dispatch(userDetailsAction(rowData));
-      $('[data-rr-ui-event-key*="User Detail"]').attr('disabled', false);
-      $('[data-rr-ui-event-key*="User Detail"]').trigger('click');
-      localStorage.setItem('EncryptedResponseSecurityUserId', rowData.encryptedSecurityUserId);
-      $('#btnSave').attr('disabled', true);
-      getClientDetail(rowData.clientName);
     }
     else if (rowData.hasOwnProperty('encryptedModuleCode')) {
       dispatch(productDetailsAction(rowData))

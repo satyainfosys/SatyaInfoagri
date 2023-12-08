@@ -159,7 +159,7 @@ export const ClientUsers = () => {
 			isValid = false;
 			setFormError(true);
 		}
-		if (!userData.collectionCentreCode) {
+		if (!userData.collCentreCode) {
 			collectionCentreNameErr.collectionCentreNameEmpty = "Select collection centre"
 			isValid = false;
 			setFormError(true);
@@ -184,6 +184,10 @@ export const ClientUsers = () => {
 			isValid = false;
 			setFormError(true);
 		}
+		else if(!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userData.loginUserEmailId))){
+            emailErr.invalid = "Please enter valid email address";
+            isValid = false;
+        }
 		if (!userData.countryCode) {
 			countryErr.empty = "Select country";
 			isValid = false;
@@ -241,7 +245,7 @@ export const ClientUsers = () => {
 				loginUserName: userData.loginUserName,
 				moduleCode: localStorage.getItem("ModuleCode"),
 				distributionCentreCode: userData.distributionCentreCode,
-				collCentreCode: userData.collectionCentreCode,
+				collCentreCode: userData.collCentreCode,
 				treeIds: selectedProductItems,
 				activeStatus: userData.status == null || userData.status == "Active" ? "A" : "S",
 				addUser: localStorage.getItem("LoginUserName"),
@@ -264,7 +268,7 @@ export const ClientUsers = () => {
 						setTimeout(function () {
                             dispatch(userDetailsAction({
                                 ...userData,
-                                EncryptedClientSecurityUserId: res.data.data.encryptedSecurityUserId
+                                encryptedSecurityUserId: res.data.data.encryptedSecurityUserId
                             }))
                         }, 50);
                         localStorage.setItem("EncryptedClientSecurityUserId", res.data.data.encryptedSecurityUserId);
@@ -285,7 +289,6 @@ export const ClientUsers = () => {
 	}
 
 	const updateClientUserDetails = async () => {
-
         let addUserAccessRights = [];
         let deleteUserAccessRights = [];
 
@@ -310,7 +313,7 @@ export const ClientUsers = () => {
 
             const updatedUserData = {
                 encryptedClientCode: userData.encryptedClientCode,
-                encryptedSecurityUserId: userData.EncryptedClientSecurityUserId,
+                encryptedSecurityUserId: userData.encryptedSecurityUserId,
                 loginName : userData.loginName,
                 loginUserEmailId: userData.loginUserEmailId,
                 loginUserMobileNumber: userData.loginUserMobileNumber,
@@ -320,18 +323,18 @@ export const ClientUsers = () => {
 				countryCode: userData.countryCode,
 				stateCode: userData.stateCode,
 				distributionCentreCode: userData.distributionCentreCode,
-				collCentreCode: userData.collectionCentreCode,
+				collCentreCode: userData.collCentreCode,
 				encryptedCompanyCode: userData.encryptedCompanyCode,
             }
 
-            const keys = ['loginUserName', 'ModifyUser']
+            const keys = ['loginUserName', 'ModifyUser', 'loginName']
             for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
                 updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
             }
 
             var hasError = false;
 
-            if (formChangedData.userDetailUpdate) {
+            if (formChangedData.clientUserDetailUpdate) {
                 setIsLoading(true);
                 await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
                     headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
