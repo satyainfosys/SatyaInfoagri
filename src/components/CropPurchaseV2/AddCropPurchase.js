@@ -51,6 +51,10 @@ const AddCropPurchase = () => {
         if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
             $("#btnSave").attr('disabled', true);
         }
+        if(localStorage.getItem("DistributionCenterCode"))
+        {
+            getCollectionCentre(localStorage.getItem("DistributionCenterCode"))
+        }
     }, [])
 
     if (!purchaseOrderDetailsReducer.purchaseOrderDetails ||
@@ -384,7 +388,7 @@ const AddCropPurchase = () => {
                                     DC Name
                                 </Form.Label>
                                 <Col className='col-auto'>
-                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"} >
+                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={localStorage.getItem("DistributionCenterCode") ? localStorage.getItem("DistributionCenterCode") : purchaseOrderData.distributionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved")} >
                                         <option value=''>Select Distribution</option>
                                         {distributionList &&
                                             distributionList.map((option, index) => (
@@ -402,7 +406,7 @@ const AddCropPurchase = () => {
                                     Col. Centre
                                 </Form.Label>
                                 <Col className='col-auto'>
-                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}>
+                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={ localStorage.getItem("CollectionCentreCode") ? localStorage.getItem("CollectionCentreCode") : purchaseOrderData.collectionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved")}>
                                         <option value=''>Select Collection Centre</option>
                                         {collectionCentreList &&
                                             collectionCentreList.map((option, index) => (

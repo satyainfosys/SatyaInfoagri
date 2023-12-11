@@ -41,7 +41,6 @@ const LoginForm = ({ hasLabel }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-    
       const form = e.currentTarget;
       if (form.checkValidity() === false || 
           !handleCaptchaValidation()) {
@@ -100,6 +99,18 @@ const LoginForm = ({ hasLabel }) => {
     localStorage.setItem('NoOfCompany', data.noOfCompany);
     localStorage.setItem('GSTNumber', data.gstNumber);
     localStorage.setItem('Name', data.name);
+    if(data.distributionCentreCode)
+    {
+      localStorage.setItem('DistributionCenterCode',data.distributionCentreCode);
+    }
+    if(data.collectionCentreCode)
+    {
+      localStorage.setItem('CollectionCentreCode', data.collectionCentreCode);
+    }
+    if(data.companyCode)
+    {
+      localStorage.setItem('CompanyCode', data.companyCode);
+    }
   };
 
   const handleFieldChange = e => {

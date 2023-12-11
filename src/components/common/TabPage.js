@@ -116,7 +116,7 @@ const TabPage = ({
     $('.add-farmer-card').removeClass('card');
     $('.add-farmer-card-body').removeClass('bg-light');
     localStorage.removeItem('EncryptedResponseClientCode');
-    localStorage.removeItem("EncryptedCompanyCode");
+    // localStorage.removeItem("EncryptedCompanyCode");
     localStorage.removeItem("EncryptedFarmerCode");
     localStorage.removeItem("ProductCategoryCode");
     localStorage.removeItem("ProductLineCode");

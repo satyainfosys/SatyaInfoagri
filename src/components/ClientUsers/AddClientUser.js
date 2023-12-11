@@ -229,12 +229,12 @@ export const AddClientUser = () => {
 
   if (userData.distributionCentreCode &&
     !$('#txtDistributionCentreCode').val()) {
-      fetchDistributionCentreList(userData.encryptedCompanyCode)
+    fetchDistributionCentreList(userData.encryptedCompanyCode)
   }
 
   if (userData.collCentreCode &&
     !$('#txtCollectionCentreCode').val()) {
-      fetchCollectionCentreList(userData.distributionCentreCode)
+    fetchCollectionCentreList(userData.distributionCentreCode)
   }
 
   const getClientModuleDetail = async () => {
@@ -324,19 +324,23 @@ export const AddClientUser = () => {
                       <Row className="mb-3">
                         <Form.Label><b>Client Name: {clientName} </b></Form.Label>
                       </Row>
-                      <Row className="mb-3">
-                        <Form.Label>Company<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCompanyCode" name="companyCode" value={userData.companyCode} onChange={handleFieldChange}
-                        >
-                          <option value=''>Select Company</option>
-                          {companyList.map((option, index) => (
-                            <option key={index} value={option.value}>{option.key}</option>
-                          ))}
-                        </Form.Select>
-                        {Object.keys(userError.companyErr).map((key) => {
-                          return <span className="error-message">{userError.companyErr[key]}</span>
-                        })}
-                      </Row>
+                      {localStorage.getItem('LoginUserName') != userData.loginUserName &&
+                        <>
+                          <Row className="mb-3">
+                            <Form.Label>Company<span className="text-danger">*</span></Form.Label>
+                            <Form.Select id="txtCompanyCode" name="companyCode" value={userData.companyCode} onChange={handleFieldChange}
+                            >
+                              <option value=''>Select Company</option>
+                              {companyList.map((option, index) => (
+                                <option key={index} value={option.value}>{option.key}</option>
+                              ))}
+                            </Form.Select>
+                            {Object.keys(userError.companyErr).map((key) => {
+                              return <span className="error-message">{userError.companyErr[key]}</span>
+                            })}
+                          </Row>
+                        </>
+                      }
                       <Row className="mb-3">
                         <Form.Label>Distribution Centre<span className="text-danger">*</span></Form.Label>
                         <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={userData.distributionCentreCode} onChange={handleFieldChange}
@@ -352,7 +356,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Collection Centre<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCollectionCentreCode" name="collCentreCode" value={userData.collCentreCode}  onChange={handleFieldChange}
+                        <Form.Select id="txtCollectionCentreCode" name="collCentreCode" value={userData.collCentreCode} onChange={handleFieldChange}
                         >
                           <option value=''>Select Collection Centre</option>
                           {collectionCentreList.map((option, index) => (

@@ -16,22 +16,25 @@ export const InventoryDetailDashboard = () => {
     const [pageNumber, setPageNumber] = useState(1);
     const [pageSize, setPageSize] = useState(5);
     const [inventoryCount, setInventoryCount] = useState(0);
+    const [distributionCentreList, setDistributionCentreList] = useState([]);
+    const [companyMasterList, setCompanyMasterList] = useState([]);
+    const [collectionCentreList, setCollectionCentreList] = useState([]);
+    const [companyName, setCompanyName] = useState();
+    const [distributionMasterList, setDistributionMasterList] = useState([]);
     let pageCount = Math.ceil(inventoryCount / pageSize);
 
     const [mergedInventoryDetailList, setMergedInventoryDetailList] = useState([]);
     let isSearch = false;
 
     const [formData, setFormData] = useState({
-        companyCode: "",
+        companyCode: localStorage.getItem('CompanyCode') ? localStorage.getItem('CompanyCode') : "",
         startDate: null,
         endDate: null,
         productCategoryCode: "",
         searchText: ""
     });
-
     const isPreviousDisabled = pageNumber === 1;
     const isNextDisabled = pageNumber === pageCount;
-
 
     useEffect(() => {
         if (companyList.length <= 0)
@@ -42,6 +45,12 @@ export const InventoryDetailDashboard = () => {
         if (inventoryDetailList && inventoryDetailList.length > 0) {
             const mergedList = mergeRowsByProductLineName(inventoryDetailList);
             setMergedInventoryDetailList(mergedList);
+        }
+        if (localStorage.getItem("CompanyCode")) {
+            fetchDistributionCentreList(localStorage.getItem("CompanyCode"))
+        }
+        if (localStorage.getItem("DistributionCenterCode")) {
+            fetchCollectionCentreList(localStorage.getItem("DistributionCenterCode"))
         }
     }, [inventoryDetailList])
 
@@ -56,7 +65,12 @@ export const InventoryDetailDashboard = () => {
         });
 
         if (companyResponse.data.status == 200) {
+            setCompanyMasterList(companyResponse.data.data);
             if (companyResponse.data && companyResponse.data.data.length > 0) {
+                if (localStorage.getItem('CompanyCode')) {
+                    var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+                    setCompanyName(companyDetail.companyName);
+                }
                 companyResponse.data.data.forEach(company => {
                     companyData.push({
                         key: company.companyName,
@@ -68,6 +82,58 @@ export const InventoryDetailDashboard = () => {
             setCompanyList(companyData)
         } else {
             setCompanyList([])
+        }
+    }
+
+    const fetchDistributionCentreList = async (CompanyCode) => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            CompanyCode: CompanyCode
+        }
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        let distributionCentreListData = [];
+        if (response.data.status == 200) {
+            setDistributionMasterList(response.data.data);
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(distributionCentre => {
+                    distributionCentreListData.push({
+                        key: distributionCentre.distributionName,
+                        value: distributionCentre.distributionCentreCode
+                    })
+                })
+            }
+            setDistributionCentreList(distributionCentreListData)
+        }
+        else {
+            setDistributionCentreList([]);
+        }
+    }
+
+    const fetchCollectionCentreList = async (distributionCentreCode) => {
+        const requestData = {
+            CompanyCode: formData.companyCode ? formData.companyCode : localStorage.getItem("CompanyCode"),
+            DistributionCode: distributionCentreCode
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+        let collectionCentreData = [];
+        if (response.data.status == 200) {
+            if (response.data && response.data.data.length > 0) {
+                response.data.data.forEach(collectionCentre => {
+                    collectionCentreData.push({
+                        key: collectionCentre.collectionCentreName,
+                        value: collectionCentre.collectionCentreCode
+                    })
+                })
+            }
+            setCollectionCentreList(collectionCentreData);
+        }
+        else {
+            setCollectionCentreList([]);
         }
     }
 
@@ -94,11 +160,36 @@ export const InventoryDetailDashboard = () => {
     }
 
     const handleFieldChange = e => {
-        setFormData({
-            ...formData,
-            [e.target.name]: e.target.value
-        })
-
+        if (e.target.name === 'companyCode') {
+            var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
+            setCollectionCentreList([]);
+            setFormData({
+                ...formData,
+                [e.target.name]: companyDetail.companyCode,
+                encryptedCompanyCode: companyDetail.encryptedCompanyCode,
+                distributionCentreCode: null,
+                collectionCentreCode: null,
+            })
+            setDistributionCentreList([]);
+            setCollectionCentreList([]);
+            e.target.value && fetchDistributionCentreList(companyDetail.companyCode);
+        }
+        else if (e.target.name === 'distributionCentreCode') {
+            var distributionDetail = distributionMasterList.find(distribution => distribution.distributionCentreCode == e.target.value);
+            setCollectionCentreList([]);
+            setFormData({
+                ...formData,
+                [e.target.name]: e.target.value,
+                collectionCentreCode: null
+            })
+            e.target.value && fetchCollectionCentreList(distributionDetail.distributionCentreCode);
+        }
+        else {
+            setFormData({
+                ...formData,
+                [e.target.name]: e.target.value
+            })
+        }
         if (e.target.value) {
             isSearch = true;
             setPageNumber(1);
@@ -142,15 +233,28 @@ export const InventoryDetailDashboard = () => {
 
     const fetchInventoryDetailList = async (companyCode, isNull = false, newPageNumber, newPageSize) => {
         if (validateSearchClick(isNull, companyCode)) {
-            const requestData = {
+            let requestData = {
                 EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-                EncryptedCompanyCode: companyCode ? companyCode : formData.companyCode,
                 StartDate: formData.startDate ? Moment(formData.startDate).format("YYYY-MM-DD") : null,
                 EndDate: formData.endDate ? Moment(formData.endDate).format("YYYY-MM-DD") : null,
                 ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : "",
+                DistributionCenterCode: formData.distributionCentreCode,
+                CollectionCenterCode: formData.collectionCentreCode,
                 SearchText: formData.searchText,
                 PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
                 PageSize: newPageSize ? newPageSize : pageSize
+            }
+            if (localStorage.getItem('CompanyCode')) {
+                requestData = {
+                    ...requestData,
+                    CompanyCode: localStorage.getItem('CompanyCode'),
+                }
+            }
+            else {
+                requestData = {
+                    ...requestData,
+                    EncryptedCompanyCode: companyCode ? companyCode : formData.encryptedCompanyCode,
+                }
             }
 
             let response = await axios.post(process.env.REACT_APP_API_URL + '/get-inventory-detail-list', requestData, {
@@ -235,9 +339,34 @@ export const InventoryDetailDashboard = () => {
                         Company<span className="text-danger">*</span>
                     </Form.Label>
                     <Col className='col-auto'>
-                        <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={formData.companyCode}>
-                            <option value=''>Select</option>
-                            {companyList.map((option, index) => (
+                        {
+                            localStorage.getItem('CompanyCode') ?
+                                <Form.Control id="txtCompanyCode" name="companyCode" value={companyName} disabled />
+                                :
+                                <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={formData.companyCode} disabled={localStorage.getItem("CompanyCode")}>
+                                    <option value=''>Select</option>
+                                    {companyList.map((option, index) => (
+                                        <option key={index} value={option.value}>{option.key}</option>
+                                    ))}
+                                </Form.Select>
+                        }
+                    </Col>
+                    <Form.Label column className='col-auto'>Distribution Centre</Form.Label>
+                    <Col className='col-auto'>
+                        <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={localStorage.getItem("DistributionCenterCode") ? localStorage.getItem("DistributionCenterCode") : formData.distributionCentreCode} onChange={handleFieldChange} disabled={localStorage.getItem("DistributionCenterCode")}
+                        >
+                            <option value=''>Select Distribution Centre</option>
+                            {distributionCentreList.map((option, index) => (
+                                <option key={index} value={option.value}>{option.key}</option>
+                            ))}
+                        </Form.Select>
+                    </Col>
+                    <Form.Label column className='col-auto'>Collection Centre</Form.Label>
+                    <Col className='col-auto'>
+                        <Form.Select id="txtCollectionCentreCode" name="collectionCentreCode" value={localStorage.getItem("CollectionCentreCode") ? localStorage.getItem("CollectionCentreCode") : formData.collCentreCode} onChange={handleFieldChange} disabled={localStorage.getItem("CollectionCentreCode")}
+                        >
+                            <option value=''>Select Collection Centre</option>
+                            {collectionCentreList.map((option, index) => (
                                 <option key={index} value={option.value}>{option.key}</option>
                             ))}
                         </Form.Select>
