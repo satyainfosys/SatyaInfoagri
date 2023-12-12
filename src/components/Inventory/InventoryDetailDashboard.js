@@ -71,15 +71,26 @@ export const InventoryDetailDashboard = () => {
                     var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
                     setCompanyName(companyDetail.companyName);
                 }
-                companyResponse.data.data.forEach(company => {
+                if (localStorage.getItem('CompanyCode')) {
+                    var companyDetails = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
                     companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
+                        key: companyDetails.companyName,
+                        value: companyDetails.encryptedCompanyCode,
+                        label: companyDetails.companyName
                     })
-                })
+                    setCompanyList(companyData);
+                }
+                else {
+                    companyResponse.data.data.forEach(company => {
+                        companyData.push({
+                            key: company.companyName,
+                            value: company.encryptedCompanyCode,
+                            label: company.companyName
+                        })
+                    })
+                    setCompanyList(companyData)
+                }
             }
-            setCompanyList(companyData)
         } else {
             setCompanyList([])
         }
@@ -160,7 +171,7 @@ export const InventoryDetailDashboard = () => {
     }
 
     const handleFieldChange = e => {
-        if (e.target.name === 'companyCode') {
+        if (e.target.name === 'companyCode' && e.target.value) {
             var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
             setCollectionCentreList([]);
             setFormData({
@@ -174,7 +185,7 @@ export const InventoryDetailDashboard = () => {
             setCollectionCentreList([]);
             e.target.value && fetchDistributionCentreList(companyDetail.companyCode);
         }
-        else if (e.target.name === 'distributionCentreCode') {
+        else if (e.target.name === 'distributionCentreCode' && e.target.value) {
             var distributionDetail = distributionMasterList.find(distribution => distribution.distributionCentreCode == e.target.value);
             setCollectionCentreList([]);
             setFormData({
@@ -343,7 +354,7 @@ export const InventoryDetailDashboard = () => {
                             localStorage.getItem('CompanyCode') ?
                                 <Form.Control id="txtCompanyCode" name="companyCode" value={companyName} disabled />
                                 :
-                                <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={formData.companyCode} disabled={localStorage.getItem("CompanyCode")}>
+                                <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={formData.encryptedCompanyCode}>
                                     <option value=''>Select</option>
                                     {companyList.map((option, index) => (
                                         <option key={index} value={option.value}>{option.key}</option>

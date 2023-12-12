@@ -151,7 +151,7 @@ export const Farmers = () => {
     }
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedCompanyCode")) {
+        if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Farmer"]').trigger('click');
             $('[data-rr-ui-event-key*="Family"]').attr('disabled', false);
@@ -462,7 +462,7 @@ export const Farmers = () => {
                 else {
                     const combinationString = `${row.contactDetails},${row.contactType}`;
                     if (seenCombination[combinationString]) {
-                        contactErr.invalidContactDetail = "Contact details can not be duplicate";                       
+                        contactErr.invalidContactDetail = "Contact details can not be duplicate";
                         isValid = false;
                         isFamilyTabValid = false
                         setFormError(true);
@@ -708,23 +708,37 @@ export const Farmers = () => {
         const companyRequest = {
             EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
         }
-
         let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
         });
 
         if (companyResponse.data.status == 200) {
             if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
+                if (localStorage.getItem('CompanyCode')) {
+                    var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
                     companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
+                        key: companyDetail.companyName,
+                        value: companyDetail.encryptedCompanyCode,
+                        label: companyDetail.companyName
                     })
-                })
+                    localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+                    localStorage.setItem("CompanyName", companyDetail.companyName)
+                    setCompanyList(companyData);
+                    fetchFarmerList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                    fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
+                }
+                else {
+                    companyResponse.data.data.forEach(company => {
+                        companyData.push({
+                            key: company.companyName,
+                            value: company.encryptedCompanyCode,
+                            label: company.companyName
+                        })
+                    })
+                    setCompanyList(companyData)
+                }
             }
-            setCompanyList(companyData)
-            if(companyResponse.data.data.length == 1){
+            if (companyResponse.data.data.length == 1) {
                 fetchFarmerList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
@@ -733,7 +747,6 @@ export const Farmers = () => {
         } else {
             setCompanyList([])
         }
-
     }
 
     const updateFarmerCallback = (isAddFarmer = false) => {

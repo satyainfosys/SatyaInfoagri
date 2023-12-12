@@ -36,6 +36,10 @@ export const AddClientUser = () => {
     fetchCompanyList();
     fetchCountryList();
     getClientModuleDetail();
+    if (localStorage.getItem("CompanyCode")) {
+      fetchDistributionCentreList()
+      fetchCollectionCentreList()
+    }
   }, []);
 
   useEffect(() => {
@@ -108,6 +112,17 @@ export const AddClientUser = () => {
         })
       }
       setCompanyList(companyData)
+
+      if (localStorage.getItem('CompanyCode')) {
+        var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'))
+        dispatch(userDetailsAction({
+          ...userData,
+          companyCode: localStorage.getItem('CompanyCode'),
+          encryptedCompanyCode: companyDetail ? companyDetail.encryptedCompanyCode : "",
+          companyName: companyDetail ? companyDetail.companyName :"",
+          encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        }))
+      }
     } else {
       setCompanyList([])
     }
@@ -122,15 +137,30 @@ export const AddClientUser = () => {
     });
     if (clientResponse.data.status == 200) {
       setClientName(clientResponse.data.data.customerName);
+      dispatch(userDetailsAction({
+        ...userData,
+        clientName: clientResponse.data.data.customerName,
+      }))
     } else {
       setClientName();
     }
   }
 
   const fetchDistributionCentreList = async (encryptedCompanyCode) => {
-    const request = {
+    let request = {
       EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-      EncryptedCompanyCode: encryptedCompanyCode
+    }
+    if (localStorage.getItem('CompanyCode')) {
+      request = {
+        ...request,
+        companyCode: localStorage.getItem('CompanyCode')
+      }
+    }
+    else {
+      request = {
+        ...request,
+        EncryptedCompanyCode: encryptedCompanyCode
+      }
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -154,9 +184,20 @@ export const AddClientUser = () => {
   }
 
   const fetchCollectionCentreList = async (distributionCentreCode) => {
-    const requestData = {
-      EncryptedCompanyCode: userData.encryptedCompanyCode,
-      DistributionCode: distributionCentreCode
+    let requestData = {
+      DistributionCode: localStorage.getItem('DistributionCenterCode') ? localStorage.getItem('DistributionCenterCode') : distributionCentreCode
+    }
+    if (localStorage.getItem('CompanyCode')) {
+      requestData = {
+        ...requestData,
+        companyCode: localStorage.getItem('CompanyCode')
+      }
+    }
+    else {
+      requestData = {
+        ...requestData,
+        EncryptedCompanyCode: userData.encryptedCompanyCode
+      }
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -255,7 +296,7 @@ export const AddClientUser = () => {
   }
 
   const handleFieldChange = e => {
-    if (e.target.name === 'companyCode') {
+    if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.companyCode == e.target.value);
       dispatch(userDetailsAction({
         ...userData,
@@ -328,13 +369,16 @@ export const AddClientUser = () => {
                         <>
                           <Row className="mb-3">
                             <Form.Label>Company<span className="text-danger">*</span></Form.Label>
-                            <Form.Select id="txtCompanyCode" name="companyCode" value={userData.companyCode} onChange={handleFieldChange}
-                            >
-                              <option value=''>Select Company</option>
-                              {companyList.map((option, index) => (
-                                <option key={index} value={option.value}>{option.key}</option>
-                              ))}
-                            </Form.Select>
+                            {userData.companyName ?
+                              <Form.Control id="txtCompanyCode" name="companyCode" value={userData.companyName} disabled /> :
+                              <Form.Select id="txtCompanyCode" name="companyCode" value={localStorage.getItem('CompanyCode') ? userData.companyName : userData.companyCode} onChange={handleFieldChange} disabled={localStorage.getItem('CompanyCode') ? true : false}
+                              >
+                                <option value=''>Select Company</option>
+                                {companyList.map((option, index) => (
+                                  <option key={index} value={option.value}>{option.key}</option>
+                                ))}
+                              </Form.Select>
+                             } 
                             {Object.keys(userError.companyErr).map((key) => {
                               return <span className="error-message">{userError.companyErr[key]}</span>
                             })}

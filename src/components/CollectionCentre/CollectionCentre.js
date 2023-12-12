@@ -85,7 +85,7 @@ export const CollectionCentre = () => {
     }
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedCompanyCode")) {
+        if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add Collection Centre"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Collection Centre"]').trigger('click');
             $('[data-rr-ui-event-key*="Add FIGs"]').attr('disabled', false);
@@ -190,15 +190,30 @@ export const CollectionCentre = () => {
 
         if (companyResponse.data.status == 200) {
             if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
+                if (localStorage.getItem('CompanyCode')) {
+                    var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
                     companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
+                        key: companyDetail.companyName,
+                        value: companyDetail.encryptedCompanyCode,
+                        label: companyDetail.companyName
                     })
-                })
+                    localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+                    localStorage.setItem("CompanyName", companyDetail.companyName)
+                    setCompanyList(companyData);
+                    fetchCollectionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                    fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
+                }
+                else {
+                    companyResponse.data.data.forEach(company => {
+                        companyData.push({
+                            key: company.companyName,
+                            value: company.encryptedCompanyCode,
+                            label: company.companyName
+                        })
+                    })
+                    setCompanyList(companyData)
+                }
             }
-            setCompanyList(companyData)
             if(companyResponse.data.data.length == 1){
                 fetchCollectionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);

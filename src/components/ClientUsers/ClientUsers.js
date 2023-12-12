@@ -32,6 +32,9 @@ export const ClientUsers = () => {
 	useEffect(() => {
 		$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', true);
 		fetchClientUsersList(1)
+		if (localStorage.getItem('CompanyCode')) {
+			fetchCompanyList()
+		}
 	}, []);
 
 	const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
@@ -114,6 +117,9 @@ export const ClientUsers = () => {
 			dispatch(userDetailsAction(undefined));
 			clearUserDetailsReducer();
 		}
+		if(localStorage.getItem('CompanyCode')){
+			fetchCompanyList()
+		}
 	})
 
 	const fetchClientUsersList = async (page, size = perPage) => {
@@ -137,6 +143,27 @@ export const ClientUsers = () => {
 			});
 	};
 
+	const fetchCompanyList = async () => {
+		const companyRequest = {
+			EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+		}
+		let companyResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client-companies', companyRequest, {
+			headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+		});
+		if (companyResponse.data.status == 200) {
+			if (localStorage.getItem('CompanyCode')) {
+				var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'))
+				dispatch(userDetailsAction({
+					...userData,
+					companyCode: localStorage.getItem('CompanyCode'),
+					encryptedCompanyCode: companyDetail ? companyDetail.encryptedCompanyCode : "",
+					companyName: companyDetail ? companyDetail.companyName : "",
+					encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+				}))
+			}
+		}
+	}
+
 	const userValidation = () => {
 		const companyErr = {};
 		const distributionCentreErr = {};
@@ -149,7 +176,7 @@ export const ClientUsers = () => {
 		const stateErr = {};
 
 		let isValid = true;
-		if (!userData.companyCode) {
+		if (!userData.companyCode || !userData.encryptedCompanyCode) {
 			companyErr.empty = "Select company";
 			isValid = false;
 			setFormError(true);

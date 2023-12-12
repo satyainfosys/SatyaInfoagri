@@ -59,15 +59,32 @@ const CropPurchaseV1 = () => {
 
         if (companyResponse.data.status == 200) {
             if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
-                    companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
-                    })
-                })
+                if (companyResponse.data && companyResponse.data.data.length > 0) {
+                    if (localStorage.getItem('CompanyCode')) {
+                        var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+                        companyData.push({
+                            key: companyDetail.companyName,
+                            value: companyDetail.encryptedCompanyCode,
+                            label: companyDetail.companyName
+                        })
+                        localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+                        localStorage.setItem("CompanyName", companyDetail.companyName)
+                        setCompanyList(companyData);
+                        fetchMaterialReceiptHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                        getVendorMasterList(companyResponse.data.data[0].encryptedCompanyCode)
+                    }
+                    else {
+                        companyResponse.data.data.forEach(company => {
+                            companyData.push({
+                                key: company.companyName,
+                                value: company.encryptedCompanyCode,
+                                label: company.companyName
+                            })
+                        })
+                        setCompanyList(companyData)
+                    }
+                }
             }
-            setCompanyList(companyData)
             if (companyResponse.data.data.length == 1) {
                 fetchMaterialReceiptHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 getVendorMasterList(companyResponse.data.data[0].encryptedCompanyCode)
@@ -162,7 +179,7 @@ const CropPurchaseV1 = () => {
     })
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedCompanyCode")) {
+        if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Crop PurchaseV1"]').trigger('click');
             $('#btnSave').attr('disabled', false);

@@ -57,7 +57,7 @@ export const DistributionCentre = () => {
     }
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedCompanyCode")) {
+        if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add New Distribution"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add New Distribution"]').trigger('click');
             $('#btnSave').attr('disabled', false);
@@ -100,8 +100,9 @@ export const DistributionCentre = () => {
             setModalShow(true);
         } else {
             window.location.href = '/dashboard';
-            // clearDistributionCentreReducers();
-            // localStorage.removeItem("EncryptedDistributionCentreCode");
+            clearDistributionCentreReducers();
+            localStorage.removeItem("EncryptedDistributionCentreCode");
+            localStorage.removeItem("EncryptedCompanyCode");
         }
     }
 
@@ -111,15 +112,14 @@ export const DistributionCentre = () => {
         $("#btnSave").show();
         $("#btnCancel").show();
 
-        if(!modalShow && distirbutionCentreData.encryptedDistributionCentreCode)
-        {
+        if (!modalShow && distirbutionCentreData.encryptedDistributionCentreCode) {
             getDistributionCentreDetail();
         }
 
-        if (commonContactDetailList.length <= 0 && 
-           !(localStorage.getItem("DeleteCommonContactDetailsIds")) &&
-            (localStorage.getItem("EncryptedDistributionCentreCode") || 
-             distirbutionCentreData.encryptedDistributionCentreCode)) {
+        if (commonContactDetailList.length <= 0 &&
+            !(localStorage.getItem("DeleteCommonContactDetailsIds")) &&
+            (localStorage.getItem("EncryptedDistributionCentreCode") ||
+                distirbutionCentreData.encryptedDistributionCentreCode)) {
             getContactDetail();
         }
     });
@@ -157,16 +157,33 @@ export const DistributionCentre = () => {
 
         if (companyResponse.data.status == 200) {
             if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
-                    companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
-                    })
-                })
-            }            
-            setCompanyList(companyData)
-            if(companyResponse.data.data.length == 1){
+                if (companyResponse.data && companyResponse.data.data.length > 0) {
+                    if (localStorage.getItem('CompanyCode')) {
+                        var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+                        companyData.push({
+                            key: companyDetail.companyName,
+                            value: companyDetail.encryptedCompanyCode,
+                            label: companyDetail.companyName
+                        })
+                        localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+                        localStorage.setItem("CompanyName", companyDetail.companyName)
+                        fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
+                        setCompanyList(companyData);
+                        fetchDistributionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                    }
+                    else {
+                        companyResponse.data.data.forEach(company => {
+                            companyData.push({
+                                key: company.companyName,
+                                value: company.encryptedCompanyCode,
+                                label: company.companyName
+                            })
+                        })
+                        setCompanyList(companyData)
+                    }
+                }
+            }
+            if (companyResponse.data.data.length == 1) {
                 fetchDistributionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
@@ -372,10 +389,9 @@ export const DistributionCentre = () => {
 
         if (distributionCentreValidation()) {
 
-            if (!formChangedData.distirbutionCentreUpdate && 
-                !(formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) 
-            {
-                return;    
+            if (!formChangedData.distirbutionCentreUpdate &&
+                !(formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
+                return;
             }
 
             var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");

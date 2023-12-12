@@ -61,15 +61,31 @@ const VendorMaster = () => {
 
         if (companyResponse.data.status == 200) {
             if (companyResponse.data && companyResponse.data.data.length > 0) {
-                companyResponse.data.data.forEach(company => {
-                    companyData.push({
-                        key: company.companyName,
-                        value: company.encryptedCompanyCode,
-                        label: company.companyName
-                    })
-                })
+                if (companyResponse.data && companyResponse.data.data.length > 0) {
+                    if (localStorage.getItem('CompanyCode')) {
+                        var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+                        companyData.push({
+                            key: companyDetail.companyName,
+                            value: companyDetail.encryptedCompanyCode,
+                            label: companyDetail.companyName
+                        })
+                        localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+                        localStorage.setItem("CompanyName", companyDetail.companyName)
+                        setCompanyList(companyData);
+                        fetchVendorMasterList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                    }
+                    else {
+                        companyResponse.data.data.forEach(company => {
+                            companyData.push({
+                                key: company.companyName,
+                                value: company.encryptedCompanyCode,
+                                label: company.companyName
+                            })
+                        })
+                        setCompanyList(companyData)
+                    }
+                }
             }
-            setCompanyList(companyData)
             if (companyResponse.data.data.length == 1) {
                 fetchVendorMasterList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
@@ -147,7 +163,7 @@ const VendorMaster = () => {
     })
 
     const newDetails = () => {
-        if (localStorage.getItem("EncryptedCompanyCode")) {
+        if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
             $('#btnSave').attr('disabled', false);
@@ -278,7 +294,7 @@ const VendorMaster = () => {
                     setFormError(true);
                 }
 
-                if(row.validFrom > row.validTo){
+                if (row.validFrom > row.validTo) {
                     vendorProductCatalogueDetailErr.invalidDate = "From Date cannot be greater than To Date"
                     isValid = false;
                     setFormError(true);
