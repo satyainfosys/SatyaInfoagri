@@ -67,7 +67,8 @@ export const ClientUsers = () => {
 		$('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
 		$('#btnSave').attr('disabled', false);
 		if(localStorage.getItem('CompanyCode')){
-			fetchCompanyList()
+			fetchCompanyList();
+			fetchClientDetail();
 		}
 	}
 
@@ -158,7 +159,6 @@ export const ClientUsers = () => {
 					companyName: companyDetail ? companyDetail.companyName : "",
 					encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
 				}))
-				fetchClientDetail();
 			}
 		}
 	}
@@ -188,9 +188,10 @@ export const ClientUsers = () => {
 		const emailErr = {};
 		const countryErr = {};
 		const stateErr = {};
+		const selectedProductItemsErr = {};
 
 		let isValid = true;
-		if (!userData.companyCode || !userData.encryptedCompanyCode) {
+		if (!localStorage.getItem("CompanyCode") && !userData.encryptedCompanyCode) {
 			companyErr.empty = "Select company";
 			isValid = false;
 			setFormError(true);
@@ -239,6 +240,17 @@ export const ClientUsers = () => {
 			isValid = false;
 			setFormError(true);
 		}
+
+		if (selectedProductItems.length <= 0) {
+			selectedProductItemsErr.selectedProductItemsEmpty = "Select atleast one item"
+			isValid = false;
+			setFormError(true);
+			toast.error("Select atleast one menu tree item", {
+				theme: 'colored',
+				autoClose: 10000
+			});
+		}
+
 		if (!isValid) {
 			var errorObject = {
 				companyErr,
@@ -250,6 +262,7 @@ export const ClientUsers = () => {
 				emailErr,
 				countryErr,
 				stateErr,
+				selectedProductItemsErr
 			}
 			dispatch(userDetailsErrorAction(errorObject))
 		}
@@ -267,7 +280,8 @@ export const ClientUsers = () => {
 
         $('#btnSave').attr('disabled', true)
 
-        clearUserDetailsReducer();
+		dispatch(userDetailsErrorAction(undefined));
+        dispatch(formChangedAction(undefined));
 
         fetchClientUsersList(1, perPage);
 
@@ -278,7 +292,7 @@ export const ClientUsers = () => {
 		if (userValidation()) {
 			const requestData = {
 				encryptedClientCode: userData.encryptedClientCode,
-				encryptedCompanyCode: userData.encryptedCompanyCode,
+				encryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode') ? localStorage.getItem('EncryptedCompanyCode') : userData.encryptedCompanyCode,
 				clientName: userData.clientName,
 				loginName: userData.loginName,
 				loginUserEmailId: userData.loginUserEmailId,

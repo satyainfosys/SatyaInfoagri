@@ -111,6 +111,10 @@ const LoginForm = ({ hasLabel }) => {
     {
       localStorage.setItem('CompanyCode', data.companyCode);
     }
+    if(data.encryptedCompanyCode)
+    {
+      localStorage.setItem('EncryptedCompanyCode', data.encryptedCompanyCode);
+    }
   };
 
   const handleFieldChange = e => {

@@ -297,7 +297,7 @@ export const UserDetails = () => {
             {
                 userData &&
                 <Row>
-                    <Col lg={3} className="no-pd-card no-right-pad">
+                    <Col lg={6} className="no-pd-card no-right-pad">
                         <FalconComponentCard className="farmer-card-row1">
                             <FalconCardBody className="full-tab-page-card-body">
                                 <Form noValidate validated={formHasError} className="details-form" id='UserDetailsForm'>
@@ -315,30 +315,6 @@ export const UserDetails = () => {
                                                     return <span className="error-message">{userError.clientErr[key]}</span>
                                                 })}
                                             </Row>
-                                            <Row className="mb-3">
-                                                <Form.Label>Country</Form.Label>
-                                                <Form.Control id="txtCountry" name="country" disabled />
-                                            </Row>
-                                            <Row className="mb-3">
-                                                <Form.Label>State</Form.Label>
-                                                <Form.Control id="txtState" name="state" disabled />
-                                            </Row>
-                                            <Row className="mb-3">
-                                                <Form.Label>Email</Form.Label>
-                                                <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
-                                            </Row>
-                                            <Row className="mb-3">
-                                                <Form.Label>Mobile Number</Form.Label>
-                                                <EnlargableTextbox id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin}
-                                                    onKeyPress={(e) => {
-                                                        const regex = /[0-9]|\./;
-                                                        const key = String.fromCharCode(e.charCode);
-                                                        if (!regex.test(key)) {
-                                                            e.preventDefault();
-                                                        }
-                                                    }} />
-                                            </Row>
-
                                             <Row className="mb-3">
                                                 <Form.Label>User Name<span className="text-danger">*</span></Form.Label>
                                                 <EnlargableTextbox id="txtName" name="loginName" maxLength={20} value={userData.loginName} onChange={handleFieldChange} placeholder="User Name" required={true} />
@@ -362,12 +338,38 @@ export const UserDetails = () => {
                                                 </Form.Select>
                                             </Row>
                                         </Col>
+                                        <Col className="me-3 ms-3">
+                                                
+                                            <Row className="mb-3">
+                                                <Form.Label>Country</Form.Label>
+                                                <Form.Control id="txtCountry" name="country" disabled />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>State</Form.Label>
+                                                <Form.Control id="txtState" name="state" disabled />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Email</Form.Label>
+                                                <EnlargableTextbox id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} onChange={handleFieldChange} className="mb-1" placeholder={isAdmin ? null : "Enter email"} disabled={!isAdmin} />
+                                            </Row>
+                                            <Row className="mb-3">
+                                                <Form.Label>Mobile Number</Form.Label>
+                                                <EnlargableTextbox id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} onChange={handleFieldChange} className="mb-1" placeholder="Enter mobile number" disabled={!isAdmin}
+                                                    onKeyPress={(e) => {
+                                                        const regex = /[0-9]|\./;
+                                                        const key = String.fromCharCode(e.charCode);
+                                                        if (!regex.test(key)) {
+                                                            e.preventDefault();
+                                                        }
+                                                    }} />
+                                            </Row>
+                                        </Col>
                                     </Row>
                                 </Form>
                             </FalconCardBody>
                         </FalconComponentCard>
                     </Col>
-                    <Col lg={9} className="no-pd-card col-left-pad">
+                    <Col lg={6} className="no-pd-card col-left-pad">
                         <FalconComponentCard className="farmer-card-row1">
                             <FalconCardBody className="full-tab-page-card-body" language="jsx">
                                 <Col className="me-3 ms-3">
