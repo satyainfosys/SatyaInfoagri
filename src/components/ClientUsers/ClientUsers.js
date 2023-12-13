@@ -118,6 +118,7 @@ export const ClientUsers = () => {
 			$("#btnDiscard").attr("isDiscard", false)
 			dispatch(userDetailsAction(undefined));
 			clearUserDetailsReducer();
+			localStorage.removeItem("ClientName");
 		}
 	})
 
@@ -175,6 +176,7 @@ export const ClientUsers = () => {
 				...userData,
 				clientName: clientResponse.data.data.customerName,
 			}))
+			localStorage.setItem('ClientName',clientResponse.data.data.customerName)
 		}
 	}
 
@@ -291,9 +293,9 @@ export const ClientUsers = () => {
 	const addClientUserDetails = () => {
 		if (userValidation()) {
 			const requestData = {
-				encryptedClientCode: userData.encryptedClientCode,
+				encryptedClientCode: localStorage.getItem('EncryptedClientCode') ? localStorage.getItem('EncryptedClientCode') : userData.encryptedClientCode,
 				encryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode') ? localStorage.getItem('EncryptedCompanyCode') : userData.encryptedCompanyCode,
-				clientName: userData.clientName,
+				clientName: localStorage.getItem('CompanyName') ? localStorage.get('CompanyName') :userData.clientName,
 				loginName: userData.loginName,
 				loginUserEmailId: userData.loginUserEmailId,
 				loginUserMobileNumber: userData.loginUserMobileNumber,
