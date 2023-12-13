@@ -32,9 +32,6 @@ export const ClientUsers = () => {
 	useEffect(() => {
 		$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', true);
 		fetchClientUsersList(1)
-		if (localStorage.getItem('CompanyCode')) {
-			fetchCompanyList()
-		}
 	}, []);
 
 	const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
@@ -51,6 +48,7 @@ export const ClientUsers = () => {
 	const [activeTabName, setActiveTabName] = useState();
 
 	const clearUserDetailsReducer = () => {
+		dispatch(userDetailsAction(undefined));
 		dispatch(userDetailsErrorAction(undefined));
 		dispatch(formChangedAction(undefined));
 		dispatch(selectedProductsAction([]));
@@ -68,6 +66,9 @@ export const ClientUsers = () => {
 		$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', false);
 		$('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
 		$('#btnSave').attr('disabled', false);
+		if(localStorage.getItem('CompanyCode')){
+			fetchCompanyList()
+		}
 	}
 
 	const cancelClick = () => {
@@ -117,9 +118,6 @@ export const ClientUsers = () => {
 			dispatch(userDetailsAction(undefined));
 			clearUserDetailsReducer();
 		}
-		if(localStorage.getItem('CompanyCode')){
-			fetchCompanyList()
-		}
 	})
 
 	const fetchClientUsersList = async (page, size = perPage) => {
@@ -160,7 +158,23 @@ export const ClientUsers = () => {
 					companyName: companyDetail ? companyDetail.companyName : "",
 					encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
 				}))
+				fetchClientDetail();
 			}
+		}
+	}
+
+	const fetchClientDetail = async () => {
+		const clientRequest = {
+			EncryptedClientCode: localStorage.getItem("EncryptedClientCode")
+		}
+		let clientResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-client', clientRequest, {
+			headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+		});
+		if (clientResponse.data.status == 200) {
+			dispatch(userDetailsAction({
+				...userData,
+				clientName: clientResponse.data.data.customerName,
+			}))
 		}
 	}
 

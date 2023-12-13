@@ -119,7 +119,7 @@ export const AddClientUser = () => {
           ...userData,
           companyCode: localStorage.getItem('CompanyCode'),
           encryptedCompanyCode: companyDetail ? companyDetail.encryptedCompanyCode : "",
-          companyName: companyDetail ? companyDetail.companyName :"",
+          companyName: companyDetail ? companyDetail.companyName : "",
           encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         }))
       }
@@ -296,7 +296,7 @@ export const AddClientUser = () => {
   }
 
   const handleFieldChange = e => {
-    if (e.target.name === 'companyCode' && e.target.value) {
+    if (e.target.name === 'companyCode' && ($('#txtCompanyCode option:selected').val() != userData.companyCode)) {
       var companyDetail = companyMasterList.find(company => company.companyCode == e.target.value);
       dispatch(userDetailsAction({
         ...userData,
@@ -311,18 +311,28 @@ export const AddClientUser = () => {
       setCollectionCentreList([]);
       e.target.value && fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
     }
-    else if (e.target.name === 'distributionCentreCode' && e.target.value) {
-      var distributionDetail = distributionMasterList.find(distribution => distribution.distributionCentreCode == e.target.value);
-      dispatch(userDetailsAction({
-        ...userData,
-        encryptedDistributionCentreCode: distributionDetail.distributionCentreCode,
-        distributionCentreCode: e.target.value,
-        collCentreCode: null
-      }));
-      setCollectionCentreList([]);
+    else if (e.target.name === 'distributionCentreCode') {
+      if (($('#txtDistributionCentreCode option:selected').val() == userData.distributionCentreCode)) {
+        var distributionDetail = distributionMasterList.find(distribution => distribution.distributionCentreCode == e.target.value);
+        dispatch(userDetailsAction({
+          ...userData,
+          encryptedDistributionCentreCode: distributionDetail.distributionCentreCode,
+          distributionCentreCode: e.target.value,
+          collCentreCode: null
+        }));
+        setCollectionCentreList([]);
+      }
+      else {
+        dispatch(userDetailsAction({
+          ...userData,
+          distributionCentreCode: e.target.value,
+          collCentreCode: null
+        }));
+        setCollectionCentreList([]);
+      }
       e.target.value && fetchCollectionCentreList(e.target.value);
     }
-    else if (e.target.name == 'country' && e.target.value) {
+    else if (e.target.name == 'country') {
       dispatch(userDetailsAction({
         ...userData,
         countryCode: e.target.value,
@@ -356,7 +366,7 @@ export const AddClientUser = () => {
       {
         userData &&
         <Row>
-          <Col lg={3} className="no-pd-card no-right-pad">
+          <Col lg={4} className="no-pd-card no-right-pad">
             <FalconComponentCard className="farmer-card-row1">
               <FalconCardBody className="full-tab-page-card-body">
                 <Form noValidate className="details-form" id='ClientUserDetailsForm'>
@@ -365,11 +375,15 @@ export const AddClientUser = () => {
                       <Row className="mb-3">
                         <Form.Label><b>Client Name: {clientName} </b></Form.Label>
                       </Row>
+                    </Col>
+                  </Row>
+                  <Row>
+                    <Col className="me-3 ms-3">
                       {localStorage.getItem('LoginUserName') != userData.loginUserName &&
                         <>
                           <Row className="mb-3">
                             <Form.Label>Company<span className="text-danger">*</span></Form.Label>
-                            {userData.companyName ?
+                            {localStorage.getItem('CompanyCode') ?
                               <Form.Control id="txtCompanyCode" name="companyCode" value={userData.companyName} disabled /> :
                               <Form.Select id="txtCompanyCode" name="companyCode" value={localStorage.getItem('CompanyCode') ? userData.companyName : userData.companyCode} onChange={handleFieldChange} disabled={localStorage.getItem('CompanyCode') ? true : false}
                               >
@@ -378,7 +392,7 @@ export const AddClientUser = () => {
                                   <option key={index} value={option.value}>{option.key}</option>
                                 ))}
                               </Form.Select>
-                             } 
+                            } 
                             {Object.keys(userError.companyErr).map((key) => {
                               return <span className="error-message">{userError.companyErr[key]}</span>
                             })}
@@ -425,6 +439,8 @@ export const AddClientUser = () => {
                           return <span className="error-message">{userError.userNameErr[key]}</span>
                         })}
                       </Row>
+                    </Col>
+                    <Col className="me-3 ms-3">
                       <Row className="mb-3">
                         <Form.Label>Status</Form.Label>
                         <Form.Select id="txtStatus" name="status" value={userData.status} onChange={handleFieldChange}>
@@ -434,7 +450,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Mobile Number<span className="text-danger">*</span></Form.Label>
-                        <Form.Control id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber} className="mb-1" placeholder="Mobile Number" onChange={handleFieldChange}
+                        <Form.Control id="txtMobile" name="loginUserMobileNumber" maxLength={10} value={userData.loginUserMobileNumber}  placeholder="Mobile Number" onChange={handleFieldChange}
                           onKeyPress={(e) => {
                             const regex = /[0-9]|\./;
                             const key = String.fromCharCode(e.charCode);
@@ -448,7 +464,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Email<span className="text-danger">*</span></Form.Label>
-                        <Form.Control id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} className="mb-1" placeholder="Email" onChange={handleFieldChange} />
+                        <Form.Control id="txtEmail" name="loginUserEmailId" maxLength={50} value={userData.loginUserEmailId} placeholder="Email" onChange={handleFieldChange} />
                         {Object.keys(userError.emailErr).map((key) => {
                           return <span className="error-message">{userError.emailErr[key]}</span>
                         })}
@@ -485,7 +501,7 @@ export const AddClientUser = () => {
               </FalconCardBody>
             </FalconComponentCard>
           </Col>
-          <Col lg={9} className="no-pd-card col-left-pad">
+          <Col lg={8} className="no-pd-card col-left-pad">
             <FalconComponentCard className="farmer-card-row1">
               <FalconCardBody className="full-tab-page-card-body" language="jsx">
                 <Col className="me-3 ms-3">
