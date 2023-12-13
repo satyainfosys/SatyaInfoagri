@@ -22,7 +22,7 @@ const TablePagination = ({
         <>
             <Flex alignItems="center" justifyContent="center">
                 <Form.Label column className='col-auto'>
-                    Rows per page:
+                    Rows per page&nbsp;
                 </Form.Label>
                 <Col sm="2">
                     <Form.Select
@@ -39,7 +39,7 @@ const TablePagination = ({
                     </Form.Select>
                 </Col>
 
-                <div>
+                <Col column className="col-auto">
                     {
                         pageCount > 0 &&
                         <>
@@ -81,7 +81,7 @@ const TablePagination = ({
                             </Flex>
                         </>
                     }
-                </div>
+                </Col>
             </Flex >
         </>
     )

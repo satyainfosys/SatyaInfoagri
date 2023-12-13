@@ -282,7 +282,7 @@ export const InventoryDetailDashboard = () => {
                 setInventoryDetailList([]);
                 setMergedInventoryDetailList([]);
                 setTimeout(function () {
-                    $('#no-inventory-message').html('No data found!');
+                    $('#no-inventory-message').html('No records found!');
                 }, 500)
             }
         }
@@ -345,7 +345,7 @@ export const InventoryDetailDashboard = () => {
             ) : null}
 
             <Form className="details-form" id="InventoryDetailDashboard">
-                <Row className='mb-1 justify-content-center'>
+                <Row className='mb-1 ms-2 justify-content-left'>
                     <Form.Label column className='col-auto'>
                         Company<span className="text-danger">*</span>
                     </Form.Label>
@@ -363,26 +363,29 @@ export const InventoryDetailDashboard = () => {
                         }
                     </Col>
                     <Form.Label column className='col-auto'>Distribution Centre</Form.Label>
-                    <Col className='col-auto'>
+                    <Col className='col-2'>
                         <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={localStorage.getItem("DistributionCenterCode") ? localStorage.getItem("DistributionCenterCode") : formData.distributionCentreCode} onChange={handleFieldChange} disabled={localStorage.getItem("DistributionCenterCode")}
                         >
-                            <option value=''>Select Distribution Centre</option>
+                            <option value=''>Select</option>
                             {distributionCentreList.map((option, index) => (
                                 <option key={index} value={option.value}>{option.key}</option>
                             ))}
                         </Form.Select>
                     </Col>
                     <Form.Label column className='col-auto'>Collection Centre</Form.Label>
-                    <Col className='col-auto'>
+                    <Col className='col-3'>
                         <Form.Select id="txtCollectionCentreCode" name="collectionCentreCode" value={localStorage.getItem("CollectionCentreCode") ? localStorage.getItem("CollectionCentreCode") : formData.collCentreCode} onChange={handleFieldChange} disabled={localStorage.getItem("CollectionCentreCode")}
                         >
-                            <option value=''>Select Collection Centre</option>
+                            <option value=''>Select</option>
                             {collectionCentreList.map((option, index) => (
                                 <option key={index} value={option.value}>{option.key}</option>
                             ))}
                         </Form.Select>
                     </Col>
-                    <Form.Label column className='col-auto'>
+                </Row>
+
+                <Row className='justify-content-left ms-2'>
+                <Form.Label column className='col-auto'>
                         From Date
                     </Form.Label>
                     <Col className='col-auto'>
@@ -394,7 +397,7 @@ export const InventoryDetailDashboard = () => {
                     <Col className='col-auto'>
                         <Form.Control type='date' id="dtEndDate" name="endDate" onChange={handleFieldChange} value={formData.endDate} max={Moment().format("YYYY-MM-DD")} />
                     </Col>
-                    <Form.Label column className='col-auto'>
+                    <Form.Label column className='col-auto no-right-pad'>
                         Category
                     </Form.Label>
                     <Col className='col-auto'>
@@ -405,9 +408,6 @@ export const InventoryDetailDashboard = () => {
                             ))}
                         </Form.Select>
                     </Col>
-                    <Form.Label column className='col-auto'>
-                        Search
-                    </Form.Label>
                     <Col className='col-auto'>
                         <Form.Control id="txtSearch" name="searchText" placeholder="Search" onChange={handleFieldChange} value={formData.searchText} maxLength={45} />
                     </Col>
@@ -461,7 +461,11 @@ export const InventoryDetailDashboard = () => {
                             </Table>
                         </Row>
                         :
-                        <h4 id="no-inventory-message"></h4>
+                        <Row className='justify-content-center mt-2'>
+                             <Col className='col-auto'>
+                                <h4 id="no-inventory-message"></h4>
+                             </Col>
+                        </Row>
                 }
             </Form>
             <Row style={{ position: 'absolute', bottom: '30px', align: 'centre' }}>

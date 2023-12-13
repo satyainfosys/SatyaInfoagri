@@ -107,7 +107,7 @@
 }
 
 .no-pad .card-body{
-    padding: 0px;
+    padding: 0px !important;
 }
 
 .no-pb, .no-pb .card-body{
@@ -196,7 +196,3 @@
 .col-left-pad{
     padding-left: 5px !important;
 }
-
-/* .table-responsive{
-    overflow-x: unset !important;
-} */
