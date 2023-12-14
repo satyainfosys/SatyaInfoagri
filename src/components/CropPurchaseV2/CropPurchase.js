@@ -84,8 +84,8 @@ const CropPurchase = () => {
                     localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
                     localStorage.setItem("CompanyName", companyDetail.companyName)
                     setCompanyList(companyData);
-                    fetchPurchaseOrderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
-                    fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
+                    fetchPurchaseOrderList(1, perPage, companyDetail.encryptedCompanyCode);
+                    fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
                 }
                 else {
                     companyResponse.data.data.forEach(company => {

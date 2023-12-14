@@ -167,9 +167,8 @@ export const DistributionCentre = () => {
                         })
                         localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
                         localStorage.setItem("CompanyName", companyDetail.companyName)
-                        fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
                         setCompanyList(companyData);
-                        fetchDistributionCentreList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                        fetchDistributionCentreList(1, perPage, companyDetail.encryptedCompanyCode);
                     }
                     else {
                         companyResponse.data.data.forEach(company => {

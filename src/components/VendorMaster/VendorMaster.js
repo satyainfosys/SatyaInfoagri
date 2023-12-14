@@ -72,7 +72,7 @@ const VendorMaster = () => {
                         localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
                         localStorage.setItem("CompanyName", companyDetail.companyName)
                         setCompanyList(companyData);
-                        fetchVendorMasterList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                        fetchVendorMasterList(1, perPage, companyDetail.encryptedCompanyCode);
                     }
                     else {
                         companyResponse.data.data.forEach(company => {

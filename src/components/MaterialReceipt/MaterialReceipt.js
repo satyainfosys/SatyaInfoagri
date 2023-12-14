@@ -72,7 +72,8 @@ const MaterialReceipt = () => {
                         localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
                         localStorage.setItem("CompanyName", companyDetail.companyName)
                         setCompanyList(companyData);
-                        fetchMaterialReceiptHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                        fetchMaterialReceiptHeaderList(1, perPage, companyDetail.encryptedCompanyCode);
+                        getVendorMasterList(companyDetail.encryptedCompanyCode);
                     }
                     else {
                         companyResponse.data.data.forEach(company => {

@@ -246,26 +246,15 @@ export const InventoryDetailDashboard = () => {
         if (validateSearchClick(isNull, companyCode)) {
             let requestData = {
                 EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                CompanyCode: companyCode ? companyCode : formData.companyCode ? formData.companyCode : localStorage.getItem("CompanyCode"),
                 StartDate: formData.startDate ? Moment(formData.startDate).format("YYYY-MM-DD") : null,
                 EndDate: formData.endDate ? Moment(formData.endDate).format("YYYY-MM-DD") : null,
                 ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : "",
-                DistributionCenterCode: formData.distributionCentreCode,
-                CollectionCenterCode: formData.collectionCentreCode,
+                DistributionCenterCode: localStorage.getItem('DistributionCenterCode') ? localStorage.getItem('DistributionCenterCode') : formData.distributionCentreCode,
+                CollectionCenterCode: localStorage.getItem('CollectionCentreCode') ? localStorage.getItem('CollectionCentreCode') :  formData.collectionCentreCode,
                 SearchText: formData.searchText,
                 PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
                 PageSize: newPageSize ? newPageSize : pageSize
-            }
-            if (localStorage.getItem('CompanyCode')) {
-                requestData = {
-                    ...requestData,
-                    CompanyCode: localStorage.getItem('CompanyCode'),
-                }
-            }
-            else {
-                requestData = {
-                    ...requestData,
-                    EncryptedCompanyCode: companyCode ? companyCode : formData.encryptedCompanyCode,
-                }
             }
 
             let response = await axios.post(process.env.REACT_APP_API_URL + '/get-inventory-detail-list', requestData, {
@@ -385,7 +374,7 @@ export const InventoryDetailDashboard = () => {
                 </Row>
 
                 <Row className='justify-content-left ms-2'>
-                <Form.Label column className='col-auto'>
+                    <Form.Label column className='col-auto'>
                         From Date
                     </Form.Label>
                     <Col className='col-auto'>
@@ -462,9 +451,9 @@ export const InventoryDetailDashboard = () => {
                         </Row>
                         :
                         <Row className='justify-content-center mt-2'>
-                             <Col className='col-auto'>
+                            <Col className='col-auto'>
                                 <h4 id="no-inventory-message"></h4>
-                             </Col>
+                            </Col>
                         </Row>
                 }
             </Form>

@@ -79,7 +79,8 @@ const PurchaseOrder = () => {
                         localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
                         localStorage.setItem("CompanyName", companyDetail.companyName)
                         setCompanyList(companyData);
-                        fetchPurchaseOrderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                        fetchPurchaseOrderList(1, perPage, companyDetail.encryptedCompanyCode);
+                        fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
                     }
                     else {
                         companyResponse.data.data.forEach(company => {
@@ -95,6 +96,7 @@ const PurchaseOrder = () => {
             }
             if (companyResponse.data.data.length == 1) {
                 fetchPurchaseOrderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+                fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
                 localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
                 localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
             }
