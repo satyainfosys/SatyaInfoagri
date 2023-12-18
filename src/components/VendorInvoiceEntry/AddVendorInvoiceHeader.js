@@ -81,7 +81,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Delivery Location
+                Location
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control id="txtDeliveryLocation" name="deliveryLocation" placeholder="Delivery Location" value="" disabled />
@@ -110,7 +110,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Invoice Amount
+                Amount
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" value=""/>
@@ -128,7 +128,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                Invoice Due Date
+                Due Date
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control type='date' id="txtInvoiceDueDate" name="invoiceDueDate"

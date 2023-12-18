@@ -87,7 +87,7 @@ const AddVendorInvoiceDetail = () => {
                   </tr>
                 </tbody> */}
               </Table>
-              :
+             
               <h5>No record found</h5>
             </Row>
           </Form>
