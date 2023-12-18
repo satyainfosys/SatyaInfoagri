@@ -63,6 +63,8 @@ import AddCropPurchase from 'components/CropPurchaseV2/AddCropPurchase';
 import AddCropPurchaseDetail from 'components/CropPurchaseV2/AddCropPurchaseDetail';
 import CommodityList from 'components/CropPurchaseV2/CommodityList';
 import AddClientUser from 'components/ClientUsers/AddClientUser'
+import AddVendorInvoiceHeader from 'components/VendorInvoiceEntry/AddVendorInvoiceHeader';
+import AddVendorInvoiceDetail from 'components/VendorInvoiceEntry/AddVendorInvoiceDetail';
 
 const TabPage = ({
   listData,
@@ -481,6 +483,13 @@ const TabPage = ({
               {index == 1 && module == 'ClientUsers' && (
                 <>
                   <AddClientUser />
+                </>
+              )}
+
+              {index == 1 && module == 'VendorInvoice' && (
+                <>
+                  <AddVendorInvoiceHeader />
+                  <AddVendorInvoiceDetail />
                 </>
               )}
             </Tab>
