@@ -341,7 +341,7 @@ const AdvanceTable = ({
                       >
                         {
                           cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' ?
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus'  ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -460,7 +460,31 @@ const AdvanceTable = ({
                                                           onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
                                                         >
                                                           Print
-                                                        </IconButton>
+                                                        </IconButton> 
+                                                        :
+                                                        cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
+                                                        <Badge
+                                                          pill
+                                                          bg="success"
+                                                        >
+                                                          {cell.render('Cell')}
+                                                        </Badge>
+                                                        :
+                                                        cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Draft" ?
+                                                          <Badge
+                                                            pill
+                                                            bg="info"
+                                                          >
+                                                            {cell.render('Cell')}
+                                                          </Badge>
+                                                          :
+                                                          cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Rejected" ?
+                                                            <Badge
+                                                              pill
+                                                              bg="danger"
+                                                            >
+                                                              {cell.render('Cell')}
+                                                            </Badge>
                                                         : ''
                         }
                       </td>

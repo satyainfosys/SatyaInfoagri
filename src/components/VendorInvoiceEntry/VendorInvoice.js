@@ -11,8 +11,8 @@ const listColumnArray = [
   { accessor: 'poNo', Header: 'Po No' },
   { accessor: 'vendorName', Header: 'Vendor Name' },
   { accessor: 'invoiceDate', Header: 'Invoice Date' },
-  { accessor: 'dueDate', Header: 'Due Date' },
-  { accessor: 'status', Header: 'Status' }
+  { accessor: 'invoiceDueDate', Header: 'Due Date' },
+  { accessor: 'invoiceStatus', Header: 'Status' }
 ];
 
 const VendorInvoice = () => {
@@ -20,12 +20,13 @@ const VendorInvoice = () => {
   const [modalShow, setModalShow] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [companyList, setCompanyList] = useState([]);
+  const [perPage, setPerPage] = useState(15);
 
   useEffect(() => {
     $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
     $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
-    getCompany();    
-}, [])
+    getCompany();
+  }, [])
 
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
@@ -69,34 +70,73 @@ const VendorInvoice = () => {
     });
 
     if (companyResponse.data.status == 200) {
-      if (companyResponse.data.status == 200) {
+      if (companyResponse.data && companyResponse.data.data.length > 0) {
         if (companyResponse.data && companyResponse.data.data.length > 0) {
-            companyResponse.data.data.forEach(company => {
-                companyData.push({
-                    key: company.companyName,
-                    value: company.encryptedCompanyCode,
-                    label: company.companyName
-                })
+          if (localStorage.getItem('CompanyCode')) {
+            var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+            companyData.push({
+              key: companyDetail.companyName,
+              value: companyDetail.encryptedCompanyCode,
+              label: companyDetail.companyName
             })
-          setCompanyList(companyData)
+            localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
+            localStorage.setItem("CompanyName", companyDetail.companyName)
+            setCompanyList(companyData);
+            fetchVendorInvoiceEntryHeaderList(1, perPage, companyDetail.encryptedCompanyCode);
+          }
+          else {
+            companyResponse.data.data.forEach(company => {
+              companyData.push({
+                key: company.companyName,
+                value: company.encryptedCompanyCode,
+                label: company.companyName
+              })
+            })
+            setCompanyList(companyData)
+          }
         }
       }
-      else if (companyResponse.data.data.length == 1) {
+      setCompanyList(companyData)
+      if (companyResponse.data.data.length == 1) {
+        fetchVendorInvoiceEntryHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
         localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
         localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
       }
-    }
-    else {
+    } else {
       setCompanyList([])
     }
   }
+
+  const fetchVendorInvoiceEntryHeaderList = async (page, size = perPage, encryptedCompanyCode) => {
+    let token = localStorage.getItem('Token');
+
+    const listFilter = {
+        pageNumber: page,
+        pageSize: size,
+        EncryptedCompanyCode: encryptedCompanyCode
+    }
+
+    setIsLoading(true);
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-header-list', listFilter, {
+        headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+    })
+
+    if (response.data.status == 200) {
+        setIsLoading(false);
+        setListData(response.data.data);
+    } else {
+        setIsLoading(false);
+        setListData([])
+    }
+}
 
   const handleFieldChange = e => {
     localStorage.setItem("EncryptedCompanyCode", e.target.value);
     const selectedOption = e.target.options[e.target.selectedIndex];
     const selectedKey = selectedOption.dataset.key || selectedOption.label;
+    fetchVendorInvoiceEntryHeaderList(1, perPage, e.target.value);
     localStorage.setItem("CompanyName", selectedKey)
-}
+  }
 
   return (
     <>
@@ -139,7 +179,7 @@ const VendorInvoice = () => {
         supportingMethod1={handleFieldChange}
         newDetails={newDetails}
         cancelClick={cancelClick}
-        exitModule={exitModule}        
+        exitModule={exitModule}
       />
     </>
   )

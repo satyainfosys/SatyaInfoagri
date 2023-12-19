@@ -95,6 +95,7 @@ const AddVendorInvoiceHeader = () => {
                   <Form.Select id="txtMaterialStatus" name="materialStatus" value="" onChange="">
                     <option value="Draft">Draft</option>
                     <option value="Approved">Approved</option>
+                    <option value="Approved">Rejected</option>
                   </Form.Select>
                 </Col>
               </Form.Group>
