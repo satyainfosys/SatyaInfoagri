@@ -459,3 +459,24 @@ export const materialReceiptErrorAction = (payload) => {
     payload
   };
 };
+
+export const vendorInvoiceEntryHeaderDetailsAction = (payload) => {
+  return {
+    type: 'VENDORINVOICEENTRYHEADERDETAILS',
+    payload
+  };
+};
+
+export const vendorInvoiceEntryDetailsAction = (payload) => {
+  return {
+    type: 'VENDORINVOICEENTRYDETAILS',
+    payload
+  };
+};
+
+export const vendorInvoiceEntryErrorAction = (payload) => {
+  return {
+    type: 'VENDORINVOICEENTRYERROR',
+    payload
+  };
+};

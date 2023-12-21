@@ -57,6 +57,9 @@ import materialReceiptHeaderReducer from './materialReceiptHeaderReducer'
 import materialReceiptDetailsReducer from './materialReceiptDetailsReducer'
 import vendorMasterDetailsListReducer from './vendorMasterDetailsListReducer'
 import materialReceiptErrorReducer from './materialReceiptErrorReducer'
+import vendorInvoiceEntryHeaderDetailsReducer from './vendorInvoiceEntryHeaderDetailsReducer'
+import vendorInvoiceEntryErrorReducer from './vendorInvoiceEntryErrorReducer'
+import vendorInvoiceEntryDetailsReducer from './vendorInvoiceEntryDetailsReducer'
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -116,7 +119,10 @@ const rootReducer = combineReducers({
   materialReceiptHeaderReducer,
   materialReceiptDetailsReducer,
   vendorMasterDetailsListReducer,
-  materialReceiptErrorReducer
+  materialReceiptErrorReducer,
+  vendorInvoiceEntryHeaderDetailsReducer,
+  vendorInvoiceEntryErrorReducer,
+  vendorInvoiceEntryDetailsReducer,
 });
 
 export default rootReducer;

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import TabPage from 'components/common/TabPage';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
+import { toast } from 'react-toastify';
+import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction } from 'actions';
 
 const tabArray = ['Vendor Invoice Entry List', 'Add Vendor Invoice Entry '];
 
@@ -21,6 +23,9 @@ const VendorInvoice = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [companyList, setCompanyList] = useState([]);
   const [perPage, setPerPage] = useState(15);
+  const [activeTabName, setActiveTabName] = useState();
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
@@ -28,15 +33,65 @@ const VendorInvoice = () => {
     getCompany();
   }, [])
 
+  const vendorInvoiceEntryHeaderDetailsReducer = useSelector((state) => state.rootReducer.vendorInvoiceEntryHeaderDetailsReducer)
+  var vendorInvoiceEntryHeaderDetails = vendorInvoiceEntryHeaderDetailsReducer.vendorInvoiceEntryHeaderDetails;
+
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
+  const vendorInvoiceEntryDetailsReducer = useSelector((state) => state.rootReducer.vendorInvoiceEntryDetailsReducer)
+  var vendorInvoiceEntryDetails = vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails;
+
+
   let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
+  $('[data-rr-ui-event-key*="Vendor Invoice Entry List"]').off('click').on('click', function () {
+    let isDiscard = $('#btnDiscard').attr('isDiscard');
+    if (isDiscard != 'true' && isFormChanged) {
+      setModalShow(true);
+      setTimeout(function () {
+        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+      }, 50);
+    } else {
+      $("#btnNew").show();
+      $("#btnSave").hide();
+      $("#btnCancel").hide();
+      $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
+      clearMaterialReceiptReducers();
+    }
+  })
+
+  $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').off('click').on('click', function () {
+    setActiveTabName("Add Vendor Invoice Entry")
+    $("#btnNew").hide();
+    $("#btnSave").show();
+    $("#btnCancel").show();
+
+    if (vendorInvoiceEntryDetails.length <= 0) {
+      fetchVendorInvoiceEntryHeaderList();
+    }
+  })
+
+  const clearMaterialReceiptReducers = () => {
+    dispatch(formChangedAction(undefined));
+    dispatch(vendorMasterDetailsListAction([]));
+    dispatch(vendorInvoiceEntryErrorAction(undefined));
+    localStorage.removeItem("DeleteInvoiceHeaderCodes");
+  }
+
   const newDetails = () => {
-    $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').attr('disabled', false);
-    $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').trigger('click');
-    $('#btnSave').attr('disabled', false);
+    if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
+      $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').trigger('click');
+      $('#btnSave').attr('disabled', false);
+      dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+    }
+    else {
+      toast.error("Please select company first", {
+        theme: 'colored',
+        autoClose: 5000
+      });
+    }
   }
 
   const cancelClick = () => {
@@ -56,7 +111,120 @@ const VendorInvoice = () => {
     }
     else {
       window.location.href = '/dashboard';
+      dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
+      dispatch(vendorMasterDetailsListAction([]));
+      localStorage.removeItem("EncryptedCompanyCode");
+      localStorage.removeItem("CompanyName");
+      localStorage.removeItem("DeleteInvoiceHeaderCodes");
     }
+  }
+
+  const discardChanges = () => {
+    $('#btnDiscard').attr('isDiscard', 'true');
+    if ($('#btnExit').attr('isExit') == 'true')
+      window.location.href = '/dashboard';
+    else {
+      $('[data-rr-ui-event-key*="Vendor Invoice Entry List"]').trigger('click');
+    }
+
+    setModalShow(false);
+  }
+
+
+  const vendorInvoiceEntryValidation = () => {
+    setModalShow(false);
+
+    const vendorErr = {};
+    const invoiceNoErr = {};
+    const invoiceAmountErr = {};
+    const invoiceDateErr = {};
+    const invoiceDueDateErr = {};
+    const vendorInvoiceEntryDetailErr = {};
+
+    let isValid = true;
+
+    if (!vendorInvoiceEntryHeaderDetails.vendorCode) {
+      vendorErr.empty = "Select vendor";
+      isValid = false;
+    }
+    if (!vendorInvoiceEntryHeaderDetails.invoiceNo) {
+      invoiceNoErr.empty = "Enter invoice no";
+      isValid = false;
+    }
+    if (!vendorInvoiceEntryHeaderDetails.invoiceAmount) {
+      invoiceAmountErr.empty = "Enter invoice amount";
+      isValid = false;
+    }
+    if (!vendorInvoiceEntryHeaderDetails.invoiceDate) {
+      invoiceDateErr.empty = "Enter invoice date";
+      isValid = false;
+    }
+    if (!vendorInvoiceEntryHeaderDetails.invoiceDueDate) {
+      invoiceDueDateErr.empty = "Enter invoice due date";
+      isValid = false;
+    }
+
+
+    if (vendorInvoiceEntryDetails.length < 1) {
+      vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty = "At least one vendor invoice entry details required";
+      setTimeout(() => {
+        toast.error(vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty, {
+          theme: 'colored'
+        });
+      }, 1000);
+      isValid = false;
+    }
+    else if (vendorInvoiceEntryDetails && vendorInvoiceEntryDetails.length > 0) {
+      vendorInvoiceEntryDetails.forEach((row, index) => {
+        if (!row.invoiceQty || !row.invoiceRate || !row.productAmount) {
+          vendorInvoiceEntryDetailErr.invalidVendorInvoiceEntryDetail = "Fill the required fields"
+          isValid = false;
+        }
+        else if (!row.poDetailId) {
+          if (!row.itemDescription) {
+            vendorInvoiceEntryDetailErr.invalidVendorInvoiceEntryDetail = "Fill the required fields"
+            isValid = false;
+          }
+        }
+
+        if (parseFloat(row.invoiceRate) > parseFloat(row.poRate)) {
+          vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty = "Invoice rate should not be greater than po rate";
+          setTimeout(() => {
+            toast.error(vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty, {
+              theme: 'colored'
+            });
+          }, 1000);
+          isValid = false;
+        }
+
+        if (parseFloat(row.invoiceQty) > parseFloat(row.quantity)) {
+          vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty = "Invoice quantity should not be greater than po quantity";
+          setTimeout(() => {
+            toast.error(vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty, {
+              theme: 'colored'
+            });
+          }, 1000);
+          isValid = false;
+        }
+
+
+      })
+    }
+
+    if (!isValid) {
+      var errorObject = {
+        vendorErr,
+        invoiceNoErr,
+        invoiceAmountErr,
+        invoiceDateErr,
+        invoiceDueDateErr,
+        vendorInvoiceEntryDetailErr
+      }
+
+      dispatch(vendorInvoiceEntryErrorAction(errorObject))
+    }
+
+    return isValid;
   }
 
   const getCompany = async () => {
@@ -83,6 +251,7 @@ const VendorInvoice = () => {
             localStorage.setItem("CompanyName", companyDetail.companyName)
             setCompanyList(companyData);
             fetchVendorInvoiceEntryHeaderList(1, perPage, companyDetail.encryptedCompanyCode);
+            getVendorMasterList(companyDetail.encryptedCompanyCode);
           }
           else {
             companyResponse.data.data.forEach(company => {
@@ -99,6 +268,7 @@ const VendorInvoice = () => {
       setCompanyList(companyData)
       if (companyResponse.data.data.length == 1) {
         fetchVendorInvoiceEntryHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+        getVendorMasterList(companyResponse.data.data[0].encryptedCompanyCode)
         localStorage.setItem("CompanyName", companyResponse.data.data[0].companyName)
         localStorage.setItem("EncryptedCompanyCode", companyResponse.data.data[0].encryptedCompanyCode);
       }
@@ -111,24 +281,43 @@ const VendorInvoice = () => {
     let token = localStorage.getItem('Token');
 
     const listFilter = {
-        pageNumber: page,
-        pageSize: size,
-        EncryptedCompanyCode: encryptedCompanyCode
+      pageNumber: page,
+      pageSize: size,
+      EncryptedCompanyCode: encryptedCompanyCode
     }
 
     setIsLoading(true);
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-header-list', listFilter, {
-        headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+      headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
     })
 
     if (response.data.status == 200) {
-        setIsLoading(false);
-        setListData(response.data.data);
+      setIsLoading(false);
+      setListData(response.data.data);
     } else {
-        setIsLoading(false);
-        setListData([])
+      setIsLoading(false);
+      setListData([])
     }
-}
+  }
+
+  const getVendorMasterList = async () => {
+    const requestData = {
+      pageNumber: 1,
+      pageSize: 1,
+      EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode")
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-master-list', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        dispatch(vendorMasterDetailsListAction(response.data.data))
+      }
+    } else {
+      dispatch(vendorMasterDetailsListAction([]))
+    }
+  }
 
   const handleFieldChange = e => {
     localStorage.setItem("EncryptedCompanyCode", e.target.value);
@@ -136,6 +325,94 @@ const VendorInvoice = () => {
     const selectedKey = selectedOption.dataset.key || selectedOption.label;
     fetchVendorInvoiceEntryHeaderList(1, perPage, e.target.value);
     localStorage.setItem("CompanyName", selectedKey)
+    getVendorMasterList(e.target.value);
+  }
+
+  const updateVendorInvoiceEntryCallback = (isAddVendorInvoiceEntry = false) => {
+    setModalShow(false);
+
+    if (!isAddVendorInvoiceEntry) {
+      toast.success("Vendor invoice entry details updated successfully", {
+        time: 'colored'
+      })
+    }
+
+    $('#btnSave').attr('disabled', true)
+
+    clearMaterialReceiptReducers();
+
+    fetchVendorInvoiceEntryHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+    $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+  }
+
+  const addVendorInvoiceEntryDetails = () => {
+    if (vendorInvoiceEntryValidation()) {
+      const requestData = {
+        invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
+        poNo: vendorInvoiceEntryHeaderDetails.poNo,
+        invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount,
+        invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate,
+        invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate,
+        invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus,
+        addUser: localStorage.getItem("LoginUserName"),
+        vendorInvoiceDetails: vendorInvoiceEntryDetails
+      }
+
+      const keys = ["addUser"]
+      for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+        requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+      }
+
+      const vendorInvoiceDetailsKeys = ['addUser']
+      var index = 0;
+      for (var obj in requestData.vendorInvoiceDetails) {
+        var vendorInvoiceObject = requestData.vendorInvoiceDetails[obj];
+
+        for (const key of Object.keys(vendorInvoiceObject).filter((key) => vendorInvoiceDetailsKeys.includes(key))) {
+          vendorInvoiceObject[key] = vendorInvoiceObject[key] ? vendorInvoiceObject[key].toUpperCase() : "";
+        }
+
+        requestData.vendorInvoiceDetails[index] = vendorInvoiceObject;
+        index++;
+      }
+
+      setIsLoading(true);
+      axios.post(process.env.REACT_APP_API_URL + '/add-vendor-invoice-entry-header', requestData, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      })
+        .then(res => {
+          if (res.data.status == 200) {
+            setIsLoading(false)
+            setTimeout(function () {
+              dispatch(vendorInvoiceEntryHeaderDetailsAction({
+                ...vendorInvoiceEntryHeaderDetails,
+                encryptedInvoiceHeaderCode: res.data.data.encryptedInvoiceHeaderCode,
+                invoiceHeaderCode: res.data.data.invoiceHeaderCode
+              }))
+            }, 50);
+            localStorage.setItem("encryptedInvoiceHeaderCode", res.data.data.encryptedInvoiceHeaderCode);
+            if (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved") {
+              $('#btnSave').attr('disabled', true);
+            }
+            toast.success(res.data.message, {
+              theme: 'colored',
+              autoClose: 10000
+            })
+            updateVendorInvoiceEntryCallback(true);
+          } else {
+            setIsLoading(false)
+            toast.error(res.data.message, {
+              theme: 'colored',
+              autoClose: 10000
+            });
+          }
+        })
+
+    }
   }
 
   return (
@@ -163,8 +440,8 @@ const VendorInvoice = () => {
             <h4>Do you want to save changes?</h4>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="success" >Save</Button>
-            <Button variant="danger" id='btnDiscard'>Discard</Button>
+            <Button variant="success" onClick={addVendorInvoiceEntryDetails}>Save</Button>
+            <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
           </Modal.Footer>
         </Modal>
       }
@@ -180,6 +457,7 @@ const VendorInvoice = () => {
         newDetails={newDetails}
         cancelClick={cancelClick}
         exitModule={exitModule}
+        saveDetails={addVendorInvoiceEntryDetails}
       />
     </>
   )
