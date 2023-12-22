@@ -42,12 +42,13 @@ const AddVendorInvoiceHeader = () => {
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
-  useEffect(() => {
+  useEffect(() => {    
   }, [])
 
   if (!vendorInvoiceEntryHeaderDetailsReducer.vendorInvoiceEntryHeaderDetails ||
     Object.keys(vendorInvoiceEntryHeaderDetailsReducer.vendorInvoiceEntryHeaderDetails).length <= 0) {
     resetInvoiceEntryHeaderDetails();
+    setPoList([]);
   }
 
   const fetchPurchaseOrder = async (vendorCode) => {
@@ -91,6 +92,7 @@ const AddVendorInvoiceHeader = () => {
         country: vendorDetail.countryName,
         vendorName: vendorDetail.vendorName
       }))
+      setPoList([]);
       e.target.value && fetchPurchaseOrder(e.target.value)
     }
     else if (e.target.name == "vendorCode" && !e.target.value) {
@@ -134,6 +136,17 @@ const AddVendorInvoiceHeader = () => {
       }))
     }
 
+    if (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode) {
+      dispatch(formChangedAction({
+          ...formChangedData,
+          vendorInvoiceEntryHeaderDetailUpdate: true
+      }))
+  } else {
+      dispatch(formChangedAction({
+          ...formChangedData,
+          vendorInvoiceEntryHeaderDetailsAdd: true
+      }))
+  }
 
   }
   const today = new Date().toISOString().split('T')[0];

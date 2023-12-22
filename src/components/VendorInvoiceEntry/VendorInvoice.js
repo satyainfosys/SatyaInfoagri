@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction } from 'actions';
+import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction, vendorInvoiceEntryDetailsAction } from 'actions';
 
 const tabArray = ['Vendor Invoice Entry List', 'Add Vendor Invoice Entry '];
 
@@ -57,7 +57,8 @@ const VendorInvoice = () => {
       $("#btnSave").hide();
       $("#btnCancel").hide();
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
-      clearMaterialReceiptReducers();
+      clearVendorInvoiceEntryDetailsReducers();
+      dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
     }
   })
 
@@ -72,11 +73,11 @@ const VendorInvoice = () => {
     }
   })
 
-  const clearMaterialReceiptReducers = () => {
+  const clearVendorInvoiceEntryDetailsReducers = () => {
     dispatch(formChangedAction(undefined));
-    dispatch(vendorMasterDetailsListAction([]));
+    dispatch(vendorInvoiceEntryDetailsAction([]));
     dispatch(vendorInvoiceEntryErrorAction(undefined));
-    localStorage.removeItem("DeleteInvoiceHeaderCodes");
+    localStorage.removeItem("DeleteInvoiceDetailCodes");
   }
 
   const newDetails = () => {
@@ -111,11 +112,12 @@ const VendorInvoice = () => {
     }
     else {
       window.location.href = '/dashboard';
+      clearVendorInvoiceEntryDetailsReducers();
       dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
       dispatch(vendorMasterDetailsListAction([]));
       localStorage.removeItem("EncryptedCompanyCode");
       localStorage.removeItem("CompanyName");
-      localStorage.removeItem("DeleteInvoiceHeaderCodes");
+      localStorage.removeItem("DeleteInvoiceDetailCodes");
     }
   }
 
@@ -140,6 +142,7 @@ const VendorInvoice = () => {
     const invoiceDateErr = {};
     const invoiceDueDateErr = {};
     const vendorInvoiceEntryDetailErr = {};
+    const totalInvoiceAmountErr = {};
 
     let isValid = true;
 
@@ -209,6 +212,25 @@ const VendorInvoice = () => {
 
 
       })
+
+      const totalProductAmount = vendorInvoiceEntryDetails.length > 1
+        ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
+          const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
+          return acc + (isNaN(productAmount) ? 0 : productAmount);
+        }, 0)
+        : vendorInvoiceEntryDetails.length === 1
+          ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
+          : 0;
+      if (vendorInvoiceEntryHeaderDetails.invoiceAmount !== totalProductAmount) {
+        totalInvoiceAmountErr.empty = "Invoice amount should be equal to total product amount";
+        setTimeout(() => {
+          toast.error(totalInvoiceAmountErr.empty, {
+            theme: 'colored'
+          });
+        }, 1000);
+        isValid = false;
+      }
+
     }
 
     if (!isValid) {
@@ -218,7 +240,8 @@ const VendorInvoice = () => {
         invoiceAmountErr,
         invoiceDateErr,
         invoiceDueDateErr,
-        vendorInvoiceEntryDetailErr
+        vendorInvoiceEntryDetailErr,
+        totalInvoiceAmountErr
       }
 
       dispatch(vendorInvoiceEntryErrorAction(errorObject))
@@ -339,7 +362,7 @@ const VendorInvoice = () => {
 
     $('#btnSave').attr('disabled', true)
 
-    clearMaterialReceiptReducers();
+    clearVendorInvoiceEntryDetailsReducers();
 
     fetchVendorInvoiceEntryHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 
@@ -354,7 +377,7 @@ const VendorInvoice = () => {
         encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
         poNo: vendorInvoiceEntryHeaderDetails.poNo,
-        invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount,
+        invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount.toString(),
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate,
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate,
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus,
@@ -394,7 +417,8 @@ const VendorInvoice = () => {
                 invoiceHeaderCode: res.data.data.invoiceHeaderCode
               }))
             }, 50);
-            localStorage.setItem("encryptedInvoiceHeaderCode", res.data.data.encryptedInvoiceHeaderCode);
+            localStorage.setItem("EncryptedInvoiceHeaderCode", res.data.data.encryptedInvoiceHeaderCode);
+            localStorage.setItem("OldInvoiceStatus", requestData.invoiceStatus);
             if (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved") {
               $('#btnSave').attr('disabled', true);
             }

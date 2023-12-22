@@ -6,7 +6,7 @@ import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { purchaseOrderProductDetailsAction, vendorInvoiceEntryDetailsAction, formChangedAction } from 'actions';
+import { purchaseOrderProductDetailsAction, vendorInvoiceEntryDetailsAction, formChangedAction, vendorInvoiceEntryHeaderDetailsAction } from 'actions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 const AddVendorInvoiceDetail = () => {
@@ -27,6 +27,7 @@ const AddVendorInvoiceDetail = () => {
     'Product',
     'Po. Qty',
     'Po. Rate',
+    'Description',
     'Qty',
     'Rate',
     'Product Amount',
@@ -41,7 +42,7 @@ const AddVendorInvoiceDetail = () => {
     productLineCode: '',
     productCategoryCode: '',
     invoiceRate: '',
-    productAmount: '',
+    productAmount: 0,
     qty: '',
     itemDescription: '',
     addUser: localStorage.getItem("LoginUserName"),
@@ -61,7 +62,7 @@ const AddVendorInvoiceDetail = () => {
   const vendorInvoiceEntryErr = vendorInvoiceEntryErrorReducer.vendorInvoiceEntryError;
 
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
-    var formChangedData = formChangedReducer.formChanged;
+  var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
     if (vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.length > 0) {
@@ -72,22 +73,35 @@ const AddVendorInvoiceDetail = () => {
       setSelectedRows([]);
     }
 
-  }, [vendorInvoiceEntryDetailsReducer, vendorInvoiceEntryDetails])
+    const totalProductAmount = vendorInvoiceEntryDetails.length > 1
+      ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
+        const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
+        return acc + (isNaN(productAmount) ? 0 : productAmount);
+      }, 0)
+      : vendorInvoiceEntryDetails.length === 1
+        ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
+        : 0;
+
+    dispatch(vendorInvoiceEntryHeaderDetailsAction({
+      ...vendorInvoiceEntryHeaderDetails,
+      invoiceAmount: isNaN(totalProductAmount) ? 0 : totalProductAmount
+    }))
+
+  }, [vendorInvoiceEntryDetails, vendorInvoiceEntryDetailsReducer])
 
   const validateVendorInvoiceEntryDetailForm = () => {
     let isValid = true;
 
     if (vendorInvoiceEntryDetails && vendorInvoiceEntryDetails.length > 0) {
       vendorInvoiceEntryDetails.forEach((row, index) => {
-        if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.quantity || !row.poRate) {
-          isValid = false;
-          setFormError(true);
-        }
-        else if (!row.poDetailId) {
-          if (!row.rate || !row.amount) {
+        if (vendorInvoiceEntryHeaderDetails.poNo) {
+          if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.invoiceQty || !row.invoiceRate || !row.productAmount || !row.itemDescription) {
             isValid = false;
             setFormError(true);
           }
+        } else if (!row.itemDescription || !row.invoiceQty || !row.invoiceRate || !row.productAmount) {
+          isValid = false;
+          setFormError(true);
         }
       });
     }
@@ -105,7 +119,8 @@ const AddVendorInvoiceDetail = () => {
       getPoDetailList();
     }
     else {
-      if (validateVendorInvoiceEntryDetailForm()) {
+      let formValid = validateVendorInvoiceEntryDetailForm()
+      if (formValid) {
         vendorInvoiceEntryDetails.unshift(emptyRow);
         dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntryDetails));
       }
@@ -128,14 +143,20 @@ const AddVendorInvoiceDetail = () => {
       const updatedData = [...purchaseOrderProductDetailsList]
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     } else {
-      const updatedData = [...selectedRows, ...vendorInvoiceEntryDetails];
+      const uniqueRows = selectedRows.filter(row => {
+        return !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode);
+      });
+      const updatedData = [...vendorInvoiceEntryDetails, ...uniqueRows];
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     }
+
+    dispatch(formChangedAction({
+      ...formChangedData,
+      vendorInvoiceEntryDetailsAdd: true
+    }))
     setPoModal(false);
     setSelectAll(false);
   }
-
-
 
   const handleCheckboxChange = (rowData) => {
     if (selectedRows.includes(rowData)) {
@@ -173,54 +194,80 @@ const AddVendorInvoiceDetail = () => {
     };
     dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry));
 
-    // if (e.target.name == "invoiceQty") {
-    //   if (vendorInvoiceEntry[index].invoiceQty) {
-    //     var totalAmount = parseFloat(e.target.value) * parseFloat(vendorInvoiceEntry[index].rate)
-    //     vendorInvoiceEntry[index].productAmount = totalAmount.toString();
-    //     dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
-    //   }
-    // }
+    if (e.target.name == "invoiceQty") {
+      if (vendorInvoiceEntry[index].invoiceRate) {
+        var totalAmount = parseFloat(e.target.value) * parseFloat(vendorInvoiceEntry[index].invoiceRate)
+        vendorInvoiceEntry[index].productAmount = isNaN(totalAmount) ? 0 : totalAmount.toString();
+        dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+    }
 
-  //   if(e.target.name == "invoiceRate"){
-  //     if (vendorInvoiceEntry[index].invoiceQty){
+    if (e.target.name == "invoiceRate") {
+      if (vendorInvoiceEntry[index].invoiceQty) {
+        var amount = parseFloat(e.target.value) * parseFloat(vendorInvoiceEntry[index].invoiceQty);
+        vendorInvoiceEntry[index].productAmount = isNaN(amount) ? 0 : amount.toString();
+        dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+      else if (parseFloat(vendorInvoiceEntry[index].productAmount) > 0) {
+        var calculatedQuantity = parseFloat(vendorInvoiceEntry[index].productAmount) / parseFloat(e.target.value);
+        vendorInvoiceEntry[index].invoiceQty = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
+        dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+    }
 
-  //     }else if(vendorInvoiceEntry[index].productAmount)
-  //   }
+    if (e.target.name == "productAmount") {
+      if (vendorInvoiceEntry[index].invoiceRate) {
+        var totalQuantity = parseFloat(e.target.value) / parseFloat(vendorInvoiceEntry[index].invoiceRate)
+        vendorInvoiceEntry[index].invoiceQty = isNaN(totalQuantity) ? 0 : totalQuantity.toString();
+        dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+    }
 
+    if (vendorInvoiceEntryDetails[index].encryptedInvoiceDetailCode) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        vendorInvoiceEntryDetailsUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        vendorInvoiceEntryDetailsAdd: true
+      }))
+    }
   }
 
   const ModalPreview = (encryptedInvoiceHeaderCode) => {
     setModalShow(true);
     setParamsData({ encryptedInvoiceHeaderCode });
-}
-
-const deleteMaterialReceiptDetail = () => {
-  if (!paramsData)
-      return false;
-
-  var objectIndex = vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.findIndex(x => x.encryptedMaterialReceiptDetailId == paramsData.encryptedMaterialReceiptDetailId);
-  vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.splice(objectIndex, 1);
-
-  var deleteInvoiceHeaderCode = localStorage.getItem("DeleteInvoiceHeaderCodes");
-
-  if (paramsData.encryptedInvoiceHeaderCode) {
-      var deleteInvoiceEntryDetails = deleteInvoiceHeaderCode ? deleteInvoiceHeaderCode + "," + paramsData.encryptedMaterialReceiptDetailId : paramsData.encryptedMaterialReceiptDetailId;
-      localStorage.setItem("DeleteInvoiceHeaderCodes", deleteInvoiceEntryDetails);
   }
 
-  toast.success("Vendor invoice entry detail deleted successfully", {
+  const deleteMaterialReceiptDetail = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.findIndex(x => x.encryptedMaterialReceiptDetailId == paramsData.encryptedMaterialReceiptDetailId);
+    vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.splice(objectIndex, 1);
+
+    var deleteInvoiceHeaderCode = localStorage.getItem("DeleteInvoiceHeaderCodes");
+
+    if (paramsData.encryptedInvoiceHeaderCode) {
+      var deleteInvoiceEntryDetails = deleteInvoiceHeaderCode ? deleteInvoiceHeaderCode + "," + paramsData.encryptedMaterialReceiptDetailId : paramsData.encryptedMaterialReceiptDetailId;
+      localStorage.setItem("DeleteInvoiceHeaderCodes", deleteInvoiceEntryDetails);
+    }
+
+    toast.success("Vendor invoice entry detail deleted successfully", {
       theme: 'colored'
-  });
+    });
 
-  dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntryDetails))
+    dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntryDetails))
 
-  dispatch(formChangedAction({
+    dispatch(formChangedAction({
       ...formChangedData,
       vendorInvoiceEntryDetailsDelete: true
-  }));
+    }));
 
-  setModalShow(false);
-}
+    setModalShow(false);
+  }
 
 
   return (
@@ -242,7 +289,7 @@ const deleteMaterialReceiptDetail = () => {
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
-            <Button variant="danger"  onClick={() => deleteMaterialReceiptDetail()}>Delete</Button>
+            <Button variant="danger" onClick={() => deleteMaterialReceiptDetail()}>Delete</Button>
           </Modal.Footer>
         </Modal>
       }
@@ -441,6 +488,14 @@ const deleteMaterialReceiptDetail = () => {
                         </td>
                         <td key={index}>
                           <EnlargableTextbox
+                            name="description"
+                            placeholder="Description"
+                            value={vendorInvoiceEntryDetails.description}
+                            onChange={(e) => handleFieldChange(e, index)}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
                             name="invoiceQty"
                             placeholder="Qty"
                             maxLength={5}
@@ -497,7 +552,7 @@ const deleteMaterialReceiptDetail = () => {
                           />
                         </td>
                         <td key={index}>
-                          <FontAwesomeIcon icon={'trash'} className="fa-2x"  onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceHeaderCode) }} />
+                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceHeaderCode) }} />
                         </td>
                       </tr>
                       :
@@ -511,6 +566,15 @@ const deleteMaterialReceiptDetail = () => {
                             placeholder="Product Name"
                             value={vendorInvoiceEntryDetails.itemDescription}
                             onChange={(e) => handleFieldChange(e, index)}
+                            required
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="description"
+                            placeholder="Description"
+                            value={vendorInvoiceEntryDetails.description}
+                            onChange={(e) => handleFieldChange(e, index)}
                           />
                         </td>
                         <td key={index}>
@@ -518,7 +582,7 @@ const deleteMaterialReceiptDetail = () => {
                             name="invoiceQty"
                             placeholder="Qty"
                             maxLength={5}
-                            value={vendorInvoiceEntryDetails.invoiceQty}
+                            value={vendorInvoiceEntryDetails.invoiceQty ? vendorInvoiceEntryDetails.invoiceQty : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
@@ -537,7 +601,7 @@ const deleteMaterialReceiptDetail = () => {
                             name="invoiceRate"
                             placeholder="Rate"
                             maxLength={5}
-                            value={vendorInvoiceEntryDetails.invoiceRate}
+                            value={vendorInvoiceEntryDetails.invoiceRate ? vendorInvoiceEntryDetails.invoiceRate : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
@@ -556,12 +620,11 @@ const deleteMaterialReceiptDetail = () => {
                             name="productAmount"
                             placeholder="Product Amount"
                             maxLength={5}
-                            value={vendorInvoiceEntryDetails.productAmount}
+                            value={vendorInvoiceEntryDetails.productAmount ? vendorInvoiceEntryDetails.productAmount : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
                               const regex = /^[^A-Za-z]+$/;
-
                               if (!regex.test(keyValue)) {
                                 e.preventDefault();
                               }
