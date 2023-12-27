@@ -5,6 +5,7 @@ import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction, vendorInvoiceEntryDetailsAction } from 'actions';
+import Moment from 'moment';
 
 const tabArray = ['Vendor Invoice Entry List', 'Add Vendor Invoice Entry '];
 
@@ -14,7 +15,8 @@ const listColumnArray = [
   { accessor: 'vendorName', Header: 'Vendor Name' },
   { accessor: 'invoiceDate', Header: 'Invoice Date' },
   { accessor: 'invoiceDueDate', Header: 'Due Date' },
-  { accessor: 'invoiceStatus', Header: 'Status' }
+  { accessor: 'invoiceStatus', Header: 'Status' },
+  { accessor: 'vendorInvoicePrintStatus', Header: 'Print' },
 ];
 
 const VendorInvoice = () => {
@@ -69,7 +71,7 @@ const VendorInvoice = () => {
     $("#btnCancel").show();
 
     if (vendorInvoiceEntryDetails.length <= 0) {
-      fetchVendorInvoiceEntryHeaderList();
+      getVendorInvoiceEntryDetailList();
     }
   })
 
@@ -376,11 +378,11 @@ const VendorInvoice = () => {
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
-        poNo: vendorInvoiceEntryHeaderDetails.poNo,
+        poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
         invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount.toString(),
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate,
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate,
-        invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus,
+        invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
         addUser: localStorage.getItem("LoginUserName"),
         vendorInvoiceDetails: vendorInvoiceEntryDetails
       }
@@ -439,6 +441,184 @@ const VendorInvoice = () => {
     }
   }
 
+  const updateVendorInvoiceEntryDetails = async () => {
+    if (vendorInvoiceEntryValidation()) {
+      if (!formChangedData.vendorInvoiceEntryHeaderDetailUpdate &&
+        !(formChangedData.vendorInvoiceEntryDetailsAdd || formChangedData.vendorInvoiceEntryDetailsUpdate || formChangedData.vendorInvoiceEntryDetailsDelete)) {
+        return;
+      }
+
+      var deleteInvoiceHeaderCodes = localStorage.getItem("DeleteInvoiceHeaderCodes");
+
+
+      const updateRequestData = {
+        encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+        invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+        vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
+        poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
+        invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount ? vendorInvoiceEntryHeaderDetails.invoiceAmount.toString() : 0,
+        invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+        invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDueDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
+        invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
+        modifyUser: localStorage.getItem("LoginUserName"),
+      }
+
+      const keys = ["modifyUser"]
+      for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+        updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+      }
+
+      var hasError = false;
+      if (formChangedData.vendorInvoiceEntryHeaderDetailUpdate) {
+        setIsLoading(true);
+        await axios.post(process.env.REACT_APP_API_URL + '/update-vendor-invoice-entry-header', updateRequestData, {
+          headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+          .then(res => {
+            setIsLoading(false);
+            if (res.data.status !== 200) {
+              toast.error(res.data.message, {
+                theme: 'colored',
+                autoClose: 10000
+              });
+              hasError = true;
+            } else {
+              localStorage.setItem("OldInvoiceStatus", vendorInvoiceEntryHeaderDetails.invoiceStatus);
+              if (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved") {
+                $('#btnSave').attr('disabled', true);
+              }
+            }
+          })
+      }   
+      
+      var vendorInvoiceEntryDetailIndex = 1;
+
+      //MaterialReceiptDetail ADD, UPDATE, DELETE
+      if (!hasError && (formChangedData.vendorInvoiceEntryDetailsAdd || formChangedData.vendorInvoiceEntryDetailsUpdate || formChangedData.vendorInvoiceEntryDetailsDelete)) {
+          if (!hasError && formChangedData.vendorInvoiceEntryDetailsDelete) {
+              var deleteInvoiceHeaderCodesList = deleteInvoiceHeaderCodes ? deleteInvoiceHeaderCodes.split(',') : null;
+              if (deleteInvoiceHeaderCodesList) {
+                  var deleteInvoiceHeaderCodesIndex = 1;
+
+                  for (let i = 0; i < deleteInvoiceHeaderCodesIndex.length; i++) {
+                      const deleteId = deleteInvoiceHeaderCodesIndex[i];
+                      const data = { deleteInvoiceHeaderCodesIndex: deleteId }
+                      const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                      const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-vendor-invoice-entry-detail', { headers, data });
+                      if (deleteResponse.data.status != 200) {
+                          toast.error(deleteResponse.data.message, {
+                              theme: 'colored',
+                              autoClose: 10000
+                          });
+                          hasError = true;
+                          break;
+                      }
+                      deleteInvoiceHeaderCodesIndex++
+                  }
+              }
+          }
+
+          for (let i = 0; i < vendorInvoiceEntryDetails.length; i++) {
+              const vendorInvoiceEntryDetailsData = vendorInvoiceEntryDetails[i];
+
+              const keys = ["modifyUser", "varietyName", "brandName"];
+              for (const key of Object.keys(vendorInvoiceEntryDetailsData).filter((key) => keys.includes(key))) {
+                vendorInvoiceEntryDetailsData[key] = vendorInvoiceEntryDetailsData[key] ? vendorInvoiceEntryDetailsData[key].toUpperCase() : "";
+              }
+
+              if (!hasError && formChangedData.vendorInvoiceEntryDetailsUpdate && vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode) {
+                  const requestData = {
+                      encryptedInvoiceDetailCode: vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode,
+                      productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
+                      productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
+                      productCode: vendorInvoiceEntryDetailsData.productCode,
+                      itemDescription: vendorInvoiceEntryDetailsData.itemDescription ? vendorInvoiceEntryDetailsData.itemDescription : "",
+                      description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
+                      invoiceQty: parseFloat(vendorInvoiceEntryDetailsData.invoiceQty),
+                      invoiceRate: parseFloat(vendorInvoiceEntryDetailsData.invoiceRate),
+                      productAmount: parseFloat(vendorInvoiceEntryDetailsData.productAmount),
+                      modifyUser: localStorage.getItem("LoginUserName"),
+                  }
+                  setIsLoading(true);
+                  const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-vendor-invoice-entry-detail', requestData, {
+                      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                  });
+                  setIsLoading(false);
+                  if (updateResponse.data.status != 200) {
+                      toast.error(updateResponse.data.message, {
+                          theme: 'colored',
+                          autoClose: 10000
+                      });
+                      hasError = true;
+                      break;
+                  }
+              }
+              else if (!hasError && formChangedData.vendorInvoiceEntryDetailsAdd && !vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode) {
+                  const requestData = {
+                    encryptedInvoiceHeaderCode : localStorage.getItem("EncryptedInvoiceHeaderCode"),
+                    productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
+                    productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
+                    productCode: vendorInvoiceEntryDetailsData.productCode,
+                    itemDescription: vendorInvoiceEntryDetailsData.itemDescription ? vendorInvoiceEntryDetailsData.itemDescription : "",
+                    description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
+                    invoiceQty: vendorInvoiceEntryDetailsData.invoiceQty.toString(),
+                    invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate.toString(),
+                    productAmount: vendorInvoiceEntryDetailsData.productAmount.toString(),
+                    addUser: localStorage.getItem("LoginUserName"),
+                  }
+                  setIsLoading(true);
+                  const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-vendor-invoice-entry-detail', requestData, {
+                      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                  });
+                  setIsLoading(false);
+                  if (addResponse.data.status != 200) {
+                      toast.error(addResponse.data.message, {
+                          theme: 'colored',
+                          autoClose: 10000
+                      });
+                      hasError = true;
+                      break;
+                  }
+                  else {
+                      const updateVendorInvoiceEntryDetailList = [...vendorInvoiceEntryDetails]
+                      updateVendorInvoiceEntryDetailList[i] = {
+                          ...updateVendorInvoiceEntryDetailList[i],
+                          encryptedMaterialReceiptDetailId: addResponse.data.data.encryptedMaterialReceiptDetailId
+                      };
+
+                      dispatch(vendorInvoiceEntryDetailsAction(updateVendorInvoiceEntryDetailList));
+                  }
+              }
+
+              vendorInvoiceEntryDetailIndex++
+          }
+      }
+    if (!hasError) {
+      clearVendorInvoiceEntryDetailsReducers();
+      updateVendorInvoiceEntryCallback();
+    }
+  }
+}
+  
+
+
+  const getVendorInvoiceEntryDetailList = async () => {
+    const request = {
+      encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode")
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+        if (response.data.data && response.data.data.length > 0) {
+            dispatch(vendorInvoiceEntryDetailsAction(response.data.data));
+        }
+    }
+}
+
   return (
     <>
       {isLoading ? (
@@ -464,7 +644,7 @@ const VendorInvoice = () => {
             <h4>Do you want to save changes?</h4>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="success" onClick={addVendorInvoiceEntryDetails}>Save</Button>
+            <Button variant="success" onClick={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ? updateVendorInvoiceEntryDetails : addVendorInvoiceEntryDetails}>Save</Button>
             <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
           </Modal.Footer>
         </Modal>
@@ -481,7 +661,7 @@ const VendorInvoice = () => {
         newDetails={newDetails}
         cancelClick={cancelClick}
         exitModule={exitModule}
-        saveDetails={addVendorInvoiceEntryDetails}
+        saveDetails={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ? updateVendorInvoiceEntryDetails : addVendorInvoiceEntryDetails}
       />
     </>
   )

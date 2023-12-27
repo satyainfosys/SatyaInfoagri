@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction } from '../../../actions/index';
+import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction,vendorInvoiceEntryHeaderDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -41,6 +41,14 @@ const AdvanceTable = ({
         $('#btnSave').attr('disabled', true);
         getClientDetail(rowData.clientName);
       }
+    }
+    else if (rowData.hasOwnProperty('encryptedInvoiceHeaderCode')) {
+      dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
+      $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
+      localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
+      localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
     }
     else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(companyDetailsAction(rowData));
@@ -174,7 +182,6 @@ const AdvanceTable = ({
       getContactDetailsList(rowData.encryptedClientCode);
       getTransactionDetailsList(rowData.encryptedClientCode);
     }
-
   }
 
   const getContactDetailsList = async (encryptedClientCode) => {
@@ -281,7 +288,7 @@ const AdvanceTable = ({
     }
   }
 
-  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId, encryptedPoNo) => {
+  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId, encryptedPoNo, encryptedInvoiceHeaderCode) => {
     var url = "";
     if (farmerCode) {
       url = `/crop-purchase-receipt/${encryptedMaterialReceiptId}`;
@@ -291,6 +298,10 @@ const AdvanceTable = ({
     }
     else if (encryptedPoNo) {
       url = `/purchase-order-receipt/${encryptedPoNo}`;
+    }
+    else if(encryptedInvoiceHeaderCode)
+    {
+      url = `/vendor-invoice-entry/${encryptedInvoiceHeaderCode}`
     }
 
     window.open(url, '_blank');
@@ -341,7 +352,7 @@ const AdvanceTable = ({
                       >
                         {
                           cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus'  ?
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' &&  cell.column.id !== 'vendorInvoicePrintStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -462,6 +473,18 @@ const AdvanceTable = ({
                                                           Print
                                                         </IconButton> 
                                                         :
+                                                        cell.column.id == "vendorInvoicePrintStatus" && cell.row.values.vendorInvoicePrintStatus == "Approved" ?
+                                                      <IconButton
+                                                        variant="falcon-default"
+                                                        size="sm"
+                                                        icon="print"
+                                                        iconClassName="me-1"
+                                                        className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                        onClick={() => generatePdf('','','','', cell.row.original.encryptedInvoiceHeaderCode)}
+                                                      >
+                                                        Print
+                                                      </IconButton>
+                                                      :
                                                         cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
                                                         <Badge
                                                           pill

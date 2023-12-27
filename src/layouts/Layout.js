@@ -39,6 +39,7 @@ import CropPurchase from 'components/CropPurchaseV2/CropPurchase';
 import CropPurchaseReport from 'components/CropPurchaseV2/CropPurchaseReport';
 import ClientUser from 'components/ClientUsers/ClientUsers';
 import VendorInvoice from 'components/VendorInvoiceEntry/VendorInvoice';
+import VendorInvoiceEntryReport from 'components/VendorInvoiceEntry/VendorInvoiceEntryReport';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -74,6 +75,7 @@ const Layout = () => {
         <Route path="/material-receipt/:id" element={<Invoice />} />
         <Route path="/purchase-order-receipt/:poNo" element={<Invoice />} />
         <Route path="/crop-purchase-report" element={<CropPurchaseReport />} />
+        <Route path="/vendor-invoice-entry/:invoiceHeaderCode" element={<VendorInvoiceEntryReport />} />
 
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />
