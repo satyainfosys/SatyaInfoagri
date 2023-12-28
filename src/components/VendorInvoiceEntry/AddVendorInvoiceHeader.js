@@ -261,7 +261,7 @@ const AddVendorInvoiceHeader = () => {
                   Status
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Select id="txtMaterialStatus" name="invoiceStatus" value={vendorInvoiceEntryHeaderDetails.invoiceStatus} onChange={handleFieldChange}>
+                  <Form.Select id="txtMaterialStatus" name="invoiceStatus" value={vendorInvoiceEntryHeaderDetails.invoiceStatus} onChange={handleFieldChange}  disabled={oldInvoiceStatus=="Paid"}>
                     <option value="Draft">Draft</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
@@ -275,7 +275,7 @@ const AddVendorInvoiceHeader = () => {
                   Invoice No
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"} />
+                  <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")} />
                   {Object.keys(vendorInvoiceEntryErr.invoiceNoErr).map((key) => {
                     return <span className="error-message">{vendorInvoiceEntryErr.invoiceNoErr[key]}</span>
                   })}
@@ -286,7 +286,7 @@ const AddVendorInvoiceHeader = () => {
                   Amount
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceAmount} onChange={handleFieldChange}  disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}/>
+                  <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceAmount} onChange={handleFieldChange}  disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}/>
                   {Object.keys(vendorInvoiceEntryErr.invoiceAmountErr).map((key) => {
                     return <span className="error-message">{vendorInvoiceEntryErr.invoiceAmountErr[key]}</span>
                   })}
@@ -298,7 +298,7 @@ const AddVendorInvoiceHeader = () => {
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control type='date' id="txtInvoiceDate" name="invoiceDate" max={today}
-                    value={vendorInvoiceEntryHeaderDetails.invoiceDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                    value={vendorInvoiceEntryHeaderDetails.invoiceDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}
                   />
                   {Object.keys(vendorInvoiceEntryErr.invoiceDateErr).map((key) => {
                     return <span className="error-message">{vendorInvoiceEntryErr.invoiceDateErr[key]}</span>
@@ -311,7 +311,7 @@ const AddVendorInvoiceHeader = () => {
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control type='date' id="txtInvoiceDueDate" name="invoiceDueDate" min={today}
-                    value={vendorInvoiceEntryHeaderDetails.invoiceDueDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                    value={vendorInvoiceEntryHeaderDetails.invoiceDueDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}
                   />
                   {Object.keys(vendorInvoiceEntryErr.invoiceDueDateErr).map((key) => {
                       return <span className="error-message">{vendorInvoiceEntryErr.invoiceDueDateErr[key]}</span>

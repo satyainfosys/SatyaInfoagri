@@ -43,12 +43,12 @@ const AdvanceTable = ({
       }
     }
     else if (rowData.hasOwnProperty('encryptedInvoiceHeaderCode')) {
+      localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
+      localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
       dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').trigger('click');
-      $('#btnSave').attr('disabled', true);
-      localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
-      localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
+      $('#btnSave').attr('disabled', true);      
     }
     else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(companyDetailsAction(rowData));

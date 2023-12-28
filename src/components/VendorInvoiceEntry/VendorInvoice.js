@@ -60,6 +60,8 @@ const VendorInvoice = () => {
       $("#btnCancel").hide();
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
       clearVendorInvoiceEntryDetailsReducers();
+      localStorage.removeItem("EncryptedInvoiceHeaderCode");
+      localStorage.removeItem("OldInvoiceStatus");
       dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
     }
   })
@@ -84,6 +86,7 @@ const VendorInvoice = () => {
 
   const newDetails = () => {
     if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
+      dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry "]').trigger('click');
       $('#btnSave').attr('disabled', false);
@@ -114,9 +117,9 @@ const VendorInvoice = () => {
     }
     else {
       window.location.href = '/dashboard';
-      clearVendorInvoiceEntryDetailsReducers();
       dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
       dispatch(vendorMasterDetailsListAction([]));
+      localStorage.removeItem("EncryptedInvoiceHeaderCode")
       localStorage.removeItem("EncryptedCompanyCode");
       localStorage.removeItem("CompanyName");
       localStorage.removeItem("DeleteInvoiceDetailCodes");
@@ -448,7 +451,7 @@ const VendorInvoice = () => {
         return;
       }
 
-      var deleteInvoiceHeaderCodes = localStorage.getItem("DeleteInvoiceHeaderCodes");
+      var deleteInvoiceDetailCodes = localStorage.getItem("DeleteInvoiceDetailCodes");
 
 
       const updateRequestData = {
@@ -493,16 +496,16 @@ const VendorInvoice = () => {
       
       var vendorInvoiceEntryDetailIndex = 1;
 
-      //MaterialReceiptDetail ADD, UPDATE, DELETE
+      //VendorInvoiceEntryDetail ADD, UPDATE, DELETE
       if (!hasError && (formChangedData.vendorInvoiceEntryDetailsAdd || formChangedData.vendorInvoiceEntryDetailsUpdate || formChangedData.vendorInvoiceEntryDetailsDelete)) {
           if (!hasError && formChangedData.vendorInvoiceEntryDetailsDelete) {
-              var deleteInvoiceHeaderCodesList = deleteInvoiceHeaderCodes ? deleteInvoiceHeaderCodes.split(',') : null;
-              if (deleteInvoiceHeaderCodesList) {
-                  var deleteInvoiceHeaderCodesIndex = 1;
+              var deleteInvoiceDetailCodesList = deleteInvoiceDetailCodes ? deleteInvoiceDetailCodes.split(',') : null;
+              if (deleteInvoiceDetailCodesList) {
+                  var deleteInvoiceDetailCodesIndex = 1;
 
-                  for (let i = 0; i < deleteInvoiceHeaderCodesIndex.length; i++) {
-                      const deleteId = deleteInvoiceHeaderCodesIndex[i];
-                      const data = { deleteInvoiceHeaderCodesIndex: deleteId }
+                  for (let i = 0; i < deleteInvoiceDetailCodesList.length; i++) {
+                      const deleteId = deleteInvoiceDetailCodesList[i];
+                      const data = { encryptedInvoiceDetailCode: deleteId }
                       const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
 
                       const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-vendor-invoice-entry-detail', { headers, data });
@@ -514,7 +517,7 @@ const VendorInvoice = () => {
                           hasError = true;
                           break;
                       }
-                      deleteInvoiceHeaderCodesIndex++
+                      deleteInvoiceDetailCodesIndex++
                   }
               }
           }
@@ -584,7 +587,7 @@ const VendorInvoice = () => {
                       const updateVendorInvoiceEntryDetailList = [...vendorInvoiceEntryDetails]
                       updateVendorInvoiceEntryDetailList[i] = {
                           ...updateVendorInvoiceEntryDetailList[i],
-                          encryptedMaterialReceiptDetailId: addResponse.data.data.encryptedMaterialReceiptDetailId
+                          encryptedInvoiceHeaderCode: addResponse.data.data.encryptedInvoiceHeaderCode
                       };
 
                       dispatch(vendorInvoiceEntryDetailsAction(updateVendorInvoiceEntryDetailList));

@@ -389,9 +389,6 @@ export const AddClientUser = () => {
                             <option key={index} value={option.value}>{option.key}</option>
                           ))}
                         </Form.Select>
-                        {Object.keys(userError.distributionCentreErr).map((key) => {
-                          return <span className="error-message">{userError.distributionCentreErr[key]}</span>
-                        })}
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Collection Centre<span className="text-danger">*</span></Form.Label>
@@ -402,9 +399,6 @@ export const AddClientUser = () => {
                             <option key={index} value={option.value}>{option.key}</option>
                           ))}
                         </Form.Select>
-                        {Object.keys(userError.collectionCentreNameErr).map((key) => {
-                          return <span className="error-message">{userError.collectionCentreNameErr[key]}</span>
-                        })}
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>User Name<span className="text-danger">*</span></Form.Label>

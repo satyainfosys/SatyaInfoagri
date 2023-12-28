@@ -198,16 +198,6 @@ export const ClientUsers = () => {
 			isValid = false;
 			setFormError(true);
 		}
-		if (!userData.distributionCentreCode) {
-			distributionCentreErr.distributionCentreEmpty = "Select distribution centre"
-			isValid = false;
-			setFormError(true);
-		}
-		if (!userData.collCentreCode) {
-			collectionCentreNameErr.collectionCentreNameEmpty = "Select collection centre"
-			isValid = false;
-			setFormError(true);
-		}
 		if (!userData.loginName) {
 			loginNameErr.loginNameEmpty = "Enter user name"
 			isValid = false;
@@ -301,8 +291,8 @@ export const ClientUsers = () => {
 				loginUserMobileNumber: userData.loginUserMobileNumber,
 				loginUserName: userData.loginUserName,
 				moduleCode: localStorage.getItem("ModuleCode"),
-				distributionCentreCode: userData.distributionCentreCode,
-				collCentreCode: userData.collCentreCode,
+				distributionCentreCode: userData.distributionCentreCode ? userData.distributionCentreCode : null,
+				collCentreCode: userData.collCentreCode ? userData.collCentreCode : null,
 				treeIds: selectedProductItems,
 				activeStatus: userData.status == null || userData.status == "Active" ? "A" : "S",
 				addUser: localStorage.getItem("LoginUserName"),
@@ -379,8 +369,8 @@ export const ClientUsers = () => {
                 ModifyUser: localStorage.getItem("LoginUserName"),
 				countryCode: userData.countryCode,
 				stateCode: userData.stateCode,
-				distributionCentreCode: userData.distributionCentreCode,
-				collCentreCode: userData.collCentreCode,
+				distributionCentreCode: userData.distributionCentreCode ? userData.distributionCentreCode : null,
+				collCentreCode: userData.collCentreCode ? userData.collCentreCode : null,
 				encryptedCompanyCode: userData.encryptedCompanyCode,
             }
 

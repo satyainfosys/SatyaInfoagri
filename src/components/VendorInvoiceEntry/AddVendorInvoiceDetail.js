@@ -237,9 +237,9 @@ const AddVendorInvoiceDetail = () => {
     }
   }
 
-  const ModalPreview = (encryptedInvoiceHeaderCode) => {
+  const ModalPreview = (encryptedInvoiceDetailCode) => {
     setModalShow(true);
-    setParamsData({ encryptedInvoiceHeaderCode });
+    setParamsData({ encryptedInvoiceDetailCode });
   }
 
   const deleteMaterialReceiptDetail = () => {
@@ -249,11 +249,11 @@ const AddVendorInvoiceDetail = () => {
     var objectIndex = vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.findIndex(x => x.encryptedMaterialReceiptDetailId == paramsData.encryptedMaterialReceiptDetailId);
     vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails.splice(objectIndex, 1);
 
-    var deleteInvoiceHeaderCode = localStorage.getItem("DeleteInvoiceHeaderCodes");
+    var deleteInvoiceDetailCode = localStorage.getItem("DeleteInvoiceDetailCodes");
 
-    if (paramsData.encryptedInvoiceHeaderCode) {
-      var deleteInvoiceEntryDetails = deleteInvoiceHeaderCode ? deleteInvoiceHeaderCode + "," + paramsData.encryptedMaterialReceiptDetailId : paramsData.encryptedMaterialReceiptDetailId;
-      localStorage.setItem("DeleteInvoiceHeaderCodes", deleteInvoiceEntryDetails);
+    if (paramsData.encryptedInvoiceDetailCode) {
+      var deleteInvoiceEntryDetails = deleteInvoiceDetailCode ? deleteInvoiceDetailCode + "," + paramsData.encryptedInvoiceDetailCode : paramsData.encryptedInvoiceDetailCode;
+      localStorage.setItem("DeleteInvoiceDetailCodes", deleteInvoiceEntryDetails);
     }
 
     toast.success("Vendor invoice entry detail deleted successfully", {
@@ -392,7 +392,7 @@ const AddVendorInvoiceDetail = () => {
           endEl={
             <Flex>
               {
-                vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved" ? null
+                vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid") ? null
                   :
                   <div >
                     <Button
@@ -476,9 +476,9 @@ const AddVendorInvoiceDetail = () => {
                         </td>
                         <td key={index}>
                           <EnlargableTextbox
-                            name="poQty"
+                            name="quantity"
                             placeholder="Po. Qty"
-                            value={vendorInvoiceEntryDetails.poQty}
+                            value={vendorInvoiceEntryDetails.quantity}
                             disabled
                           />
                         </td>
@@ -496,7 +496,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Description"
                             value={vendorInvoiceEntryDetails.description}
                             onChange={(e) => handleFieldChange(e, index)}
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -515,7 +515,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -535,7 +535,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -554,11 +554,11 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
-                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceHeaderCode) }} />
+                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceDetailCode) }} />
                         </td>
                       </tr>
                       :
@@ -581,7 +581,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Description"
                             value={vendorInvoiceEntryDetails.description}
                             onChange={(e) => handleFieldChange(e, index)}
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -600,7 +600,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -620,7 +620,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -639,7 +639,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved"}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
