@@ -435,6 +435,9 @@ const AddVendorInvoiceDetail = () => {
                     if (!vendorInvoiceEntryHeaderDetails.poNo && (column == "Po. Rate")) {
                       return null;
                     }
+                    if (column === 'Delete' && vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")) {
+                      return null;
+                  }
 
                     return (
                       <th className="text-left" key={index}>
@@ -558,9 +561,14 @@ const AddVendorInvoiceDetail = () => {
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
-                        <td key={index}>
-                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceDetailCode) }} />
-                        </td>
+                        {
+                          vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved" ?
+                            null
+                            :
+                            <td key={index}>
+                              <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceDetailCode) }} />
+                            </td>
+                        }
                       </tr>
                       :
                       <tr key={index}>
