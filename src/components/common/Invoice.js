@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Table } from 'react-bootstrap';
+import { Card, Col, Row, Table, Form } from 'react-bootstrap';
 import IconButton from 'components/common/IconButton';
 import axios from 'axios';
 import { useParams } from "react-router-dom";
@@ -142,6 +142,9 @@ const Invoice = () => {
                 <>
                     <Card className="mb-3">
                         <Card.Body>
+                            <Row className="justify-content-between align-items-center text-center">
+                            <Form.Label><h4><u><b>Material Receipt</b></u></h4></Form.Label>
+                            </Row>
                             <Row className="justify-content-between align-items-center">
                                 <Col md>
                                     <h5 className="mb-2 mb-md-0">#{materialHeaderData.poNo ? materialHeaderData.poNo : materialHeaderData.materialReceiptId}</h5>

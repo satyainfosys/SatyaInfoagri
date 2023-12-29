@@ -162,7 +162,7 @@ const AddVendorInvoiceHeader = () => {
             <Col md="4">
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Vendor Name
+                  Vendor Name<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="8">
                   {
@@ -274,7 +274,7 @@ const AddVendorInvoiceHeader = () => {
             <Col>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Invoice No
+                  Invoice No<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")} />
@@ -285,7 +285,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Amount
+                  Amount<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceAmount} onChange={handleFieldChange}  disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}/>
@@ -296,7 +296,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Invoice Date
+                  Invoice Date<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control type='date' id="txtInvoiceDate" name="invoiceDate" max={today}
@@ -309,7 +309,7 @@ const AddVendorInvoiceHeader = () => {
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
-                  Due Date
+                  Due Date<span className="text-danger">*</span>
                 </Form.Label>
                 <Col sm="8">
                   <Form.Control type='date' id="txtInvoiceDueDate" name="invoiceDueDate" min={today}

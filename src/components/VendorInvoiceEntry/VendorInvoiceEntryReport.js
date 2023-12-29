@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Card, Col, Row, Table } from 'react-bootstrap';
+import { Card, Col, Row, Table, Form } from 'react-bootstrap';
 import IconButton from 'components/common/IconButton';
 import axios from 'axios';
 import { useParams } from "react-router-dom";
@@ -82,6 +82,9 @@ const VendorInvoiceEntryReport = () => {
                 <Col md>
                   <h5 className="mb-2 mb-md-0">#{vendorInvoiceEntryHeaderData.invoiceHeaderCode}</h5>
                 </Col>
+                <Col xs={6}>
+                <Form.Label><h4><u><b>Vendor Invoice Entry Report</b></u></h4></Form.Label>
+                  </Col>
                 <Col xs="auto">
                   <IconButton
                     variant="falcon-default"

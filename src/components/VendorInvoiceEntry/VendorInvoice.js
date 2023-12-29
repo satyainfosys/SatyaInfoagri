@@ -148,6 +148,7 @@ const VendorInvoice = () => {
     const invoiceDueDateErr = {};
     const vendorInvoiceEntryDetailErr = {};
     const totalInvoiceAmountErr = {};
+    const productDuplicateErr = {};
 
     let isValid = true;
 
@@ -172,6 +173,21 @@ const VendorInvoice = () => {
       isValid = false;
     }
 
+    if (!vendorInvoiceEntryHeaderDetails.poNo) {
+      const itemDescriptions = new Set();
+    
+      vendorInvoiceEntryDetails.forEach((row, index) => {
+        if (itemDescriptions.has(row.itemDescription)) {
+          productDuplicateErr.productDuplicate = "Product is already exist";
+          toast.error(productDuplicateErr.productDuplicate, {
+            theme: 'colored'
+          });
+          isValid = false;  
+        } else {
+          itemDescriptions.add(row.itemDescription);
+        }
+      });
+    }
 
     if (vendorInvoiceEntryDetails.length < 1) {
       vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty = "At least one vendor invoice entry details required";
@@ -214,8 +230,6 @@ const VendorInvoice = () => {
           }, 1000);
           isValid = false;
         }
-
-
       })
 
       const totalProductAmount = vendorInvoiceEntryDetails.length > 1

@@ -6,7 +6,8 @@ const initialState = {
         panNoErr: {},
         gstNoErr: {},
         websiteErr: {},
-        vendorProductCatalogueDetailsErr: {}
+        vendorProductCatalogueDetailsErr: {},
+        productDuplicateErr: {},
     }
 };
 

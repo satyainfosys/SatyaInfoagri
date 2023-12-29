@@ -44,6 +44,7 @@ const AddVendorInvoiceDetail = () => {
     productCategoryCode: '',
     invoiceRate: '',
     productAmount: 0,
+    description:'',
     qty: '',
     itemDescription: '',
     addUser: localStorage.getItem("LoginUserName"),
@@ -582,6 +583,7 @@ const AddVendorInvoiceDetail = () => {
                             value={vendorInvoiceEntryDetails.itemDescription}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -651,9 +653,14 @@ const AddVendorInvoiceDetail = () => {
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus == "Paid")}
                           />
                         </td>
+                        {
+                          vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved" ?
+                            null
+                            :
                         <td key={index}>
-                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceHeaderCode) }} />
+                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(vendorInvoiceEntryDetails.encryptedInvoiceDetailCode) }} />
                         </td>
+                        }
                       </tr>
                   ))}
                 </tbody>
