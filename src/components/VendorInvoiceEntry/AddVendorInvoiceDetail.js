@@ -227,7 +227,8 @@ const AddVendorInvoiceDetail = () => {
     if (vendorInvoiceEntryDetails[index].encryptedInvoiceDetailCode) {
       dispatch(formChangedAction({
         ...formChangedData,
-        vendorInvoiceEntryDetailsUpdate: true
+        vendorInvoiceEntryDetailsUpdate: true,
+        vendorInvoiceEntryHeaderDetailUpdate: true
       }))
     } else {
       dispatch(formChangedAction({
