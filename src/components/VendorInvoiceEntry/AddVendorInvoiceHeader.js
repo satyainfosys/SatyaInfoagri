@@ -92,7 +92,10 @@ const AddVendorInvoiceHeader = () => {
         state: vendorDetail.stateName,
         country: vendorDetail.countryName,
         vendorName: vendorDetail.vendorName,
-        poNo:''
+        poNo:'',
+        poDate:'',
+        poStatus:'',
+        deliveryLocation:''
       }))
       setPoList([]);
       e.target.value && fetchPurchaseOrder(e.target.value)
@@ -106,7 +109,10 @@ const AddVendorInvoiceHeader = () => {
         state: '',
         country: '',
         vendorName: '',
-        poNo:''
+        poNo:'',
+        poDate:'',
+        poStatus:'',
+        deliveryLocation:''
       }))
       setPoList([]);
     }

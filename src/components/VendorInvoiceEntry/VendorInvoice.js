@@ -602,7 +602,7 @@ const VendorInvoice = () => {
                       const updateVendorInvoiceEntryDetailList = [...vendorInvoiceEntryDetails]
                       updateVendorInvoiceEntryDetailList[i] = {
                           ...updateVendorInvoiceEntryDetailList[i],
-                          encryptedInvoiceHeaderCode: addResponse.data.data.encryptedInvoiceHeaderCode
+                          encryptedInvoiceDetailHeaderCode: addResponse.data.data.encryptedInvoiceDetailCode
                       };
 
                       dispatch(vendorInvoiceEntryDetailsAction(updateVendorInvoiceEntryDetailList));
