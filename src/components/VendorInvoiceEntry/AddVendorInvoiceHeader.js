@@ -245,7 +245,7 @@ const AddVendorInvoiceHeader = () => {
                   PO Date
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={vendorInvoiceEntryHeaderDetails.poDate} disabled />
+                  <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={vendorInvoiceEntryHeaderDetails.poDate ? vendorInvoiceEntryHeaderDetails.poDate : ""} disabled />
                 </Col>
               </Form.Group>
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
