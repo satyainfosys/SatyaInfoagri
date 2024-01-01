@@ -470,6 +470,7 @@ const VendorInvoice = () => {
 
       const updateRequestData = {
         encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
         poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",

@@ -143,7 +143,7 @@ const Invoice = () => {
                     <Card className="mb-3">
                         <Card.Body>
                             <Row className="justify-content-between align-items-center text-center">
-                            <Form.Label><h4><u><b>Material Receipt</b></u></h4></Form.Label>
+                            <Form.Label><h4><u><b>{id ? "Material Receipt": materialHeaderData.farmerCode ? "Purchase Order" : "Crop Purchase"}</b></u></h4></Form.Label>
                             </Row>
                             <Row className="justify-content-between align-items-center">
                                 <Col md>
