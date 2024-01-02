@@ -80,11 +80,11 @@ const VendorInvoiceEntryReport = () => {
             <Card.Body>
               <Row className="justify-content-between align-items-center">
                 <Col md>
-                  <h5 className="mb-2 mb-md-0">#{vendorInvoiceEntryHeaderData.invoiceHeaderCode}</h5>
+                  <h5 className="mb-2 mb-md-0">#{vendorInvoiceEntryHeaderData.invoiceNo}</h5>
                 </Col>
                 <Col xs={6}>
-                <Form.Label><h4><u><b>Vendor Invoice Entry Report</b></u></h4></Form.Label>
-                  </Col>
+                  <Form.Label><h4><u><b>Vendor Invoice Entry Report</b></u></h4></Form.Label>
+                </Col>
                 <Col xs="auto">
                   <IconButton
                     variant="falcon-default"
@@ -120,7 +120,7 @@ const VendorInvoiceEntryReport = () => {
                         <tbody>
                           <tr>
                             <th className="text-sm-end">Invoice No: </th>
-                            <td>{vendorInvoiceEntryHeaderData.invoiceHeaderCode}</td>
+                            <td>{vendorInvoiceEntryHeaderData.invoiceNo}</td>
                           </tr>
                           <tr>
                             <th className="text-sm-end">Invoice Date:</th>
@@ -163,12 +163,21 @@ const VendorInvoiceEntryReport = () => {
                     {tableData.map((item, index) =>
                       <tr>
                         <td className="align-middle text-start">{index + 1}</td>
-                        <td className="align-middle text-start">
-                          <h6 className="mb-0 text-nowrap">
-                            {item.productCategoryName}
-                          </h6>
-                          <p className="mb-0 text-start">{item.productName}</p>
-                        </td>
+                        {
+                          item.productCategoryCode && item.productCode ?
+                            <td className="align-middle text-start">
+                              <h6 className="mb-0 text-nowrap">
+                                {item.productCategoryName}
+                              </h6>
+                              <p className="mb-0 text-start">{item.productName}</p>
+                            </td>
+                            :
+                            <td className="align-middle text-start">
+                              <h6 className="mb-0 text-nowrap">
+                                {item.itemDescription}
+                              </h6>
+                            </td>
+                        }
                         <td className="align-middle text-start">{item.invoiceQty}</td>
                         <td className="align-middle text-start">{parseFloat(item.invoiceRate).toLocaleString('en-IN')}</td>
                         <td className="align-middle text-start">{parseFloat(item.productAmount).toLocaleString('en-IN')}</td>

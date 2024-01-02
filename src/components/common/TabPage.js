@@ -190,7 +190,7 @@ const TabPage = ({
                   ? 'border p-1'
                   : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
                     || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material' || tab == "Add Crop PurchaseV1"
-                    || tab == 'Add Crop Purchase' ? 'border p-1 tab-page-tab'
+                    || tab == 'Add Crop Purchase' || tab == 'Add Vendor Invoice Entry' ? 'border p-1 tab-page-tab'
                     : ''
               }
             >

@@ -38,7 +38,6 @@ const AddMaterialReceiptHeader = () => {
         }))
     }
 
-
     const materialReceiptHeaderReducer = useSelector((state) => state.rootReducer.materialReceiptHeaderReducer)
     var materialReceiptHeaderData = materialReceiptHeaderReducer.materialReceiptHeaderDetails;
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Col, Form, Row } from 'react-bootstrap';
+import { Col, Form, Row, Card } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import FalconComponentCard from 'components/common/FalconComponentCard';
@@ -43,7 +43,7 @@ const AddVendorInvoiceHeader = () => {
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
-  useEffect(() => {    
+  useEffect(() => {
   }, [])
 
   if (!vendorInvoiceEntryHeaderDetailsReducer.vendorInvoiceEntryHeaderDetails ||
@@ -92,10 +92,10 @@ const AddVendorInvoiceHeader = () => {
         state: vendorDetail.stateName,
         country: vendorDetail.countryName,
         vendorName: vendorDetail.vendorName,
-        poNo:'',
-        poDate:'',
-        poStatus:'',
-        deliveryLocation:''
+        poNo: '',
+        poDate: '',
+        poStatus: '',
+        deliveryLocation: ''
       }))
       setPoList([]);
       e.target.value && fetchPurchaseOrder(e.target.value)
@@ -109,10 +109,10 @@ const AddVendorInvoiceHeader = () => {
         state: '',
         country: '',
         vendorName: '',
-        poNo:'',
-        poDate:'',
-        poStatus:'',
-        deliveryLocation:''
+        poNo: '',
+        poDate: '',
+        poStatus: '',
+        deliveryLocation: ''
       }))
       setPoList([]);
     }
@@ -147,191 +147,238 @@ const AddVendorInvoiceHeader = () => {
 
     if (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode) {
       dispatch(formChangedAction({
-          ...formChangedData,
-          vendorInvoiceEntryHeaderDetailUpdate: true
+        ...formChangedData,
+        vendorInvoiceEntryHeaderDetailUpdate: true
       }))
-  } else {
+    } else {
       dispatch(formChangedAction({
-          ...formChangedData,
-          vendorInvoiceEntryHeaderDetailsAdd: true
+        ...formChangedData,
+        vendorInvoiceEntryHeaderDetailsAdd: true
       }))
-  }
+    }
 
   }
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <FalconComponentCard className="no-pb mb-1">
-      <FalconComponentCard.Body language="jsx">
-        <Form>
-          <Row>
-            <Col md="4">
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Vendor Name<span className="text-danger">*</span>
-                </Form.Label>
-                <Col sm="8">
-                  {
-                    vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ?
-                      <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={vendorInvoiceEntryHeaderDetails.vendorName} disabled /> :
-                      <Form.Select id="txtVendorName" name="vendorCode" value={vendorInvoiceEntryHeaderDetails.vendorCode} onChange={handleFieldChange} >
-                        <option value=''>Select Vendor</option>
-                        {vendorList.map((vendor) => (
-                          <option key={vendor.vendorName} value={vendor.vendorCode}>
-                            {vendor.vendorName}
-                          </option>
-                        ))}
-                      </Form.Select>
-                      } 
-                  {Object.keys(vendorInvoiceEntryErr.vendorErr).map((key) => {
-                    return <span className="error-message">{vendorInvoiceEntryErr.vendorErr[key]}</span>
-                  })}
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword" >
-                <Form.Label column sm="4">
-                  Address
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtAddress" name="address" placeholder="Address" value={vendorInvoiceEntryHeaderDetails.address} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Pincode
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={vendorInvoiceEntryHeaderDetails.pinCode} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  State
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtState" name="state" placeholder="State" value={vendorInvoiceEntryHeaderDetails.state} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Country
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtCountry" name="country" placeholder="Country" value={vendorInvoiceEntryHeaderDetails.country} disabled />
-                </Col>
-              </Form.Group>
+    <>
+
+      <Card className="mb-1">
+        <Card.Body className="card-header">
+          <Row className="justify-content-between align-items-center">
+            <Col sm={6} lg={4} className='no-pd-card'>
+              <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
             </Col>
-            <Col md="4">
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  PO Number
-                </Form.Label>
-                <Col sm="8">
-                  {
-                    vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ?
-                      <Form.Control id="txtPoNumber" name="poNo" placeholder="PO number" value={vendorInvoiceEntryHeaderDetails.poNo} disabled />
-                      :
-                      <Form.Select id="txtPoNumber" name="poNo" value={vendorInvoiceEntryHeaderDetails.poNo} onChange={handleFieldChange} >
-                        <option value=''>Select PO</option>
-                        {poList.map((option, index) => (
-                          <option key={index} value={option.value}>{option.key}</option>
-                        ))}
-                      </Form.Select>
-                } 
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  PO Date
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={vendorInvoiceEntryHeaderDetails.poDate ? vendorInvoiceEntryHeaderDetails.poDate : ""} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  PO Status
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtPOStatus" name="poStatus" placeholder="PO Status" value={vendorInvoiceEntryHeaderDetails.poStatus} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Location
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtDeliveryLocation" name="deliveryLocation" placeholder="Delivery Location" value={vendorInvoiceEntryHeaderDetails.deliveryLocation} disabled />
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Status
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Select id="txtMaterialStatus" name="invoiceStatus" value={vendorInvoiceEntryHeaderDetails.invoiceStatus} onChange={handleFieldChange}  disabled={oldInvoiceStatus=="Paid"}>
-                    <option value="Draft">Draft</option>
-                    <option value="Approved">Approved</option>
-                    <option value="Rejected">Rejected</option>
-                  </Form.Select>
-                </Col>
-              </Form.Group>
-            </Col>
-            <Col>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Invoice No<span className="text-danger">*</span>
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")} />
-                  {Object.keys(vendorInvoiceEntryErr.invoiceNoErr).map((key) => {
-                    return <span className="error-message">{vendorInvoiceEntryErr.invoiceNoErr[key]}</span>
-                  })}
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Amount<span className="text-danger">*</span>
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" maxLength={15} value={vendorInvoiceEntryHeaderDetails.invoiceAmount} onChange={handleFieldChange}  disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}/>
-                  {Object.keys(vendorInvoiceEntryErr.invoiceAmountErr).map((key) => {
-                    return <span className="error-message">{vendorInvoiceEntryErr.invoiceAmountErr[key]}</span>
-                  })}
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Invoice Date<span className="text-danger">*</span>
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control type='date' id="txtInvoiceDate" name="invoiceDate" max={today}
-                    value={vendorInvoiceEntryHeaderDetails.invoiceDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}
-                  />
-                  {Object.keys(vendorInvoiceEntryErr.invoiceDateErr).map((key) => {
-                    return <span className="error-message">{vendorInvoiceEntryErr.invoiceDateErr[key]}</span>
-                  })}
-                </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                <Form.Label column sm="4">
-                  Due Date<span className="text-danger">*</span>
-                </Form.Label>
-                <Col sm="8">
-                  <Form.Control type='date' id="txtInvoiceDueDate" name="invoiceDueDate" min={today}
-                    value={vendorInvoiceEntryHeaderDetails.invoiceDueDate} onChange={handleFieldChange} disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (oldInvoiceStatus == "Approved" || oldInvoiceStatus=="Paid")}
-                  />
-                  {Object.keys(vendorInvoiceEntryErr.invoiceDueDateErr).map((key) => {
+            {/* <Col xs="auto">
+              {vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved" &&
+
+                <IconButton
+                  variant="falcon-default"
+                  size="sm"
+                  icon="print"
+                  iconClassName="me-1"
+                  className="me-1 mb-2 mb-sm-1"
+                  onClick={() => {
+                    const url = `/material-receipt/${materialReceiptHeaderData.encryptedMaterialReceiptId}`;
+                    window.open(url, '_blank');
+                  }}
+                >
+                  Print
+                </IconButton>
+              }
+            </Col> */}
+          </Row>
+        </Card.Body>
+      </Card>
+
+      <FalconComponentCard className="no-pb mb-1">
+        <FalconComponentCard.Body language="jsx">
+          <Form>
+            <Row>
+              <Col md="4">
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Vendor Name<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    {
+                      vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ?
+                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={vendorInvoiceEntryHeaderDetails.vendorName} disabled /> :
+                        <Form.Select id="txtVendorName" name="vendorCode" value={vendorInvoiceEntryHeaderDetails.vendorCode} onChange={handleFieldChange} >
+                          <option value=''>Select Vendor</option>
+                          {vendorList.map((vendor) => (
+                            <option key={vendor.vendorName} value={vendor.vendorCode}>
+                              {vendor.vendorName}
+                            </option>
+                          ))}
+                        </Form.Select>
+                    }
+                    {Object.keys(vendorInvoiceEntryErr.vendorErr).map((key) => {
+                      return <span className="error-message">{vendorInvoiceEntryErr.vendorErr[key]}</span>
+                    })}
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword" >
+                  <Form.Label column sm="4">
+                    Address
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtAddress" name="address" placeholder="Address" value={vendorInvoiceEntryHeaderDetails.address} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Pincode
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={vendorInvoiceEntryHeaderDetails.pinCode} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    State
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtState" name="state" placeholder="State" value={vendorInvoiceEntryHeaderDetails.state} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Country
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtCountry" name="country" placeholder="Country" value={vendorInvoiceEntryHeaderDetails.country} disabled />
+                  </Col>
+                </Form.Group>
+              </Col>
+              <Col md="4">
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    PO Number
+                  </Form.Label>
+                  <Col sm="8">
+                    {
+                      vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ?
+                        <Form.Control id="txtPoNumber" name="poNo" placeholder="PO number" value={vendorInvoiceEntryHeaderDetails.poNo} disabled />
+                        :
+                        <Form.Select id="txtPoNumber" name="poNo" value={vendorInvoiceEntryHeaderDetails.poNo} onChange={handleFieldChange} >
+                          <option value=''>Select PO</option>
+                          {poList.map((option, index) => (
+                            <option key={index} value={option.value}>{option.key}</option>
+                          ))}
+                        </Form.Select>
+                    }
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    PO Date
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtPODate" name="poDate" placeholder='PO Date' value={vendorInvoiceEntryHeaderDetails.poDate ? vendorInvoiceEntryHeaderDetails.poDate : ""} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    PO Status
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtPOStatus" name="poStatus" placeholder="PO Status" value={vendorInvoiceEntryHeaderDetails.poStatus} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Location
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtDeliveryLocation" name="deliveryLocation" placeholder="Delivery Location" value={vendorInvoiceEntryHeaderDetails.deliveryLocation} disabled />
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Status
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Select id="txtMaterialStatus" name="invoiceStatus" value={vendorInvoiceEntryHeaderDetails.invoiceStatus} onChange={handleFieldChange}
+                      disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid"}
+                    >
+                      <option value="Draft">Draft</option>
+                      <option value="Approved">Approved</option>
+                      <option value="Rejected">Rejected</option>
+                    </Form.Select>
+                  </Col>
+                </Form.Group>
+              </Col>
+              <Col>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Invoice No<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15}
+                      value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange}
+                      disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")} />
+                    {Object.keys(vendorInvoiceEntryErr.invoiceNoErr).map((key) => {
+                      return <span className="error-message">{vendorInvoiceEntryErr.invoiceNoErr[key]}</span>
+                    })}
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Amount<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" maxLength={13} value={vendorInvoiceEntryHeaderDetails.invoiceAmount} onChange={handleFieldChange}
+                      onKeyPress={(e) => {
+                        const keyCode = e.which || e.keyCode;
+                        const keyValue = String.fromCharCode(keyCode);
+                        const regex = /^[0-9]*\.?[0-9]*$/;
+                        if (!regex.test(keyValue)) {
+                          e.preventDefault();
+                        }
+                      }}
+                      disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                    />
+                    {Object.keys(vendorInvoiceEntryErr.invoiceAmountErr).map((key) => {
+                      return <span className="error-message">{vendorInvoiceEntryErr.invoiceAmountErr[key]}</span>
+                    })}
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Invoice Date<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control type='date' id="txtInvoiceDate" name="invoiceDate" max={today}
+                      value={vendorInvoiceEntryHeaderDetails.invoiceDate} onChange={handleFieldChange}
+                      disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                    />
+                    {Object.keys(vendorInvoiceEntryErr.invoiceDateErr).map((key) => {
+                      return <span className="error-message">{vendorInvoiceEntryErr.invoiceDateErr[key]}</span>
+                    })}
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Due Date<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control type='date' id="txtInvoiceDueDate" name="invoiceDueDate" min={today}
+                      value={vendorInvoiceEntryHeaderDetails.invoiceDueDate} onChange={handleFieldChange}
+                      disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                    />
+                    {Object.keys(vendorInvoiceEntryErr.invoiceDueDateErr).map((key) => {
                       return <span className="error-message">{vendorInvoiceEntryErr.invoiceDueDateErr[key]}</span>
                     })}
-                </Col>
-              </Form.Group>
-            </Col>
-          </Row>
-        </Form>
-      </FalconComponentCard.Body>
-    </FalconComponentCard>
+                  </Col>
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </FalconComponentCard.Body>
+      </FalconComponentCard>
+    </>
   )
 }
 
-export default AddVendorInvoiceHeader
+export default AddVendorInvoiceHeader;
