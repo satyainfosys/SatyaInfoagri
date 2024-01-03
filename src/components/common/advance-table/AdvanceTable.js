@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction,vendorInvoiceEntryHeaderDetailsAction } from '../../../actions/index';
+import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction, vendorInvoiceEntryHeaderDetailsAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -48,7 +48,7 @@ const AdvanceTable = ({
       dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').trigger('click');
-      $('#btnSave').attr('disabled', true);      
+      $('#btnSave').attr('disabled', true);
     }
     else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
       dispatch(companyDetailsAction(rowData));
@@ -299,8 +299,7 @@ const AdvanceTable = ({
     else if (encryptedPoNo) {
       url = `/purchase-order-receipt/${encryptedPoNo}`;
     }
-    else if(encryptedInvoiceHeaderCode)
-    {
+    else if (encryptedInvoiceHeaderCode) {
       url = `/vendor-invoice-entry/${encryptedInvoiceHeaderCode}`
     }
 
@@ -352,7 +351,7 @@ const AdvanceTable = ({
                       >
                         {
                           cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' &&  cell.column.id !== 'vendorInvoicePrintStatus' ?
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -471,44 +470,44 @@ const AdvanceTable = ({
                                                           onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
                                                         >
                                                           Print
-                                                        </IconButton> 
+                                                        </IconButton>
                                                         :
                                                         cell.column.id == "vendorInvoicePrintStatus" && cell.row.values.vendorInvoicePrintStatus == "Approved" ?
-                                                      <IconButton
-                                                        variant="falcon-default"
-                                                        size="sm"
-                                                        icon="print"
-                                                        iconClassName="me-1"
-                                                        className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                        onClick={() => generatePdf('','','','', cell.row.original.encryptedInvoiceHeaderCode)}
-                                                      >
-                                                        Print
-                                                      </IconButton>
-                                                      :
-                                                        cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
-                                                        <Badge
-                                                          pill
-                                                          bg="success"
-                                                        >
-                                                          {cell.render('Cell')}
-                                                        </Badge>
-                                                        :
-                                                        cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Draft" ?
-                                                          <Badge
-                                                            pill
-                                                            bg="info"
+                                                          <IconButton
+                                                            variant="falcon-default"
+                                                            size="sm"
+                                                            icon="print"
+                                                            iconClassName="me-1"
+                                                            className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                            onClick={() => generatePdf('', '', '', '', cell.row.original.encryptedInvoiceHeaderCode)}
                                                           >
-                                                            {cell.render('Cell')}
-                                                          </Badge>
+                                                            Print
+                                                          </IconButton>
                                                           :
-                                                          cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Rejected" ?
+                                                          cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
                                                             <Badge
                                                               pill
-                                                              bg="danger"
+                                                              bg="success"
                                                             >
                                                               {cell.render('Cell')}
                                                             </Badge>
-                                                        : ''
+                                                            :
+                                                            cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Draft" ?
+                                                              <Badge
+                                                                pill
+                                                                bg="info"
+                                                              >
+                                                                {cell.render('Cell')}
+                                                              </Badge>
+                                                              :
+                                                              cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Rejected" ?
+                                                                <Badge
+                                                                  pill
+                                                                  bg="danger"
+                                                                >
+                                                                  {cell.render('Cell')}
+                                                                </Badge>
+                                                                : ''
                         }
                       </td>
                     </>

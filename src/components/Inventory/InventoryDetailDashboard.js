@@ -21,6 +21,7 @@ export const InventoryDetailDashboard = () => {
     const [collectionCentreList, setCollectionCentreList] = useState([]);
     const [companyName, setCompanyName] = useState();
     const [distributionMasterList, setDistributionMasterList] = useState([]);
+    const [distributionName, setDistributionName] = useState();
     let pageCount = Math.ceil(inventoryCount / pageSize);
 
     const [mergedInventoryDetailList, setMergedInventoryDetailList] = useState([]);
@@ -70,6 +71,7 @@ export const InventoryDetailDashboard = () => {
                 if (localStorage.getItem('CompanyCode')) {
                     var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
                     setCompanyName(companyDetail.companyName);
+                    fetchDistributionCentreList(localStorage.getItem('CompanyCode'));
                 }
                 if (localStorage.getItem('CompanyCode')) {
                     var companyDetails = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
@@ -108,6 +110,11 @@ export const InventoryDetailDashboard = () => {
         if (response.data.status == 200) {
             setDistributionMasterList(response.data.data);
             if (response.data && response.data.data.length > 0) {
+                if (localStorage.getItem('DistributionCenterCode')) {
+                    var distributionDetail = response.data.data.find(distribution => distribution.distributionCentreCode == localStorage.getItem('DistributionCenterCode'));
+                    setDistributionName(distributionDetail.distributionName);
+                    fetchCollectionCentreList(localStorage.getItem('DistributionCenterCode'));
+                }
                 response.data.data.forEach(distributionCentre => {
                     distributionCentreListData.push({
                         key: distributionCentre.distributionName,
@@ -149,7 +156,6 @@ export const InventoryDetailDashboard = () => {
     }
 
     const fetchProductCategoryList = async () => {
-
         let productCategoryData = [];
         let productCategoryResponse = await axios.get(process.env.REACT_APP_API_URL + '/product-category-master-list', {
             headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -251,7 +257,7 @@ export const InventoryDetailDashboard = () => {
                 EndDate: formData.endDate ? Moment(formData.endDate).format("YYYY-MM-DD") : null,
                 ProductCategoryCode: formData.productCategoryCode ? formData.productCategoryCode : "",
                 DistributionCenterCode: localStorage.getItem('DistributionCenterCode') ? localStorage.getItem('DistributionCenterCode') : formData.distributionCentreCode,
-                CollectionCenterCode: localStorage.getItem('CollectionCentreCode') ? localStorage.getItem('CollectionCentreCode') :  formData.collectionCentreCode,
+                CollectionCenterCode: localStorage.getItem('CollectionCentreCode') ? localStorage.getItem('CollectionCentreCode') : formData.collectionCentreCode,
                 SearchText: formData.searchText,
                 PageNumber: isSearch || newPageSize ? 1 : newPageNumber ? newPageNumber : pageNumber,
                 PageSize: newPageSize ? newPageSize : pageSize

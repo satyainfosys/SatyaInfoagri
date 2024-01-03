@@ -36,7 +36,7 @@ export const AddClientUser = () => {
     fetchCompanyList();
     fetchCountryList();
     getClientModuleDetail();
-    if (localStorage.getItem("CompanyCode")) {
+    if (localStorage.getItem("CompanyCode")) {      
       fetchDistributionCentreList()
       fetchCollectionCentreList()
     }
@@ -59,6 +59,7 @@ export const AddClientUser = () => {
       "collCentreCode": "",
       "countryCode": "",
       "stateCode": "",
+      "companyCode": "",
       "status": "Active"
     }))
     setSelectedItems([]);
@@ -103,6 +104,15 @@ export const AddClientUser = () => {
     });
     if (companyResponse.data.status == 200) {
       if (companyResponse.data && companyResponse.data.data.length > 0) {
+        if (localStorage.getItem('CompanyCode')) {
+          var companyDetail = companyResponse.data.data.find(company => company.companyCode == localStorage.getItem('CompanyCode'));
+          fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
+          dispatch(userDetailsAction({
+            ...userData,
+            companyCode: localStorage.getItem("CompanyCode"),
+            companyName: companyDetail.CompanyName
+          }))
+        }
         setCompanyMasterList(companyResponse.data.data);
         companyResponse.data.data.forEach(company => {
           companyData.push({
@@ -139,16 +149,17 @@ export const AddClientUser = () => {
     let request = {
       EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
     }
-    if (localStorage.getItem('CompanyCode')) {
-      request = {
-        ...request,
-        companyCode: localStorage.getItem('CompanyCode')
-      }
-    }
-    else {
+
+    if (encryptedCompanyCode) {
       request = {
         ...request,
         EncryptedCompanyCode: encryptedCompanyCode
+      }
+    }
+    else if (localStorage.getItem('CompanyCode')) {
+      request = {
+        ...request,
+        companyCode: localStorage.getItem('CompanyCode')
       }
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
@@ -157,6 +168,15 @@ export const AddClientUser = () => {
     let distributionCentreListData = [];
     if (response.data.status == 200) {
       if (response.data && response.data.data.length > 0) {
+        if (localStorage.getItem('DistributionCenterCode')) {
+          var distributionDetail = response.data.data.find(distribution => distribution.distributionCentreCode == localStorage.getItem('DistributionCenterCode'));
+          // dispatch(userDetailsAction({
+          //   ...userData,
+          //   distributionCentreCode: distributionDetail.distributionCentreCode,
+          //   distributionName: distributionDetail.distributionName
+          // }))
+          fetchCollectionCentreList(localStorage.getItem('DistributionCenterCode'));
+        }
         setDistributionMasterList(response.data.data);
         response.data.data.forEach(distributionCentre => {
           distributionCentreListData.push({
@@ -176,16 +196,16 @@ export const AddClientUser = () => {
     let requestData = {
       DistributionCode: distributionCentreCode ? distributionCentreCode : localStorage.getItem('DistributionCenterCode')
     }
-    if (localStorage.getItem('CompanyCode')) {
-      requestData = {
-        ...requestData,
-        companyCode: localStorage.getItem('CompanyCode')
-      }
-    }
-    else {
+    if (userData.encryptedCompanyCode) {
       requestData = {
         ...requestData,
         EncryptedCompanyCode: userData.encryptedCompanyCode
+      }
+    }
+    else if (localStorage.getItem('CompanyCode')) {
+      requestData = {
+        ...requestData,
+        companyCode: localStorage.getItem('CompanyCode')
       }
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
@@ -361,28 +381,22 @@ export const AddClientUser = () => {
                       {localStorage.getItem('LoginUserName') != userData.loginUserName &&
                         <>
                           <Row className="mb-3">
-                            <Form.Label>Company<span className="text-danger">*</span></Form.Label>
-                            {localStorage.getItem('CompanyCode') ?
-                              <Form.Control id="txtCompanyCode" name="companyCode" value={userData.companyName} disabled />
-                              :
-                              <>
-                                <Form.Select id="txtCompanyCode" name="companyCode" value={localStorage.getItem('CompanyCode') ? userData.companyName : userData.companyCode} onChange={handleFieldChange} disabled={localStorage.getItem('CompanyCode') ? true : false}>
-                                  <option value=''>Select Company</option>
-                                  {companyList.map((option, index) => (
-                                    <option key={index} value={option.value}>{option.key}</option>
-                                  ))}
-                                </Form.Select>
-                                {Object.keys(userError.companyErr).map((key) => {
-                                  return <span className="error-message">{userError.companyErr[key]}</span>
-                                })}
-                              </>
-                            }
+                            <Form.Label>Company</Form.Label>
+                            <Form.Select id="txtCompanyCode" name="companyCode" value={userData.companyCode || localStorage.getItem("CompanyCode")} onChange={handleFieldChange}>
+                              <option value=''>Select Company</option>
+                              {companyList.map((option, index) => (
+                                <option key={index} value={option.value}>{option.key}</option>
+                              ))}
+                            </Form.Select>
+                            {Object.keys(userError.companyErr).map((key) => {
+                              return <span className="error-message">{userError.companyErr[key]}</span>
+                            })}                            
                           </Row>
                         </>
                       }
                       <Row className="mb-3">
-                        <Form.Label>Distribution Centre<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={userData.distributionCentreCode} onChange={handleFieldChange}
+                        <Form.Label>Distribution Centre</Form.Label>
+                        <Form.Select id="txtDistributionCentreCode" name="distributionCentreCode" value={userData.distributionCentreCode || localStorage.getItem("DistributionCenterCode")} onChange={handleFieldChange}
                         >
                           <option value=''>Select Distribution Centre</option>
                           {distributionCentreList.map((option, index) => (
@@ -391,8 +405,8 @@ export const AddClientUser = () => {
                         </Form.Select>
                       </Row>
                       <Row className="mb-3">
-                        <Form.Label>Collection Centre<span className="text-danger">*</span></Form.Label>
-                        <Form.Select id="txtCollectionCentreCode" name="collCentreCode" value={userData.collCentreCode} onChange={handleFieldChange}
+                        <Form.Label>Collection Centre</Form.Label>
+                        <Form.Select id="txtCollectionCentreCode" name="collCentreCode" value={userData.collCentreCode || localStorage.getItem("CollectionCentreCode")} onChange={handleFieldChange}
                         >
                           <option value=''>Select Collection Centre</option>
                           {collectionCentreList.map((option, index) => (
@@ -409,7 +423,7 @@ export const AddClientUser = () => {
                       </Row>
                       <Row className="mb-3">
                         <Form.Label>Login User Id<span className="text-danger">*</span></Form.Label>
-                        <Form.Control id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} placeholder="Login User Id" required={true} onChange={handleFieldChange} />
+                        <Form.Control id="txtUserName" name="loginUserName" maxLength={20} value={userData.loginUserName} placeholder="Login User Id" required={true} onChange={handleFieldChange} disabled={localStorage.getItem("EncryptedClientSecurityUserId")} />
                         {Object.keys(userError.userNameErr).map((key) => {
                           return <span className="error-message">{userError.userNameErr[key]}</span>
                         })}

@@ -75,21 +75,6 @@ const AddVendorInvoiceDetail = () => {
       setRowData([]);
       setSelectedRows([]);
     }
-
-    // const totalProductAmount = vendorInvoiceEntryDetails.length > 1
-    //   ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
-    //     const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
-    //     return acc + (isNaN(productAmount) ? 0 : productAmount);
-    //   }, 0)
-    //   : vendorInvoiceEntryDetails.length === 1
-    //     ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
-    //     : 0;
-
-    // dispatch(vendorInvoiceEntryHeaderDetailsAction({
-    //   ...vendorInvoiceEntryHeaderDetails,
-    //   invoiceAmount: isNaN(totalProductAmount) ? 0 : totalProductAmount
-    // }))
-
   }, [vendorInvoiceEntryDetails, vendorInvoiceEntryDetailsReducer])
 
   const validateVendorInvoiceEntryDetailForm = () => {
@@ -294,7 +279,7 @@ const AddVendorInvoiceDetail = () => {
             <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <h4>Are you sure, you want to delete this Material detail?</h4>
+            <h4>Are you sure, you want to delete this Vendor Invoice Detail?</h4>
           </Modal.Body>
           <Modal.Footer>
             <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
@@ -359,7 +344,7 @@ const AddVendorInvoiceDetail = () => {
                                     name="singleChkBox"
                                     style={{ width: '20px', height: '20px' }}
                                     onChange={() => handleCheckboxChange(data)}
-                                    checked={selectAll || selectedRows.includes(data)}
+                                    checked={selectAll || selectedRows.includes(data) || (vendorInvoiceEntryDetails.length > 0 && vendorInvoiceEntryDetails.some(entry => (entry.productCode).includes(data.productCode)))}
                                   />
                                 </Form.Check>
                               </td>

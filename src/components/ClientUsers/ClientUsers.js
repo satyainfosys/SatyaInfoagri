@@ -43,7 +43,7 @@ export const ClientUsers = () => {
 	let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
 	const selectedProductsReducer = useSelector((state) => state.rootReducer.selectedProductsReducer)
-    var selectedProductItems = selectedProductsReducer.selectedProducts;
+	var selectedProductItems = selectedProductsReducer.selectedProducts;
 
 	const [activeTabName, setActiveTabName] = useState();
 
@@ -52,7 +52,7 @@ export const ClientUsers = () => {
 		dispatch(userDetailsErrorAction(undefined));
 		dispatch(formChangedAction(undefined));
 		dispatch(selectedProductsAction([]));
-}
+	}
 
 	$('[data-rr-ui-event-key*="Add Client User"]').off('click').on('click', function () {
 		setActiveTabName("Add Client User")
@@ -66,10 +66,22 @@ export const ClientUsers = () => {
 		$('[data-rr-ui-event-key*="Add Client User"]').attr('disabled', false);
 		$('[data-rr-ui-event-key*="Add Client User"]').trigger('click');
 		$('#btnSave').attr('disabled', false);
-		if(localStorage.getItem('CompanyCode')){
+		if (localStorage.getItem('CompanyCode')) {
 			fetchCompanyList();
 			fetchClientDetail();
 		}
+		// if (localStorage.getItem('DistributionCentreCode')) {
+		// 	dispatch(userDetailsAction({
+		// 		...userData,
+		// 		distributionCentreCode: localStorage.getItem('DistributionCentreCode')
+		// 	}))
+		// }
+		// if (localStorage.getItem('CollectionCentreCode')) {
+		// 	dispatch(userDetailsAction({
+		// 		...userData,
+		// 		collCentreCode: localStorage.getItem('CollectionCentreCode')
+		// 	}))
+		// }
 	}
 
 	const cancelClick = () => {
@@ -158,7 +170,7 @@ export const ClientUsers = () => {
 					companyCode: localStorage.getItem('CompanyCode'),
 					encryptedCompanyCode: companyDetail ? companyDetail.encryptedCompanyCode : "",
 					companyName: companyDetail ? companyDetail.companyName : "",
-					encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+					encryptedClientCode: localStorage.getItem("EncryptedClientCode")
 				}))
 			}
 		}
@@ -176,7 +188,7 @@ export const ClientUsers = () => {
 				...userData,
 				clientName: clientResponse.data.data.customerName,
 			}))
-			localStorage.setItem('ClientName',clientResponse.data.data.customerName)
+			localStorage.setItem('ClientName', clientResponse.data.data.customerName)
 		}
 	}
 
@@ -193,11 +205,12 @@ export const ClientUsers = () => {
 		const selectedProductItemsErr = {};
 
 		let isValid = true;
-		if (!localStorage.getItem("CompanyCode") && !userData.encryptedCompanyCode) {
-			companyErr.empty = "Select company";
-			isValid = false;
-			setFormError(true);
-		}
+		// if (!localStorage.getItem("CompanyCode") && !userData.encryptedCompanyCode) {
+		// 	companyErr.empty = "Select company";
+		// 	isValid = false;
+		// 	setFormError(true);
+		// }
+
 		if (!userData.loginName) {
 			loginNameErr.loginNameEmpty = "Enter user name"
 			isValid = false;
@@ -213,15 +226,16 @@ export const ClientUsers = () => {
 			isValid = false;
 			setFormError(true);
 		}
+
 		if (!userData.loginUserEmailId) {
 			emailErr.emailEmpty = "Enter email"
 			isValid = false;
 			setFormError(true);
 		}
-		else if(!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userData.loginUserEmailId))){
-            emailErr.invalid = "Please enter valid email address";
-            isValid = false;
-        }
+		else if (!(/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(userData.loginUserEmailId))) {
+			emailErr.invalid = "Please enter valid email address";
+			isValid = false;
+		}
 		if (!userData.countryCode) {
 			countryErr.empty = "Select country";
 			isValid = false;
@@ -262,30 +276,30 @@ export const ClientUsers = () => {
 	}
 
 	const updateClientUserCallback = (clientUserDetailAdd = false) => {
-        setModalShow(false);
+		setModalShow(false);
 
-        if (!clientUserDetailAdd) {
-            toast.success("Client user details updated successfully", {
-                time: 'colored'
-            })
-        }
+		if (!clientUserDetailAdd) {
+			toast.success("Client user details updated successfully", {
+				time: 'colored'
+			})
+		}
 
-        $('#btnSave').attr('disabled', true)
+		$('#btnSave').attr('disabled', true)
 
 		dispatch(userDetailsErrorAction(undefined));
-        dispatch(formChangedAction(undefined));
+		dispatch(formChangedAction(undefined));
 
-        fetchClientUsersList(1, perPage);
+		fetchClientUsersList(1, perPage);
 
-        $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
-    }
+		$('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+	}
 
 	const addClientUserDetails = () => {
 		if (userValidation()) {
 			const requestData = {
 				encryptedClientCode: localStorage.getItem('EncryptedClientCode') ? localStorage.getItem('EncryptedClientCode') : userData.encryptedClientCode,
 				encryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode') ? localStorage.getItem('EncryptedCompanyCode') : userData.encryptedCompanyCode,
-				clientName: localStorage.getItem('CompanyName') ? localStorage.get('CompanyName') :userData.clientName,
+				clientName: localStorage.getItem('CompanyName') ? localStorage.get('CompanyName') : userData.clientName,
 				loginName: userData.loginName,
 				loginUserEmailId: userData.loginUserEmailId,
 				loginUserMobileNumber: userData.loginUserMobileNumber,
@@ -298,9 +312,9 @@ export const ClientUsers = () => {
 				addUser: localStorage.getItem("LoginUserName"),
 				countryCode: userData.countryCode,
 				stateCode: userData.stateCode
-			} 
+			}
 
-			const keys = ['loginUserName', 'addUser','clientName','loginName']
+			const keys = ['loginUserName', 'addUser', 'clientName', 'loginName']
 			for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
 				requestData[key] = requestData[key] ? requestData[key].toUpperCase() : '';
 			}
@@ -313,17 +327,17 @@ export const ClientUsers = () => {
 					if (res.data.status == 200) {
 						setIsLoading(false);
 						setTimeout(function () {
-                            dispatch(userDetailsAction({
-                                ...userData,
-                                encryptedSecurityUserId: res.data.data.encryptedSecurityUserId
-                            }))
-                        }, 50);
-                        localStorage.setItem("EncryptedClientSecurityUserId", res.data.data.encryptedSecurityUserId);
-                        toast.success(res.data.message, {
-                            theme: 'colored',
-                            autoClose: 10000
-                        })
-                        updateClientUserCallback(true);
+							dispatch(userDetailsAction({
+								...userData,
+								encryptedSecurityUserId: res.data.data.encryptedSecurityUserId
+							}))
+						}, 50);
+						localStorage.setItem("EncryptedClientSecurityUserId", res.data.data.encryptedSecurityUserId);
+						toast.success(res.data.message, {
+							theme: 'colored',
+							autoClose: 10000
+						})
+						updateClientUserCallback(true);
 					} else {
 						setIsLoading(false);
 						toast.error(res.data.message, {
@@ -336,134 +350,134 @@ export const ClientUsers = () => {
 	}
 
 	const updateClientUserDetails = async () => {
-        let addUserAccessRights = [];
-        let deleteUserAccessRights = [];
+		let addUserAccessRights = [];
+		let deleteUserAccessRights = [];
 
-        if (userValidation()) {
-            let uniqueTreeIds = [...new Set(selectedProductItems)]
+		if (userValidation()) {
+			let uniqueTreeIds = [...new Set(selectedProductItems)]
 
-            if (userData.treeIds && userData.treeIds.length > 0) {
-                for (let i = 0; i < uniqueTreeIds.length; i++) {
-                    if (!userData.treeIds.includes(uniqueTreeIds[i])) {
-                        addUserAccessRights.push(uniqueTreeIds[i]);
-                    }
-                }
+			if (userData.treeIds && userData.treeIds.length > 0) {
+				for (let i = 0; i < uniqueTreeIds.length; i++) {
+					if (!userData.treeIds.includes(uniqueTreeIds[i])) {
+						addUserAccessRights.push(uniqueTreeIds[i]);
+					}
+				}
 
-                for (let i = 0; i < userData.treeIds.length; i++) {
-                    if (!uniqueTreeIds.includes(userData.treeIds[i])) {
-                        deleteUserAccessRights.push(userData.treeIds[i]);
-                    }
-                }
-            } else if (uniqueTreeIds.length > 0) {
-                addUserAccessRights = uniqueTreeIds;
-            }
+				for (let i = 0; i < userData.treeIds.length; i++) {
+					if (!uniqueTreeIds.includes(userData.treeIds[i])) {
+						deleteUserAccessRights.push(userData.treeIds[i]);
+					}
+				}
+			} else if (uniqueTreeIds.length > 0) {
+				addUserAccessRights = uniqueTreeIds;
+			}
 
-            const updatedUserData = {
-                encryptedClientCode: userData.encryptedClientCode,
-                encryptedSecurityUserId: userData.encryptedSecurityUserId,
-                loginName : userData.loginName,
-                loginUserEmailId: userData.loginUserEmailId,
-                loginUserMobileNumber: userData.loginUserMobileNumber,
-                loginUserName: userData.loginUserName,
-                ActiveStatus: !userData.status || userData.status == "Active" ? "A" : "S",
-                ModifyUser: localStorage.getItem("LoginUserName"),
+			const updatedUserData = {
+				encryptedClientCode: userData.encryptedClientCode,
+				encryptedSecurityUserId: userData.encryptedSecurityUserId,
+				loginName: userData.loginName,
+				loginUserEmailId: userData.loginUserEmailId,
+				loginUserMobileNumber: userData.loginUserMobileNumber,
+				loginUserName: userData.loginUserName,
+				ActiveStatus: !userData.status || userData.status == "Active" ? "A" : "S",
+				ModifyUser: localStorage.getItem("LoginUserName"),
 				countryCode: userData.countryCode,
 				stateCode: userData.stateCode,
 				distributionCentreCode: userData.distributionCentreCode ? userData.distributionCentreCode : null,
 				collCentreCode: userData.collCentreCode ? userData.collCentreCode : null,
 				encryptedCompanyCode: userData.encryptedCompanyCode,
-            }
+			}
 
-            const keys = ['loginUserName', 'ModifyUser', 'loginName']
-            for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
-                updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
-            }
+			const keys = ['loginUserName', 'ModifyUser', 'loginName']
+			for (const key of Object.keys(updatedUserData).filter((key) => keys.includes(key))) {
+				updatedUserData[key] = updatedUserData[key] ? updatedUserData[key].toUpperCase() : '';
+			}
 
-            var hasError = false;
+			var hasError = false;
 
-            if (formChangedData.clientUserDetailUpdate) {
-                setIsLoading(true);
-                await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
-                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                })
-                    .then(res => {
-                        setIsLoading(false);
-                        if (res.data.status != 200) {
-                            toast.error(res.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            hasError = true;
-                        }
-                    })
-            }
+			if (formChangedData.clientUserDetailUpdate) {
+				setIsLoading(true);
+				await axios.post(process.env.REACT_APP_API_URL + '/update-user', updatedUserData, {
+					headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+				})
+					.then(res => {
+						setIsLoading(false);
+						if (res.data.status != 200) {
+							toast.error(res.data.message, {
+								theme: 'colored',
+								autoClose: 10000
+							});
+							hasError = true;
+						}
+					})
+			}
 
-            if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
-                if (!hasError && formChangedData.moduleDetailDelete) {
-                    if (deleteUserAccessRights) {
-                        var deleteUserAccessRightsIndex = 1;
+			if (!hasError && (formChangedData.moduleDetailAdd || formChangedData.moduleDetailDelete)) {
+				if (!hasError && formChangedData.moduleDetailDelete) {
+					if (deleteUserAccessRights) {
+						var deleteUserAccessRightsIndex = 1;
 
-                        for (let i = 0; i < deleteUserAccessRights.length; i++) {
-                            const deleteUserAccessRightsId = deleteUserAccessRights[i]
-                            const data = {
-                                securityUserId: userData.securityUserId,
-                                treeId: deleteUserAccessRightsId
-                            }
-                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                            const deleteUserAccessRightsResponse =
-                                await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-user-access-rights', { headers, data });
-                            if (deleteUserAccessRightsResponse.data.status != 200) {
-                                toast.error(deleteUserAccessRightsResponse.data.message, {
-                                    theme: 'colored',
-                                    autoClose: 10000
-                                });
-                                hasError = true;
-                                break;
-                            }
-                        }
-                        deleteUserAccessRightsIndex++
-                    }
-                }
+						for (let i = 0; i < deleteUserAccessRights.length; i++) {
+							const deleteUserAccessRightsId = deleteUserAccessRights[i]
+							const data = {
+								securityUserId: userData.securityUserId,
+								treeId: deleteUserAccessRightsId
+							}
+							const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+							const deleteUserAccessRightsResponse =
+								await axios.delete(process.env.REACT_APP_API_URL + '/delete-security-user-access-rights', { headers, data });
+							if (deleteUserAccessRightsResponse.data.status != 200) {
+								toast.error(deleteUserAccessRightsResponse.data.message, {
+									theme: 'colored',
+									autoClose: 10000
+								});
+								hasError = true;
+								break;
+							}
+						}
+						deleteUserAccessRightsIndex++
+					}
+				}
 
-                var moduleDetailIndex = 1;
-                for (let i = 0; i < addUserAccessRights.length; i++) {
+				var moduleDetailIndex = 1;
+				for (let i = 0; i < addUserAccessRights.length; i++) {
 
-                    const treeId = addUserAccessRights[i];
+					const treeId = addUserAccessRights[i];
 
-                    if (formChangedData.moduleDetailAdd) {
-                        const requestData = {
-                            securityUserId: userData.securityUserId,
-                            clientCode: userData.clientCode,
-                            treeId: treeId,
-                            addUser: localStorage.getItem("LoginUserName").toUpperCase()
-                        }
+					if (formChangedData.moduleDetailAdd) {
+						const requestData = {
+							securityUserId: userData.securityUserId,
+							clientCode: userData.clientCode,
+							treeId: treeId,
+							addUser: localStorage.getItem("LoginUserName").toUpperCase()
+						}
 
-                        setIsLoading(true);
-                        const addModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-user-access-rights', requestData, {
-                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-                        });
-                        setIsLoading(false);
-                        if (addModuleDetailResponse.data.status != 200) {
-                            toast.error(addModuleDetailResponse.data.message, {
-                                theme: 'colored',
-                                autoClose: 10000
-                            });
-                            hasError = true;
-                            break;
-                        }
-                    }
-                    moduleDetailIndex++
-                }
-            }
-            if (!hasError) {
-                updateClientUserCallback();
-                dispatch(userDetailsAction({
-                    ...userData,
-                    treeIds: uniqueTreeIds
-                }))
-            }
-        }
-    }
+						setIsLoading(true);
+						const addModuleDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-security-user-access-rights', requestData, {
+							headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+						});
+						setIsLoading(false);
+						if (addModuleDetailResponse.data.status != 200) {
+							toast.error(addModuleDetailResponse.data.message, {
+								theme: 'colored',
+								autoClose: 10000
+							});
+							hasError = true;
+							break;
+						}
+					}
+					moduleDetailIndex++
+				}
+			}
+			if (!hasError) {
+				updateClientUserCallback();
+				dispatch(userDetailsAction({
+					...userData,
+					treeIds: uniqueTreeIds
+				}))
+			}
+		}
+	}
 
 	return (
 		<>
@@ -475,26 +489,26 @@ export const ClientUsers = () => {
 			) : null}
 
 			{modalShow &&
-                <Modal
-                    show={modalShow}
-                    onHide={() => setModalShow(false)}
-                    size="md"
-                    aria-labelledby="contained-modal-title-vcenter"
-                    centered
-                    backdrop="static"
-                >
-                    <Modal.Header closeButton>
-                        <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
-                    </Modal.Header>
-                    <Modal.Body>
-                        <h4>Do you want to save changes?</h4>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="success" onClick={addClientUserDetails} >Save</Button>
-                        <Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
-                    </Modal.Footer>
-                </Modal>
-            }
+				<Modal
+					show={modalShow}
+					onHide={() => setModalShow(false)}
+					size="md"
+					aria-labelledby="contained-modal-title-vcenter"
+					centered
+					backdrop="static"
+				>
+					<Modal.Header closeButton>
+						<Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+					</Modal.Header>
+					<Modal.Body>
+						<h4>Do you want to save changes?</h4>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="success" onClick={addClientUserDetails} >Save</Button>
+						<Button variant="danger" id='btnDiscard' onClick={discardChanges}>Discard</Button>
+					</Modal.Footer>
+				</Modal>
+			}
 
 			<TabPage
 				listData={listData}

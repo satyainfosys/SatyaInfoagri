@@ -11,10 +11,12 @@ const tabArray = ['Vendor Invoice Entry List', 'Add Vendor Invoice Entry'];
 
 const listColumnArray = [
   { accessor: 'sl', Header: 'S.No' },
-  { accessor: 'poNo', Header: 'Po No' },
-  { accessor: 'vendorName', Header: 'Vendor Name' },
+  { accessor: 'invoiceNo', Header: 'Invoice No' },
   { accessor: 'invoiceDate', Header: 'Invoice Date' },
   { accessor: 'invoiceDueDate', Header: 'Due Date' },
+  { accessor: 'poNo', Header: 'Po No' },
+  { accessor: 'invoiceAmount', Header: 'Invoice Amount' },
+  { accessor: 'vendorName', Header: 'Vendor Name' },
   { accessor: 'invoiceStatus', Header: 'Status' },
   { accessor: 'vendorInvoicePrintStatus', Header: 'Print' },
 ];

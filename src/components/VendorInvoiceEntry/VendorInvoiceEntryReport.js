@@ -79,11 +79,11 @@ const VendorInvoiceEntryReport = () => {
           <Card className="mb-3">
             <Card.Body>
               <Row className="justify-content-between align-items-center">
-                <Col md>
-                  <h5 className="mb-2 mb-md-0">#{vendorInvoiceEntryHeaderData.invoiceNo}</h5>
+                <Col xs="auto">
+                  <h6 className="mb-2 mb-md-0">#{vendorInvoiceEntryHeaderData.invoiceNo}</h6>
                 </Col>
-                <Col xs={6}>
-                  <Form.Label><h4><u><b>Vendor Invoice Entry Report</b></u></h4></Form.Label>
+                <Col xs="auto" className='text-center'>
+                  <Form.Label className='text-align-center'><h4 ><u><b>Vendor Invoice Entry Report</b></u></h4></Form.Label>
                 </Col>
                 <Col xs="auto">
                   <IconButton

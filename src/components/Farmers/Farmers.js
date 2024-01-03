@@ -32,30 +32,6 @@ export const Farmers = () => {
     const [companyList, setCompanyList] = useState([]);
     const [activeTabName, setActiveTabName] = useState();
 
-    const fetchFarmerList = async (page, size = perPage, encryptedCompanyCode) => {
-        let token = localStorage.getItem('Token');
-
-        const listFilter = {
-            pageNumber: page,
-            pageSize: size,
-            encryptedCompanyCode: encryptedCompanyCode
-        };
-
-        setIsLoading(true);
-        await axios
-            .post(process.env.REACT_APP_API_URL + '/farmer-list', listFilter, {
-                headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
-            })
-            .then(res => {
-                setIsLoading(false);
-                if (res.data.status == 200) {
-                    setListData(res.data.data);
-                } else {
-                    setListData([])
-                }
-            });
-    };
-
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Farmer"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Family"]').attr('disabled', true);
@@ -64,6 +40,9 @@ export const Farmers = () => {
         $('[data-rr-ui-event-key*="Cattle"]').attr('disabled', true);
         $('[data-rr-ui-event-key*="Documents"]').attr('disabled', true);
         getCompany();
+        if (!localStorage.getItem("CompanyCode")) {
+            fetchFarmerList(1);
+        }
         clearFarmerLocalStorages();
     }, []);
 
@@ -96,6 +75,31 @@ export const Farmers = () => {
 
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
+
+    const fetchFarmerList = async (page, size = perPage, encryptedCompanyCode) => {
+        let token = localStorage.getItem('Token');
+
+        const listFilter = {
+            pageNumber: page,
+            pageSize: size,
+            encryptedCompanyCode: encryptedCompanyCode,
+            encryptedClientCode: localStorage.getItem("EncryptedClientCode")
+        };
+
+        setIsLoading(true);
+        await axios
+            .post(process.env.REACT_APP_API_URL + '/farmer-list', listFilter, {
+                headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+            })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status == 200) {
+                    setListData(res.data.data);
+                } else {
+                    setListData([])
+                }
+            });
+    };
 
     const getFarmerContactDetail = async () => {
         const request = {
@@ -699,7 +703,6 @@ export const Farmers = () => {
         else {
             $('[data-rr-ui-event-key*="Farmers"]').trigger('click');
         }
-
         setModalShow(false);
     }
 
