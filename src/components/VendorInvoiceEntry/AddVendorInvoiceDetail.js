@@ -76,19 +76,19 @@ const AddVendorInvoiceDetail = () => {
       setSelectedRows([]);
     }
 
-    const totalProductAmount = vendorInvoiceEntryDetails.length > 1
-      ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
-        const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
-        return acc + (isNaN(productAmount) ? 0 : productAmount);
-      }, 0)
-      : vendorInvoiceEntryDetails.length === 1
-        ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
-        : 0;
+    // const totalProductAmount = vendorInvoiceEntryDetails.length > 1
+    //   ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
+    //     const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
+    //     return acc + (isNaN(productAmount) ? 0 : productAmount);
+    //   }, 0)
+    //   : vendorInvoiceEntryDetails.length === 1
+    //     ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
+    //     : 0;
 
-    dispatch(vendorInvoiceEntryHeaderDetailsAction({
-      ...vendorInvoiceEntryHeaderDetails,
-      invoiceAmount: isNaN(totalProductAmount) ? 0 : totalProductAmount
-    }))
+    // dispatch(vendorInvoiceEntryHeaderDetailsAction({
+    //   ...vendorInvoiceEntryHeaderDetails,
+    //   invoiceAmount: isNaN(totalProductAmount) ? 0 : totalProductAmount
+    // }))
 
   }, [vendorInvoiceEntryDetails, vendorInvoiceEntryDetailsReducer])
 
@@ -143,13 +143,17 @@ const AddVendorInvoiceDetail = () => {
 
   const handleSelectedItem = () => {
     if (selectAll) {
-      const updatedData = [...purchaseOrderProductDetailsList]
+      let updatedData;
+      const newRows = purchaseOrderProductDetailsList.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
+
+      if (newRows.length > 0) {
+        updatedData = [...vendorInvoiceEntryDetails, ...newRows];
+      } else {
+        updatedData = vendorInvoiceEntryDetails;
+      }
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     } else {
-      const uniqueRows = selectedRows.filter(row => {
-        return !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode);
-      });
-
+      const uniqueRows = selectedRows.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
       const updatedData = [...uniqueRows, ...vendorInvoiceEntryDetails];
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     }

@@ -175,21 +175,21 @@ const VendorInvoice = () => {
       isValid = false;
     }
 
-    if (!vendorInvoiceEntryHeaderDetails.poNo) {
-      const itemDescriptions = new Set();
+    // if (!vendorInvoiceEntryHeaderDetails.poNo) {
+    //   const itemDescriptions = new Set();
 
-      vendorInvoiceEntryDetails.forEach((row, index) => {
-        if (itemDescriptions.has(row.itemDescription)) {
-          productDuplicateErr.productDuplicate = "Product is already exist";
-          toast.error(productDuplicateErr.productDuplicate, {
-            theme: 'colored'
-          });
-          isValid = false;
-        } else {
-          itemDescriptions.add(row.itemDescription);
-        }
-      });
-    }
+    //   vendorInvoiceEntryDetails.forEach((row, index) => {
+    //     if (itemDescriptions.has(row.itemDescription)) {
+    //       productDuplicateErr.productDuplicate = "Product is already exist";
+    //       toast.error(productDuplicateErr.productDuplicate, {
+    //         theme: 'colored'
+    //       });
+    //       isValid = false;
+    //     } else {
+    //       itemDescriptions.add(row.itemDescription);
+    //     }
+    //   });
+    // }
 
     if (vendorInvoiceEntryDetails.length < 1) {
       vendorInvoiceEntryDetailErr.vendorInvoiceEntryDetailEmpty = "At least one vendor invoice entry details required";
@@ -411,7 +411,7 @@ const VendorInvoice = () => {
         requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
       }
 
-      const vendorInvoiceDetailsKeys = ['addUser']
+      const vendorInvoiceDetailsKeys = ['addUser', 'modifyUser', 'itemDescription', 'description']
       var index = 0;
       for (var obj in requestData.vendorInvoiceDetails) {
         var vendorInvoiceObject = requestData.vendorInvoiceDetails[obj];
