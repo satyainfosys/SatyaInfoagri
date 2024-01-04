@@ -5,10 +5,10 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from "jquery";
-import { formChangedAction, oemProductDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
+import { commonContactDetailsAction, commonContactDetailsErrorAction, formChangedAction, oemProductDetailsAction, tabInfoAction, vendorMasterDetailsAction, vendorMasterDetailsErrAction, vendorProductCatalogueDetailsAction } from 'actions';
 import Moment from "moment";
 
-const tabArray = ['Vendor List', 'Add Vendor']
+const tabArray = ['Vendor List', 'Add Vendor', 'Vendor Contact Details']
 
 const listColumnArray = [
     { accessor: 'sl', Header: 'S. No' },
@@ -35,7 +35,10 @@ const VendorMaster = () => {
 
     useEffect(() => {
         $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
+        $('[data-rr-ui-event-key*="Vendor Contact Details"]').attr('disabled', true);
         getCompany();
+        localStorage.removeItem("EncryptedVendorCode");
+        localStorage.removeItem("DeleteVendorProductCatalogueCodes");
     }, [])
 
     const vendorMasterDetailsReducer = useSelector((state) => state.rootReducer.vendorMasterDetailsReducer)
@@ -43,6 +46,9 @@ const VendorMaster = () => {
 
     let vendorProductCatalogueDetailsReducer = useSelector((state) => state.rootReducer.vendorProductCatalogueDetailsReducer)
     let vendorProductCatalogueList = vendorProductCatalogueDetailsReducer.vendorProductCatalogueDetails;
+
+    const commonContactDetailsReducer = useSelector((state) => state.rootReducer.commonContactDetailsReducer)
+    const commonContactDetailList = commonContactDetailsReducer.commonContactDetails;
 
     const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
     var formChangedData = formChangedReducer.formChanged;
@@ -141,11 +147,14 @@ const VendorMaster = () => {
             $("#btnSave").hide();
             $("#btnCancel").hide();
             $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', true);
+            $('[data-rr-ui-event-key*="Vendor Contact Details"]').attr('disabled', true);
             clearVendorMasterReducers();
             dispatch(vendorMasterDetailsAction(undefined));
             dispatch(oemProductDetailsAction([]));
+            dispatch(commonContactDetailsAction)
             localStorage.removeItem("EncryptedVendorCode");
             localStorage.removeItem("DeleteVendorProductCatalogueCodes");
+            localStorage.removeItem("DeleteCommonContactDetailsIds");
         }
     })
 
@@ -155,6 +164,7 @@ const VendorMaster = () => {
         $("#btnNew").hide();
         $("#btnSave").show();
         $("#btnCancel").show();
+        $('[data-rr-ui-event-key*="Vendor Contact Details"]').attr('disabled', false);
 
         if (vendorProductCatalogueList.length <= 0 &&
             !(localStorage.getItem("DeleteVendorProductCatalogueCodes"))) {
@@ -162,12 +172,28 @@ const VendorMaster = () => {
         }
     })
 
+    $('[data-rr-ui-event-key*="Vendor Contact Details"]').off('click').on('click', function () {
+
+        setActiveTabName("Vendor Contact Details")
+        $("#btnNew").hide();
+        $("#btnSave").show();
+        $("#btnCancel").show();
+
+        if (commonContactDetailList.length <= 0 &&
+            !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedVendorCode") || vendorMasterData.encryptedVendorCode)) {
+            getContactDetail();
+        }
+    })
+
     const newDetails = () => {
         if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
             $('[data-rr-ui-event-key*="Add Vendor"]').attr('disabled', false);
             $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
+            $('[data-rr-ui-event-key*="Vendor Contact Details"]').attr('disabled', false);
             $('#btnSave').attr('disabled', false);
             dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+            clearVendorMasterReducers();
+            localStorage.removeItem("EncryptedFarmerCode");
         } else {
             toast.error("Please select company first", {
                 theme: 'colored',
@@ -231,7 +257,10 @@ const VendorMaster = () => {
         dispatch(formChangedAction(undefined))
         dispatch(vendorProductCatalogueDetailsAction([]));
         dispatch(vendorMasterDetailsErrAction(undefined));
+        dispatch(commonContactDetailsAction([]));
+        dispatch(commonContactDetailsErrorAction(undefined))
         localStorage.removeItem("DeleteVendorProductCatalogueCodes");
+        localStorage.removeItem("DeleteCommonContactDetailsIds");
     }
 
     const vendorMasterValidation = () => {
@@ -244,24 +273,29 @@ const VendorMaster = () => {
         const gstNoErr = {};
         const websiteErr = {};
         const vendorProductCatalogueDetailErr = {};
+        const contactErr = {};
 
         let isValid = true;
+        let isAddVendorTabValid = true;
 
         if (!vendorMasterData.vendorName) {
             vendorNameErr.empty = "Enter vendor name";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
         }
 
         if (!vendorMasterData.countryCode) {
             countryCodeErr.empty = "Select country";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
         }
 
         if (!vendorMasterData.stateCode) {
             stateCodeErr.empty = "Select state";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
         }
 
@@ -269,6 +303,7 @@ const VendorMaster = () => {
             !(/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}[zZ][0-9a-zA-Z]{1}$/.test(vendorMasterData.vendorGstNo))) {
             gstNoErr.gstNoInvalid = "Enter valid GST number";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
         }
 
@@ -276,6 +311,7 @@ const VendorMaster = () => {
             !(/^[a-zA-Z]{3}[abcfghljptABCFGHLJPT][a-zA-Z][0-9]{4}[a-zA-Z]$/.test(vendorMasterData.vendorPanNo))) {
             panNoErr.panNoInvalid = "Enter valid PAN number";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
         }
 
@@ -283,7 +319,14 @@ const VendorMaster = () => {
             !(/^(ftp|http|https):\/\/[^ "]+$/.test(vendorMasterData.vendorWebsite))) {
             websiteErr.webSiteInvalid = "Enter valid website";
             isValid = false;
+            isAddVendorTabValid = false;
             setFormError(true);
+        }
+
+        if (!isAddVendorTabValid) {
+            if (!$('[data-rr-ui-event-key*="Add Vendor"]').hasClass('active')) {
+                $('[data-rr-ui-event-key*="Add Vendor"]').trigger('click');
+            }
         }
 
         if (vendorProductCatalogueList && vendorProductCatalogueList.length > 0) {
@@ -291,12 +334,14 @@ const VendorMaster = () => {
                 if (!row.validFrom || !row.validTo) {
                     vendorProductCatalogueDetailErr.invalidVendorProductCatalogueDetail = "Fill the required fields"
                     isValid = false;
+                    isAddVendorTabValid = false;
                     setFormError(true);
                 }
 
                 if (row.validFrom > row.validTo) {
                     vendorProductCatalogueDetailErr.invalidDate = "From Date cannot be greater than To Date"
                     isValid = false;
+                    isAddVendorTabValid = false;
                     setFormError(true);
                     toast.error(vendorProductCatalogueDetailErr.invalidDate, {
                         theme: 'colored'
@@ -304,6 +349,30 @@ const VendorMaster = () => {
                 }
             })
         }
+
+        if (commonContactDetailList.length < 1) {
+            contactErr.contactEmpty = "At least one contact detail required";
+            toast.error(contactErr.contactEmpty, {
+                theme: 'colored'
+            });
+            isValid = false;
+            setFormError(true);
+            if (isAddVendorTabValid) {
+                $('[data-rr-ui-event-key*="Vendor Contact Details"]').trigger('click');
+            }
+        }
+        else if (commonContactDetailList && commonContactDetailList.length > 0) {
+            commonContactDetailList.forEach((row, index) => {
+                if (!row.contactPerson || !row.contactType || !row.contactDetails) {
+                    contactErr.invalidContactDetail = "All fields are required in contact details";
+                    isValid = false
+                    if (isAddVendorTabValid) {
+                        $('[data-rr-ui-event-key*="Vendor Contact Details"]').trigger('click');
+                    }
+                }
+            });
+        }
+
 
         if (!isValid) {
             var errorObject = {
@@ -316,6 +385,11 @@ const VendorMaster = () => {
                 vendorProductCatalogueDetailErr
             }
             dispatch(vendorMasterDetailsErrAction(errorObject))
+
+            var contactErrorObject = {
+                contactErr
+            }
+            dispatch(commonContactDetailsErrorAction(contactErrorObject));
         }
 
         return isValid;
@@ -357,6 +431,7 @@ const VendorMaster = () => {
                 vendorRating: vendorMasterData.vendorRating ? vendorMasterData.vendorRating : "",
                 activeStatus: vendorMasterData.status == null || vendorMasterData.status == "Active" ? "A" : "S",
                 vendorProductCatalogueDetails: vendorProductCatalogueList,
+                commonContactDetails: commonContactDetailList,
                 addUser: localStorage.getItem("LoginUserName")
             }
 
@@ -374,6 +449,18 @@ const VendorMaster = () => {
                     vendorProductCatalogueDetailObj[key] = vendorProductCatalogueDetailObj[key] ? vendorProductCatalogueDetailObj[key].toUpperCase() : "";
                 }
                 requestData.vendorProductCatalogueDetails[index] = vendorProductCatalogueDetailObj;
+                index++;
+            }
+
+            const contactKeys = ['contactPerson', 'addUser']
+            var index = 0;
+            for (var obj in requestData.commonContactDetails) {
+                var contactDetailObj = requestData.commonContactDetails[obj];
+
+                for (const key of Object.keys(contactDetailObj).filter((key) => contactKeys.includes(key))) {
+                    contactDetailObj[key] = contactDetailObj[key] ? contactDetailObj[key].toUpperCase() : '';
+                }
+                requestData.commonContactDetails[index] = contactDetailObj;
                 index++;
             }
 
@@ -412,11 +499,14 @@ const VendorMaster = () => {
         if (vendorMasterValidation()) {
             if (!formChangedData.vendorMasterDetailUpdate &&
                 !(formChangedData.vendorProductCatalogueDetailUpdate ||
-                    formChangedData.vendorProductCatalogueDetailAdd || formChangedData.vendorProductCatalogueDetailDelete)) {
+                    formChangedData.vendorProductCatalogueDetailAdd || formChangedData.vendorProductCatalogueDetailDelete) &&
+                !(formChangedData.contactDetailUpdate ||
+                    formChangedData.contactDetailAdd || formChangedData.contactDetailDelete)) {
                 return;
             }
 
-            var deleteVendorProductCatalogueCodes = localStorage.getItem("DeleteVendorProductCatalogueCodes")
+            var deleteVendorProductCatalogueCodes = localStorage.getItem("DeleteVendorProductCatalogueCodes");
+            var deleteCommonContactDetailsId = localStorage.getItem("DeleteCommonContactDetailsIds");
 
             const updateRequestData = {
                 encryptedVendorCode: localStorage.getItem("EncryptedVendorCode"),
@@ -461,6 +551,7 @@ const VendorMaster = () => {
             }
 
             var vendorProductCatalogueDetailIndex = 1;
+            var commonContactDetailIndex = 1;
 
             //VendorProductCatalogueDetail ADD, UPDATE, DELETE
             if (!hasError && (formChangedData.vendorProductCatalogueDetailUpdate ||
@@ -575,11 +666,123 @@ const VendorMaster = () => {
                 }
             }
 
+            //ContactDetail ADD, UPDATE, DELETE
+            if (!hasError && ((formChangedData.contactDetailUpdate || formChangedData.contactDetailAdd || formChangedData.contactDetailDelete))) {
+
+                if (!hasError && formChangedData.contactDetailDelete) {
+                    var deleteCommonContactDetailsList = deleteCommonContactDetailsId ? deleteCommonContactDetailsId.split(',') : null;
+                    if (deleteCommonContactDetailsList) {
+                        var deleteCommonContactDetailsIndex = 1;
+
+                        for (let i = 0; i < deleteCommonContactDetailsList.length; i++) {
+                            const deleteCommonContactDetailId = deleteCommonContactDetailsList[i];
+                            const data = { encryptedCommonContactDetailsId: deleteCommonContactDetailId }
+                            const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                            const deleteCommContactDetailResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-common-contact-detail', { headers, data });
+                            if (deleteCommContactDetailResponse.data.status != 200) {
+                                toast.error(deleteCommContactDetailResponse.data.message, {
+                                    theme: 'colored',
+                                    autoClose: 10000
+                                });
+                                hasError = true;
+                                break;
+                            }
+                        }
+                        deleteCommonContactDetailsIndex++
+                    }
+                }
+
+                for (let i = 0; i < commonContactDetailList.length; i++) {
+                    const contactDetail = commonContactDetailList[i];
+
+                    const keys = ['contactPerson', 'addUser', 'modifyUser']
+                    for (const key of Object.keys(contactDetail).filter((key) => keys.includes(key))) {
+                        contactDetail[key] = contactDetail[key] ? contactDetail[key].toUpperCase() : '';
+                    }
+
+                    if (!hasError && formChangedData.contactDetailUpdate && contactDetail.encryptedCommonContactDetailsId) {
+                        const requestData = {
+                            encryptedCommonContactDetailsId: contactDetail.encryptedCommonContactDetailsId,
+                            contactPerson: contactDetail.contactPerson,
+                            contactType: contactDetail.contactType,
+                            contactDetails: contactDetail.contactDetails,
+                            originatedFrom: "V",
+                            modifyUser: localStorage.getItem("LoginUserName")
+                        }
+
+                        setIsLoading(true);
+                        const updateContactDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-common-contact-detail', requestData, {
+                            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                        });
+                        setIsLoading(false);
+                        if (updateContactDetailResponse.data.status != 200) {
+                            toast.error(updateContactDetailResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    else if (!hasError && formChangedData.contactDetailAdd && !contactDetail.encryptedCommonContactDetailsId) {
+                        const requestData = {
+                            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                            encryptedConnectingCode: localStorage.getItem("EncryptedVendorCode"),
+                            contactPerson: contactDetail.contactPerson,
+                            contactType: contactDetail.contactType,
+                            contactDetails: contactDetail.contactDetails,
+                            originatedFrom: "V",
+                            addUser: localStorage.getItem("LoginUserName")
+                        }
+                        setIsLoading(true);
+                        const addFarmerContactDetailsResponse =
+                            await axios.post(process.env.REACT_APP_API_URL + '/add-common-contact-details', requestData, {
+                                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                            });
+                        setIsLoading(false);
+                        if (addFarmerContactDetailsResponse.data.status != 200) {
+                            toast.error(addFarmerContactDetailsResponse.data.message, {
+                                theme: 'colored',
+                                autoClose: 10000
+                            });
+                            hasError = true;
+                            break;
+                        }
+                    }
+                    commonContactDetailIndex++
+                }
+            }
+
             if (!hasError) {
                 clearVendorMasterReducers();
                 updateVendorMasterCallback();
             }
         }
+    }
+
+    const getContactDetail = async () => {
+        const request = {
+            EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            EncryptedConnectingCode: localStorage.getItem("EncryptedVendorCode"),
+            OriginatedFrom: "V"
+        }
+
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/get-common-contact-detail-list', request, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+
+        if (response.data.status == 200) {
+            if (response.data.data && response.data.data.length > 0) {
+                dispatch(commonContactDetailsAction(response.data.data));
+            }
+        } else {
+            dispatch(commonContactDetailsAction([]));
+        }
+    }
+
+    if (vendorMasterData.encryptedVendorCode && (!commonContactDetailList || commonContactDetailList.length == 0) && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
+        getContactDetail();
     }
 
     return (

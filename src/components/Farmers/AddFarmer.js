@@ -59,7 +59,8 @@ const AddFarmer = () => {
             "encryptedDistributionCentreCode": "",
             "distributionCentreCode": "",
             "status": "Active",
-            "unitName": ""
+            "unitName": "",
+            "pinCode": ""
         }))
 
         setStateList([]);
@@ -601,6 +602,14 @@ const AddFarmer = () => {
                                                     {Object.keys(farmerError.addressErr).map((key) => {
                                                         return <span className="error-message">{farmerError.addressErr[key]}</span>
                                                     })}
+                                                </Col>
+                                            </Form.Group>
+                                            <Form.Group as={Row} className="mb-1" controlId="formHorizontalEmail">
+                                                <Form.Label column sm={4}>
+                                                    Pincode
+                                                </Form.Label>
+                                                <Col sm={8}>
+                                                    <Form.Control id="txtPinCode" name="pinCode" maxLength={8} onChange={handleFieldChange} value={farmerData.pinCode} placeholder="Pin Code" />
                                                 </Col>
                                             </Form.Group>
 

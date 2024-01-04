@@ -82,7 +82,7 @@ export const Farmers = () => {
         const listFilter = {
             pageNumber: page,
             pageSize: size,
-            encryptedCompanyCode: encryptedCompanyCode,
+            encryptedCompanyCode: encryptedCompanyCode ? encryptedCompanyCode : localStorage.getItem("EncryptedCompanyCode") ? localStorage.getItem("EncryptedCompanyCode") : "",
             encryptedClientCode: localStorage.getItem("EncryptedClientCode")
         };
 
@@ -817,6 +817,7 @@ export const Farmers = () => {
                 blockCode: farmerData.blockCode ? farmerData.blockCode : "",
                 postOfficeCode: farmerData.postOfficeCode ? farmerData.postOfficeCode : "",
                 villageCode: farmerData.villageCode ? farmerData.villageCode : "",
+                pinCode: farmerData.pinCode ? farmerData.pinCode : "",
                 activeStatus: farmerData.status == null || farmerData.status == "Active" ? "A" : "S",
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : "D",
                 addUser: localStorage.getItem("LoginUserName"),
@@ -947,6 +948,7 @@ export const Farmers = () => {
             formData.append("VillageCode", requestData.villageCode)
             formData.append("ActiveStatus", requestData.activeStatus ? requestData.activeStatus : "A")
             formData.append("ApprovalStatus", requestData.approvalStatus ? requestData.approvalStatus : "D")
+            formData.append("PinCode", requestData.pinCode ? requestData.pinCode : "")
             formData.append("AddUser", localStorage.getItem("LoginUserName"))
 
             formData.append("FamilyDetails", JSON.stringify(requestData.familyDetails));
@@ -1196,6 +1198,7 @@ export const Farmers = () => {
                 approvalStatus: farmerData.approvalStatus == "Approved" ? "A" : farmerData.approvalStatus == "Draft" ? "D" : farmerData.approvalStatus == "Send for Verification" ? "SV" : "D",
                 activeStatus: !farmerData.status || farmerData.status == "Active" ? "A" : "S",
                 modifyUser: localStorage.getItem("LoginUserName"),
+                pinCode: farmerData.pinCode ? farmerData.pinCode : "",
             }
 
             const keys = ['farmerFirstName', 'farmerMiddleName', 'farmerLastName', 'farmerAddress', 'farmerFatherName', 'farmerUser', 'modifyUser', "farmerEducation", "farmerIdNo"]

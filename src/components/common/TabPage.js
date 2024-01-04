@@ -120,6 +120,7 @@ const TabPage = ({
     localStorage.removeItem('EncryptedResponseClientCode');
     // localStorage.removeItem("EncryptedCompanyCode");
     localStorage.removeItem("EncryptedFarmerCode");
+    localStorage.removeItem("EncryptedVendorCode");
     localStorage.removeItem("ProductCategoryCode");
     localStorage.removeItem("ProductLineCode");
     localStorage.removeItem("CompanyName");
@@ -420,6 +421,12 @@ const TabPage = ({
                   </FalconComponentCard>
 
                   <VendorProductCatalogueDetails />
+                </>
+              )}
+              {index == 2 && module == 'VendorMaster' && (
+                <>
+                  <TabInfoRow />
+                  <CommonContactTable />
                 </>
               )}
 
