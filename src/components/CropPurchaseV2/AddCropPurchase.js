@@ -72,6 +72,7 @@ const AddCropPurchase = () => {
             pageNumber: 1,
             pageSize: 10,
             EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            EncryptedClientCode:localStorage.getItem("EncryptedClientCode"),
             searchText: searchText
         }
 

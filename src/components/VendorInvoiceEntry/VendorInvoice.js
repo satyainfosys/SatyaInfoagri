@@ -404,6 +404,7 @@ const VendorInvoice = () => {
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate,
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate,
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
+        vendorType: 'V',
         addUser: localStorage.getItem("LoginUserName"),
         vendorInvoiceDetails: vendorInvoiceEntryDetails
       }
@@ -625,7 +626,8 @@ const VendorInvoice = () => {
 
   const getVendorInvoiceEntryDetailList = async () => {
     const request = {
-      encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode")
+      encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+      vendorType: "V"
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
