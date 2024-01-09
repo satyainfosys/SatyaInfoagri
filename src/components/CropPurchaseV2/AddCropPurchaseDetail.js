@@ -27,6 +27,7 @@ const AddCropPurchaseDetail = () => {
     const [selectedRows, setSelectedRows] = useState([]);
     const [selectAll, setSelectAll] = useState(false);
     const [gradeList, setGradeList] = useState([]);
+    const [productData, setProductData] = useState("");
     let oldPoStatus = localStorage.getItem("OldPoStatus");
     let isSearch = false;
 
@@ -365,23 +366,30 @@ const AddCropPurchaseDetail = () => {
         }
     }
 
-    const ModalPreview = (encryptedPoDetailId) => {
+    const ModalPreview = (encryptedPoDetailId, productCode) => {
         setModalShow(true);
         setParamsData({ encryptedPoDetailId });
+        setProductData(productCode)
     }
-
+    
     const deleteCropPurchaseDetail = () => {
         if (!paramsData)
             return false;
+        
+        var object = purchaseOrderProductDetailsData.find(x => x.productCode == productData);
 
         var objectIndex = purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.findIndex(x => x.encryptedPoDetailId == paramsData.encryptedPoDetailId);
         purchaseOrderProductDetailsReducer.purchaseOrderProductDetails.splice(objectIndex, 1)
+    
 
         var deleteCropPurchaseDetailId = localStorage.getItem("DeleteCropPurchaseIds");
+        var deleteInvoiceDetails = localStorage.getItem("DeleteInvoiceDetails");    
 
         if (paramsData.encryptedPoDetailId) {
             var deleteCropPurchaseDetail = deleteCropPurchaseDetailId ? deleteCropPurchaseDetailId + "," + paramsData.encryptedPoDetailId : paramsData.encryptedPoDetailId;
+            var deleteInvoiceDetail = deleteInvoiceDetails != null ? deleteInvoiceDetails + "," + object.productCode : object.productCode;
             localStorage.setItem("DeleteCropPurchaseIds", deleteCropPurchaseDetail);
+            localStorage.setItem("DeleteInvoiceDetails", deleteInvoiceDetail);
         }
 
         toast.success("Crop purhase details deleted successfully", {
@@ -564,7 +572,7 @@ const AddCropPurchaseDetail = () => {
                         <Flex>
                             <div >
                                 {
-                                    purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
+                                    purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F") ?
                                         null
                                         :
                                         <div >
@@ -598,7 +606,7 @@ const AddCropPurchaseDetail = () => {
                                     {rowData &&
                                         (<tr>
                                             {columnsArray.map((column, index) => {
-                                                if (column === 'Action' && purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved") {
+                                                if (column === 'Action' && purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")) {
                                                     return null;
                                                 }
                                                 return (
@@ -633,7 +641,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.gradeCode ? poProductDetailData.gradeCode : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                     required
                                                 >
                                                     <option value=''>Select</option>
@@ -650,7 +658,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.cropType ? poProductDetailData.cropType : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                     required
                                                 >
                                                     <option value='Inorganic'>Inorganic </option>
@@ -665,7 +673,7 @@ const AddCropPurchaseDetail = () => {
                                                     className="form-control select"
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     value={poProductDetailData.unitCode ? poProductDetailData.unitCode : ""}
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                     required
                                                 >
                                                     <option value=''>Select </option>
@@ -691,7 +699,7 @@ const AddCropPurchaseDetail = () => {
                                                             e.preventDefault();
                                                         }
                                                     }}
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                     required
                                                 />
                                             </td>
@@ -712,7 +720,7 @@ const AddCropPurchaseDetail = () => {
                                                             e.preventDefault();
                                                         }
                                                     }}
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                     required
                                                 />
                                             </td>
@@ -734,7 +742,7 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                 />
                                             </td>
 
@@ -755,7 +763,7 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                 />
                                             </td>
 
@@ -776,18 +784,18 @@ const AddCropPurchaseDetail = () => {
                                                         }
                                                     }}
                                                     required
-                                                    disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved"}
+                                                    disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                                 />
                                             </td>
 
                                             {
-                                                purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus === "Approved" ?
+                                                purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F") ?
                                                     null
                                                     :
                                                     <td key={index}>
                                                         {
                                                             poProductDetailData.materialStatus === "Not Received" ?
-                                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId) }} />
+                                                                <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId, poProductDetailData.productCode) }} />
                                                                 :
                                                                 poProductDetailData.materialStatus
                                                         }

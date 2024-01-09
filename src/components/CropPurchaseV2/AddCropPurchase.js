@@ -389,7 +389,7 @@ const AddCropPurchase = () => {
                                     DC Name
                                 </Form.Label>
                                 <Col className='col-auto'>
-                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={localStorage.getItem("DistributionCenterCode") ? localStorage.getItem("DistributionCenterCode") : purchaseOrderData.distributionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved")} >
+                                    <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={localStorage.getItem("DistributionCenterCode") ? localStorage.getItem("DistributionCenterCode") : purchaseOrderData.distributionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F"))} >
                                         <option value=''>Select Distribution</option>
                                         {distributionList &&
                                             distributionList.map((option, index) => (
@@ -407,7 +407,7 @@ const AddCropPurchase = () => {
                                     Col. Centre
                                 </Form.Label>
                                 <Col className='col-auto'>
-                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={ localStorage.getItem("CollectionCentreCode") ? localStorage.getItem("CollectionCentreCode") : purchaseOrderData.collectionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved")}>
+                                    <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={ localStorage.getItem("CollectionCentreCode") ? localStorage.getItem("CollectionCentreCode") : purchaseOrderData.collectionCentreCode} disabled={localStorage.getItem("DistributionCenterCode") || (purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F"))}>
                                         <option value=''>Select Collection Centre</option>
                                         {collectionCentreList &&
                                             collectionCentreList.map((option, index) => (
@@ -467,7 +467,7 @@ const AddCropPurchase = () => {
                                     <Col sm="8">
                                         <Form.Control id="txtCardNo" name="cardNo" placeholder="Card No"
                                             onChange={handleFieldChange} value={purchaseOrderData.cardNo} maxLength={10}
-                                            disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                            disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                             autoComplete='off'
                                         />
                                     </Col>
@@ -536,7 +536,7 @@ const AddCropPurchase = () => {
                                     </Form.Label>
                                     <Col sm="8">
                                         <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange}
-                                            disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                                            disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                                             max={Moment().format("YYYY-MM-DD")}
                                         />
                                         {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
@@ -593,7 +593,6 @@ const AddCropPurchase = () => {
                                     <Col sm="8">
                                         <Form.Select id="txtStatus" name="poStatus"
                                             onChange={handleFieldChange} value={purchaseOrderData.poStatus}
-                                            disabled={purchaseOrderData.encryptedPoNo && oldPoStatus == "Approved"}
                                         >
                                             <option value="Draft">Draft</option>
                                             <option value="Approved">Approved</option>

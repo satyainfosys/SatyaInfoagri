@@ -364,6 +364,7 @@ const VendorInvoice = () => {
       dispatch(vendorMasterDetailsListAction([]))
     }
   }
+  
 
   const handleFieldChange = e => {
     localStorage.setItem("EncryptedCompanyCode", e.target.value);
@@ -627,7 +628,6 @@ const VendorInvoice = () => {
   const getVendorInvoiceEntryDetailList = async () => {
     const request = {
       encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
-      vendorType: "V"
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
