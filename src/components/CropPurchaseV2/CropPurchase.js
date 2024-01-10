@@ -286,6 +286,7 @@ const CropPurchase = () => {
     dispatch(purchaseOrderDetailsErrAction(undefined));
     localStorage.removeItem("DeleteCropPurchaseIds");
     localStorage.removeItem("DeleteInvoiceDetails");
+    // localStorage.removeItem("DeleteMaterialReceiptDetails");
   }
 
   const cropPurchaseValidation = () => {
@@ -400,6 +401,7 @@ const CropPurchase = () => {
               $('#btnSave').attr('disabled', true);
               createdInventoryDetail(true);
               addVendorInvoiceEntryDetails(res.data.data.poNo, purchaseOrderData.poStatus)
+              addMaterialReceiptDetails(res.data.data.poNo, purchaseOrderData.poStatus,res.data.data.poDetailIdList)
             } else {
               updateCropPurchaseCallback(true);
             }
@@ -579,6 +581,7 @@ const CropPurchase = () => {
         }
       }
       updateVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
+      updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
       if (!hasError) {
         if (purchaseOrderData.poStatus == "Approved") {
           createdInventoryDetail(false);
@@ -822,8 +825,8 @@ const CropPurchase = () => {
     // VendorInvoiceEntryDetail ADD, UPDATE, DELETE
     if (!hasError && (formChangedData.cropPurchaseProductDetailsAdd || formChangedData.cropPurchaseProductDetailsUpdate || formChangedData.cropPurchaseProductDetailsDelete)) {
       if (!hasError && formChangedData.cropPurchaseProductDetailsDelete) {
-        var varInvoiceDetailProductCodeList = InvoiceDetailProductCode ? InvoiceDetailProductCode.split(',') : null;
-        var deleteInvoiceDetailCodesList = varInvoiceDetailProductCodeList.map(productCode => ({
+        var invoiceDetailProductCodeList = InvoiceDetailProductCode ? InvoiceDetailProductCode.split(',') : null;
+        var deleteInvoiceDetailCodesList = invoiceDetailProductCodeList.map(productCode => ({
           productCode: productCode,
           encryptedInvoiceHeaderCode: invoiceHeaderCode
         }))
@@ -914,6 +917,241 @@ const CropPurchase = () => {
     vendorInvoiceEntryDetailIndex++
   }
 
+  const addMaterialReceiptDetails = (poNo, status, poDetailIdList) => {
+
+    let materialReceiptDetails = []
+    let productDetails = {}
+    for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
+      const cropPurchaseProductDetailData = purchaseOrderProductDetailsList[i];
+      const poDetail = poDetailIdList.find(item => item.poNo === poNo && item.productCode == cropPurchaseProductDetailData.productCode);
+        productDetails = {
+          encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+          encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+          // vendorCode: purchaseOrderData.farmerCode,
+          productLineCode: cropPurchaseProductDetailData.productLineCode,
+          productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
+          productCode: cropPurchaseProductDetailData.productCode,
+          poDetailId: poDetail.poDetailId,
+          receivedQuantity: (cropPurchaseProductDetailData.quantity).toString(),
+          rejectedQuantity: "0",
+          // varietyName: materialReceiptDetailData.varietyName ? materialReceiptDetailData.varietyName : "",
+          // brandName: materialReceiptDetailData.brandName ? materialReceiptDetailData.brandName : "",
+          unitCode: cropPurchaseProductDetailData.unitCode ? (cropPurchaseProductDetailData.unitCode).toString() : 0,
+          addUser: localStorage.getItem("LoginUserName"),
+          rate: (cropPurchaseProductDetailData.poRate).toString(),
+          amount: (cropPurchaseProductDetailData.poAmt).toString(),
+
+      };
+      materialReceiptDetails.push(productDetails);
+    }
+
+    const requestData = {
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+      farmerCode: purchaseOrderData.farmerCode,
+      poNo: poNo,
+      materialReceiptDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+      // personName: localStorage.getItem("Name"),
+      challanNo: poNo,
+      activeStatus: "A",
+      addUser: localStorage.getItem("LoginUserName"),
+      materialStatus: status == 'Approved' ? 'A' : 'D',
+      materialReceiptDetails: materialReceiptDetails
+    }
+
+    const keys = ["addUser"]
+    for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+      requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+    }
+
+    const materialReceiptDetailKeys = ['addUser']
+    var index = 0;
+    for (var obj in requestData.materialReceiptDetails) {
+      var materialReceiptObject = requestData.materialReceiptDetails[obj];
+
+      for (const key of Object.keys(materialReceiptObject).filter((key) => materialReceiptDetailKeys.includes(key))) {
+        materialReceiptObject[key] = materialReceiptObject[key] ? materialReceiptObject[key].toUpperCase() : "";
+      }
+
+      requestData.materialReceiptDetails[index] = materialReceiptObject;
+      index++;
+    }
+
+    setIsLoading(true);
+    axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-header', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+      .then(res => {
+        if (res.data.status == 200) {
+          setIsLoading(false)
+        } else {
+          setIsLoading(false)
+          toast.error(res.data.message, {
+            theme: 'colored',
+            autoClose: 10000
+          });
+        }
+      })
+  }
+
+
+  const updateMaterialReceiptDetails = async (poNo, status) => {
+        // var materialReceiptDetailId = "" 
+        // var materialReceiptProductCode =  localStorage.getItem("DeleteMaterialReceiptDetails")
+        const updateRequestData = {
+            // encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+            encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+            encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+            farmerCode:  purchaseOrderData.farmerCode,
+            poNo: poNo,
+            materialReceiptDate:  Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+            personName: localStorage.getItem("Name"),
+            challanNo: poNo,
+            materialStatus: status == 'Approved' ? 'A' : 'D',
+            modifyUser: localStorage.getItem("LoginUserName"),
+        }
+
+        const keys = ["modifyUser"]
+        for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+            updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+        }
+
+        var hasError = false;
+            setIsLoading(true);
+            await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-header', updateRequestData, {
+                headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+            })
+                .then(res => {
+                  setIsLoading(false);
+                  if (res.data.status !== 200) {
+                    toast.error(res.data.message, {
+                      theme: 'colored',
+                      autoClose: 10000
+                    });
+                  }
+                  else {
+                    materialReceiptDetailId = res.data.data.materialReceiptDetailId;
+                  }})
+   
+
+        var materialReceiptDetailIndex = 1;
+
+        //MaterialReceiptDetail ADD, UPDATE, DELETE
+        // if (!hasError && (formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
+        //     if (!hasError && formChangedData.materialReceiptDetailDelete) {
+        //       var materialReceiptProductCodeList = materialReceiptProductCode ? materialReceiptProductCode.split(',') : null;
+        //       var deleteMaterialReceiptProductCodeList = materialReceiptProductCodeList.map(productCode => ({
+        //         productCode: productCode,
+        //         encryptedMaterialReceiptDetailId: materialReceiptDetailId
+        //       }))
+        //         if (deleteMaterialReceiptProductCodeList) {
+        //             var deletMaterialReceiptDetailIndex = 1;
+
+        //             for (let i = 0; i < deleteMaterialReceiptProductCodeList.length; i++) {
+        //                 const data =  deleteMaterialReceiptProductCodeList[i]
+        //                 const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+        //                 const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-material-receipt-detail', { headers, data });
+        //                 if (deleteResponse.data.status != 200) {
+        //                     toast.error(deleteResponse.data.message, {
+        //                         theme: 'colored',
+        //                         autoClose: 10000
+        //                     });
+        //                     hasError = true;
+        //                     break;
+        //                 }
+        //                 deletMaterialReceiptDetailIndex++
+        //             }
+        //         }
+        //     }
+
+        //     for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
+        //         const cropPurchaseProductDetailData = purchaseOrderProductDetailsList[i];
+
+        //         const keys = ["modifyUser"];
+        //         for (const key of Object.keys(cropPurchaseProductDetailData).filter((key) => keys.includes(key))) {
+        //           cropPurchaseProductDetailData[key] = cropPurchaseProductDetailData[key] ? cropPurchaseProductDetailData[key].toUpperCase() : "";
+        //         }
+
+        //         if (!hasError && formChangedData.cropPurchaseProductDetailsUpdate && cropPurchaseProductDetailData.encryptedPoDetailId) {
+        //             const requestData = {
+        //                 // encryptedMaterialReceiptDetailId: cropPurchaseProductDetailData.encryptedMaterialReceiptDetailId,
+        //                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        //                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        //                 encryptedMaterialReceiptId: materialReceiptDetailId,
+        //                 farmerCode: purchaseOrderData.farmerCode,
+        //                 productLineCode: cropPurchaseProductDetailData.productLineCode,
+        //                 productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
+        //                 productCode: cropPurchaseProductDetailData.productCode,
+        //                 poDetailId: cropPurchaseProductDetailData.poDetailId ? cropPurchaseProductDetailData.poDetailId : 0,
+        //                 receivedQuantity: parseFloat(cropPurchaseProductDetailData.receivedQuantity),
+        //                 rejectedQuantity: cropPurchaseProductDetailData.rejectedQuantity ? parseFloat(cropPurchaseProductDetailData.rejectedQuantity) : 0,
+        //                 // varietyName: cropPurchaseProductDetailData.varietyName ? cropPurchaseProductDetailData.varietyName : "",
+        //                 // brandName: cropPurchaseProductDetailData.brandName ? cropPurchaseProductDetailData.brandName : "",
+        //                 unitCode: (cropPurchaseProductDetailData.unitCode).toString(),
+        //                 modifyUser: localStorage.getItem("LoginUserName"),
+        //                 rate: parseFloat(cropPurchaseProductDetailData.rate),
+        //                 amount: parseFloat(cropPurchaseProductDetailData.amount),
+        //                 // materialStatus: cropPurchaseProductDetailData.materialStatus,
+        //                 // materialReceiptDate: cropPurchaseProductDetailData.materialReceiptDate ?
+        //                 //     Moment(cropPurchaseProductDetailData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
+        //             }
+        //             setIsLoading(true);
+        //             const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-material-receipt-detail', requestData, {
+        //                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        //             });
+        //             setIsLoading(false);
+        //             if (updateResponse.data.status != 200) {
+        //                 toast.error(updateResponse.data.message, {
+        //                     theme: 'colored',
+        //                     autoClose: 10000
+        //                 });
+        //                 hasError = true;
+        //                 break;
+        //             }
+        //         }
+        //         else if (!hasError && formChangedData.cropPurchaseProductDetailsAdd && !cropPurchaseProductDetailData.encryptedPoDetailId) {
+        //             const requestData = {
+        //                 encryptedMaterialReceiptId: localStorage.getItem("EncryptedMaterialReceiptId"),
+        //                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        //                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        //                 farmerCode: cropPurchaseProductDetailData.vendorCode,
+        //                 poDetailId: cropPurchaseProductDetailData.poDetailId ? cropPurchaseProductDetailData.poDetailId : 0,
+        //                 productLineCode: cropPurchaseProductDetailData.productLineCode,
+        //                 productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
+        //                 productCode: cropPurchaseProductDetailData.productCode,
+        //                 receivedQuantity: cropPurchaseProductDetailData.quantity,
+        //                 rejectedQuantity: "0",
+        //                 // varietyName: cropPurchaseProductDetailData.varietyName ? cropPurchaseProductDetailData.varietyName : "",
+        //                 // brandName: cropPurchaseProductDetailData.brandName ? cropPurchaseProductDetailData.brandName : "",
+        //                 rate:  cropPurchaseProductDetailData.poRate, 
+        //                 amount: cropPurchaseProductDetailData.poAmt,
+        //                 unitCode: cropPurchaseProductDetailData.unitCode,
+        //                 addUser: localStorage.getItem("LoginUserName"),
+        //                 // materialStatus: cropPurchaseProductDetailData.materialStatus,
+        //                 // materialReceiptDate: cropPurchaseProductDetailData.materialReceiptDate ?
+        //                 //     Moment(cropPurchaseProductDetailData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD")
+        //             }
+        //             setIsLoading(true);
+        //             const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {
+        //                 headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        //             });
+        //             setIsLoading(false);
+        //             if (addResponse.data.status != 200) {
+        //                 toast.error(addResponse.data.message, {
+        //                     theme: 'colored',
+        //                     autoClose: 10000
+        //                 });
+        //                 hasError = true;
+        //                 break;
+        //             }
+        //         }
+
+        //         materialReceiptDetailIndex++
+        //     }
+        // }
+
+}
 
   return (
     <>

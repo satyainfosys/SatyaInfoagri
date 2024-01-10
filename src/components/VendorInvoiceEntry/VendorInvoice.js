@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction, vendorInvoiceEntryDetailsAction } from 'actions';
+import { tabInfoAction, formChangedAction, vendorMasterDetailsListAction, vendorInvoiceEntryErrorAction, vendorInvoiceEntryHeaderDetailsAction, vendorInvoiceEntryDetailsAction, farmerDetailsAction } from 'actions';
 import Moment from 'moment';
 
 const tabArray = ['Vendor Invoice Entry List', 'Add Vendor Invoice Entry'];
@@ -84,6 +84,7 @@ const VendorInvoice = () => {
     dispatch(formChangedAction(undefined));
     dispatch(vendorInvoiceEntryDetailsAction([]));
     dispatch(vendorInvoiceEntryErrorAction(undefined));
+    dispatch(farmerDetailsAction(undefined))
     localStorage.removeItem("DeleteInvoiceDetailCodes");
   }
 

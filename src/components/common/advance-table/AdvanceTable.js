@@ -43,6 +43,9 @@ const AdvanceTable = ({
       }
     }
     else if (rowData.hasOwnProperty('encryptedInvoiceHeaderCode')) {
+      if (rowData.vendorType == "C") {
+        getFarmerDetail("",rowData.vendorCode)
+      }
       localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
       localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
       dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
@@ -272,11 +275,19 @@ const AdvanceTable = ({
     }
   }
 
-  const getFarmerDetail = async (encryptedFarmerCode) => {
-    const request = {
-      EncryptedFarmerCode: encryptedFarmerCode
+  const getFarmerDetail = async (encryptedFarmerCode, farmerCode) => {
+    let request = {}
+    if (encryptedFarmerCode) {
+      request = {
+        ...request,
+        EncryptedFarmerCode: encryptedFarmerCode
+      }
+    } else {
+      request = {
+        ...request,
+        FarmerCode: farmerCode
+      }
     }
-
     let farmerResponse = await axios.post(process.env.REACT_APP_API_URL + '/get-farmer-master-detail', request, {
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
     })

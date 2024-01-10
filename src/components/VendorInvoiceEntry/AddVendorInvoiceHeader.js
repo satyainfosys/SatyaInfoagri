@@ -43,6 +43,9 @@ const AddVendorInvoiceHeader = () => {
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
+  const farmerDetailsReducer = useSelector((state) => state.rootReducer.farmerDetailsReducer)
+  const farmerData = farmerDetailsReducer.farmerDetails;
+
   useEffect(() => {
   }, [])
 
@@ -203,7 +206,7 @@ const AddVendorInvoiceHeader = () => {
                   <Col sm="8">
                     {
                       vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode ?
-                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={vendorInvoiceEntryHeaderDetails.vendorName} disabled /> :
+                        <Form.Control id="txtVendorName" name="vendorCode" placeholder="Vendor Name" value={farmerData.farmerName ? farmerData.farmerName: vendorInvoiceEntryHeaderDetails.vendorName} disabled /> :
                         <Form.Select id="txtVendorName" name="vendorCode" value={vendorInvoiceEntryHeaderDetails.vendorCode} onChange={handleFieldChange} >
                           <option value=''>Select Vendor</option>
                           {vendorList.map((vendor) => (
@@ -223,7 +226,7 @@ const AddVendorInvoiceHeader = () => {
                     Address
                   </Form.Label>
                   <Col sm="8">
-                    <Form.Control id="txtAddress" name="address" placeholder="Address" value={vendorInvoiceEntryHeaderDetails.address} disabled />
+                    <Form.Control id="txtAddress" name="address" placeholder="Address" value={farmerData.address ? farmerData.address : vendorInvoiceEntryHeaderDetails.address} disabled />
                   </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -231,7 +234,7 @@ const AddVendorInvoiceHeader = () => {
                     Pincode
                   </Form.Label>
                   <Col sm="8">
-                    <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={vendorInvoiceEntryHeaderDetails.pinCode} disabled />
+                    <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={farmerData.pinCode ? farmerData.pinCode: vendorInvoiceEntryHeaderDetails.pinCode} disabled />
                   </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -239,7 +242,7 @@ const AddVendorInvoiceHeader = () => {
                     State
                   </Form.Label>
                   <Col sm="8">
-                    <Form.Control id="txtState" name="state" placeholder="State" value={vendorInvoiceEntryHeaderDetails.state} disabled />
+                    <Form.Control id="txtState" name="state" placeholder="State" value={farmerData.state ? farmerData.state: vendorInvoiceEntryHeaderDetails.state} disabled />
                   </Col>
                 </Form.Group>
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -247,7 +250,7 @@ const AddVendorInvoiceHeader = () => {
                     Country
                   </Form.Label>
                   <Col sm="8">
-                    <Form.Control id="txtCountry" name="country" placeholder="Country" value={vendorInvoiceEntryHeaderDetails.country} disabled />
+                    <Form.Control id="txtCountry" name="country" placeholder="Country" value={farmerData.country ? farmerData.country: vendorInvoiceEntryHeaderDetails.country} disabled />
                   </Col>
                 </Form.Group>
               </Col>
