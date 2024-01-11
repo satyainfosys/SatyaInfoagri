@@ -384,12 +384,16 @@ const AddCropPurchaseDetail = () => {
 
         var deleteCropPurchaseDetailId = localStorage.getItem("DeleteCropPurchaseIds");
         var deleteInvoiceDetails = localStorage.getItem("DeleteInvoiceDetails");    
+        var deleteMaterialReceiptDetails = localStorage.getItem("DeleteMaterialReceiptDetails");
 
         if (paramsData.encryptedPoDetailId) {
             var deleteCropPurchaseDetail = deleteCropPurchaseDetailId ? deleteCropPurchaseDetailId + "," + paramsData.encryptedPoDetailId : paramsData.encryptedPoDetailId;
             var deleteInvoiceDetail = deleteInvoiceDetails != null ? deleteInvoiceDetails + "," + object.productCode : object.productCode;
+            var deleteMaterialReceiptDetail = deleteMaterialReceiptDetails != null ? deleteMaterialReceiptDetails + "," + object.productCode : object.productCode;
+
             localStorage.setItem("DeleteCropPurchaseIds", deleteCropPurchaseDetail);
             localStorage.setItem("DeleteInvoiceDetails", deleteInvoiceDetail);
+            localStorage.setItem("DeleteMaterialReceiptDetails", deleteMaterialReceiptDetail)
         }
 
         toast.success("Crop purhase details deleted successfully", {
@@ -794,10 +798,10 @@ const AddCropPurchaseDetail = () => {
                                                     :
                                                     <td key={index}>
                                                         {
-                                                            poProductDetailData.materialStatus === "Not Received" ?
+                                                            // poProductDetailData.materialStatus === "Not Received" ?
                                                                 <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(poProductDetailData.encryptedPoDetailId, poProductDetailData.productCode) }} />
-                                                                :
-                                                                poProductDetailData.materialStatus
+                                                                // :
+                                                                // poProductDetailData.materialStatus
                                                         }
                                                     </td>
                                             }
