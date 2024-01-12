@@ -585,8 +585,10 @@ const CropPurchase = () => {
           cropPurchaseProductDetailsIndex++;
         }
       }
-      updateVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
-      updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, poDetailIdList)
+      if (purchaseOrderData.poStatus == "Approved") {
+        updateVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
+        updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, poDetailIdList)
+      }
       if (!hasError) {
         if (purchaseOrderData.poStatus == "Approved") {
           createdInventoryDetail(false);
@@ -604,7 +606,7 @@ const CropPurchase = () => {
     var inventoryDetailIndex = 1;
     for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
       const inventoryDetailData = purchaseOrderProductDetailsList[i];
-      const materialReceiptDetailId = materialReceiptDetailIdList.find(item => item.productCode == inventoryDetailData.productCode);
+      const materialReceiptDetailId = materialReceiptDetailIdList && materialReceiptDetailIdList.find(item => item.productCode == inventoryDetailData.productCode);
       if (!hasInventoryError) {
         const headerRequest = {
           encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -647,7 +649,7 @@ const CropPurchase = () => {
           unitCode: inventoryDetailData.unitCode,
           availableQuantity: inventoryDetailData.quantity,
           orgIng: inventoryDetailData.cropType,
-          MaterialReceiptDetailId: materialReceiptDetailId.materialReceiptDetailId,
+          MaterialReceiptDetailId: materialReceiptDetailId && materialReceiptDetailId.materialReceiptDetailId,
           ExpiryDate: purchaseOrderData.poDate, 
           receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
           addUser: localStorage.getItem("LoginUserName")
@@ -927,7 +929,7 @@ const CropPurchase = () => {
     let productDetails = {}
     for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
       const cropPurchaseProductDetailData = purchaseOrderProductDetailsList[i];
-      const poDetail = poDetailIdList.find(item => item.poNo === poNo && item.productCode == cropPurchaseProductDetailData.productCode);
+      const poDetail = poDetailIdList && poDetailIdList.find(item => item.poNo === poNo && item.productCode == cropPurchaseProductDetailData.productCode);
       productDetails = {
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
