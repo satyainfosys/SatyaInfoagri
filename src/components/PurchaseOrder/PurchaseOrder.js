@@ -398,6 +398,7 @@ const PurchaseOrder = () => {
                 activeStatus: "A",
                 purchaseOrderProductDetails: purchaseOrderProductDetailsList,
                 purchaseOrderTermDetails: purchaseOrderTermList,
+                deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
                 addUser: localStorage.getItem("LoginUserName")
             }
 

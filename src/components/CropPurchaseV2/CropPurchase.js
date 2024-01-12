@@ -286,7 +286,7 @@ const CropPurchase = () => {
     dispatch(purchaseOrderDetailsErrAction(undefined));
     localStorage.removeItem("DeleteCropPurchaseIds");
     localStorage.removeItem("DeleteInvoiceDetails");
-    // localStorage.removeItem("DeleteMaterialReceiptDetails");
+    localStorage.removeItem("DeleteMaterialReceiptDetails");
   }
 
   const cropPurchaseValidation = () => {
@@ -639,6 +639,7 @@ const CropPurchase = () => {
           productLineCode: inventoryDetailData.productLineCode,
           productCategoryCode: inventoryDetailData.productCategoryCode,
           productCode: inventoryDetailData.productCode,
+          poDate: purchaseOrderData.poDate,
           grade: inventoryDetailData.gradeCode,
           quantity: inventoryDetailData.quantity,
           rate: inventoryDetailData.poRate,
@@ -646,7 +647,7 @@ const CropPurchase = () => {
           unitCode: inventoryDetailData.unitCode,
           availableQuantity: inventoryDetailData.quantity,
           orgIng: inventoryDetailData.cropType,
-          MaterialReceiptNo: materialReceiptDetailId.materialReceiptDetailId,
+          MaterialReceiptDetailId: materialReceiptDetailId.materialReceiptDetailId,
           ExpiryDate: purchaseOrderData.poDate, 
           receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
           addUser: localStorage.getItem("LoginUserName")
@@ -788,7 +789,6 @@ const CropPurchase = () => {
   }
 
   const updateVendorInvoiceEntryDetails = async (poNo, status) => {
-
     var invoiceHeaderCode = ""
     var InvoiceDetailProductCode = localStorage.getItem("DeleteInvoiceDetails")
     const updateRequestData = {
@@ -995,7 +995,7 @@ const CropPurchase = () => {
   }
 
   const updateMaterialReceiptDetails = async (poNo, status, poDetailIdList) => {
-    var materialReceiptDetailId = ""
+    var materialReceiptId = ""
     var materialReceiptProductCode = localStorage.getItem("DeleteMaterialReceiptDetails")
     const updateRequestData = {
       encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -1029,7 +1029,7 @@ const CropPurchase = () => {
           });
         }
         else {
-          materialReceiptDetailId = res.data.data.encryptedMaterialReceiptId;
+          materialReceiptId = res.data.data.encryptedMaterialReceiptId;
         }
       })
 
@@ -1040,7 +1040,7 @@ const CropPurchase = () => {
         var materialReceiptProductCodeList = materialReceiptProductCode ? materialReceiptProductCode.split(',') : null;
         var deleteMaterialReceiptProductCodeList = materialReceiptProductCodeList.map(productCode => ({
           productCode: productCode,
-          encryptedMaterialReceiptDetailId: materialReceiptDetailId
+          encryptedMaterialReceiptId: materialReceiptId
         }))
         if (deleteMaterialReceiptProductCodeList) {
           var deleteMaterialReceiptDetailIndex = 1;
@@ -1071,7 +1071,7 @@ const CropPurchase = () => {
           const requestData = {
             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            encryptedMaterialReceiptId: materialReceiptDetailId,
+            encryptedMaterialReceiptId: materialReceiptId,
             vendorCode: purchaseOrderData.farmerCode,
             farmerCode: purchaseOrderData.farmerCode,
             productLineCode: cropPurchaseProductDetailData.productLineCode,
@@ -1085,6 +1085,7 @@ const CropPurchase = () => {
             rate: (cropPurchaseProductDetailData.poRate).toString(),
             amount: (cropPurchaseProductDetailData.poAmt).toString(),
             materialReceiptDate: Moment(cropPurchaseProductDetailData.poDate).format("YYYY-MM-DD"),
+            isCropPurchase: true,
             materialStatus: status == 'Approved' ? 'A' : 'D',
           }
           setIsLoading(true);
@@ -1102,12 +1103,11 @@ const CropPurchase = () => {
           }
         }
         else if (!hasError && formChangedData.cropPurchaseProductDetailsAdd && !cropPurchaseProductDetailData.encryptedPoDetailId) {
-          const poDetail = poDetailIdList.find(item => item.poNo === poNo && item.productCode == cropPurchaseProductDetailData.productCode);
+          const poDetail = poDetailIdList && poDetailIdList.find(item => item.poNo === poNo && item.productCode == cropPurchaseProductDetailData.productCode);
           const requestData = {
-            encryptedMaterialReceiptId: materialReceiptDetailId,
+            encryptedMaterialReceiptId: materialReceiptId,
             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            farmerCode: cropPurchaseProductDetailData.farmerCode,
             vendorCode: cropPurchaseProductDetailData.farmerCode,
             poDetailId: poDetail.poDetailId,
             productLineCode: cropPurchaseProductDetailData.productLineCode,
@@ -1121,6 +1121,7 @@ const CropPurchase = () => {
             addUser: localStorage.getItem("LoginUserName"),
             materialReceiptDate: Moment(cropPurchaseProductDetailData.poDate).format("YYYY-MM-DD"),
             materialStatus: status == 'Approved' ? 'A' : 'D',
+            isCropPurchase: true
           }
           setIsLoading(true);
           const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-material-receipt-detail', requestData, {
