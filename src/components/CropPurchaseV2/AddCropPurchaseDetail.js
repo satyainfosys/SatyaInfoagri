@@ -385,15 +385,18 @@ const AddCropPurchaseDetail = () => {
         var deleteCropPurchaseDetailId = localStorage.getItem("DeleteCropPurchaseIds");
         var deleteInvoiceDetails = localStorage.getItem("DeleteInvoiceDetails");    
         var deleteMaterialReceiptDetails = localStorage.getItem("DeleteMaterialReceiptDetails");
+        var deleteInventoryDetails = localStorage.getItem("DeleteInventoryDetails");
 
         if (paramsData.encryptedPoDetailId) {
             var deleteCropPurchaseDetail = deleteCropPurchaseDetailId ? deleteCropPurchaseDetailId + "," + paramsData.encryptedPoDetailId : paramsData.encryptedPoDetailId;
             var deleteInvoiceDetail = deleteInvoiceDetails != null ? deleteInvoiceDetails + "," + object.productCode : object.productCode;
             var deleteMaterialReceiptDetail = deleteMaterialReceiptDetails != null ? deleteMaterialReceiptDetails + "," + object.productCode : object.productCode;
+            var deleteInventoryDetail = deleteInventoryDetails != null ? deleteInventoryDetails + "," + object.productCode : object.productCode;
 
             localStorage.setItem("DeleteCropPurchaseIds", deleteCropPurchaseDetail);
             localStorage.setItem("DeleteInvoiceDetails", deleteInvoiceDetail);
             localStorage.setItem("DeleteMaterialReceiptDetails", deleteMaterialReceiptDetail)
+            localStorage.setItem("DeleteInventoryDetails", deleteInventoryDetail)
         }
 
         toast.success("Crop purhase details deleted successfully", {

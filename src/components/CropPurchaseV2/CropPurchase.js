@@ -590,19 +590,20 @@ const CropPurchase = () => {
         updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, poDetailIdList)
       }
       if (!hasError) {
-        if (purchaseOrderData.poStatus == "Approved") {
-          createdInventoryDetail(false);
-        } else {
+        // if (purchaseOrderData.poStatus == "Approved") {
+        //   createdInventoryDetail(false);
+        // } else {
+        //   clearCropPurchaseOrderReducers();
+        //   updateCropPurchaseCallback();
+        // }
           clearCropPurchaseOrderReducers();
           updateCropPurchaseCallback();
-        }
       }
     }
   }
 
   const createdInventoryDetail = async (isAdd, materialReceiptDetailIdList) => {
     var hasInventoryError = false;
-
     var inventoryDetailIndex = 1;
     for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
       const inventoryDetailData = purchaseOrderProductDetailsList[i];
@@ -648,7 +649,7 @@ const CropPurchase = () => {
           amount: inventoryDetailData.poAmt,
           unitCode: inventoryDetailData.unitCode,
           availableQuantity: inventoryDetailData.quantity,
-          orgIng: inventoryDetailData.cropType,
+          orgIng:inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
           MaterialReceiptDetailId: materialReceiptDetailId && materialReceiptDetailId.materialReceiptDetailId,
           ExpiryDate: purchaseOrderData.poDate, 
           receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
@@ -677,6 +678,77 @@ const CropPurchase = () => {
       updateCropPurchaseCallback(isAdd);
     }
   }
+
+  const updateInventoryDetail = async (isAdd, materialReceiptDetailId, cropPurchaseProductDetailData) => {
+    var hasInventoryError = false;
+      const inventoryDetailData = cropPurchaseProductDetailData
+        const detailRequest = {
+          encryptedMaterialReceiptDetailId: materialReceiptDetailId,
+          encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+          encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+          distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+          collectionCentreCode: purchaseOrderData.collectionCentreCode ?  purchaseOrderData.collectionCentreCode : "",
+          productLineCode: inventoryDetailData.productLineCode,
+          productCategoryCode: inventoryDetailData.productCategoryCode,
+          productCode: inventoryDetailData.productCode,
+          poDate: purchaseOrderData.poDate,
+          grade: inventoryDetailData.gradeCode,
+          quantity: inventoryDetailData.quantity,
+          rate: inventoryDetailData.poRate,
+          amount: inventoryDetailData.poAmt,
+          unitCode: inventoryDetailData.unitCode,
+          availableQuantity: inventoryDetailData.quantity,
+          orgIng:inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
+          ExpiryDate: purchaseOrderData.poDate, 
+          receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")
+        }
+        setIsLoading(true);
+        const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-inventory-detail', detailRequest, {
+          headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+        setIsLoading(true);
+        if (addDetailResponse.data.status != 200) {
+          toast.error(addDetailResponse.data.message, {
+            theme: 'colored',
+            autoClose: 10000
+          });
+          hasInventoryError = true;
+        }
+    if (!hasInventoryError) {
+      updateCropPurchaseCallback(isAdd);
+    }
+  }
+
+  const deleteInventoryDetail = async (materialReceiptDetailId, productCode) => {
+    var inventoryDeleteProductCode = localStorage.getItem("DeleteInventoryDetails")
+    var inventoryDeleteProductCodeList = inventoryDeleteProductCode ? inventoryDeleteProductCode.split(',') : null;
+
+    if (inventoryDeleteProductCodeList) {
+        for (let i = 0; i < inventoryDeleteProductCodeList.length; i++) {
+            const currentProductCode = inventoryDeleteProductCodeList[i];
+            if (currentProductCode == productCode) {
+                const data = {
+                    productCode: currentProductCode,
+                    materialReceiptDetailId: materialReceiptDetailId
+                };
+                const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` };
+                const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-inventory-detail', { headers, data });
+                if (deleteResponse.data.status !== 200) {
+                    toast.error(deleteResponse.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                    break;
+                } else {
+                    inventoryDeleteProductCodeList.splice(i, 1);
+                    i--;
+                }
+            }
+        }
+    }
+    localStorage.removeItem("DeleteInventoryDetails");
+}
+
 
   const validateGenerateReportModal = () => {
     console.log(fromDate)
@@ -1058,6 +1130,9 @@ const CropPurchase = () => {
               hasError = true;
               break;
             }
+            else if (deleteResponse.data.status == 200){
+              deleteInventoryDetail(deleteResponse.data.data.materialReceiptDetailId, deleteResponse.data.data.productCode)
+            }
             deleteMaterialReceiptDetailIndex++
           }
         }
@@ -1102,6 +1177,9 @@ const CropPurchase = () => {
             });
             hasError = true;
             break;
+          }
+          else if (updateResponse.data.status == 200) {
+            updateInventoryDetail(false, updateResponse.data.data.encryptedMaterialReceiptDetailId, cropPurchaseProductDetailData);
           }
         }
         else if (!hasError && formChangedData.cropPurchaseProductDetailsAdd && !cropPurchaseProductDetailData.encryptedPoDetailId) {
