@@ -183,6 +183,7 @@ const CropPurchase = () => {
       dispatch(purchaseOrderDetailsAction(undefined));
       localStorage.removeItem("EncryptedPoNo");
       localStorage.removeItem("OldPoStatus");
+      localStorage.removeItem("DeleteInventoryDetails");
     }
   })
 
@@ -236,6 +237,7 @@ const CropPurchase = () => {
       localStorage.removeItem("DeleteInvoiceDetails");
       localStorage.removeItem("EncryptedCompanyCode");
       localStorage.removeItem("CompanyName");
+      localStorage.removeItem("DeleteInventoryDetails");
     }
   }
 
@@ -392,7 +394,8 @@ const CropPurchase = () => {
               dispatch(purchaseOrderDetailsAction({
                 ...purchaseOrderData,
                 encryptedPoNo: res.data.data.encryptedPoNo,
-                poNo: res.data.data.poNo
+                poNo: res.data.data.poNo,
+                approvedBefore : purchaseOrderData.poStatus == "Approved" ? "true" : "false"
               }))
             }, 50);
             localStorage.setItem("EncryptedPoNo", res.data.data.encryptedPoNo);
@@ -460,6 +463,14 @@ const CropPurchase = () => {
               hasError = true;
             } else {
               localStorage.setItem("OldPoStatus", updateRequestData.poStatus)
+              if (purchaseOrderData.poStatus == "Approved" && purchaseOrderData.approvedBefore == "false") {
+                addVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
+                addMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, res.data.data.poDetailIdList)
+                dispatch(purchaseOrderDetailsAction({
+                  ...purchaseOrderData,
+                 approvedBefore : purchaseOrderData.poStatus == "Approved" ? "true" : "false"
+               }))
+              }
             }
           })
       }
@@ -585,7 +596,7 @@ const CropPurchase = () => {
           cropPurchaseProductDetailsIndex++;
         }
       }
-      if (purchaseOrderData.poStatus == "Approved") {
+      if (purchaseOrderData.poStatus == "Approved" && purchaseOrderData.approvedBefore == "true") {
         updateVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
         updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, poDetailIdList)
       }
@@ -612,7 +623,7 @@ const CropPurchase = () => {
         const headerRequest = {
           encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
           encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-          distributionCentreCode: inventoryDetailData.distributionCentreCode ? inventoryDetailData.distributionCentreCode : "",
+          distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
           productLineCode: inventoryDetailData.productLineCode,
           productCategoryCode: inventoryDetailData.productCategoryCode,
           productCode: inventoryDetailData.productCode,
@@ -638,7 +649,8 @@ const CropPurchase = () => {
         const detailRequest = {
           encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
           encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-          distributionCentreCode: inventoryDetailData.distributionCentreCode ? inventoryDetailData.distributionCentreCode : "",
+          distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+          collectionCentreCode :purchaseOrderData.collectionCentreCode  ? purchaseOrderData.collectionCentreCode :"",
           productLineCode: inventoryDetailData.productLineCode,
           productCategoryCode: inventoryDetailData.productCategoryCode,
           productCode: inventoryDetailData.productCode,
@@ -649,7 +661,7 @@ const CropPurchase = () => {
           amount: inventoryDetailData.poAmt,
           unitCode: inventoryDetailData.unitCode,
           availableQuantity: inventoryDetailData.quantity,
-          orgIng:inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
+          orgIng:inventoryDetailData.cropType,
           MaterialReceiptDetailId: materialReceiptDetailId && materialReceiptDetailId.materialReceiptDetailId,
           ExpiryDate: purchaseOrderData.poDate, 
           receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
@@ -746,9 +758,7 @@ const CropPurchase = () => {
             }
         }
     }
-    localStorage.removeItem("DeleteInventoryDetails");
 }
-
 
   const validateGenerateReportModal = () => {
     console.log(fromDate)
@@ -1136,6 +1146,7 @@ const CropPurchase = () => {
             deleteMaterialReceiptDetailIndex++
           }
         }
+        localStorage.removeItem("DeleteInventoryDetails");
       }
 
       for (let i = 0; i < purchaseOrderProductDetailsList.length; i++) {
@@ -1188,7 +1199,7 @@ const CropPurchase = () => {
             encryptedMaterialReceiptId: materialReceiptId,
             encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
             encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-            vendorCode: cropPurchaseProductDetailData.farmerCode,
+            vendorCode: purchaseOrderData.farmerCode,
             poDetailId: poDetail.poDetailId,
             productLineCode: cropPurchaseProductDetailData.productLineCode,
             productCategoryCode: cropPurchaseProductDetailData.productCategoryCode,
