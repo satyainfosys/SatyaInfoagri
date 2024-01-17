@@ -596,7 +596,7 @@ const CropPurchase = () => {
           cropPurchaseProductDetailsIndex++;
         }
       }
-      if (purchaseOrderData.poStatus == "Approved" && purchaseOrderData.approvedBefore == "true") {
+      if (purchaseOrderData.approvedBefore == "true") {
         updateVendorInvoiceEntryDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus)
         updateMaterialReceiptDetails(purchaseOrderData.poNo, purchaseOrderData.poStatus, poDetailIdList)
       }
