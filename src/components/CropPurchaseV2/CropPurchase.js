@@ -45,7 +45,7 @@ const CropPurchase = () => {
   useEffect(() => {
     $('[data-rr-ui-event-key*="Add Crop Purchase"]').attr('disabled', true);
     getCompany();
-    localStorage.removeItem("EncryptedPoNo");
+    // localStorage.removeItem("EncryptedPoNo");
     if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
       $("#btnSave").attr('disabled', true);
     }
@@ -693,41 +693,80 @@ const CropPurchase = () => {
 
   const updateInventoryDetail = async (isAdd, materialReceiptDetailId, cropPurchaseProductDetailData) => {
     var hasInventoryError = false;
-      const inventoryDetailData = cropPurchaseProductDetailData
-        const detailRequest = {
-          encryptedMaterialReceiptDetailId: materialReceiptDetailId,
-          encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-          encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-          distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
-          collectionCentreCode: purchaseOrderData.collectionCentreCode ?  purchaseOrderData.collectionCentreCode : "",
-          productLineCode: inventoryDetailData.productLineCode,
-          productCategoryCode: inventoryDetailData.productCategoryCode,
-          productCode: inventoryDetailData.productCode,
-          poDate: purchaseOrderData.poDate,
-          grade: inventoryDetailData.gradeCode,
-          quantity: inventoryDetailData.quantity,
-          rate: inventoryDetailData.poRate,
-          amount: inventoryDetailData.poAmt,
-          unitCode: inventoryDetailData.unitCode,
-          availableQuantity: inventoryDetailData.quantity,
-          orgIng:inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
-          ExpiryDate: purchaseOrderData.poDate, 
-          receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")
-        }
-        setIsLoading(true);
-        const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-inventory-detail', detailRequest, {
-          headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    const inventoryDetailData = cropPurchaseProductDetailData
+    if (!hasInventoryError && formChangedData.cropPurchaseProductDetailsUpdate && cropPurchaseProductDetailData.encryptedPoDetailId) {
+      const detailRequest = {
+        encryptedMaterialReceiptDetailId: materialReceiptDetailId,
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+        collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+        productLineCode: inventoryDetailData.productLineCode,
+        productCategoryCode: inventoryDetailData.productCategoryCode,
+        productCode: inventoryDetailData.productCode,
+        poDate: purchaseOrderData.poDate,
+        grade: inventoryDetailData.gradeCode,
+        quantity: inventoryDetailData.quantity,
+        rate: inventoryDetailData.poRate,
+        amount: inventoryDetailData.poAmt,
+        unitCode: inventoryDetailData.unitCode,
+        availableQuantity: inventoryDetailData.quantity,
+        orgIng: inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
+        ExpiryDate: purchaseOrderData.poDate,
+        receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")
+      }
+      setIsLoading(true);
+      const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-inventory-detail', detailRequest, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      });
+      setIsLoading(true);
+      if (addDetailResponse.data.status != 200) {
+        setIsLoading(false);
+        toast.error(addDetailResponse.data.message, {
+          theme: 'colored',
+          autoClose: 10000
         });
-        setIsLoading(true);
-        if (addDetailResponse.data.status != 200) {
-          toast.error(addDetailResponse.data.message, {
-            theme: 'colored',
-            autoClose: 10000
-          });
-          hasInventoryError = true;
-        }
-    if (!hasInventoryError) {
-      updateCropPurchaseCallback(isAdd);
+        hasInventoryError = true;
+      }
+      if (!hasInventoryError) {
+        updateCropPurchaseCallback(isAdd);
+      }
+    }
+    else if (!hasInventoryError && formChangedData.cropPurchaseProductDetailsAdd && !cropPurchaseProductDetailData.encryptedPoDetailId) {
+      const detailRequest = {
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
+        collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
+        productLineCode: inventoryDetailData.productLineCode,
+        productCategoryCode: inventoryDetailData.productCategoryCode,
+        productCode: inventoryDetailData.productCode,
+        poDate: purchaseOrderData.poDate,
+        grade: inventoryDetailData.gradeCode,
+        quantity: inventoryDetailData.quantity,
+        rate: inventoryDetailData.poRate,
+        amount: inventoryDetailData.poAmt,
+        unitCode: inventoryDetailData.unitCode,
+        availableQuantity: inventoryDetailData.quantity,
+        orgIng: inventoryDetailData.cropType,
+        MaterialReceiptDetailId: materialReceiptDetailId,
+        ExpiryDate: purchaseOrderData.poDate,
+        receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+        addUser: localStorage.getItem("LoginUserName")
+      }
+      setIsLoading(true);
+      const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-inventory-detail', detailRequest, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      });
+      setIsLoading(true);
+      if (addDetailResponse.data.status != 200) {
+        setIsLoading(false);
+        toast.error(addDetailResponse.data.message, {
+          theme: 'colored',
+          autoClose: 10000
+        });
+        hasInventoryError = true;
+      }
     }
   }
 
@@ -1226,6 +1265,9 @@ const CropPurchase = () => {
             });
             hasError = true;
             break;
+          }
+          else {
+            updateInventoryDetail(false, addResponse.data.data.materialReceiptDetailId, cropPurchaseProductDetailData);
           }
         }
         materialReceiptDetailIndex++

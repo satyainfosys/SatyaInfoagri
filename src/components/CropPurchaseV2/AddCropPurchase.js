@@ -593,6 +593,7 @@ const AddCropPurchase = () => {
                                     <Col sm="8">
                                         <Form.Select id="txtStatus" name="poStatus"
                                             onChange={handleFieldChange} value={purchaseOrderData.poStatus}
+                                            disabled={purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F"}
                                         >
                                             <option value="Draft">Draft</option>
                                             <option value="Approved">Approved</option>
