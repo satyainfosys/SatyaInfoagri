@@ -680,7 +680,7 @@ const CropPurchase = () => {
           hasInventoryError = true;
           break;
         }
-
+        setIsLoading(false);
       }
       inventoryDetailIndex++;
 
@@ -760,13 +760,13 @@ const CropPurchase = () => {
       });
       setIsLoading(true);
       if (addDetailResponse.data.status != 200) {
-        setIsLoading(false);
         toast.error(addDetailResponse.data.message, {
           theme: 'colored',
           autoClose: 10000
         });
         hasInventoryError = true;
       }
+      setIsLoading(false);
     }
   }
 
