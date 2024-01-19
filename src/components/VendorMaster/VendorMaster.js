@@ -175,9 +175,9 @@ const VendorMaster = () => {
     $('[data-rr-ui-event-key*="Vendor Contact Details"]').off('click').on('click', function () {
 
         setActiveTabName("Vendor Contact Details")
-        $("#btnNew").hide();
-        $("#btnSave").show();
-        $("#btnCancel").show();
+        // $("#btnNew").hide();
+        // $("#btnSave").show();
+        // $("#btnCancel").show();
 
         if (commonContactDetailList.length <= 0 &&
             !(localStorage.getItem("DeleteCommonContactDetailsIds")) && (localStorage.getItem("EncryptedVendorCode") || vendorMasterData.encryptedVendorCode)) {
@@ -781,9 +781,9 @@ const VendorMaster = () => {
         }
     }
 
-    if (vendorMasterData.encryptedVendorCode && (!commonContactDetailList || commonContactDetailList.length == 0) && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
-        getContactDetail();
-    }
+    // if (vendorMasterData.encryptedVendorCode && (!commonContactDetailList || commonContactDetailList.length == 0) && !(localStorage.getItem("DeleteCommonContactDetailsIds"))) {
+    //     getContactDetail();
+    // }
 
     return (
         <>
