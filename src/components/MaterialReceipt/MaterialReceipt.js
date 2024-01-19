@@ -390,6 +390,8 @@ const MaterialReceipt = () => {
     }
 
     const updateMaterialReceiptDetails = async () => {
+        let materialReceiptDetailIds = []
+        let filteredMaterialReceiptDetails = []
         if (materialReceiptValidation()) {
             if (!formChangedData.materialReceiptHeaderDetailUpdate &&
                 !(formChangedData.materialReceiptDetailAdd || formChangedData.materialReceiptDetailUpdate || formChangedData.materialReceiptDetailDelete)) {
@@ -434,7 +436,7 @@ const MaterialReceipt = () => {
                         } else {
                             localStorage.setItem("OldMaterialStatus", materialReceiptHeaderData.materialStatus);
                             if (materialReceiptHeaderData.materialStatus == "Approved") {
-                              createdInventoryDetail(res.data.data.materialReceiptDetailId);
+                                materialReceiptDetailIds = res.data.data.materialReceiptDetailId
                                 $('#btnSave').attr('disabled', true);
                             }
                         }
@@ -512,12 +514,7 @@ const MaterialReceipt = () => {
                             });
                             hasError = true;
                             break;
-                        }
-                        // else if (updateResponse.data.status == 200){
-                        //     if (materialReceiptHeaderData.materialStatus == "Approved") {
-                        //         createdInventoryDetail("",updateResponse.data.data.materialReceiptDetailId);
-                        //     }
-                        // }
+                        }    
                     }
                     else if (!hasError && formChangedData.materialReceiptDetailAdd && !materialReceiptDetailData.encryptedMaterialReceiptDetailId) {
                         const requestData = {
@@ -560,18 +557,34 @@ const MaterialReceipt = () => {
                                 ...updateMaterialReceiptDetailList[i],
                                 encryptedMaterialReceiptDetailId: addResponse.data.data.encryptedMaterialReceiptDetailId
                             };
+                            for (let i = 0; i < materialReceiptList.length; i++) {
+                                let materialReceiptDetail = materialReceiptList[i];
+                                let matchingMaterialReceiptDetailId = materialReceiptDetailIds.find(item => item.productCode === materialReceiptDetail.productCode);
+                                if (!matchingMaterialReceiptDetailId) {
+                                    filteredMaterialReceiptDetails.push({
+                                        productCode: materialReceiptDetail.productCode,
+                                        materialReceiptDetailId: (addResponse.data.data.materialReceiptDetailId).toString()
+                                    });
+                                }
+                            }
                             dispatch(materialReceiptDetailsAction(updateMaterialReceiptDetailList));
                         }
                     }
-
                     materialReceiptDetailIndex++
                 }
             }
-
-            if (!hasError) {
-                clearMaterialReceiptReducers();
-                updateMaterialReceiptCallback();
+        }
+        if (materialReceiptHeaderData.materialStatus == "Approved") {
+            if (filteredMaterialReceiptDetails != null) {
+                for (let i = 0; i < filteredMaterialReceiptDetails.length; i++) {
+                    materialReceiptDetailIds.push(filteredMaterialReceiptDetails[i])
+                }
             }
+            createdInventoryDetail(materialReceiptDetailIds);
+        }
+        if (!hasError) {
+            clearMaterialReceiptReducers();
+            updateMaterialReceiptCallback();
         }
     }
 
@@ -644,7 +657,6 @@ const MaterialReceipt = () => {
       }
     }
   }
-
 
     return (
         <>
