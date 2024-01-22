@@ -480,3 +480,10 @@ export const vendorInvoiceEntryErrorAction = (payload) => {
     payload
   };
 };
+
+export const paymentDetailsAction = (payload) => {
+  return {
+    type: 'PAYMENTDETAIL',
+    payload
+  };
+};

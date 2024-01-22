@@ -40,6 +40,7 @@ import CropPurchaseReport from 'components/CropPurchaseV2/CropPurchaseReport';
 import ClientUser from 'components/ClientUsers/ClientUsers';
 import VendorInvoice from 'components/VendorInvoiceEntry/VendorInvoice';
 import VendorInvoiceEntryReport from 'components/VendorInvoiceEntry/VendorInvoiceEntryReport';
+import Payment from 'components/Payment/Payment';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -136,7 +137,10 @@ const Layout = () => {
         </Route>   
         <Route element={<MainLayout />}>
           <Route path="/vendor-invoice-entry" element={<VendorInvoice/>} />
-        </Route>       
+        </Route>     
+        <Route element={<MainLayout />}>
+          <Route path="/Payment" element={<Payment/>} />
+        </Route>      
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>

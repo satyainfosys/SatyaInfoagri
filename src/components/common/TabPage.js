@@ -65,6 +65,8 @@ import CommodityList from 'components/CropPurchaseV2/CommodityList';
 import AddClientUser from 'components/ClientUsers/AddClientUser'
 import AddVendorInvoiceHeader from 'components/VendorInvoiceEntry/AddVendorInvoiceHeader';
 import AddVendorInvoiceDetail from 'components/VendorInvoiceEntry/AddVendorInvoiceDetail';
+import AddPaymentDetails from 'components/Payment/AddPaymentDetails';
+import PoDetailList from 'components/Payment/PoDetailList';
 
 const TabPage = ({
   listData,
@@ -499,6 +501,14 @@ const TabPage = ({
                   <AddVendorInvoiceDetail />
                 </>
               )}
+
+              {index == 0 && module == 'Payment' && (
+                <>
+                  <AddPaymentDetails />
+                  <PoDetailList/>
+                </>
+              )}
+
             </Tab>
           );
         })}
