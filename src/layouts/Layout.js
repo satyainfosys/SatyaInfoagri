@@ -139,7 +139,7 @@ const Layout = () => {
           <Route path="/vendor-invoice-entry" element={<VendorInvoice/>} />
         </Route>     
         <Route element={<MainLayout />}>
-          <Route path="/Payment" element={<Payment/>} />
+          <Route path="/Payments" element={<Payment/>} />
         </Route>      
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
