@@ -7,17 +7,29 @@ import FalconComponentCard from 'components/common/FalconComponentCard';
 import { paymentDetailsAction } from 'actions';
 
 const AddPaymentDetails = () => {
-  const [formHasError, setFormError] = useState(false);
   const [companyList, setCompanyList] = useState([]);
   const [companyMasterList, setCompanyMasterList] = useState([]);
   const [vendorAndFarmerList, setVendorAndFarmerList] = useState();
+
   const dispatch = useDispatch();
+
   const paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
   var paymentDetails = paymentDetailsReducer.paymentDetails;
-  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
-  var formChangedData = formChangedReducer.formChanged;
 
-  let isFormChanged = Object.values(formChangedData).some(value => value === true);
+  const resetInvoiceEntryHeaderDetails = () => {
+    dispatch(paymentDetailsAction({
+      "name" : "",
+      "address" : "",
+      "pinCode" : "",
+      "state" : "",
+      "country" : ""
+    }))
+  }
+
+  if (!paymentDetailsReducer.paymentDetails ||
+    Object.keys(paymentDetailsReducer.paymentDetails).length <= 0) {
+    resetInvoiceEntryHeaderDetails();
+  }
 
   useEffect(() => {
     getCompany()
@@ -27,7 +39,23 @@ const AddPaymentDetails = () => {
     if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
       getVendorAndFarmerList(companyDetail.encryptedCompanyCode)
+      dispatch(paymentDetailsAction({
+        ...paymentDetails,
+        encryptedCompanyCode: companyDetail.encryptedCompanyCode,
+      }))
     }
+  }
+
+  const handleVendorAndFarmerDetail =  async(code, name) => {
+    var companyDetail = vendorAndFarmerList.find(data => data.code == code && data.name == name);
+    dispatch(paymentDetailsAction({
+      ...paymentDetails,
+      name : companyDetail.name,
+      address : companyDetail.address,
+      pinCode : companyDetail.pinCode,
+      state : companyDetail.state,
+      country : companyDetail.country
+    }))
   }
 
   const getCompany = async () => {
@@ -48,7 +76,7 @@ const AddPaymentDetails = () => {
             value: companyDetails.encryptedCompanyCode,
             label: companyDetails.companyName
           })
-          setCompanyList(companyDetails.encryptedCompanyCode);
+          setCompanyList(companyData);
         }
         else {
           companyResponse.data.data.forEach(company => {
@@ -66,9 +94,10 @@ const AddPaymentDetails = () => {
     }
   }
 
-  const getVendorAndFarmerList = async (encryptedCompanyCode) => {
+  const getVendorAndFarmerList = async (encryptedCompanyCode,searchText) => {
     const request = {
-      EncryptedCompanyCode: encryptedCompanyCode
+      EncryptedCompanyCode: encryptedCompanyCode,
+      searchText: searchText
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-and-farmer-list', request, {
       headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
@@ -82,7 +111,9 @@ const AddPaymentDetails = () => {
     }
   }
 
-
+  const handleVendorAndFarmerOnChange = (e) => {
+    getVendorAndFarmerList(paymentDetails.encryptedCompanyCode,e.target.value)
+  }
 
   return (
     <>
@@ -123,7 +154,7 @@ const AddPaymentDetails = () => {
                   <Col className="me-3 ms-3">
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                       <Col sm="12">
-                        <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45}
+                        <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
                           onKeyDown={(e) => {
                             if (e.key === 'Enter') {
                               e.preventDefault();
@@ -133,11 +164,9 @@ const AddPaymentDetails = () => {
                       </Col>
                     </Form.Group>
                     <ul type="none">
-                    {/* {vendorAndFarmerList.map((data) => ( */}
-                       {/* <li onClick={() => handleVendorAndFarmerDetail(data.code, data.name)}><font size="2">{data.name}</font></li> */}
-                      <li><font size="2">vendor101</font></li>
-                      <li><font size="2">vendor102</font></li>
-                    {/* ))} */}
+                      {vendorAndFarmerList && vendorAndFarmerList.map((data) => (
+                        <li onClick={() => handleVendorAndFarmerDetail(data.code, data.name)}><font size="2">{data.name}</font></li>
+                      ))}
                     </ul>
                   </Col>
                 </Row>
@@ -156,7 +185,7 @@ const AddPaymentDetails = () => {
                         Name
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtVendorName" placeholder="Name" name="vendorCode" value={paymentDetails.vendorName} disabled >
+                        <Form.Control id="txtName" placeholder="Name" name="name" value={paymentDetails.name} disabled >
                         </Form.Control>
                       </Col>
                     </Form.Group>
