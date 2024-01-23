@@ -5,6 +5,8 @@ import axios from 'axios';
 import FalconCardBody from 'components/common/FalconCardBody';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { paymentDetailsAction } from 'actions';
+import { Link } from 'react-router-dom';
+import Flex from 'components/common/Flex';
 
 const AddPaymentDetails = () => {
   const [companyList, setCompanyList] = useState([]);
@@ -151,7 +153,7 @@ const AddPaymentDetails = () => {
       </Card >
       <Row >
         <Col lg={2} className="no-pd-card no-right-pad">
-          <FalconComponentCard className="farmer-card-row1">
+          {/* <FalconComponentCard className="farmer-card-row1">
             <FalconCardBody >
               <Form noValidate className="details-form" id='ClientUserDetailsForm'>
                 <Row>
@@ -176,7 +178,49 @@ const AddPaymentDetails = () => {
                 </Row>
               </Form>
             </FalconCardBody>
-          </FalconComponentCard>
+          </FalconComponentCard> */}
+          <Card className='mb-3'>
+            <Card.Body className="fs--1">
+              <Flex>
+                <div className="ms-2 flex-1">
+                  <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                    <Col sm="12">
+                      <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    </Col>
+                  </Form.Group>
+                </div>
+              </Flex>
+            </Card.Body>
+          </Card>
+          {
+            vendorAndMasterDetail && vendorAndMasterDetail.length > 0 &&
+            <Card className="mb-3">
+              <Card.Header
+                as={Flex}
+                alignItems="center"
+                justifyContent="between"
+                className="bg-light"
+              >
+                <h5 className="mb-0">Vendors</h5>
+              </Card.Header>
+              <Card.Body>
+                {vendorAndMasterDetail.map((item, index) => (
+                  <div className="flex-1 ms-2">
+                    <h6 className="mb-0">
+                      <Link style={{color:'black'}} >{item.name}</Link>
+                    </h6>
+                    <div className="border-dashed border-bottom my-3" />
+                  </div>
+                ))}
+              </Card.Body>
+            </Card>
+          }
         </Col>
         <Col lg={4} className="no-pd-card no-right-pad">
           <FalconComponentCard className="farmer-card-row1">
@@ -286,7 +330,7 @@ const AddPaymentDetails = () => {
           </FalconComponentCard>
         </Col>
         <Col lg={2} className="no-pd-card ">
-          <FalconComponentCard className="farmer-card-row1">
+          {/* <FalconComponentCard className="farmer-card-row1">
             <FalconCardBody >
               <Form noValidate className="details-form" id='ClientUserDetailsForm'>
                 <Row>
@@ -310,7 +354,48 @@ const AddPaymentDetails = () => {
                 </Row>
               </Form>
             </FalconCardBody>
-          </FalconComponentCard>
+          </FalconComponentCard> */}
+          <Card className='mb-3'>
+            <Card.Body className="fs--1">
+              <Flex>
+                <div className="ms-2 flex-1">
+                  <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                    <Col sm="12">
+                      <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    </Col>
+                  </Form.Group>
+                </div>
+              </Flex>
+            </Card.Body>
+          </Card>
+         
+            {/* <Card className="mb-3">
+              <Card.Header
+                as={Flex}
+                alignItems="center"
+                justifyContent="between"
+                className="bg-light"
+              >
+                <h5 className="mb-0">Invoice</h5>
+              </Card.Header>
+              <Card.Body>
+               
+                  <div className="flex-1 ms-2">
+                    <h6 className="mb-0">
+                      <Link style={{color:'black'}}></Link>
+                    </h6>
+                    <div className="border-dashed border-bottom my-3" />
+                  </div>
+       
+              </Card.Body>
+            </Card> */}
+
         </Col>
       </Row>
     </>
