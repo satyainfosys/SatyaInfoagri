@@ -9,6 +9,7 @@ import { paymentDetailsAction } from 'actions';
 const AddPaymentDetails = () => {
   const [companyList, setCompanyList] = useState([]);
   const [companyMasterList, setCompanyMasterList] = useState([]);
+  const [vendorAndMasterDetail, setVendorAndMasterDetail] = useState([]);
   const [vendorAndFarmerList, setVendorAndFarmerList] = useState();
 
   const dispatch = useDispatch();
@@ -112,9 +113,12 @@ const AddPaymentDetails = () => {
   }
 
   const handleVendorAndFarmerOnChange = (e) => {
-    getVendorAndFarmerList(paymentDetails.encryptedCompanyCode,e.target.value)
+    const searchText = e.target.value;
+    const regex = new RegExp(searchText, 'i');
+    const filteredList = vendorAndFarmerList.filter(data => regex.test(data.name));
+    setVendorAndMasterDetail(filteredList);
   }
-
+  
   return (
     <>
       <Card className="mb-1">
@@ -164,7 +168,7 @@ const AddPaymentDetails = () => {
                       </Col>
                     </Form.Group>
                     <ul type="none">
-                      {vendorAndFarmerList && vendorAndFarmerList.map((data) => (
+                      {vendorAndMasterDetail && vendorAndMasterDetail.map((data) => (
                         <li onClick={() => handleVendorAndFarmerDetail(data.code, data.name)}><font size="2">{data.name}</font></li>
                       ))}
                     </ul>
