@@ -61,6 +61,7 @@ import vendorInvoiceEntryHeaderDetailsReducer from './vendorInvoiceEntryHeaderDe
 import vendorInvoiceEntryErrorReducer from './vendorInvoiceEntryErrorReducer'
 import vendorInvoiceEntryDetailsReducer from './vendorInvoiceEntryDetailsReducer'
 import paymentDetailReducer from './paymentDetailReducer';
+import paymentHeaderReducer from './paymentHeaderReducer';
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -125,6 +126,7 @@ const rootReducer = combineReducers({
   vendorInvoiceEntryErrorReducer,
   vendorInvoiceEntryDetailsReducer,
   paymentDetailReducer,
+  paymentHeaderReducer,
 });
 
 export default rootReducer;

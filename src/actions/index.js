@@ -487,3 +487,10 @@ export const paymentDetailsAction = (payload) => {
     payload
   };
 };
+
+export const paymentHeaderAction = (payload) => {
+  return {
+    type: 'PAYMENTHEADER',
+    payload
+  };
+};

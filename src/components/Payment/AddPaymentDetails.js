@@ -4,7 +4,7 @@ import { Col, Form, Row, Button, Modal, Table, Card } from 'react-bootstrap';
 import axios from 'axios';
 import FalconCardBody from 'components/common/FalconCardBody';
 import FalconComponentCard from 'components/common/FalconComponentCard';
-import { paymentDetailsAction } from 'actions';
+import { paymentDetailsAction, paymentHeaderAction } from 'actions';
 import { Link } from 'react-router-dom';
 import Flex from 'components/common/Flex';
 
@@ -13,52 +13,120 @@ const AddPaymentDetails = () => {
   const [companyMasterList, setCompanyMasterList] = useState([]);
   const [vendorAndMasterDetail, setVendorAndMasterDetail] = useState([]);
   const [vendorAndFarmerList, setVendorAndFarmerList] = useState();
+  const [invoiceData, setInvoiceData] = useState({});
+  const [invoiceList, setInvoiceList] = useState([]);
+  const [invoiceDetails, setInvoiceDetails] = useState([]);
+  const [perPage, setPerPage] = useState(15);
 
   const dispatch = useDispatch();
 
   const paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
   var paymentDetails = paymentDetailsReducer.paymentDetails;
 
+  const paymentHeaderDetailsReducer = useSelector((state) => state.rootReducer.paymentHeaderReducer)
+  var paymentHeaderDetails = paymentHeaderDetailsReducer.paymentHeaderDetail;
+
   const resetInvoiceEntryHeaderDetails = () => {
-    dispatch(paymentDetailsAction({
+    dispatch(paymentHeaderAction({
       "name" : "",
       "address" : "",
       "pinCode" : "",
       "state" : "",
-      "country" : ""
+      "country" : "",
+      "invoiceNo" : "",
+      "invoiceDate" : "",
+      "invoiceAmount" : "",
+      "invoicePaidAmount" : 0,
+      "balanceAmount" : 0
     }))
-  }
-
-  if (!paymentDetailsReducer.paymentDetails ||
-    Object.keys(paymentDetailsReducer.paymentDetails).length <= 0) {
-    resetInvoiceEntryHeaderDetails();
   }
 
   useEffect(() => {
     getCompany()
   }, []);
 
+  // if (!paymentHeaderDetailsReducer.paymentHeaderDetail ||
+  //   Object.keys(paymentHeaderDetailsReducer.paymentHeaderDetail).length <= 0) {
+  //   resetInvoiceEntryHeaderDetails();
+  // }
+
   const handleFieldChange = e => {
     if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
       getVendorAndFarmerList(companyDetail.encryptedCompanyCode)
-      dispatch(paymentDetailsAction({
-        ...paymentDetails,
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
         encryptedCompanyCode: companyDetail.encryptedCompanyCode,
+      }))
+    }
+    else if(e.target.name === 'invoicePaidAmount' && e.target.value){
+      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
+      //   const updatedPaymentDetails = paymentDetails.map((data) => ({
+      //     ...data,
+      //     paidAmount: data.productAmount
+      //   }));
+      //   dispatch(paymentDetailsAction(updatedPaymentDetails));
+      // }
+
+      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
+      //   paymentDetails.map((data) => {
+      //     dispatch(paymentDetailsAction({
+      //       ...data,
+      //       paidAmount: data.productAmount
+      //     }));
+      //   });
+      // }
+    
+      // debugger
+      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
+      //   var paymentDetailEntry = [...paymentDetails];
+      //   let updatedPaymentDetails = paymentDetailEntry.map((data) => ({
+      //     ...data,
+      //     paidAmount: data.productAmount
+      //   }));
+      //   dispatch(paymentDetailsAction(updatedPaymentDetails));
+      // }
+
+      let balanceAmount = paymentHeaderDetails.invoiceAmount - e.target.value
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
+        invoicePaidAmount: e.target.value,
+        balanceAmount: balanceAmount,
+      }))
+    }
+    else {
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
+        [e.target.name]: e.target.value
       }))
     }
   }
 
   const handleVendorAndFarmerDetail =  async(code, name) => {
     var companyDetail = vendorAndFarmerList.find(data => data.code == code && data.name == name);
-    dispatch(paymentDetailsAction({
-      ...paymentDetails,
+    dispatch(paymentHeaderAction({
+      ...paymentHeaderDetails,
+      code: companyDetail.code,
       name : companyDetail.name,
       address : companyDetail.address,
       pinCode : companyDetail.pinCode,
       state : companyDetail.state,
       country : companyDetail.country
     }))
+    fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
+  }
+
+  const handleInvoiceDetail = async(invoiceNo) => {
+    var invoiceDetail = invoiceList.find(data => data.invoiceNo == invoiceNo);
+    dispatch(paymentHeaderAction({
+      ...paymentHeaderDetails,
+      invoiceNo: invoiceDetail.invoiceNo,
+      invoiceDate : invoiceDetail.invoiceDate,
+      invoiceAmount : invoiceDetail.invoiceAmount,
+      invoicePaidAmount : invoiceDetail.invoicePaidAmount,
+      poNo : invoiceDetail.poNo,
+    }))
+    getInvoiceDetailList(invoiceDetail.encryptedInvoiceHeaderCode)
   }
 
   const getCompany = async () => {
@@ -115,10 +183,68 @@ const AddPaymentDetails = () => {
   }
 
   const handleVendorAndFarmerOnChange = (e) => {
-    const searchText = e.target.value;
-    const regex = new RegExp(searchText, 'i');
-    const filteredList = vendorAndFarmerList.filter(data => regex.test(data.name));
-    setVendorAndMasterDetail(filteredList);
+    if(e.target.value){
+      const searchText = e.target.value;
+      const regex = new RegExp(searchText, 'i');
+      const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
+      setVendorAndMasterDetail(filteredList);
+    }
+    else{
+      setVendorAndMasterDetail([]);
+    }
+   
+  }
+
+  const handleInvoiceOnChange = (e) => {
+    if(e.target.value){
+      const searchText = e.target.value;
+      const regex = new RegExp(searchText, 'i');
+      const filteredList = invoiceList && invoiceList.filter(data => regex.test(data.invoiceNo));
+      setInvoiceData(filteredList);
+    }
+    else{
+      setInvoiceData([]);
+    }
+  }
+
+  const fetchVendorInvoiceEntryHeaderList = async (page, size = perPage, encryptedCompanyCode, code) => {
+    let token = localStorage.getItem('Token');
+
+    const listFilter = {
+      pageNumber: page,
+      pageSize: size,
+      EncryptedCompanyCode: encryptedCompanyCode,
+      code: code 
+    }
+    
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-header-list', listFilter, {
+      headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+    })
+
+    if (response.data.status == 200) {
+      setInvoiceList(response.data.data);
+    } else {
+      setInvoiceList([])
+    }
+  }
+
+  const getInvoiceDetailList = async (invoiceHeaderCode) => {
+    const request = {
+      encryptedInvoiceHeaderCode: invoiceHeaderCode
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+      if (response.data.data && response.data.data.length > 0) {
+        setInvoiceDetails(response.data.data)
+        dispatch(paymentDetailsAction(response.data.data))
+      } else {
+        setInvoiceDetails([])
+      }
+    }
   }
   
   return (
@@ -139,7 +265,7 @@ const AddPaymentDetails = () => {
                   Company Name
                 </Form.Label>
                 <Col className='col-auto'>
-                  <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={paymentDetails.encryptedCompanyCode}>
+                  <Form.Select id="txtCompanyCode" name="companyCode" onChange={handleFieldChange} value={paymentHeaderDetails.encryptedCompanyCode}>
                     <option value=''>Select</option>
                     {companyList.map((option, index) => (
                       <option key={index} value={option.value}>{option.key}</option>
@@ -153,32 +279,6 @@ const AddPaymentDetails = () => {
       </Card >
       <Row >
         <Col lg={2} className="no-pd-card no-right-pad">
-          {/* <FalconComponentCard className="farmer-card-row1">
-            <FalconCardBody >
-              <Form noValidate className="details-form" id='ClientUserDetailsForm'>
-                <Row>
-                  <Col className="me-3 ms-3">
-                    <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                      <Col sm="12">
-                        <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
-                        />
-                      </Col>
-                    </Form.Group>
-                    <ul type="none">
-                      {vendorAndMasterDetail && vendorAndMasterDetail.map((data) => (
-                        <li onClick={() => handleVendorAndFarmerDetail(data.code, data.name)}><font size="2">{data.name}</font></li>
-                      ))}
-                    </ul>
-                  </Col>
-                </Row>
-              </Form>
-            </FalconCardBody>
-          </FalconComponentCard> */}
           <Card className='mb-3'>
             <Card.Body className="fs--1">
               <Flex>
@@ -210,10 +310,10 @@ const AddPaymentDetails = () => {
                 <h5 className="mb-0">Vendors</h5>
               </Card.Header>
               <Card.Body>
-                {vendorAndMasterDetail.map((item, index) => (
+                {vendorAndMasterDetail.map((item) => (
                   <div className="flex-1 ms-2">
                     <h6 className="mb-0">
-                      <Link style={{color:'black'}} >{item.name}</Link>
+                      <Link to="" style={{color:'black'}} onClick={(e) => {e.preventDefault(); handleVendorAndFarmerDetail(item.code, item.name);}} >{item.name}</Link>
                     </h6>
                     <div className="border-dashed border-bottom my-3" />
                   </div>
@@ -233,7 +333,7 @@ const AddPaymentDetails = () => {
                         Name
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtName" placeholder="Name" name="name" value={paymentDetails.name} disabled >
+                        <Form.Control id="txtName" placeholder="Name" name="name" value={paymentHeaderDetails.name} disabled >
                         </Form.Control>
                       </Col>
                     </Form.Group>
@@ -242,7 +342,7 @@ const AddPaymentDetails = () => {
                         Address
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtAddress" name="address" placeholder="Address" value={paymentDetails.address} disabled />
+                        <Form.Control id="txtAddress" name="address" placeholder="Address" value={paymentHeaderDetails.address} disabled />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -250,7 +350,7 @@ const AddPaymentDetails = () => {
                         Pincode
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={paymentDetails.pinCode} disabled />
+                        <Form.Control id="txtPincode" name="pinCode" placeholder="Pincode" value={paymentHeaderDetails.pinCode} disabled />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -258,7 +358,7 @@ const AddPaymentDetails = () => {
                         State
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtState" name="state" placeholder="State" value={paymentDetails.state} disabled />
+                        <Form.Control id="txtState" name="state" placeholder="State" value={paymentHeaderDetails.state} disabled />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -266,7 +366,7 @@ const AddPaymentDetails = () => {
                         Country
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtCountry" name="country" placeholder="Country" value={paymentDetails.country} disabled />
+                        <Form.Control id="txtCountry" name="country" placeholder="Country" value={paymentHeaderDetails.country} disabled />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -286,7 +386,7 @@ const AddPaymentDetails = () => {
                         Invoice No
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoiceNo" placeholder="Invoice No" name="invoiceNo" disabled >
+                        <Form.Control id="txtInvoiceNo" placeholder="Invoice No" name="invoiceNo" value={paymentHeaderDetails.invoiceNo} disabled >
                         </Form.Control>
                       </Col>
                     </Form.Group>
@@ -295,7 +395,7 @@ const AddPaymentDetails = () => {
                         Invoice Date
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoiceDate" placeholder="Invoice Date" name="invoiceDate" disabled >
+                        <Form.Control id="txtInvoiceDate" placeholder="Invoice Date" name="invoiceDate" value={paymentHeaderDetails.invoiceDate}  disabled >
                         </Form.Control>
                       </Col>
                     </Form.Group>
@@ -304,7 +404,7 @@ const AddPaymentDetails = () => {
                         Invoice Amount
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" disabled />
+                        <Form.Control id="txtInvoiceAmount" name="invoiceAmount" placeholder="Invoice Amount" value={paymentHeaderDetails.invoiceAmount} disabled />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -312,7 +412,15 @@ const AddPaymentDetails = () => {
                         Paid Amount<span className="text-danger">*</span>
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtPaidAmount" name="paidAmount" placeholder="Paid Amount" />
+                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} 
+                        onKeyPress={(e) => {
+                        const keyCode = e.which || e.keyCode;
+                        const keyValue = String.fromCharCode(keyCode);
+                        const regex = /^[0-9]*\.?[0-9]*$/;
+                        if (!regex.test(keyValue)) {
+                          e.preventDefault();
+                        }
+                      }} />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
@@ -320,7 +428,7 @@ const AddPaymentDetails = () => {
                         Balance Amount
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtBalanceAmount" name="balanceAmount" placeholder="Balance Amount" disabled />
+                        <Form.Control id="txtBalanceAmount" name="balanceAmount" placeholder="Balance Amount" value={paymentHeaderDetails.balanceAmount} disabled />
                       </Col>
                     </Form.Group>
                   </Col>
@@ -330,38 +438,13 @@ const AddPaymentDetails = () => {
           </FalconComponentCard>
         </Col>
         <Col lg={2} className="no-pd-card ">
-          {/* <FalconComponentCard className="farmer-card-row1">
-            <FalconCardBody >
-              <Form noValidate className="details-form" id='ClientUserDetailsForm'>
-                <Row>
-                  <Col className="me-3 ms-3">
-                    <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
-                      <Col sm="12">
-                        <Form.Control id="txtSearchInvoice" name="searchInvoice" placeholder="Search Invoice" maxLength={45}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                            }
-                          }}
-                        />
-                      </Col>
-                    </Form.Group>
-                    <ul type="none">
-                      <li><font size="2">VendorNo111</font></li>
-                      <li><font size="2">VendorNo222</font></li>
-                    </ul>
-                  </Col>
-                </Row>
-              </Form>
-            </FalconCardBody>
-          </FalconComponentCard> */}
           <Card className='mb-3'>
             <Card.Body className="fs--1">
               <Flex>
                 <div className="ms-2 flex-1">
                   <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                     <Col sm="12">
-                      <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
+                      <Form.Control id="txtSearchInvoice" name="searchInvoice" placeholder="Search Invoice" maxLength={45} onChange={handleInvoiceOnChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -374,8 +457,9 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-         
-            {/* <Card className="mb-3">
+          {
+            invoiceData && invoiceData.length > 0 &&
+            <Card className="mb-3">
               <Card.Header
                 as={Flex}
                 alignItems="center"
@@ -385,17 +469,17 @@ const AddPaymentDetails = () => {
                 <h5 className="mb-0">Invoice</h5>
               </Card.Header>
               <Card.Body>
-               
+                {invoiceData.length > 0 && invoiceData.map((item) => (
                   <div className="flex-1 ms-2">
                     <h6 className="mb-0">
-                      <Link style={{color:'black'}}></Link>
+                      <Link style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleInvoiceDetail(item.invoiceNo); }}>{item.invoiceNo}</Link>
                     </h6>
                     <div className="border-dashed border-bottom my-3" />
                   </div>
-       
+                ))}
               </Card.Body>
-            </Card> */}
-
+            </Card>
+          }
         </Col>
       </Row>
     </>

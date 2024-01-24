@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal, Card, Row, Col } from 'react-bootstrap';
+import { useSelector, useDispatch } from 'react-redux';
+import { paymentDetailsAction, paymentHeaderAction } from 'actions';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
+import FalconCardHeader from 'components/common/FalconCardHeader';
 
 const PoDetailList = () => {
   const [productModal, setProductModal] = useState(false);
+  const [rowData, setRowData] = useState([]);
+  const [invoiceDetailModal, setInvoiceDetailModal] = useState([]);
+
+  const dispatch = useDispatch();
 
   const columnsArray = [
     "S.No",
@@ -17,113 +24,187 @@ const PoDetailList = () => {
     "View"
   ];
 
-  const handleViewItem = () => {
+  const paymentHeaderDetailsReducer = useSelector((state) => state.rootReducer.paymentHeaderReducer)
+  var paymentHeaderDetails = paymentHeaderDetailsReducer.paymentHeaderDetail;
+
+  const paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
+  var paymentDetails = paymentDetailsReducer.paymentDetails;
+
+  useEffect(() => {
+    if (paymentDetailsReducer.paymentDetails.length > 0) {
+      setRowData(paymentDetails);
+    } else {
+      setRowData([]);
+    }
+
+    const invoicePaidAmount = paymentDetails.length > 1
+      ? paymentDetails.reduce((acc, obj) => {
+        const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
+        return acc + (isNaN(paidAmount) ? 0 : paidAmount);
+      }, 0)
+      : paymentDetails.length === 1
+        ? parseFloat(paymentDetails[0].poAmt)
+        : 0;
+
+    let balanceAmount
+    if (paymentHeaderDetails.invoiceAmount) {
+      balanceAmount = paymentHeaderDetails.invoiceAmount - invoicePaidAmount
+    }
+
+    dispatch(paymentHeaderAction({
+      ...paymentHeaderDetails,
+      invoicePaidAmount: invoicePaidAmount,
+      balanceAmount: balanceAmount
+    }));
+
+    if (paymentHeaderDetails.invoiceAmount == paymentHeaderDetails.invoicePaidAmount) {
+      dispatch(paymentDetailsAction({
+        ...paymentDetails,
+        PaidAmount: invoicePaidAmount,
+      }));
+    }
+  }, [paymentDetails, paymentDetailsReducer])
+
+  const handleViewItem = (encryptedInvoiceDetailCode) => {
     setProductModal(true);
+    var paymentDetail = paymentDetails.find(data => data.encryptedInvoiceDetailCode == encryptedInvoiceDetailCode);
+    setInvoiceDetailModal(paymentDetail)
   }
 
   const onCancelClick = () => {
     setProductModal(false);
   }
 
+  const handleFieldChange = async (e, index) => {
+    const { name, value } = e.target;
+    var paymentDetailEntry = [...rowData];
+    let balanceAmount = paymentDetailEntry[index].productAmount - value
+    paymentDetailEntry[index] = {
+      ...paymentDetailEntry[index],
+      [name]: value,
+      balanceAmount: balanceAmount,
+    };
+    dispatch(paymentDetailsAction(paymentDetailEntry));
+  }
+
   return (
     <>
-      <Card className="h-100 mb-2 mt-2">
-        <Card.Body className="position-relative pb-0 p3px cp-table-card">
-          <Form
-            noValidate
-            validated=""
-            className="details-form"
-            id="AddCropPurchaseDetails"
-          >
-            <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
-              <thead className='custom-bg-200'>
-                <tr>
-                  {columnsArray.map((column, index) => {
-                    if (column === 'Action') {
-                      return null;
-                    }
-                    return (
-                      <th className="text-left" key={index}>
-                        {column}
-                      </th>
-                    );
-                  })}
-                </tr>
-              </thead>
-              <tbody id="tbody" className="details-form">
-                <tr key="">
-                  <td>
-                    1
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="productName"
-                      placeholder="Product Name"
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="unit"
-                      placeholder="Unit"
-                      maxLength={13}
-                      required
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="quantity"
-                      placeholder="Quantity"
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="rate"
-                      placeholder="Rate"
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="amount"
-                      placeholder="Amount"
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="paidAmount"
-                      placeholder="Paid Amount"
-
-                    />
-                  </td>
-                  <td key="">
-                    <EnlargableTextbox
-                      name="balanceAmount"
-                      placeholder="Balance Amount"
-                      disabled
-                    />
-                  </td>
-                  <td key="">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      className="btn-reveal"
-                      type="button"
-                      onClick={() => handleViewItem()}
-                    >
-                      View
-                    </Button>
-                  </td>
-                </tr>
-              </tbody>
-            </Table>
-          </Form>
-        </Card.Body>
-      </Card>
-
+      {
+        paymentDetails && paymentDetails.length > 0 &&
+        <Card className="h-100 mb-2 mt-2">
+          <FalconCardHeader
+            title="Po Details"
+            titleTag="h6"
+            className="py-2"
+            light
+          />
+          <Card.Body className="position-relative pb-0 p3px cp-table-card">
+            <Form
+              noValidate
+              validated=""
+              className="details-form"
+              id="AddCropPurchaseDetails"
+            >
+              {
+                paymentDetails && paymentDetails.length > 0 &&
+                <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                  <thead className='custom-bg-200'>
+                    <tr>
+                      {columnsArray.map((column, index) => {
+                        if (column === 'Action') {
+                          return null;
+                        }
+                        return (
+                          <th className="text-left" key={index}>
+                            {column}
+                          </th>
+                        );
+                      })}
+                    </tr>
+                  </thead>
+                  <tbody id="tbody" className="details-form">
+                    {rowData.map((paymentDetails, index) => (
+                      <tr key="">
+                        <td>
+                          {index + 1}
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="productName"
+                            placeholder="Product Name"
+                            value={paymentDetails.productName}
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="unit"
+                            placeholder="Unit"
+                            maxLength={13}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="quantity"
+                            placeholder="Quantity"
+                            value={paymentDetails.invoiceQty}
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="rate"
+                            placeholder="Rate"
+                            value={paymentDetails.invoiceRate}
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="amount"
+                            placeholder="Amount"
+                            value={paymentDetails.productAmount}
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="paidAmount"
+                            placeholder="Paid Amount"
+                            value={paymentDetails.paidAmount}
+                            onChange={(e) => handleFieldChange(e, index)}
+                          />
+                        </td>
+                        <td key="">
+                          <EnlargableTextbox
+                            name="balanceAmount"
+                            placeholder="Balance Amount"
+                            value={paymentDetails.balanceAmount}
+                            disabled
+                          />
+                        </td>
+                        <td key="">
+                          <Button
+                            variant="primary"
+                            size="sm"
+                            className="btn-reveal"
+                            type="button"
+                            onClick={() => handleViewItem(paymentDetails.encryptedInvoiceDetailCode)}
+                          >
+                            View
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </Table>
+              }
+            </Form>
+          </Card.Body>
+        </Card>
+      }
       {
         productModal &&
         <Modal
@@ -162,7 +243,7 @@ const PoDetailList = () => {
                         Invoice No
                       </td>
                       <td>
-                        123456
+                        {paymentHeaderDetails.invoiceNo}
                       </td>
                     </tr>
                     <tr>
@@ -170,7 +251,7 @@ const PoDetailList = () => {
                         Po No
                       </td>
                       <td>
-                        CYY/00000000291
+                        {paymentHeaderDetails.poNo}
                       </td>
                     </tr>
                     <tr>
@@ -178,7 +259,7 @@ const PoDetailList = () => {
                         Quantity
                       </td>
                       <td>
-                        4
+                        {invoiceDetailModal.invoiceQty}
                       </td>
                     </tr>
                     <tr>
@@ -194,7 +275,7 @@ const PoDetailList = () => {
                         Amount
                       </td>
                       <td>
-                        10000
+                        {invoiceDetailModal.productAmount}
                       </td>
                     </tr>
                     <tr>
@@ -202,7 +283,7 @@ const PoDetailList = () => {
                         Paid Amount
                       </td>
                       <td>
-                        5000
+                        {invoiceDetailModal.paidAmount}
                       </td>
                     </tr>
                     <tr>
@@ -210,7 +291,7 @@ const PoDetailList = () => {
                         Balance Amount
                       </td>
                       <td>
-                        5000
+                        {invoiceDetailModal.balanceAmount}
                       </td>
                     </tr>
                   </tbody>
