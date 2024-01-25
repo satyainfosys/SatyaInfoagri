@@ -57,12 +57,6 @@ const PoDetailList = () => {
       balanceAmount: balanceAmount
     }));
 
-    if (paymentHeaderDetails.invoiceAmount == paymentHeaderDetails.invoicePaidAmount) {
-      dispatch(paymentDetailsAction({
-        ...paymentDetails,
-        PaidAmount: invoicePaidAmount,
-      }));
-    }
   }, [paymentDetails, paymentDetailsReducer])
 
   const handleViewItem = (encryptedInvoiceDetailCode) => {

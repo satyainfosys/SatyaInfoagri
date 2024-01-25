@@ -713,7 +713,8 @@ const CropPurchase = () => {
         availableQuantity: inventoryDetailData.quantity,
         orgIng: inventoryDetailData.cropType && inventoryDetailData.cropType == "Organic" ? "O" : "I",
         ExpiryDate: purchaseOrderData.poDate,
-        receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")
+        receiveDate: Moment(purchaseOrderData.poDate).format("YYYY-MM-DD"),
+        ModifyUser : localStorage.getItem("LoginUserName")
       }
       setIsLoading(true);
       const addDetailResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-inventory-detail', detailRequest, {

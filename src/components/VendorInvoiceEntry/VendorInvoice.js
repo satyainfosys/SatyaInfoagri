@@ -562,6 +562,7 @@ const VendorInvoice = () => {
               description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
               invoiceQty: parseFloat(vendorInvoiceEntryDetailsData.invoiceQty),
               invoiceRate: parseFloat(vendorInvoiceEntryDetailsData.invoiceRate),
+              UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               productAmount: parseFloat(vendorInvoiceEntryDetailsData.productAmount),
               modifyUser: localStorage.getItem("LoginUserName"),
             }
@@ -589,6 +590,7 @@ const VendorInvoice = () => {
               description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
               invoiceQty: vendorInvoiceEntryDetailsData.invoiceQty.toString(),
               invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate.toString(),
+              UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               productAmount: vendorInvoiceEntryDetailsData.productAmount.toString(),
               addUser: localStorage.getItem("LoginUserName"),
             }

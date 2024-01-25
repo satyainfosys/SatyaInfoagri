@@ -17,6 +17,7 @@ const AddVendorInvoiceDetail = () => {
   const [selectAll, setSelectAll] = useState(false);
   const [formHasError, setFormError] = useState(false);
   const [selectedRows, setSelectedRows] = useState([]);
+  const [unitList, setUnitList] = useState([])
 
   const dispatch = useDispatch();
 
@@ -27,6 +28,7 @@ const AddVendorInvoiceDetail = () => {
     'Product Line',
     'Product Category',
     'Product',
+    'Unit',
     'PO. Qty',
     'PO. Rate',
     'Description',
@@ -47,6 +49,7 @@ const AddVendorInvoiceDetail = () => {
     productAmount: 0,
     description: '',
     qty: '',
+    unitCode:"",
     itemDescription: '',
     addUser: localStorage.getItem("LoginUserName"),
     modifyUser: localStorage.getItem("LoginUserName"),
@@ -75,6 +78,9 @@ const AddVendorInvoiceDetail = () => {
       setRowData([]);
       setSelectedRows([]);
     }
+
+    getUnitList()
+    
   }, [vendorInvoiceEntryDetails, vendorInvoiceEntryDetailsReducer])
 
   const validateVendorInvoiceEntryDetailForm = () => {
@@ -100,6 +106,30 @@ const AddVendorInvoiceDetail = () => {
 
     return isValid;
   }
+
+  const getUnitList = async () => {
+
+    let requestData = {
+        UnitType: "W"
+    }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
+    let unitListData = [];
+
+    if (response.data.status == 200) {
+        if (response.data && response.data.data.length > 0) {
+            response.data.data.forEach(units => {
+                unitListData.push({
+                    key: units.unitName,
+                    value: units.unitCode
+                })
+            })
+            setUnitList(unitListData);
+        }
+    }
+    else {
+        setUnitList([]);
+    }
+}
 
   const handleAddItem = () => {
     if (vendorInvoiceEntryHeaderDetails.poNo) {
@@ -473,6 +503,14 @@ const AddVendorInvoiceDetail = () => {
                         </td>
                         <td key={index}>
                           <EnlargableTextbox
+                            name="unitCode"
+                            placeholder="Unit"
+                            value={vendorInvoiceEntryDetails.unitName}
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
                             name="quantity"
                             placeholder="Po. Qty"
                             value={vendorInvoiceEntryDetails.quantity}
@@ -579,6 +617,22 @@ const AddVendorInvoiceDetail = () => {
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
                             maxLength={50}
                           />
+                        </td>
+                        <td>                  
+                         <Form.Select
+                          type="text"
+                          name="unitCode"
+                          className="form-control select"
+                          onChange={(e) => handleFieldChange(e, index)}
+                          value={vendorInvoiceEntryDetails.unitCode ? vendorInvoiceEntryDetails.unitCode : ""}
+                          disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                          required
+                        >
+                          <option value=''>Select </option>
+                          {unitList.map((option, index) => (
+                            <option key={index} value={option.value}>{option.key}</option>
+                          ))}
+                        </Form.Select>
                         </td>
                         <td key={index}>
                           <EnlargableTextbox

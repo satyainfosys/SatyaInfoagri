@@ -20,24 +20,24 @@ const AddPaymentDetails = () => {
 
   const dispatch = useDispatch();
 
-  const paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
-  var paymentDetails = paymentDetailsReducer.paymentDetails;
+  let paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
+  let paymentDetails = paymentDetailsReducer.paymentDetails;
 
   const paymentHeaderDetailsReducer = useSelector((state) => state.rootReducer.paymentHeaderReducer)
   var paymentHeaderDetails = paymentHeaderDetailsReducer.paymentHeaderDetail;
 
   const resetInvoiceEntryHeaderDetails = () => {
     dispatch(paymentHeaderAction({
-      "name" : "",
-      "address" : "",
-      "pinCode" : "",
-      "state" : "",
-      "country" : "",
-      "invoiceNo" : "",
-      "invoiceDate" : "",
-      "invoiceAmount" : "",
-      "invoicePaidAmount" : 0,
-      "balanceAmount" : 0
+      "name": "",
+      "address": "",
+      "pinCode": "",
+      "state": "",
+      "country": "",
+      "invoiceNo": "",
+      "invoiceDate": "",
+      "invoiceAmount": "",
+      "invoicePaidAmount": 0,
+      "balanceAmount": 0
     }))
   }
 
@@ -59,33 +59,18 @@ const AddPaymentDetails = () => {
         encryptedCompanyCode: companyDetail.encryptedCompanyCode,
       }))
     }
-    else if(e.target.name === 'invoicePaidAmount' && e.target.value){
-      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
-      //   const updatedPaymentDetails = paymentDetails.map((data) => ({
-      //     ...data,
-      //     paidAmount: data.productAmount
-      //   }));
-      //   dispatch(paymentDetailsAction(updatedPaymentDetails));
-      // }
-
-      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
-      //   paymentDetails.map((data) => {
-      //     dispatch(paymentDetailsAction({
-      //       ...data,
-      //       paidAmount: data.productAmount
-      //     }));
-      //   });
-      // }
-    
-      // debugger
-      // if (paymentHeaderDetails.invoiceAmount == e.target.value) {
-      //   var paymentDetailEntry = [...paymentDetails];
-      //   let updatedPaymentDetails = paymentDetailEntry.map((data) => ({
-      //     ...data,
-      //     paidAmount: data.productAmount
-      //   }));
-      //   dispatch(paymentDetailsAction(updatedPaymentDetails));
-      // }
+    else if (e.target.name === 'invoicePaidAmount' && e.target.value) {
+      if (paymentHeaderDetails.invoiceAmount == parseFloat(e.target.value)) {
+        let updatedPaymentDetails = [...paymentDetails];
+        for (let i = 0; i < updatedPaymentDetails.length; i++) {
+          updatedPaymentDetails[i] = {
+            ...updatedPaymentDetails[i],
+            paidAmount: updatedPaymentDetails[i].productAmount,
+            balanceAmount: 0
+          };
+        }
+        dispatch(paymentDetailsAction(updatedPaymentDetails));
+      }
 
       let balanceAmount = paymentHeaderDetails.invoiceAmount - e.target.value
       dispatch(paymentHeaderAction({
@@ -102,29 +87,30 @@ const AddPaymentDetails = () => {
     }
   }
 
-  const handleVendorAndFarmerDetail =  async(code, name) => {
+  const handleVendorAndFarmerDetail = async (code, name) => {
     var companyDetail = vendorAndFarmerList.find(data => data.code == code && data.name == name);
     dispatch(paymentHeaderAction({
       ...paymentHeaderDetails,
       code: companyDetail.code,
-      name : companyDetail.name,
-      address : companyDetail.address,
-      pinCode : companyDetail.pinCode,
-      state : companyDetail.state,
-      country : companyDetail.country
+      name: companyDetail.name,
+      address: companyDetail.address,
+      pinCode: companyDetail.pinCode,
+      state: companyDetail.state,
+      country: companyDetail.country
     }))
     fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
   }
 
-  const handleInvoiceDetail = async(invoiceNo) => {
+  const handleInvoiceDetail = async (invoiceNo) => {
     var invoiceDetail = invoiceList.find(data => data.invoiceNo == invoiceNo);
     dispatch(paymentHeaderAction({
       ...paymentHeaderDetails,
+      encryptedInvoiceHeaderCode: invoiceDetail.encryptedInvoiceHeaderCode,
       invoiceNo: invoiceDetail.invoiceNo,
-      invoiceDate : invoiceDetail.invoiceDate,
-      invoiceAmount : invoiceDetail.invoiceAmount,
-      invoicePaidAmount : invoiceDetail.invoicePaidAmount,
-      poNo : invoiceDetail.poNo,
+      invoiceDate: invoiceDetail.invoiceDate,
+      invoiceAmount: invoiceDetail.invoiceAmount,
+      invoicePaidAmount: invoiceDetail.invoicePaidAmount,
+      poNo: invoiceDetail.poNo,
     }))
     getInvoiceDetailList(invoiceDetail.encryptedInvoiceHeaderCode)
   }
@@ -165,7 +151,7 @@ const AddPaymentDetails = () => {
     }
   }
 
-  const getVendorAndFarmerList = async (encryptedCompanyCode,searchText) => {
+  const getVendorAndFarmerList = async (encryptedCompanyCode, searchText) => {
     const request = {
       EncryptedCompanyCode: encryptedCompanyCode,
       searchText: searchText
@@ -183,26 +169,25 @@ const AddPaymentDetails = () => {
   }
 
   const handleVendorAndFarmerOnChange = (e) => {
-    if(e.target.value){
+    if (e.target.value) {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
       setVendorAndMasterDetail(filteredList);
     }
-    else{
+    else {
       setVendorAndMasterDetail([]);
     }
-   
   }
 
   const handleInvoiceOnChange = (e) => {
-    if(e.target.value){
+    if (e.target.value) {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = invoiceList && invoiceList.filter(data => regex.test(data.invoiceNo));
       setInvoiceData(filteredList);
     }
-    else{
+    else {
       setInvoiceData([]);
     }
   }
@@ -214,9 +199,9 @@ const AddPaymentDetails = () => {
       pageNumber: page,
       pageSize: size,
       EncryptedCompanyCode: encryptedCompanyCode,
-      code: code 
+      code: code
     }
-    
+
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-header-list', listFilter, {
       headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
     })
@@ -246,7 +231,7 @@ const AddPaymentDetails = () => {
       }
     }
   }
-  
+
   return (
     <>
       <Card className="mb-1">
@@ -313,7 +298,7 @@ const AddPaymentDetails = () => {
                 {vendorAndMasterDetail.map((item) => (
                   <div className="flex-1 ms-2">
                     <h6 className="mb-0">
-                      <Link to="" style={{color:'black'}} onClick={(e) => {e.preventDefault(); handleVendorAndFarmerDetail(item.code, item.name);}} >{item.name}</Link>
+                      <Link to="" style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleVendorAndFarmerDetail(item.code, item.name); }} >{item.name}</Link>
                     </h6>
                     <div className="border-dashed border-bottom my-3" />
                   </div>
@@ -395,7 +380,7 @@ const AddPaymentDetails = () => {
                         Invoice Date
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoiceDate" placeholder="Invoice Date" name="invoiceDate" value={paymentHeaderDetails.invoiceDate}  disabled >
+                        <Form.Control id="txtInvoiceDate" placeholder="Invoice Date" name="invoiceDate" value={paymentHeaderDetails.invoiceDate} disabled >
                         </Form.Control>
                       </Col>
                     </Form.Group>
@@ -412,15 +397,15 @@ const AddPaymentDetails = () => {
                         Paid Amount<span className="text-danger">*</span>
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} 
-                        onKeyPress={(e) => {
-                        const keyCode = e.which || e.keyCode;
-                        const keyValue = String.fromCharCode(keyCode);
-                        const regex = /^[0-9]*\.?[0-9]*$/;
-                        if (!regex.test(keyValue)) {
-                          e.preventDefault();
-                        }
-                      }} />
+                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange}
+                          onKeyPress={(e) => {
+                            const keyCode = e.which || e.keyCode;
+                            const keyValue = String.fromCharCode(keyCode);
+                            const regex = /^[0-9]*\.?[0-9]*$/;
+                            if (!regex.test(keyValue)) {
+                              e.preventDefault();
+                            }
+                          }} />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
