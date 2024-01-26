@@ -17,6 +17,7 @@ const AddPaymentDetails = () => {
   const [invoiceList, setInvoiceList] = useState([]);
   const [invoiceDetails, setInvoiceDetails] = useState([]);
   const [perPage, setPerPage] = useState(15);
+  const [unitList, setUnitList] = useState([])
 
   const dispatch = useDispatch();
 
@@ -36,13 +37,14 @@ const AddPaymentDetails = () => {
       "invoiceNo": "",
       "invoiceDate": "",
       "invoiceAmount": "",
-      "invoicePaidAmount": 0,
-      "balanceAmount": 0
+      "invoicePaidAmount": "",
+      "balanceAmount": ""
     }))
   }
 
   useEffect(() => {
     getCompany()
+    getUnitList()
   }, []);
 
   // if (!paymentHeaderDetailsReducer.paymentHeaderDetail ||
@@ -71,13 +73,28 @@ const AddPaymentDetails = () => {
         }
         dispatch(paymentDetailsAction(updatedPaymentDetails));
       }
-
       let balanceAmount = paymentHeaderDetails.invoiceAmount - e.target.value
       dispatch(paymentHeaderAction({
         ...paymentHeaderDetails,
         invoicePaidAmount: e.target.value,
         balanceAmount: balanceAmount,
       }))
+    }
+    else if(e.target.name === 'invoicePaidAmount')
+    {
+        let updatedPaymentDetails = [...paymentDetails];
+        for (let i = 0; i < updatedPaymentDetails.length; i++) {
+          updatedPaymentDetails[i] = {
+            ...updatedPaymentDetails[i],
+            paidAmount: "",
+          };
+        }
+        dispatch(paymentDetailsAction(updatedPaymentDetails));
+        dispatch(paymentHeaderAction({
+          ...paymentHeaderDetails,
+          invoicePaidAmount:"",
+          balanceAmount: paymentHeaderDetails.invoiceAmount ,
+        }))
     }
     else {
       dispatch(paymentHeaderAction({
@@ -213,6 +230,29 @@ const AddPaymentDetails = () => {
     }
   }
 
+  const getUnitList = async () => {
+    let requestData = {
+      UnitType: "W"
+    }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
+    let unitListData = [];
+
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(units => {
+          unitListData.push({
+            key: units.unitName,
+            value: units.unitCode
+          })
+        })
+        setUnitList(unitListData);
+      }
+    }
+    else {
+      setUnitList([]);
+    }
+  }
+
   const getInvoiceDetailList = async (invoiceHeaderCode) => {
     const request = {
       encryptedInvoiceHeaderCode: invoiceHeaderCode
@@ -225,7 +265,15 @@ const AddPaymentDetails = () => {
     if (response.data.status == 200) {
       if (response.data.data && response.data.data.length > 0) {
         setInvoiceDetails(response.data.data)
-        dispatch(paymentDetailsAction(response.data.data))
+        const updatedInvoiceDetails = response.data.data.map(detail => {
+          const unit = unitList.find(u => u.value === detail.unitCode);
+          const unitName = unit ? unit.key : '';
+          return {
+            ...detail,
+            unitName: unitName
+          };
+        });
+        dispatch(paymentDetailsAction(updatedInvoiceDetails))
       } else {
         setInvoiceDetails([])
       }

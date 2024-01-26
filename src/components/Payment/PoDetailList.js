@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Table, Form, Modal, Card, Row, Col } from 'react-bootstrap';
 import { useSelector, useDispatch } from 'react-redux';
+import axios from 'axios';
 import { paymentDetailsAction, paymentHeaderAction } from 'actions';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
@@ -9,6 +10,7 @@ const PoDetailList = () => {
   const [productModal, setProductModal] = useState(false);
   const [rowData, setRowData] = useState([]);
   const [invoiceDetailModal, setInvoiceDetailModal] = useState([]);
+  const [unitList, setUnitList] = useState([])
 
   const dispatch = useDispatch();
 
@@ -57,12 +59,16 @@ const PoDetailList = () => {
       balanceAmount: balanceAmount
     }));
 
+    if (paymentDetails && paymentDetails.length > 0) {
+      getUnitList()
+    }
+
   }, [paymentDetails, paymentDetailsReducer])
 
-  const handleViewItem = (encryptedInvoiceDetailCode) => {
+  const handleViewItem = (encryptedInvoiceDetailCode, index) => {
     setProductModal(true);
     var paymentDetail = paymentDetails.find(data => data.encryptedInvoiceDetailCode == encryptedInvoiceDetailCode);
-    setInvoiceDetailModal(paymentDetail)
+    setInvoiceDetailModal({...paymentDetail, index:index})
   }
 
   const onCancelClick = () => {
@@ -77,8 +83,33 @@ const PoDetailList = () => {
       ...paymentDetailEntry[index],
       [name]: value,
       balanceAmount: balanceAmount,
+      unitName: unitList.find(unit => unit.value === paymentDetailEntry[index].unitCode)?.key || '',
     };
     dispatch(paymentDetailsAction(paymentDetailEntry));
+  }
+
+  const getUnitList = async () => {
+    let requestData = {
+      UnitType: "W"
+    }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
+    let unitListData = [];
+
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(units => {
+          unitListData.push({
+            key: units.unitName,
+            value: units.unitCode
+          })
+        })
+        
+        setUnitList(unitListData);
+      }
+    }
+    else {
+      setUnitList([]);
+    }
   }
 
   return (
@@ -135,6 +166,7 @@ const PoDetailList = () => {
                             name="unit"
                             placeholder="Unit"
                             maxLength={13}
+                            value={paymentDetails.unitName}
                             required
                             disabled
                           />
@@ -185,7 +217,7 @@ const PoDetailList = () => {
                             size="sm"
                             className="btn-reveal"
                             type="button"
-                            onClick={() => handleViewItem(paymentDetails.encryptedInvoiceDetailCode)}
+                            onClick={() => handleViewItem(paymentDetails.encryptedInvoiceDetailCode, index + 1)}
                           >
                             View
                           </Button>
@@ -229,7 +261,7 @@ const PoDetailList = () => {
                         Sr. No
                       </td>
                       <td>
-                        1
+                      {invoiceDetailModal.index}
                       </td>
                     </tr>
                     <tr>

@@ -28,6 +28,7 @@ const VendorInvoice = () => {
   const [companyList, setCompanyList] = useState([]);
   const [perPage, setPerPage] = useState(15);
   const [activeTabName, setActiveTabName] = useState();
+  const [unitList, setUnitList] = useState([])
 
   const dispatch = useDispatch();
 
@@ -35,6 +36,7 @@ const VendorInvoice = () => {
     $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
     $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
     getCompany();
+    getUnitList();
     localStorage.removeItem("DeleteInvoiceDetailCodes");
   }, [])
 
@@ -628,6 +630,30 @@ const VendorInvoice = () => {
     }
   }
 
+  const getUnitList = async () => {
+    let requestData = {
+      UnitType: "W"
+    }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
+    let unitListData = [];
+
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(units => {
+          unitListData.push({
+            key: units.unitName,
+            value: units.unitCode
+          })
+        })
+        
+        setUnitList(unitListData);
+      }
+    }
+    else {
+      setUnitList([]);
+    }
+  }
+
   const getVendorInvoiceEntryDetailList = async () => {
     const request = {
       encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
@@ -639,7 +665,15 @@ const VendorInvoice = () => {
 
     if (response.data.status == 200) {
       if (response.data.data && response.data.data.length > 0) {
-        dispatch(vendorInvoiceEntryDetailsAction(response.data.data));
+        const updatedInvoiceDetails = response.data.data.map(detail => {
+          const unit = unitList.find(u => u.value === detail.unitCode);
+          const unitName = unit ? unit.key : '';
+          return {
+            ...detail,
+            unitName: unitName
+          };
+        });
+        dispatch(vendorInvoiceEntryDetailsAction(updatedInvoiceDetails))
       }
     }
   }

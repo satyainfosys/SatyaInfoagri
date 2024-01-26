@@ -110,26 +110,26 @@ const AddVendorInvoiceDetail = () => {
   const getUnitList = async () => {
 
     let requestData = {
-        UnitType: "W"
+      UnitType: "W"
     }
     let response = await axios.post(process.env.REACT_APP_API_URL + '/unit-list', requestData)
     let unitListData = [];
 
     if (response.data.status == 200) {
-        if (response.data && response.data.data.length > 0) {
-            response.data.data.forEach(units => {
-                unitListData.push({
-                    key: units.unitName,
-                    value: units.unitCode
-                })
-            })
-            setUnitList(unitListData);
-        }
+      if (response.data && response.data.data.length > 0) {
+        response.data.data.forEach(units => {
+          unitListData.push({
+            key: units.unitName,
+            value: units.unitCode
+          })
+        })
+        setUnitList(unitListData);
+      }
     }
     else {
-        setUnitList([]);
+      setUnitList([]);
     }
-}
+  }
 
   const handleAddItem = () => {
     if (vendorInvoiceEntryHeaderDetails.poNo) {
