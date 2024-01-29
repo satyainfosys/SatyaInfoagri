@@ -66,6 +66,7 @@ const VendorInvoice = () => {
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', true);
       clearVendorInvoiceEntryDetailsReducers();
       localStorage.removeItem("EncryptedInvoiceHeaderCode");
+      localStorage.removeItem("InvoiceNo");
       localStorage.removeItem("OldInvoiceStatus");
       dispatch(vendorInvoiceEntryHeaderDetailsAction(undefined));
     }
@@ -98,6 +99,7 @@ const VendorInvoice = () => {
       $('#btnSave').attr('disabled', false);
       dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
       localStorage.removeItem("EncryptedInvoiceHeaderCode");
+      localStorage.removeItem("InvoiceNo");
       localStorage.removeItem("DeleteInvoiceDetailCodes");
     }
     else {
@@ -398,6 +400,13 @@ const VendorInvoice = () => {
 
   const addVendorInvoiceEntryDetails = () => {
     if (vendorInvoiceEntryValidation()) {
+      const vendorInvoiceEntryDetail = vendorInvoiceEntryDetails.map(detail => {
+        return {
+          ...detail,
+          invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo 
+        };
+      });
+
       const requestData = {
         invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -410,7 +419,7 @@ const VendorInvoice = () => {
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
         vendorType: 'V',
         addUser: localStorage.getItem("LoginUserName"),
-        vendorInvoiceDetails: vendorInvoiceEntryDetails
+        vendorInvoiceDetails: vendorInvoiceEntryDetail
       }
 
       const keys = ["addUser"]
@@ -446,6 +455,7 @@ const VendorInvoice = () => {
               }))
             }, 50);
             localStorage.setItem("EncryptedInvoiceHeaderCode", res.data.data.encryptedInvoiceHeaderCode);
+            localStorage.setItem("InvoiceNo", res.data.data.invoiceNo);
             localStorage.setItem("OldInvoiceStatus", requestData.invoiceStatus);
             if (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved") {
               $('#btnSave').attr('disabled', true);
@@ -477,7 +487,7 @@ const VendorInvoice = () => {
       var deleteInvoiceDetailCodes = localStorage.getItem("DeleteInvoiceDetailCodes");
 
       const updateRequestData = {
-        encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+        // encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
@@ -557,6 +567,7 @@ const VendorInvoice = () => {
             const requestData = {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
               encryptedInvoiceDetailCode: vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode,
+              invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
               productCode: vendorInvoiceEntryDetailsData.productCode,
@@ -585,6 +596,7 @@ const VendorInvoice = () => {
           else if (!hasError && formChangedData.vendorInvoiceEntryDetailsAdd && !vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode) {
             const requestData = {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+              invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
               productCode: vendorInvoiceEntryDetailsData.productCode,
@@ -656,7 +668,8 @@ const VendorInvoice = () => {
 
   const getVendorInvoiceEntryDetailList = async () => {
     const request = {
-      encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+      // encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+      invoiceNo: localStorage.getItem("InvoiceNo")
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
@@ -670,7 +683,8 @@ const VendorInvoice = () => {
           const unitName = unit ? unit.key : '';
           return {
             ...detail,
-            unitName: unitName
+            unitName: unitName,
+            invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo 
           };
         });
         dispatch(vendorInvoiceEntryDetailsAction(updatedInvoiceDetails))

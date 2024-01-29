@@ -255,7 +255,8 @@ const AddPaymentDetails = () => {
 
   const getInvoiceDetailList = async (invoiceHeaderCode) => {
     const request = {
-      encryptedInvoiceHeaderCode: invoiceHeaderCode
+      // encryptedInvoiceHeaderCode: invoiceHeaderCode
+      InvoiceNo: paymentHeaderDetails.invoiceNo
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {

@@ -320,7 +320,7 @@ const AddVendorInvoiceHeader = () => {
                   <Col sm="8">
                     <Form.Control id="txtInvoiceNo" name="invoiceNo" placeholder="Invoice No" maxLength={15}
                       value={vendorInvoiceEntryHeaderDetails.invoiceNo} onChange={handleFieldChange}
-                      disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')} />
+                      disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode || vendorInvoiceEntryHeaderDetails.vendorType == 'C')} />
                     {Object.keys(vendorInvoiceEntryErr.invoiceNoErr).map((key) => {
                       return <span className="error-message">{vendorInvoiceEntryErr.invoiceNoErr[key]}</span>
                     })}

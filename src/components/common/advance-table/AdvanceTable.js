@@ -48,6 +48,7 @@ const AdvanceTable = ({
       }
       localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
       localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
+      localStorage.setItem('InvoiceNo', rowData.invoiceNo);
       dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').trigger('click');

@@ -858,6 +858,8 @@ const CropPurchase = () => {
         invoiceQty: (cropPurchaseProductDetailData.quantity).toString(),
         invoiceRate: (cropPurchaseProductDetailData.poRate).toString(),
         productAmount: (cropPurchaseProductDetailData.poAmt).toString(),
+        unitCode: (cropPurchaseProductDetailData.unitCode).toString(),
+        InvoiceNo: poNo,
         addUser: localStorage.getItem("LoginUserName"),
       };
       vendorInvoiceDetails.push(productDetails);
@@ -914,6 +916,7 @@ const CropPurchase = () => {
 
   const updateVendorInvoiceEntryDetails = async (poNo, status) => {
     var invoiceHeaderCode = ""
+    var invoiceNo = ""
     var InvoiceDetailProductCode = localStorage.getItem("DeleteInvoiceDetails")
     const updateRequestData = {
       encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
@@ -946,6 +949,7 @@ const CropPurchase = () => {
         }
         else {
           invoiceHeaderCode = res.data.data.encryptedInvoiceHeaderCode;
+          invoiceNo = res.data.data.invoiceNo
         }
       })
 
@@ -957,7 +961,8 @@ const CropPurchase = () => {
         var invoiceDetailProductCodeList = InvoiceDetailProductCode ? InvoiceDetailProductCode.split(',') : null;
         var deleteInvoiceDetailCodesList = invoiceDetailProductCodeList.map(productCode => ({
           productCode: productCode,
-          encryptedInvoiceHeaderCode: invoiceHeaderCode
+          // encryptedInvoiceHeaderCode: invoiceHeaderCode
+          invoiceNo:  invoiceNo
         }))
         if (deleteInvoiceDetailCodesList) {
           var deleteInvoiceDetailCodesIndex = 1;
@@ -999,6 +1004,8 @@ const CropPurchase = () => {
           invoiceQty: (cropPurchaseProductDetailData.quantity).toString(),
           invoiceRate: (cropPurchaseProductDetailData.poRate).toString(),
           productAmount: (cropPurchaseProductDetailData.poAmt).toString(),
+          unitCode: (cropPurchaseProductDetailData.unitCode).toString(),
+          InvoiceNo: poNo,
           modifyUser: localStorage.getItem("LoginUserName"),
         }
         setIsLoading(true);
@@ -1025,6 +1032,8 @@ const CropPurchase = () => {
           invoiceQty: (cropPurchaseProductDetailData.quantity).toString(),
           invoiceRate: (cropPurchaseProductDetailData.poRate).toString(),
           productAmount: (cropPurchaseProductDetailData.poAmt).toString(),
+          unitCode: (cropPurchaseProductDetailData.unitCode).toString(),
+          InvoiceNo: poNo,
           addUser: localStorage.getItem("LoginUserName"),
         }
         setIsLoading(true);
