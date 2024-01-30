@@ -494,3 +494,10 @@ export const paymentHeaderAction = (payload) => {
     payload
   };
 };
+
+export const paymentErrorAction = (payload) => {
+  return {
+    type: 'PAYMENTERROR',
+    payload
+  };
+};

@@ -56,10 +56,7 @@ const AddPaymentDetails = () => {
     if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
       getVendorAndFarmerList(companyDetail.encryptedCompanyCode)
-      dispatch(paymentHeaderAction({
-        ...paymentHeaderDetails,
-        encryptedCompanyCode: companyDetail.encryptedCompanyCode,
-      }))
+      localStorage.setItem("EncryptedCompanyCode",companyDetail.encryptedCompanyCode)
     }
     else if (e.target.name === 'invoicePaidAmount' && e.target.value) {
       if (paymentHeaderDetails.invoiceAmount == parseFloat(e.target.value)) {
@@ -129,7 +126,7 @@ const AddPaymentDetails = () => {
       invoicePaidAmount: invoiceDetail.invoicePaidAmount,
       poNo: invoiceDetail.poNo,
     }))
-    getInvoiceDetailList(invoiceDetail.encryptedInvoiceHeaderCode)
+    getInvoiceDetailList(invoiceDetail.invoiceNo)
   }
 
   const getCompany = async () => {
@@ -215,7 +212,7 @@ const AddPaymentDetails = () => {
     const listFilter = {
       pageNumber: page,
       pageSize: size,
-      EncryptedCompanyCode: encryptedCompanyCode,
+      EncryptedCompanyCode:localStorage.getItem("EncryptedCompanyCode"),
       code: code
     }
 
@@ -253,10 +250,9 @@ const AddPaymentDetails = () => {
     }
   }
 
-  const getInvoiceDetailList = async (invoiceHeaderCode) => {
+  const getInvoiceDetailList = async (invoiceNo) => {
     const request = {
-      // encryptedInvoiceHeaderCode: invoiceHeaderCode
-      InvoiceNo: paymentHeaderDetails.invoiceNo
+      InvoiceNo: invoiceNo
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
@@ -266,14 +262,26 @@ const AddPaymentDetails = () => {
     if (response.data.status == 200) {
       if (response.data.data && response.data.data.length > 0) {
         setInvoiceDetails(response.data.data)
-        const updatedInvoiceDetails = response.data.data.map(detail => {
+        let netAmount = 0;
+        const invoiceDetails = response.data.data.map(detail => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
+          netAmount += parseFloat(detail.productAmount); 
+          let balanceAmount = detail.productAmount - detail.paidAmount
           return {
             ...detail,
-            unitName: unitName
+            unitName: unitName,
+            balanceAmount: balanceAmount,
           };
         });
+
+        const updatedInvoiceDetails =invoiceDetails.map(detail => {
+          return {
+            ...detail,
+            netAmount: netAmount,
+          };
+        });
+
         dispatch(paymentDetailsAction(updatedInvoiceDetails))
       } else {
         setInvoiceDetails([])

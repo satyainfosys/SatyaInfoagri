@@ -32,6 +32,9 @@ const PoDetailList = () => {
   const paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
   var paymentDetails = paymentDetailsReducer.paymentDetails;
 
+  const paymentErrorReducer = useSelector((state) => state.rootReducer.paymentErrorReducer)
+  const paymentErr = paymentErrorReducer.paymentError;
+
   useEffect(() => {
     if (paymentDetailsReducer.paymentDetails.length > 0) {
       setRowData(paymentDetails);
@@ -39,7 +42,7 @@ const PoDetailList = () => {
       setRowData([]);
     }
 
-    const invoicePaidAmount = paymentDetails.length > 1
+    const invoicePaidAmount = paymentDetails.length >= 1
       ? paymentDetails.reduce((acc, obj) => {
         const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
         return acc + (isNaN(paidAmount) ? 0 : paidAmount);
@@ -55,15 +58,15 @@ const PoDetailList = () => {
 
     dispatch(paymentHeaderAction({
       ...paymentHeaderDetails,
-      invoicePaidAmount: invoicePaidAmount,
-      balanceAmount: balanceAmount
+      invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
+      balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
     }));
 
     if (paymentDetails && paymentDetails.length > 0) {
       getUnitList()
     }
 
-  }, [paymentDetails, paymentDetailsReducer])
+  }, [paymentDetails, paymentHeaderDetails.invoiceAmount])
 
   const handleViewItem = (encryptedInvoiceDetailCode, index) => {
     setProductModal(true);
@@ -126,7 +129,7 @@ const PoDetailList = () => {
           <Card.Body className="position-relative pb-0 p3px cp-table-card">
             <Form
               noValidate
-              validated=""
+              validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount)}
               className="details-form"
               id="AddCropPurchaseDetails"
             >

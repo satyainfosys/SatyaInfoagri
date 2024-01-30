@@ -3,25 +3,36 @@ import TabPage from 'components/common/TabPage';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
+import { paymentDetailsAction, paymentErrorAction } from 'actions';
+import { toast } from 'react-toastify';
 const tabArray = ['Payment'];
 
 const Payment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalShow, setModalShow] = useState(false);
+  const [encryptedPaymentDetailCode, setEncryptedPaymentDetailCode] = useState("");
   const dispatch = useDispatch();
+
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
   let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
+  let paymentDetailsReducer = useSelector((state) => state.rootReducer.paymentDetailReducer)
+  let paymentDetails = paymentDetailsReducer.paymentDetails;
+
+  const paymentHeaderDetailsReducer = useSelector((state) => state.rootReducer.paymentHeaderReducer)
+  var paymentHeaderDetails = paymentHeaderDetailsReducer.paymentHeaderDetail;
+
   useEffect(() => {
     $("#btnNew").hide();
+    $('#btnSave').attr('disabled', false);
     $("#btnSave").show();
   }, []);
 
   $('[data-rr-ui-event-key*="Payment"]').off('click').on('click', function () {
     $("#btnSave").show();
-    $("#btnSave").attr('disabled', true);
+    $('#btnSave').attr('disabled', false);
     $("#btnNew").hide();
   })
 
@@ -41,6 +52,123 @@ const Payment = () => {
     }
     setModalShow(false);
   }
+
+  const handleSave = async () => {
+    for (let i = 0; i < paymentDetails.length; i++) {
+      const paymentDetailData = paymentDetails[i];
+      const hasEncryptedPaymentDetailCode = paymentDetailData.encryptedPaymentDetailCode !== '';
+      if (hasEncryptedPaymentDetailCode) {
+        updatePaymentDetail(paymentDetailData);
+      } else if (paymentDetailData.paidAmount > 0 && paymentDetailData.encryptedPaymentDetailCode == '') {
+        addPaymentDetail(paymentDetailData);
+        const updatedPaymentDetail = [...paymentDetails]
+        updatedPaymentDetail[i] = {
+          ...updatedPaymentDetail[i],
+          encryptedPaymentDetailCode: encryptedPaymentDetailCode
+        };
+        dispatch(paymentDetailsAction(updatedPaymentDetail))
+      }
+    }
+  };
+
+  const paymentValidation = () => {
+    const paidAmountErr = {};
+    let isValid = true;
+    for (let i = 0; i < paymentDetails.length; i++) {
+      const paymentDetailData = paymentDetails[i];
+      if (paymentDetailData.paidAmount > paymentDetailData.productAmount) {
+        paidAmountErr.invalidPaidAmount = "Paid amount should not be greater than Rate";
+        setTimeout(() => {
+          toast.error(paidAmountErr.invalidPaidAmount, {
+            theme: 'colored'
+          });
+        }, 1000);
+        isValid = false;
+      }
+      if (!isValid) {
+        var errorObject = {
+          paidAmountErr,
+        }
+      }
+      dispatch(paymentErrorAction(errorObject))
+    }
+  }
+
+  const addPaymentDetail = async (paymentDetailData) => {
+    // if (paymentValidation()) {
+    const keys = ["addUser"];
+    for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
+      paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
+    }
+    const request = {
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+      encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
+      encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
+      vendorCode: paymentHeaderDetails.code,
+      poNo: paymentHeaderDetails.poNo,
+      invoiceNo: paymentHeaderDetails.invoiceNo,
+      productCode: paymentDetailData.productCode,
+      netAmount: paymentDetailData.netAmount ? paymentDetailData.netAmount.toString() : 0,
+      paymentAmount: paymentDetailData.paidAmount,
+      itemCode: paymentDetailData.productCode,
+      activeStatus: "A",
+      addUser: localStorage.getItem("LoginUserName")
+    };
+
+    setIsLoading(true);
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/add-payment-detail', request, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    });
+    if (response.data.status !== 200) {
+      toast.error(response.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
+      setIsLoading(false);
+    } else {
+      setIsLoading(false);
+      setEncryptedPaymentDetailCode(response.data.data.encryptedPaymentDetailCode)
+
+    }
+    // }
+  };
+
+  const updatePaymentDetail = async (paymentDetailData) => {
+    // if (paymentValidation()) {
+    if (paymentDetailData.encryptedPaymentDetailCode != '') {
+      const keys = ["modifyUser"];
+      for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
+        paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
+      }
+      const request = {
+        encryptedPaymentDetailCode: paymentDetailData.encryptedPaymentDetailCode,
+        encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
+        encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
+        vendorCode: paymentHeaderDetails.code,
+        productCode: paymentDetailData.productCode,
+        poNo: paymentHeaderDetails.poNo,
+        paymentAmount: paymentDetailData.paidAmount,
+        modifyUser: localStorage.getItem("LoginUserName")
+      };
+
+      setIsLoading(true);
+      let response = await axios.post(process.env.REACT_APP_API_URL + '/update-payment-detail', request, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      });
+      if (response.data.status !== 200) {
+        toast.error(response.data.message, {
+          theme: 'colored',
+          autoClose: 10000
+        });
+        setIsLoading(false);
+      }
+      else {
+        setIsLoading(false);
+      }
+    }
+    // }
+  };
 
   return (
     <>
@@ -67,7 +195,7 @@ const Payment = () => {
             <h4>Do you want to save changes?</h4>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="success" onClick="">Save</Button>
+            <Button variant="success" onClick={handleSave}>Save</Button>
             <Button variant="danger" id="btnDiscard" onClick={() => discardChanges()}>Discard</Button>
           </Modal.Footer>
         </Modal>
@@ -75,7 +203,7 @@ const Payment = () => {
       <TabPage
         tabArray={tabArray}
         module='Payment'
-        saveDetails=""
+        saveDetails={handleSave}
         exitModule={exitModule}
       />
     </>
