@@ -204,6 +204,7 @@ const PoDetailList = () => {
                             placeholder="Paid Amount"
                             value={paymentDetails.paidAmount}
                             onChange={(e) => handleFieldChange(e, index)}
+                            disabled={paymentDetails.paymentStatus == "F"}
                           />
                         </td>
                         <td key="">

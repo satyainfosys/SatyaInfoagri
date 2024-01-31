@@ -127,6 +127,12 @@ const AddPaymentDetails = () => {
       poNo: invoiceDetail.poNo,
     }))
     getInvoiceDetailList(invoiceDetail.invoiceNo)
+    const fullyPaid = paymentDetails.every(item => item.paymentStatus === 'F');
+    dispatch(paymentHeaderAction({
+      ...paymentHeaderDetails,
+      fullyPaid: fullyPaid,
+    }))
+
   }
 
   const getCompany = async () => {
@@ -454,7 +460,7 @@ const AddPaymentDetails = () => {
                         Paid Amount<span className="text-danger">*</span>
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange}
+                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} disabled={paymentHeaderDetails.fullyPaid == true}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);

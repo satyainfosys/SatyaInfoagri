@@ -10,7 +10,6 @@ const tabArray = ['Payment'];
 const Payment = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [modalShow, setModalShow] = useState(false);
-  const [encryptedPaymentDetailCode, setEncryptedPaymentDetailCode] = useState("");
   const dispatch = useDispatch();
 
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
@@ -58,15 +57,9 @@ const Payment = () => {
       const paymentDetailData = paymentDetails[i];
       const hasEncryptedPaymentDetailCode = paymentDetailData.encryptedPaymentDetailCode !== '';
       if (hasEncryptedPaymentDetailCode) {
-        await  updatePaymentDetail(paymentDetailData);
+        await  updatePaymentDetail(paymentDetailData, i);
       } else if (paymentDetailData.paidAmount > 0 && paymentDetailData.encryptedPaymentDetailCode == '') {
-        await  addPaymentDetail(paymentDetailData);
-        const updatedPaymentDetail = [...paymentDetails]
-        updatedPaymentDetail[i] = {
-          ...updatedPaymentDetail[i],
-          encryptedPaymentDetailCode: encryptedPaymentDetailCode
-        };
-        dispatch(paymentDetailsAction(updatedPaymentDetail))
+        await  addPaymentDetail(paymentDetailData, i);
       }
     }
   };
@@ -109,50 +102,57 @@ const Payment = () => {
     return isValid;
   }
 
-  const addPaymentDetail = async (paymentDetailData) => {
+  const addPaymentDetail = async (paymentDetailData, i) => {
     if (paymentValidation()) {
-    const keys = ["addUser"];
-    for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
-      paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
-    }
-    const request = {
-      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
-      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-      encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
-      encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
-      vendorCode: paymentHeaderDetails.code,
-      poNo: paymentHeaderDetails.poNo,
-      invoiceNo: paymentHeaderDetails.invoiceNo,
-      productCode: paymentDetailData.productCode,
-      netAmount: paymentDetailData.netAmount ? paymentDetailData.netAmount.toString() : 0,
-      paymentAmount: paymentDetailData.paidAmount,
-      itemCode: paymentDetailData.productCode,
-      activeStatus: "A",
-      addUser: localStorage.getItem("LoginUserName")
-    };
+      const keys = ["addUser"];
+      for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
+        paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
+      }
+      const request = {
+        encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+        encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+        encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
+        encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
+        vendorCode: paymentHeaderDetails.code,
+        poNo: paymentHeaderDetails.poNo,
+        invoiceNo: paymentHeaderDetails.invoiceNo,
+        productCode: paymentDetailData.productCode,
+        netAmount: paymentDetailData.netAmount ? paymentDetailData.netAmount.toString() : 0,
+        paymentAmount: paymentDetailData.paidAmount,
+        itemCode: paymentDetailData.productCode,
+        totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
+        activeStatus: "A",
+        addUser: localStorage.getItem("LoginUserName")
+      };
 
-    setIsLoading(true);
-    let response = await axios.post(process.env.REACT_APP_API_URL + '/add-payment-detail', request, {
-      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    });
-    if (response.data.status !== 200) {
-      toast.error(response.data.message, {
-        theme: 'colored',
-        autoClose: 10000
+      setIsLoading(true);
+      const response = await axios.post(process.env.REACT_APP_API_URL + '/add-payment-detail', request, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
       });
-        setIsLoading(false);
-      } else if (response.data.status == 200) {
+      if (response.data.status !== 200) {
+        toast.error(response.data.message, {
+          theme: 'colored',
+          autoClose: 10000
+        });
+      } else if(response.data.status == 200){
         setIsLoading(false);
         toast.success(response.data.message, {
           theme: 'colored',
           autoClose: 10000
-        })
-        setEncryptedPaymentDetailCode(response.data.data.encryptedPaymentDetailCode)
+        });
+        let paymentStatus = parseFloat(paymentDetailData.paidAmount) == parseFloat(paymentDetailData.productAmount) ? "F" : "P"
+        const updatedPaymentDetail = [...paymentDetails];
+        updatedPaymentDetail[i] = {
+          ...updatedPaymentDetail[i],
+          encryptedPaymentDetailCode: response.data.data.encryptedPaymentDetailCode,
+          paymentStatus: paymentStatus
+        };
+        dispatch(paymentDetailsAction(updatedPaymentDetail));
       }
     }
-  }
+  };
 
-  const updatePaymentDetail = async (paymentDetailData) => {
+  const updatePaymentDetail = async (paymentDetailData, i) => {
     if (paymentValidation()) {
     if (paymentDetailData.encryptedPaymentDetailCode != '') {
       const keys = ["modifyUser"];
@@ -167,6 +167,7 @@ const Payment = () => {
         productCode: paymentDetailData.productCode,
         poNo: paymentHeaderDetails.poNo,
         paymentAmount: paymentDetailData.paidAmount,
+        totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
         modifyUser: localStorage.getItem("LoginUserName")
       };
 
@@ -187,6 +188,13 @@ const Payment = () => {
           theme: 'colored',
           autoClose: 10000
         })
+        let paymentStatus = parseFloat(paymentDetailData.paidAmount) == parseFloat(paymentDetailData.productAmount) ? "F" : "P"
+        const updatedPaymentDetail = [...paymentDetails];
+        updatedPaymentDetail[i] = {
+          ...updatedPaymentDetail[i],
+          paymentStatus: paymentStatus
+        };
+        dispatch(paymentDetailsAction(updatedPaymentDetail));
       }
     }
     }
