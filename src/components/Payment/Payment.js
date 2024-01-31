@@ -58,9 +58,9 @@ const Payment = () => {
       const paymentDetailData = paymentDetails[i];
       const hasEncryptedPaymentDetailCode = paymentDetailData.encryptedPaymentDetailCode !== '';
       if (hasEncryptedPaymentDetailCode) {
-        updatePaymentDetail(paymentDetailData);
+        await  updatePaymentDetail(paymentDetailData);
       } else if (paymentDetailData.paidAmount > 0 && paymentDetailData.encryptedPaymentDetailCode == '') {
-        addPaymentDetail(paymentDetailData);
+        await  addPaymentDetail(paymentDetailData);
         const updatedPaymentDetail = [...paymentDetails]
         updatedPaymentDetail[i] = {
           ...updatedPaymentDetail[i],
@@ -73,29 +73,44 @@ const Payment = () => {
 
   const paymentValidation = () => {
     const paidAmountErr = {};
+    const invoicePaidAmountErr = {};
     let isValid = true;
+
+    if(parseFloat(paymentHeaderDetails.invoicePaidAmount) > parseFloat(paymentHeaderDetails.invoiceAmount)){
+      invoicePaidAmountErr.invalidInvoicePaidAmountErr = "Paid amount should not be greater than invoice amount";
+      setTimeout(() => {
+        toast.error(invoicePaidAmountErr.invalidInvoicePaidAmountErr, {
+          theme: 'colored'
+        });
+      }, 1000);
+      isValid = false;
+    }
+
     for (let i = 0; i < paymentDetails.length; i++) {
       const paymentDetailData = paymentDetails[i];
-      if (paymentDetailData.paidAmount > paymentDetailData.productAmount) {
-        paidAmountErr.invalidPaidAmount = "Paid amount should not be greater than Rate";
+      if (parseFloat(paymentDetailData.paidAmount) > parseFloat(paymentDetailData.productAmount)) {
+        paidAmountErr.invalidPaidAmount = "Product paid amount should not be greater than product amount";
         setTimeout(() => {
           toast.error(paidAmountErr.invalidPaidAmount, {
             theme: 'colored'
           });
         }, 1000);
         isValid = false;
-      }
-      if (!isValid) {
-        var errorObject = {
-          paidAmountErr,
-        }
-      }
-      dispatch(paymentErrorAction(errorObject))
+      }   
     }
+    
+    if (!isValid) {
+      var errorObject = {
+        paidAmountErr,
+        invoicePaidAmountErr,
+      }
+    }
+    dispatch(paymentErrorAction(errorObject))
+    return isValid;
   }
 
   const addPaymentDetail = async (paymentDetailData) => {
-    // if (paymentValidation()) {
+    if (paymentValidation()) {
     const keys = ["addUser"];
     for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
       paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
@@ -125,17 +140,20 @@ const Payment = () => {
         theme: 'colored',
         autoClose: 10000
       });
-      setIsLoading(false);
-    } else {
-      setIsLoading(false);
-      setEncryptedPaymentDetailCode(response.data.data.encryptedPaymentDetailCode)
-
+        setIsLoading(false);
+      } else if (response.data.status == 200) {
+        setIsLoading(false);
+        toast.success(response.data.message, {
+          theme: 'colored',
+          autoClose: 10000
+        })
+        setEncryptedPaymentDetailCode(response.data.data.encryptedPaymentDetailCode)
+      }
     }
-    // }
-  };
+  }
 
   const updatePaymentDetail = async (paymentDetailData) => {
-    // if (paymentValidation()) {
+    if (paymentValidation()) {
     if (paymentDetailData.encryptedPaymentDetailCode != '') {
       const keys = ["modifyUser"];
       for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
@@ -163,11 +181,15 @@ const Payment = () => {
         });
         setIsLoading(false);
       }
-      else {
+      else if (response.data.status == 200) {
         setIsLoading(false);
+        toast.success(response.data.message, {
+          theme: 'colored',
+          autoClose: 10000
+        })
       }
     }
-    // }
+    }
   };
 
   return (
