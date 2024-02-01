@@ -35,6 +35,11 @@ const AddVendorInvoiceDetail = () => {
     'Qty',
     'Rate',
     'Product Amount',
+    'CGST %',
+    'CGST Amount',
+    'SGST %',
+    'SGST Amount',
+    'Product Grand Amount',
     'Delete',
   ];
 
@@ -244,6 +249,48 @@ const AddVendorInvoiceDetail = () => {
         var totalQuantity = parseFloat(e.target.value) / parseFloat(vendorInvoiceEntry[index].invoiceRate)
         vendorInvoiceEntry[index].invoiceQty = isNaN(totalQuantity) ? 0 : totalQuantity.toString();
         dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+    }
+
+    if(e.target.name == "cgstPer"){
+      if(vendorInvoiceEntry[index].poRate || vendorInvoiceEntry[index].invoiceRate){
+      var cgstAmount = (((vendorInvoiceEntry[index].poRate ? parseFloat(vendorInvoiceEntry[index].poRate) : parseFloat(vendorInvoiceEntry[index].invoiceRate)) * parseFloat(e.target.value))/100)
+      vendorInvoiceEntry[index].cgstAmount = isNaN(cgstAmount) ? 0 : cgstAmount.toString(); 
+      var productGrandAmount = (vendorInvoiceEntry[index].poRate ? parseFloat(vendorInvoiceEntry[index].poRate) : parseFloat(vendorInvoiceEntry[index].invoiceRate)) + cgstAmount + ( vendorInvoiceEntry[index].sgstAmount ? parseFloat(vendorInvoiceEntry[index].sgstAmount): 0)
+      vendorInvoiceEntry[index].productGrandAmount = isNaN(productGrandAmount) ? 0 : productGrandAmount.toString(); 
+        let totalCGST = 0;
+        let totalSGST = 0;
+        for (let i = 0; i < vendorInvoiceEntry.length; i++) {
+          totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmount);
+          totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmount);
+        }
+      let invoiceGrandAmount = totalCGST + (totalSGST ? totalSGST : 0) + parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount)
+      dispatch(vendorInvoiceEntryHeaderDetailsAction({
+        ...vendorInvoiceEntryHeaderDetails,
+        invoiceGrandAmount : invoiceGrandAmount
+      })) 
+      dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
+      }
+    }
+
+    if(e.target.name == "sgstPer"){
+      if(vendorInvoiceEntry[index].poRate || vendorInvoiceEntry[index].invoiceRate){
+      var sgstAmount = (((vendorInvoiceEntry[index].poRate ? parseFloat(vendorInvoiceEntry[index].poRate) : parseFloat(vendorInvoiceEntry[index].invoiceRate)) * parseFloat(e.target.value))/100)
+      vendorInvoiceEntry[index].sgstAmount = isNaN(sgstAmount) ? 0 : sgstAmount.toString(); 
+      var calculatedProductGrandAmount = (vendorInvoiceEntry[index].poRate ? parseFloat(vendorInvoiceEntry[index].poRate) : parseFloat(vendorInvoiceEntry[index].invoiceRate)) + sgstAmount + ( vendorInvoiceEntry[index].cgstAmount ? parseFloat(vendorInvoiceEntry[index].cgstAmount): 0)
+      vendorInvoiceEntry[index].productGrandAmount = isNaN(calculatedProductGrandAmount) ? 0 : calculatedProductGrandAmount.toString(); 
+      let totalCGST = 0;
+      let totalSGST = 0;
+      for (let i = 0; i < vendorInvoiceEntry.length; i++) {
+        totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmount);
+        totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmount);
+      }
+    let invoiceGrandAmount = (totalCGST ? totalCGST : 0) + totalSGST + parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount)
+    dispatch(vendorInvoiceEntryHeaderDetailsAction({
+      ...vendorInvoiceEntryHeaderDetails,
+      invoiceGrandAmount: invoiceGrandAmount
+    })) 
+      dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
       }
     }
 
@@ -593,6 +640,101 @@ const AddVendorInvoiceDetail = () => {
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstPer"
+                            placeholder="CGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstAmount"
+                            placeholder="CGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.cgstAmount ? vendorInvoiceEntryDetails.cgstAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstPer"
+                            placeholder="SGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstAmount"
+                            placeholder="SGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.sgstAmount ? vendorInvoiceEntryDetails.sgstAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="productGrandAmount"
+                            placeholder="Product Grand Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.productGrandAmount ? vendorInvoiceEntryDetails.productGrandAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
                         {
                           (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")|| vendorInvoiceEntryHeaderDetails.vendorType == 'C') ?
                             null
@@ -700,6 +842,101 @@ const AddVendorInvoiceDetail = () => {
                             onChange={(e) => handleFieldChange(e, index)}
                             required
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstPer"
+                            placeholder="CGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstAmount"
+                            placeholder="CGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.cgstAmount ? vendorInvoiceEntryDetails.cgstAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstPer"
+                            placeholder="SGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstAmount"
+                            placeholder="SGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.sgstAmount ? vendorInvoiceEntryDetails.sgstAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="productGrandAmount"
+                            placeholder="Product Grand Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={vendorInvoiceEntryDetails.productGrandAmount ? vendorInvoiceEntryDetails.productGrandAmount : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
                           />
                         </td>
                         {

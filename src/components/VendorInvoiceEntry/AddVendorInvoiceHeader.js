@@ -40,6 +40,9 @@ const AddVendorInvoiceHeader = () => {
   const vendorInvoiceEntryErrorReducer = useSelector((state) => state.rootReducer.vendorInvoiceEntryErrorReducer)
   const vendorInvoiceEntryErr = vendorInvoiceEntryErrorReducer.vendorInvoiceEntryError;
 
+  const vendorInvoiceEntryDetailsReducer = useSelector((state) => state.rootReducer.vendorInvoiceEntryDetailsReducer)
+  var vendorInvoiceEntryDetails = vendorInvoiceEntryDetailsReducer.vendorInvoiceEntryDetails;
+
   const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
   var formChangedData = formChangedReducer.formChanged;
 
@@ -141,6 +144,20 @@ const AddVendorInvoiceHeader = () => {
           deliveryLocation: ''
         }))
       }
+    }
+    else if (e.target.name == 'invoiceAmount') {
+      let totalCGST = 0;
+      let totalSGST = 0;
+      for (let i = 0; i < vendorInvoiceEntryDetails.length; i++) {
+        totalCGST += parseFloat(vendorInvoiceEntryDetails[i].cgstAmount);
+        totalSGST += parseFloat(vendorInvoiceEntryDetails[i].sgstAmount);
+      }
+      let invoiceGrandAmount = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0) + parseFloat(e.target.value)
+      dispatch(vendorInvoiceEntryHeaderDetailsAction({
+        ...vendorInvoiceEntryHeaderDetails,
+        invoiceGrandAmount: invoiceGrandAmount,
+        invoiceAmount: e.target.value
+      }))
     } else {
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
@@ -372,6 +389,26 @@ const AddVendorInvoiceHeader = () => {
                     />
                     {Object.keys(vendorInvoiceEntryErr.invoiceDueDateErr).map((key) => {
                       return <span className="error-message">{vendorInvoiceEntryErr.invoiceDueDateErr[key]}</span>
+                    })}
+                  </Col>
+                </Form.Group>
+                <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                  <Form.Label column sm="4">
+                    Invoice Grand Amount<span className="text-danger">*</span>
+                  </Form.Label>
+                  <Col sm="8">
+                    <Form.Control id="txtInvoiceGrandAmount" name="invoiceGrandAmount" placeholder="Invoice Grand Amount" maxLength={13} value={vendorInvoiceEntryHeaderDetails.invoiceGrandAmount} onChange={handleFieldChange} disabled
+                      onKeyPress={(e) => {
+                        const keyCode = e.which || e.keyCode;
+                        const keyValue = String.fromCharCode(keyCode);
+                        const regex = /^[0-9]*\.?[0-9]*$/;
+                        if (!regex.test(keyValue)) {
+                          e.preventDefault();
+                        }
+                      }}
+                    />
+                    {Object.keys(vendorInvoiceEntryErr.invoiceAmountErr).map((key) => {
+                      return <span className="error-message">{vendorInvoiceEntryErr.invoiceAmountErr[key]}</span>
                     })}
                   </Col>
                 </Form.Group>
