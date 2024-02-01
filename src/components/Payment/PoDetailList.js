@@ -89,6 +89,12 @@ const PoDetailList = () => {
       unitName: unitList.find(unit => unit.value === paymentDetailEntry[index].unitCode)?.key || '',
     };
     dispatch(paymentDetailsAction(paymentDetailEntry));
+    if(e.target.value){
+      $('#btnSave').attr('disabled', false);
+    }
+    else{
+      $("#btnSave").attr('disabled', true);
+    }
   }
 
   const getUnitList = async () => {
@@ -204,7 +210,7 @@ const PoDetailList = () => {
                             placeholder="Paid Amount"
                             value={paymentDetails.paidAmount}
                             onChange={(e) => handleFieldChange(e, index)}
-                            disabled={paymentDetails.paymentStatus == "F"}
+                            disabled={paymentDetails.status == "Fully Paid"}
                           />
                         </td>
                         <td key="">

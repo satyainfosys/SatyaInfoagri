@@ -3,7 +3,7 @@ import TabPage from 'components/common/TabPage';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
-import { paymentDetailsAction, paymentErrorAction } from 'actions';
+import { paymentDetailsAction, paymentErrorAction, paymentHeaderAction } from 'actions';
 import { toast } from 'react-toastify';
 const tabArray = ['Payment'];
 
@@ -25,13 +25,13 @@ const Payment = () => {
 
   useEffect(() => {
     $("#btnNew").hide();
-    $('#btnSave').attr('disabled', false);
+    $('#btnSave').attr('disabled', true);
     $("#btnSave").show();
   }, []);
 
   $('[data-rr-ui-event-key*="Payment"]').off('click').on('click', function () {
     $("#btnSave").show();
-    $('#btnSave').attr('disabled', false);
+    $('#btnSave').attr('disabled', true);
     $("#btnNew").hide();
   })
 
@@ -57,10 +57,26 @@ const Payment = () => {
       const paymentDetailData = paymentDetails[i];
       const hasEncryptedPaymentDetailCode = paymentDetailData.encryptedPaymentDetailCode !== '';
       if (hasEncryptedPaymentDetailCode) {
-        await  updatePaymentDetail(paymentDetailData, i);
+        await updatePaymentDetail(paymentDetailData, i);
       } else if (paymentDetailData.paidAmount > 0 && paymentDetailData.encryptedPaymentDetailCode == '') {
-        await  addPaymentDetail(paymentDetailData, i);
+        await addPaymentDetail(paymentDetailData, i);
       }
+    }
+    if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
+      const updatedPaymentDetails = paymentDetails.map(detail => {
+        let status = ""
+        if (parseFloat(detail.productAmount) == parseFloat(detail.paidAmount)) {
+          status = "Fully Paid"
+        }
+        else {
+          status = "Partially Paid"
+        }
+        return {
+          ...detail,
+          status: status
+        };
+      });
+      dispatch(paymentDetailsAction(updatedPaymentDetails))
     }
   };
 
@@ -69,7 +85,7 @@ const Payment = () => {
     const invoicePaidAmountErr = {};
     let isValid = true;
 
-    if(parseFloat(paymentHeaderDetails.invoicePaidAmount) > parseFloat(paymentHeaderDetails.invoiceAmount)){
+    if (parseFloat(paymentHeaderDetails.invoicePaidAmount) > parseFloat(paymentHeaderDetails.invoiceAmount)) {
       invoicePaidAmountErr.invalidInvoicePaidAmountErr = "Paid amount should not be greater than invoice amount";
       setTimeout(() => {
         toast.error(invoicePaidAmountErr.invalidInvoicePaidAmountErr, {
@@ -89,9 +105,9 @@ const Payment = () => {
           });
         }, 1000);
         isValid = false;
-      }   
+      }
     }
-    
+
     if (!isValid) {
       var errorObject = {
         paidAmountErr,
@@ -134,19 +150,39 @@ const Payment = () => {
           theme: 'colored',
           autoClose: 10000
         });
-      } else if(response.data.status == 200){
+      } else if (response.data.status == 200) {
         setIsLoading(false);
         toast.success(response.data.message, {
           theme: 'colored',
           autoClose: 10000
         });
-        let paymentStatus = parseFloat(paymentDetailData.paidAmount) == parseFloat(paymentDetailData.productAmount) ? "F" : "P"
         const updatedPaymentDetail = [...paymentDetails];
+        let invoiceStatus = ""
+        if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
+          invoiceStatus = "Fully Paid"
+        }
+        else {
+          invoiceStatus = "Partially Paid"
+        }
+        dispatch(paymentHeaderAction({
+          ...paymentHeaderDetails,
+          invoiceStatus: invoiceStatus
+        }))
+
+        let status = ""
+        if (parseFloat(paymentDetailData.productAmount) == parseFloat(paymentDetailData.paidAmount)) {
+          status = "Fully Paid"
+        }
+        else {
+          status = "Partially Paid"
+        }
+
         updatedPaymentDetail[i] = {
           ...updatedPaymentDetail[i],
           encryptedPaymentDetailCode: response.data.data.encryptedPaymentDetailCode,
-          paymentStatus: paymentStatus
+          status: status
         };
+
         dispatch(paymentDetailsAction(updatedPaymentDetail));
       }
     }
@@ -154,49 +190,73 @@ const Payment = () => {
 
   const updatePaymentDetail = async (paymentDetailData, i) => {
     if (paymentValidation()) {
-    if (paymentDetailData.encryptedPaymentDetailCode != '') {
-      const keys = ["modifyUser"];
-      for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
-        paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
-      }
-      const request = {
-        encryptedPaymentDetailCode: paymentDetailData.encryptedPaymentDetailCode,
-        encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
-        encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
-        vendorCode: paymentHeaderDetails.code,
-        productCode: paymentDetailData.productCode,
-        poNo: paymentHeaderDetails.poNo,
-        paymentAmount: paymentDetailData.paidAmount,
-        totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
-        modifyUser: localStorage.getItem("LoginUserName")
-      };
-
-      setIsLoading(true);
-      let response = await axios.post(process.env.REACT_APP_API_URL + '/update-payment-detail', request, {
-        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-      });
-      if (response.data.status !== 200) {
-        toast.error(response.data.message, {
-          theme: 'colored',
-          autoClose: 10000
-        });
-        setIsLoading(false);
-      }
-      else if (response.data.status == 200) {
-        setIsLoading(false);
-        toast.success(response.data.message, {
-          theme: 'colored',
-          autoClose: 10000
-        })
-        let paymentStatus = parseFloat(paymentDetailData.paidAmount) == parseFloat(paymentDetailData.productAmount) ? "F" : "P"
-        const updatedPaymentDetail = [...paymentDetails];
-        updatedPaymentDetail[i] = {
-          ...updatedPaymentDetail[i],
-          paymentStatus: paymentStatus
+      if (paymentDetailData.encryptedPaymentDetailCode != '') {
+        const keys = ["modifyUser"];
+        for (const key of Object.keys(paymentDetailData).filter((key) => keys.includes(key))) {
+          paymentDetailData[key] = paymentDetailData[key] ? paymentDetailData[key].toUpperCase() : "";
+        }
+        const request = {
+          encryptedPaymentDetailCode: paymentDetailData.encryptedPaymentDetailCode,
+          encryptedInvoiceDetailCode: paymentDetailData.encryptedInvoiceDetailCode,
+          encryptedInvoiceHeaderCode: paymentHeaderDetails.encryptedInvoiceHeaderCode,
+          vendorCode: paymentHeaderDetails.code,
+          productCode: paymentDetailData.productCode,
+          poNo: paymentHeaderDetails.poNo,
+          paymentAmount: paymentDetailData.paidAmount,
+          totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
+          modifyUser: localStorage.getItem("LoginUserName")
         };
-        dispatch(paymentDetailsAction(updatedPaymentDetail));
+
+        setIsLoading(true);
+        let response = await axios.post(process.env.REACT_APP_API_URL + '/update-payment-detail', request, {
+          headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        });
+        if (response.data.status !== 200) {
+          toast.error(response.data.message, {
+            theme: 'colored',
+            autoClose: 10000
+          });
+          setIsLoading(false);
+        }
+        else if (response.data.status == 200) {
+          setIsLoading(false);
+          toast.success(response.data.message, {
+            theme: 'colored',
+            autoClose: 10000
+          })
+
+          let invoiceStatus = ""
+          if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
+            invoiceStatus = "Fully Paid"
+          }
+          else {
+            invoiceStatus = "Partially Paid"
+          }
+
+          dispatch(paymentHeaderAction({
+            ...paymentHeaderDetails,
+            invoiceStatus: invoiceStatus
+          }))
+
+          const updatedPaymentDetail = [...paymentDetails];
+          let status = ""
+         
+          if (parseFloat(paymentDetailData.productAmount) == parseFloat(paymentDetailData.paidAmount)) {
+            status = "Fully Paid"
+          }
+          else {
+            status = "Partially Paid"
+          }
+
+          updatedPaymentDetail[i] = {
+            ...updatedPaymentDetail[i],
+            status: status
+          };
+          
+          dispatch(paymentDetailsAction(updatedPaymentDetail));
+
+        }
       }
-    }
     }
   };
 

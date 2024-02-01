@@ -37,8 +37,8 @@ const AddPaymentDetails = () => {
       "invoiceNo": "",
       "invoiceDate": "",
       "invoiceAmount": "",
-      "invoicePaidAmount": "",
-      "balanceAmount": ""
+      "invoicePaidAmount": 0,
+      "balanceAmount": 0
     }))
   }
 
@@ -47,16 +47,16 @@ const AddPaymentDetails = () => {
     getUnitList()
   }, []);
 
-  // if (!paymentHeaderDetailsReducer.paymentHeaderDetail ||
-  //   Object.keys(paymentHeaderDetailsReducer.paymentHeaderDetail).length <= 0) {
-  //   resetInvoiceEntryHeaderDetails();
-  // }
-
   const handleFieldChange = e => {
     if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
       getVendorAndFarmerList(companyDetail.encryptedCompanyCode)
       localStorage.setItem("EncryptedCompanyCode",companyDetail.encryptedCompanyCode)
+      dispatch(paymentDetailsAction([]))
+      resetInvoiceEntryHeaderDetails()
+      setInvoiceData([]);
+      setInvoiceList([]);
+      setVendorAndMasterDetail([]);
     }
     else if (e.target.name === 'invoicePaidAmount' && e.target.value) {
       if (paymentHeaderDetails.invoiceAmount == parseFloat(e.target.value)) {
@@ -76,6 +76,13 @@ const AddPaymentDetails = () => {
         invoicePaidAmount: e.target.value,
         balanceAmount: balanceAmount,
       }))
+
+      if(e.target.value > 0){
+        $('#btnSave').attr('disabled', false);
+      }
+      else{
+        $("#btnSave").attr('disabled', true);
+      }
     }
     else if(e.target.name === 'invoicePaidAmount')
     {
@@ -92,6 +99,13 @@ const AddPaymentDetails = () => {
           invoicePaidAmount:"",
           balanceAmount: paymentHeaderDetails.invoiceAmount ,
         }))
+
+        if(e.target.value > 0){
+          $('#btnSave').attr('disabled', false);
+        }
+        else{
+          $("#btnSave").attr('disabled', true);
+        }  
     }
     else {
       dispatch(paymentHeaderAction({
@@ -112,6 +126,7 @@ const AddPaymentDetails = () => {
       state: companyDetail.state,
       country: companyDetail.country
     }))
+    setInvoiceData([]);
     fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
   }
 
@@ -124,15 +139,17 @@ const AddPaymentDetails = () => {
       invoiceDate: invoiceDetail.invoiceDate,
       invoiceAmount: invoiceDetail.invoiceAmount,
       invoicePaidAmount: invoiceDetail.invoicePaidAmount,
+      invoiceStatus: paymentHeaderDetails.invoiceStatus ? paymentHeaderDetails.invoiceStatus : invoiceDetail.invoiceStatus,
       poNo: invoiceDetail.poNo,
     }))
     getInvoiceDetailList(invoiceDetail.invoiceNo)
-    const fullyPaid = paymentDetails.every(item => item.paymentStatus === 'F');
-    dispatch(paymentHeaderAction({
-      ...paymentHeaderDetails,
-      fullyPaid: fullyPaid,
-    }))
-
+    if(invoiceDetail.invoicePaidAmount == 0) {
+      $("#btnSave").attr('disabled', true);
+    }
+    else{
+      $('#btnSave').attr('disabled', false);
+    }
+    
   }
 
   const getCompany = async () => {
@@ -194,9 +211,14 @@ const AddPaymentDetails = () => {
       const regex = new RegExp(searchText, 'i');
       const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
       setVendorAndMasterDetail(filteredList);
+      resetInvoiceEntryHeaderDetails()
+      dispatch(paymentDetailsAction([]))
+      setInvoiceData([]);
+      setInvoiceList([]);
     }
     else {
       setVendorAndMasterDetail([]);
+      resetInvoiceEntryHeaderDetails()
     }
   }
 
@@ -206,6 +228,17 @@ const AddPaymentDetails = () => {
       const regex = new RegExp(searchText, 'i');
       const filteredList = invoiceList && invoiceList.filter(data => regex.test(data.invoiceNo));
       setInvoiceData(filteredList);
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
+        encryptedInvoiceHeaderCode: "",
+        invoiceNo: "",
+        invoiceDate: "",
+        invoiceAmount: "",
+        invoicePaidAmount: "",
+        invoiceStatus: "",
+        poNo: "",
+      }))
+      dispatch(paymentDetailsAction([]))
     }
     else {
       setInvoiceData([]);
@@ -274,14 +307,22 @@ const AddPaymentDetails = () => {
           const unitName = unit ? unit.key : '';
           netAmount += parseFloat(detail.productAmount); 
           let balanceAmount = detail.productAmount - detail.paidAmount
+          let status = ""
+          if (detail.productAmount == detail.paidAmount) {
+            status = "Fully Paid"
+          }
+          else {
+            status = "Partially Paid"
+          }
           return {
             ...detail,
             unitName: unitName,
             balanceAmount: balanceAmount,
+            status: status
           };
         });
 
-        const updatedInvoiceDetails =invoiceDetails.map(detail => {
+        const updatedInvoiceDetails = invoiceDetails.map(detail => {
           return {
             ...detail,
             netAmount: netAmount,
@@ -289,6 +330,20 @@ const AddPaymentDetails = () => {
         });
 
         dispatch(paymentDetailsAction(updatedInvoiceDetails))
+
+        let invoiceStatus = ""
+        if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
+          invoiceStatus = "Fully Paid"
+        }
+        else {
+          invoiceStatus = "Partially Paid"
+        }
+
+        dispatch(paymentHeaderAction({
+          ...paymentHeaderDetails,
+          invoiceStatus: invoiceStatus
+        }))
+
       } else {
         setInvoiceDetails([])
       }
@@ -460,7 +515,7 @@ const AddPaymentDetails = () => {
                         Paid Amount<span className="text-danger">*</span>
                       </Form.Label>
                       <Col sm="8">
-                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} disabled={paymentHeaderDetails.fullyPaid == true}
+                        <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} disabled={paymentHeaderDetails.invoiceStatus == "Fully Paid"}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
