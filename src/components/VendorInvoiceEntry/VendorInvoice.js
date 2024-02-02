@@ -414,6 +414,8 @@ const VendorInvoice = () => {
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
         poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
         invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount.toString(),
+        gstTotalAmt: vendorInvoiceEntryHeaderDetails.gstTotalAmt,
+        invoiceGrandAmt: vendorInvoiceEntryHeaderDetails.invoiceGrandAmt,
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate,
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate,
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
@@ -487,12 +489,14 @@ const VendorInvoice = () => {
       var deleteInvoiceDetailCodes = localStorage.getItem("DeleteInvoiceDetailCodes");
 
       const updateRequestData = {
-        // encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
+        encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
         encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
         vendorCode: vendorInvoiceEntryHeaderDetails.vendorCode,
         poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
         invoiceAmount: vendorInvoiceEntryHeaderDetails.invoiceAmount ? vendorInvoiceEntryHeaderDetails.invoiceAmount.toString() : 0,
+        gstTotalAmt: vendorInvoiceEntryHeaderDetails.gstTotalAmt ? vendorInvoiceEntryHeaderDetails.gstTotalAmt : 0,
+        invoiceGrandAmt: vendorInvoiceEntryHeaderDetails.invoiceGrandAmt ? vendorInvoiceEntryHeaderDetails.invoiceGrandAmt: 0,
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDueDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
@@ -577,6 +581,11 @@ const VendorInvoice = () => {
               invoiceRate: parseFloat(vendorInvoiceEntryDetailsData.invoiceRate),
               UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               productAmount: parseFloat(vendorInvoiceEntryDetailsData.productAmount),
+              cgstPer: vendorInvoiceEntryDetailsData.cgstPer ? vendorInvoiceEntryDetailsData.cgstPer : 0,
+              cgstAmt: vendorInvoiceEntryDetailsData.cgstAmt ? vendorInvoiceEntryDetailsData.cgstAmt : 0,
+              sgstPer: vendorInvoiceEntryDetailsData.sgstPer ? vendorInvoiceEntryDetailsData.sgstPer : 0,
+              sgstAmt: vendorInvoiceEntryDetailsData.sgstAmt ? vendorInvoiceEntryDetailsData.sgstAmt : 0,
+              productGrandAmt: vendorInvoiceEntryDetailsData.productGrandAmt ? vendorInvoiceEntryDetailsData.productGrandAmt : 0,
               modifyUser: localStorage.getItem("LoginUserName"),
             }
             setIsLoading(true);
@@ -606,6 +615,11 @@ const VendorInvoice = () => {
               invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate.toString(),
               UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               productAmount: vendorInvoiceEntryDetailsData.productAmount.toString(),
+              cgstPer: vendorInvoiceEntryDetailsData.cgstPer ? vendorInvoiceEntryDetailsData.cgstPer : 0,
+              cgstAmt: vendorInvoiceEntryDetailsData.cgstAmt ? vendorInvoiceEntryDetailsData.cgstAmt : 0,
+              sgstPer: vendorInvoiceEntryDetailsData.sgstPer ? vendorInvoiceEntryDetailsData.sgstPer : 0,
+              sgstAmt: vendorInvoiceEntryDetailsData.sgstAmt ? vendorInvoiceEntryDetailsData.sgstAmt : 0,
+              productGrandAmt: vendorInvoiceEntryDetailsData.productGrandAmt ? vendorInvoiceEntryDetailsData.productGrandAmt : 0,
               addUser: localStorage.getItem("LoginUserName"),
             }
             setIsLoading(true);

@@ -551,9 +551,9 @@ const PurchaseOrder = () => {
                             unitCode: parseInt(purchaseProductOrderDetailData.unitCode),
                             poRate: parseFloat(purchaseProductOrderDetailData.poRate),
                             poAmt: parseFloat(purchaseProductOrderDetailData.poAmt),
-                            taxBasis: purchaseProductOrderDetailData.taxBasis && purchaseProductOrderDetailData.taxBasis == "Percentage" ? "P" : purchaseProductOrderDetailData.taxBasis == "Lumpsum" ? "L" : "",
-                            taxRate: purchaseProductOrderDetailData.taxRate ? parseFloat(purchaseProductOrderDetailData.taxRate) : "",
-                            taxAmt: purchaseProductOrderDetailData.taxAmount ? parseFloat(purchaseProductOrderDetailData.taxAmount) : "",
+                            // taxBasis: purchaseProductOrderDetailData.taxBasis && purchaseProductOrderDetailData.taxBasis == "Percentage" ? "P" : purchaseProductOrderDetailData.taxBasis == "Lumpsum" ? "L" : "",
+                            // taxRate: purchaseProductOrderDetailData.taxRate ? parseFloat(purchaseProductOrderDetailData.taxRate) : "",
+                            // taxAmt: purchaseProductOrderDetailData.taxAmount ? parseFloat(purchaseProductOrderDetailData.taxAmount) : "",
                             modifyUser: localStorage.getItem("LoginUserName")
                         }
                         setIsLoading(true);
@@ -583,9 +583,9 @@ const PurchaseOrder = () => {
                             unitCode: purchaseProductOrderDetailData.unitCode,
                             poRate: purchaseProductOrderDetailData.poRate,
                             poAmt: purchaseProductOrderDetailData.poAmt,
-                            taxBasis: purchaseProductOrderDetailData.taxBasis ? purchaseProductOrderDetailData.taxBasis : "",
-                            taxRate: purchaseProductOrderDetailData.taxRate ? purchaseProductOrderDetailData.taxRate : "",
-                            taxAmount: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
+                            // taxBasis: purchaseProductOrderDetailData.taxBasis ? purchaseProductOrderDetailData.taxBasis : "",
+                            // taxRate: purchaseProductOrderDetailData.taxRate ? purchaseProductOrderDetailData.taxRate : "",
+                            // taxAmount: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
                             vendorRate: purchaseProductOrderDetailData.vendorRate,
                             addUser: localStorage.getItem("LoginUserName")
                         }

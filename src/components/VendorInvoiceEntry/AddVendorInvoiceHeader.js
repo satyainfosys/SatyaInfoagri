@@ -23,8 +23,8 @@ const AddVendorInvoiceHeader = () => {
       "poStatus": "",
       "deliveryLocation": "",
       "invoiceNo": "",
-      "invoiceAmount": "",
-      "invoicePaidAmount": "",
+      "invoiceAmount": 0,
+      "invoicePaidAmount": 0,
       "invoiceDate": "",
       "invoiceDueDate": "",
       "invoiceStatus": "Draft"
@@ -149,13 +149,16 @@ const AddVendorInvoiceHeader = () => {
       let totalCGST = 0;
       let totalSGST = 0;
       for (let i = 0; i < vendorInvoiceEntryDetails.length; i++) {
-        totalCGST += parseFloat(vendorInvoiceEntryDetails[i].cgstAmount);
-        totalSGST += parseFloat(vendorInvoiceEntryDetails[i].sgstAmount);
+        totalCGST += parseFloat(vendorInvoiceEntryDetails[i].cgstAmt);
+        totalSGST += parseFloat(vendorInvoiceEntryDetails[i].sgstAmt);
       }
-      let invoiceGrandAmount = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0) + parseFloat(e.target.value)
+
+      let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      let invoiceGrandAmt = gstTotalAmt + parseFloat(e.target.value)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
-        invoiceGrandAmount: invoiceGrandAmount,
+        gstTotalAmt: gstTotalAmt,
+        invoiceGrandAmt: invoiceGrandAmt,
         invoiceAmount: e.target.value
       }))
     } else {
@@ -397,7 +400,7 @@ const AddVendorInvoiceHeader = () => {
                     Invoice Grand Amount<span className="text-danger">*</span>
                   </Form.Label>
                   <Col sm="8">
-                    <Form.Control id="txtInvoiceGrandAmount" name="invoiceGrandAmount" placeholder="Invoice Grand Amount" maxLength={13} value={vendorInvoiceEntryHeaderDetails.invoiceGrandAmount} onChange={handleFieldChange} disabled
+                    <Form.Control id="txtInvoiceGrandAmt" name="invoiceGrandAmt" placeholder="Invoice Grand Amount" maxLength={13} value={vendorInvoiceEntryHeaderDetails.invoiceGrandAmt} onChange={handleFieldChange} disabled
                       onKeyPress={(e) => {
                         const keyCode = e.which || e.keyCode;
                         const keyValue = String.fromCharCode(keyCode);
@@ -407,9 +410,6 @@ const AddVendorInvoiceHeader = () => {
                         }
                       }}
                     />
-                    {Object.keys(vendorInvoiceEntryErr.invoiceAmountErr).map((key) => {
-                      return <span className="error-message">{vendorInvoiceEntryErr.invoiceAmountErr[key]}</span>
-                    })}
                   </Col>
                 </Form.Group>
               </Col>
