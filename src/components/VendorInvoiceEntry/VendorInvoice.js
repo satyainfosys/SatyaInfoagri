@@ -241,16 +241,17 @@ const VendorInvoice = () => {
         }
       })
 
-      const totalProductAmount = vendorInvoiceEntryDetails.length > 1
+      const totalProductGrandAmount = vendorInvoiceEntryDetails.length > 1
         ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
-          const productAmount = obj.productAmount !== "" ? parseFloat(obj.productAmount) : 0;
-          return acc + (isNaN(productAmount) ? 0 : productAmount);
+          const productGrandAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+          return acc + (isNaN(productGrandAmount) ? 0 : productGrandAmount);
         }, 0)
         : vendorInvoiceEntryDetails.length === 1
-          ? parseFloat(vendorInvoiceEntryDetails[0].productAmount)
+          ? parseFloat(vendorInvoiceEntryDetails[0].productGrandAmt)
           : 0;
-      if (vendorInvoiceEntryHeaderDetails.invoiceAmount != totalProductAmount) {
-        totalInvoiceAmountErr.empty = "Invoice amount should be equal to total product amount";
+          
+      if (vendorInvoiceEntryHeaderDetails.invoiceAmount != totalProductGrandAmount) {
+        totalInvoiceAmountErr.empty = "Invoice amount should be equal to total grand product amount";
         setTimeout(() => {
           toast.error(totalInvoiceAmountErr.empty, {
             theme: 'colored'

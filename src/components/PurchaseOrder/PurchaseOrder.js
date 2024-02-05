@@ -316,7 +316,7 @@ const PurchaseOrder = () => {
 
         const vendorErr = {};
         const poDateErr = {};
-        // const poAmountErr = {};
+        const poAmountErr = {};
         const poProductDetailsErr = {};
 
         let isValid = true;
@@ -351,12 +351,32 @@ const PurchaseOrder = () => {
                 }
             })
         }
+   
+        const totalProductGrandAmount = purchaseOrderProductDetailsList.length > 1
+        ? purchaseOrderProductDetailsList.reduce((acc, obj) => {
+          const productGrandAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+          return acc + (isNaN(productGrandAmount) ? 0 : productGrandAmount);
+        }, 0)
+        : purchaseOrderProductDetailsList.length === 1
+          ? parseFloat(purchaseOrderProductDetailsList[0].productGrandAmt)
+          : 0;
+         
+      if (purchaseOrderData.poAmount != totalProductGrandAmount) {
+        poAmountErr.empty = "Po amount should be equal to total grand product amount";
+        setTimeout(() => {
+          toast.error(poAmountErr.empty, {
+            theme: 'colored'
+          });
+        }, 1000);
+        isValid = false;
+      }
 
         if (!isValid) {
             var errorObject = {
                 vendorErr,
                 poDateErr,
-                poProductDetailsErr
+                poProductDetailsErr,
+                poAmountErr
             }
 
             dispatch(purchaseOrderDetailsErrAction(errorObject))
@@ -399,6 +419,8 @@ const PurchaseOrder = () => {
                 purchaseOrderProductDetails: purchaseOrderProductDetailsList,
                 purchaseOrderTermDetails: purchaseOrderTermList,
                 deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
+                gstTotalAmt: purchaseOrderData.gstTotalAmt,
+                poGrandAmt: purchaseOrderData.poGrandAmt,
                 addUser: localStorage.getItem("LoginUserName")
             }
 
@@ -471,6 +493,8 @@ const PurchaseOrder = () => {
                 distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
                 collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
                 deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
+                gstTotalAmt: purchaseOrderData.gstTotalAmt ? purchaseOrderData.gstTotalAmt : 0,
+                poGrandAmt: purchaseOrderData.poGrandAmt ? purchaseOrderData.poGrandAmt: 0,
                 modifyUser: localStorage.getItem("LoginUserName")
             }
 
@@ -554,6 +578,11 @@ const PurchaseOrder = () => {
                             // taxBasis: purchaseProductOrderDetailData.taxBasis && purchaseProductOrderDetailData.taxBasis == "Percentage" ? "P" : purchaseProductOrderDetailData.taxBasis == "Lumpsum" ? "L" : "",
                             // taxRate: purchaseProductOrderDetailData.taxRate ? parseFloat(purchaseProductOrderDetailData.taxRate) : "",
                             // taxAmt: purchaseProductOrderDetailData.taxAmount ? parseFloat(purchaseProductOrderDetailData.taxAmount) : "",
+                            cgstPer: purchaseProductOrderDetailData.cgstPer ? purchaseProductOrderDetailData.cgstPer : 0,
+                            cgstAmt: purchaseProductOrderDetailData.cgstAmt ? purchaseProductOrderDetailData.cgstAmt : 0,
+                            sgstPer: purchaseProductOrderDetailData.sgstPer ? purchaseProductOrderDetailData.sgstPer : 0,
+                            sgstAmt: purchaseProductOrderDetailData.sgstAmt ? purchaseProductOrderDetailData.sgstAmt : 0,
+                            productGrandAmt: purchaseProductOrderDetailData.productGrandAmt ? purchaseProductOrderDetailData.productGrandAmt : 0,
                             modifyUser: localStorage.getItem("LoginUserName")
                         }
                         setIsLoading(true);
@@ -586,6 +615,11 @@ const PurchaseOrder = () => {
                             // taxBasis: purchaseProductOrderDetailData.taxBasis ? purchaseProductOrderDetailData.taxBasis : "",
                             // taxRate: purchaseProductOrderDetailData.taxRate ? purchaseProductOrderDetailData.taxRate : "",
                             // taxAmount: purchaseProductOrderDetailData.taxAmount ? purchaseProductOrderDetailData.taxAmount.toString() : "",
+                            cgstPer: purchaseProductOrderDetailData.cgstPer ? purchaseProductOrderDetailData.cgstPer : 0,
+                            cgstAmt: purchaseProductOrderDetailData.cgstAmt ? purchaseProductOrderDetailData.cgstAmt : 0,
+                            sgstPer: purchaseProductOrderDetailData.sgstPer ? purchaseProductOrderDetailData.sgstPer : 0,
+                            sgstAmt: purchaseProductOrderDetailData.sgstAmt ? purchaseProductOrderDetailData.sgstAmt : 0,
+                            productGrandAmt: purchaseProductOrderDetailData.productGrandAmt ? purchaseProductOrderDetailData.productGrandAmt : 0,
                             vendorRate: purchaseProductOrderDetailData.vendorRate,
                             addUser: localStorage.getItem("LoginUserName")
                         }

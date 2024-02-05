@@ -77,11 +77,11 @@ const PurchaseOrderProductDetails = () => {
 
     const totalPoAmount = purchaseOrderProductDetailsData.length > 1
       ? purchaseOrderProductDetailsData.reduce((acc, obj) => {
-        const poAmount = obj.poAmt !== "" ? parseFloat(obj.poAmt) : 0;
+        const poAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
         return acc + (isNaN(poAmount) ? 0 : poAmount);
       }, 0)
       : purchaseOrderProductDetailsData.length === 1
-        ? parseFloat(purchaseOrderProductDetailsData[0].poAmt)
+        ? parseFloat(purchaseOrderProductDetailsData[0].productGrandAmt)
         : 0;
 
     dispatch(purchaseOrderDetailsAction({
@@ -206,27 +206,55 @@ const PurchaseOrderProductDetails = () => {
     dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
 
     if (e.target.name == "quantity") {
+      let calculatedPoAmount = 0
       if (purchaseOrderProductDetail[index].poRate) {
         if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].taxRate) {
           var poTaxAmount = await calculateTaxAmount("Percentage", parseFloat(purchaseOrderProductDetail[index].taxRate), parseFloat(e.target.value), parseFloat(purchaseOrderProductDetail[index].poRate))
-          const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount)
+          calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(poTaxAmount)
           purchaseOrderProductDetail[index].taxAmount = poTaxAmount.toString();
           purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
-          dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+          // dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
         }
         else if (purchaseOrderProductDetail[index].taxBasis == "Lumpsum" && purchaseOrderProductDetail[index].taxRate) {
-          const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate)
+          calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate) + parseFloat(purchaseOrderProductDetail[index].taxRate)
           purchaseOrderProductDetail[index].taxAmount = purchaseOrderProductDetail[index].taxRate;
           purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
-          dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+          // dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
         }
         else {
-          const calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate)
+          calculatedPoAmount = parseFloat(e.target.value) * parseFloat(purchaseOrderProductDetail[index].poRate)
           purchaseOrderProductDetail[index].poAmt = isNaN(calculatedPoAmount) ? 0 : calculatedPoAmount.toString();
-          dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+          // dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
         }
       }
-    }
+        
+      let cgstAmt = (parseFloat(calculatedPoAmount) * (parseFloat(purchaseOrderProductDetail[index].cgstPer) !== "" ? parseFloat(purchaseOrderProductDetail[index].cgstPer) : 0) )/100
+      purchaseOrderProductDetail[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
+        let sgstAmt = (parseFloat(calculatedPoAmount) * (parseFloat(purchaseOrderProductDetail[index].sgstPer) !== ""  ? parseFloat(purchaseOrderProductDetail[index].sgstPer) : 0) )/100
+        purchaseOrderProductDetail[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
+        let productGrandAmt = (calculatedPoAmount > 0 ? parseFloat(calculatedPoAmount) : 0)  + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
+        purchaseOrderProductDetail[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+  
+          let totalCGST = 0;
+          let totalSGST = 0;
+          let totalProductGrandAmount =  0;
+          for (let i = 0; i < purchaseOrderProductDetail.length; i++) {
+            totalCGST += parseFloat(purchaseOrderProductDetail[i].cgstAmt);
+            totalSGST += parseFloat(purchaseOrderProductDetail[i].sgstAmt);
+            totalProductGrandAmount += parseFloat(purchaseOrderProductDetail[i].productGrandAmt);
+          } 
+
+        let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
+        let poGrandAmt = gstTotalAmt + (totalProductGrandAmount ? totalProductGrandAmount : 0)
+ 
+        dispatch(purchaseOrderDetailsAction({
+          ...purchaseOrderData,
+          gstTotalAmt: gstTotalAmt,
+          poGrandAmt : poGrandAmt
+        }))
+
+        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+      }
 
     if (e.target.name == "poRate") {
       if (purchaseOrderProductDetail[index].quantity) {
@@ -265,6 +293,32 @@ const PurchaseOrderProductDetails = () => {
           dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
         }
       }
+
+      let amount = e.target.value * (purchaseOrderProductDetail[index].quantity ? parseFloat(purchaseOrderProductDetail[index].quantity) : 0)
+      let cgstAmt =  (parseFloat(amount) * (parseFloat(purchaseOrderProductDetail[index].cgstPer) !== ""  ? parseFloat(purchaseOrderProductDetail[index].cgstPer) : 0) )/100
+      purchaseOrderProductDetail[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
+      let sgstAmt = (parseFloat(amount) * (parseFloat(purchaseOrderProductDetail[index].sgstPer) !== ""  ? parseFloat(purchaseOrderProductDetail[index].sgstPer) : 0) )/100
+      purchaseOrderProductDetail[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
+      let productGrandAmt = (amount > 0 ? parseFloat(amount) : 0) + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
+      purchaseOrderProductDetail[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < purchaseOrderProductDetail.length; i++) {
+          totalCGST += parseFloat(purchaseOrderProductDetail[i].cgstAmt);
+          totalSGST += parseFloat(purchaseOrderProductDetail[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(purchaseOrderProductDetail[i].productGrandAmt);
+        }
+ 
+      let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
+      let poGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      dispatch(purchaseOrderDetailsAction({
+        ...purchaseOrderData,
+        gstTotalAmt: gstTotalAmt,
+        poGrandAmt : poGrandAmt
+      }))
+
+      dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
     }
 
     if (e.target.name == "poAmt") {
@@ -284,7 +338,84 @@ const PurchaseOrderProductDetails = () => {
           dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
         }
       }
+
+      let cgstAmt = (parseFloat(e.target.value) * (parseFloat(purchaseOrderProductDetail[index].cgstPer) !== ""  ? parseFloat(purchaseOrderProductDetail[index].cgstPer) : 0) )/100
+      purchaseOrderProductDetail[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
+      let sgstAmt = (parseFloat(e.target.value) * (parseFloat(purchaseOrderProductDetail[index].sgstPer) !== ""  ? parseFloat(purchaseOrderProductDetail[index].sgstPer) : 0) )/100
+      purchaseOrderProductDetail[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
+      let productGrandAmt = (e.target.value !== "" ? parseFloat(e.target.value) : 0)  +(cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
+      purchaseOrderProductDetail[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < purchaseOrderProductDetail.length; i++) {
+          totalCGST += parseFloat(purchaseOrderProductDetail[i].cgstAmt);
+          totalSGST += parseFloat(purchaseOrderProductDetail[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(purchaseOrderProductDetail[i].productGrandAmt);
+        }
+      
+      let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      let poGrandAmt = (gstTotalAmt ? gstTotalAmt : 0) + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      dispatch(purchaseOrderDetailsAction({
+        ...purchaseOrderData,
+        gstTotalAmt: gstTotalAmt,
+        poGrandAmt : poGrandAmt
+      })) 
+
+      dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
     }
+
+    if (e.target.name == "cgstPer") {
+      if (purchaseOrderProductDetail[index].poAmt || purchaseOrderProductDetail[index].invoiceRate) {
+        var cgstAmt = (parseFloat(purchaseOrderProductDetail[index].poAmt) * parseFloat(e.target.value)) / 100
+        purchaseOrderProductDetail[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString();
+        var productGrandAmt = parseFloat(purchaseOrderProductDetail[index].poAmt) + (cgstAmt > 0 ? cgstAmt : 0) + (purchaseOrderProductDetail[index].sgstAmt ? parseFloat(purchaseOrderProductDetail[index].sgstAmt) : 0)
+        purchaseOrderProductDetail[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString();
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < purchaseOrderProductDetail.length; i++) {
+          totalCGST += parseFloat(purchaseOrderProductDetail[i].cgstAmt);
+          totalSGST += parseFloat(purchaseOrderProductDetail[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(purchaseOrderProductDetail[i].productGrandAmt);
+        }
+        
+        let gstTotalAmt = totalCGST + (totalSGST ? totalSGST : 0)
+        let poGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        dispatch(purchaseOrderDetailsAction({
+          ...purchaseOrderData,
+          gstTotalAmt: gstTotalAmt,
+          poGrandAmt: poGrandAmt
+        }))
+        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+      }
+    }
+
+    if (e.target.name == "sgstPer") {
+      if (purchaseOrderProductDetail[index].poAmt || purchaseOrderProductDetail[index].invoiceRate) {
+        var sgstAmt = (parseFloat(purchaseOrderProductDetail[index].poAmt) * parseFloat(e.target.value)) / 100
+        purchaseOrderProductDetail[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString();
+        var calculatedProductGrandAmt = parseFloat(purchaseOrderProductDetail[index].poAmt) + (sgstAmt > 0 ? sgstAmt : 0) + (purchaseOrderProductDetail[index].cgstAmt ? parseFloat(purchaseOrderProductDetail[index].cgstAmt) : 0)
+        purchaseOrderProductDetail[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString();
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < purchaseOrderProductDetail.length; i++) {
+          totalCGST += parseFloat(purchaseOrderProductDetail[i].cgstAmt);
+          totalSGST += parseFloat(purchaseOrderProductDetail[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(purchaseOrderProductDetail[i].productGrandAmt);
+        }
+        let gstTotalAmt = (totalCGST ? totalCGST : 0) + totalSGST
+        let poGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        dispatch(purchaseOrderDetailsAction({
+          ...purchaseOrderData,
+          gstTotalAmt: gstTotalAmt,
+          poGrandAmt: poGrandAmt
+        }))
+        dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+      }
+    }
+
 
     if (e.target.name == "taxRate") {
       if (purchaseOrderProductDetail[index].taxBasis == "Percentage" && purchaseOrderProductDetail[index].quantity && purchaseOrderProductDetail[index].poRate) {
@@ -358,7 +489,8 @@ const PurchaseOrderProductDetails = () => {
     if (purchaseOrderProductDetail[index].encryptedPoDetailId) {
       dispatch(formChangedAction({
         ...formChangedData,
-        purchaseOrderProductDetailsUpdate: true
+        purchaseOrderProductDetailsUpdate: true,
+        purchaseOrderDetailUpdate: true
       }))
     } else {
       dispatch(formChangedAction({
@@ -748,7 +880,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.unitCode}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                         >
                           <option value=''>Select </option>
                           {quantityUnitList.map((option, index) => (
@@ -765,7 +897,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.quantity ? poProductDetailData.quantity : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -786,7 +918,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.poRate ? poProductDetailData.poRate : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -863,7 +995,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.poAmt ? poProductDetailData.poAmt : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -881,7 +1013,7 @@ const PurchaseOrderProductDetails = () => {
                           placeholder="CGST %"
                           maxLength={4}
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={purchaseOrderData.cgstPer ? purchaseOrderData.cgstPer : ""}
+                          value={poProductDetailData.cgstPer ? poProductDetailData.cgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -891,7 +1023,7 @@ const PurchaseOrderProductDetails = () => {
                             }
                           }}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                         />
                       </td>
                       <td key={index}>
@@ -900,7 +1032,7 @@ const PurchaseOrderProductDetails = () => {
                           placeholder="CGST Amount"
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={purchaseOrderData.cgstAmt ? purchaseOrderData.cgstAmt : ""}
+                          value={poProductDetailData.cgstAmt ? poProductDetailData.cgstAmt : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -919,7 +1051,7 @@ const PurchaseOrderProductDetails = () => {
                           placeholder="SGST %"
                           maxLength={4}
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={purchaseOrderData.sgstPer ? purchaseOrderData.sgstPer : ""}
+                          value={poProductDetailData.sgstPer ? poProductDetailData.sgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -929,7 +1061,7 @@ const PurchaseOrderProductDetails = () => {
                             }
                           }}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved"}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}
                         />
                       </td>
                       <td key={index}>
@@ -938,7 +1070,7 @@ const PurchaseOrderProductDetails = () => {
                           placeholder="SGST Amount"
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={purchaseOrderData.sgstAmt ? purchaseOrderData.sgstAmt : ""}
+                          value={poProductDetailData.sgstAmt ? poProductDetailData.sgstAmt : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -957,7 +1089,7 @@ const PurchaseOrderProductDetails = () => {
                           placeholder="Product Grand Amount"
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={purchaseOrderData.productGrandAmt ? purchaseOrderData.productGrandAmt : ""}
+                          value={poProductDetailData.productGrandAmt ? poProductDetailData.productGrandAmt : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);

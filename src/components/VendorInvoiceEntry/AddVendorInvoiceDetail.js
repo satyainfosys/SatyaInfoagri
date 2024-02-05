@@ -209,14 +209,7 @@ const AddVendorInvoiceDetail = () => {
 
     if (response.data.status == 200) {
       if (response.data && response.data.data.length > 0) {
-        const data = response.data.data.map(item => ({
-          ...item,
-          cgstPer: '0', 
-          cgstAmt: '0',
-          sgstPer: '0',
-          sgstAmt: '0',
-        }));
-        dispatch(purchaseOrderProductDetailsAction(data));
+        dispatch(purchaseOrderProductDetailsAction(response.data.data));
       }
     }
     else {
@@ -235,23 +228,27 @@ const AddVendorInvoiceDetail = () => {
 
     if (e.target.name == "invoiceQty") {
       if (vendorInvoiceEntry[index].invoiceRate) {
-        var totalAmount = parseFloat(e.target.value) * parseFloat(vendorInvoiceEntry[index].invoiceRate)
+        var totalAmount = (e.target.value !== "" ?parseFloat(e.target.value): 0) * parseFloat(vendorInvoiceEntry[index].invoiceRate)
         vendorInvoiceEntry[index].productAmount = isNaN(totalAmount) ? 0 : totalAmount.toString();
 
-        let cgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].cgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
+        let cgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].cgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
         vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
-        let sgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].sgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
+        let sgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].sgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
         vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
-        let productGrandAmt = parseFloat(totalAmount)  + cgstAmt + sgstAmt 
+        let productGrandAmt = totalAmount > 0 ? parseFloat(totalAmount) : 0  + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
         vendorInvoiceEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
           let totalCGST = 0;
           let totalSGST = 0;
+     
+          let totalProductGrandAmount = 0;
           for (let i = 0; i < vendorInvoiceEntry.length; i++) {
             totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmt);
             totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmt);
+            totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
           }
+      
         let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-        let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+        let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
         dispatch(vendorInvoiceEntryHeaderDetailsAction({
           ...vendorInvoiceEntryHeaderDetails,
           gstTotalAmt: gstTotalAmt,
@@ -273,21 +270,23 @@ const AddVendorInvoiceDetail = () => {
         vendorInvoiceEntry[index].invoiceQty = isNaN(amount) ? 0 : amount.toString();
       }
 
-      let cgstAmt =  (parseFloat(amount) * (parseFloat(vendorInvoiceEntry[index].cgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
+      let cgstAmt =  (parseFloat(amount) * (parseFloat(vendorInvoiceEntry[index].cgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
       vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
-      let sgstAmt = (parseFloat(amount) * (parseFloat(vendorInvoiceEntry[index].sgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
+      let sgstAmt = (parseFloat(amount) * (parseFloat(vendorInvoiceEntry[index].sgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
       vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
-      let productGrandAmt = parseFloat(amount)  + cgstAmt + sgstAmt 
+      let productGrandAmt = parseFloat(amount)  + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
       vendorInvoiceEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
         let totalCGST = 0;
         let totalSGST = 0;
+        let totalProductGrandAmount = 0;
         for (let i = 0; i < vendorInvoiceEntry.length; i++) {
           totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmt);
           totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
         }
  
-      let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+      let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
@@ -302,21 +301,23 @@ const AddVendorInvoiceDetail = () => {
         var totalQuantity = parseFloat(e.target.value) / parseFloat(vendorInvoiceEntry[index].invoiceRate)
         vendorInvoiceEntry[index].invoiceQty = isNaN(totalQuantity) ? 0 : totalQuantity.toString();
 
-        let cgstAmt = (parseFloat(e.target.value) * (parseFloat(vendorInvoiceEntry[index].cgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
+        let cgstAmt = (parseFloat(e.target.value) * (parseFloat(vendorInvoiceEntry[index].cgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
         vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
-        let sgstAmt = (parseFloat(e.target.value) * (parseFloat(vendorInvoiceEntry[index].sgstPer) > 0 ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
+        let sgstAmt = (parseFloat(e.target.value) * (parseFloat(vendorInvoiceEntry[index].sgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
         vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
-        let productGrandAmt = parseFloat(e.target.value)  + cgstAmt + sgstAmt 
+        let productGrandAmt = (e.target.value !== "" ? parseFloat(e.target.value) : 0) + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
         vendorInvoiceEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
           let totalCGST = 0;
           let totalSGST = 0;
+          let totalProductGrandAmount = 0 ;
           for (let i = 0; i < vendorInvoiceEntry.length; i++) {
             totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmt);
             totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmt);
+            totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
           }
    
-        let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-        let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+        let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+        let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
         dispatch(vendorInvoiceEntryHeaderDetailsAction({
           ...vendorInvoiceEntryHeaderDetails,
           gstTotalAmt: gstTotalAmt,
@@ -327,21 +328,23 @@ const AddVendorInvoiceDetail = () => {
       }
     }
 
-    if(e.target.name == "cgstPer"){
+    if(e.target.name == "cgstPer"){ 
       if(vendorInvoiceEntry[index].productAmount || vendorInvoiceEntry[index].invoiceRate){
       var cgstAmt =  (parseFloat(vendorInvoiceEntry[index].productAmount)* parseFloat(e.target.value))/100
       vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
-      var productGrandAmt =  parseFloat(vendorInvoiceEntry[index].productAmount) + cgstAmt + ( vendorInvoiceEntry[index].sgstAmt ? parseFloat(vendorInvoiceEntry[index].sgstAmt): 0 )
+      var productGrandAmt = (vendorInvoiceEntry[index].productAmount > 0 ? parseFloat(vendorInvoiceEntry[index].productAmount ):0) + (cgstAmt > 0 ? cgstAmt : 0) + ( vendorInvoiceEntry[index].sgstAmt ? parseFloat(vendorInvoiceEntry[index].sgstAmt): 0 )
       vendorInvoiceEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
         let totalCGST = 0;
         let totalSGST = 0;
+        let totalProductGrandAmount = 0;
         for (let i = 0; i < vendorInvoiceEntry.length; i++) {
           totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmt);
           totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
         }
  
       let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+      let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
@@ -355,16 +358,18 @@ const AddVendorInvoiceDetail = () => {
       if(vendorInvoiceEntry[index].productAmount || vendorInvoiceEntry[index].invoiceRate){
       var sgstAmt = (parseFloat(vendorInvoiceEntry[index].productAmount)  * parseFloat(e.target.value))/100
       vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
-      var calculatedProductGrandAmt = parseFloat(vendorInvoiceEntry[index].productAmount) + sgstAmt + ( vendorInvoiceEntry[index].cgstAmt ? parseFloat(vendorInvoiceEntry[index].cgstAmt): 0)
+      var calculatedProductGrandAmt = (vendorInvoiceEntry[index].productAmount > 0 ? parseFloat(vendorInvoiceEntry[index].productAmount) : 0) + (sgstAmt > 0 ? sgstAmt : 0) + ( vendorInvoiceEntry[index].cgstAmt ? parseFloat(vendorInvoiceEntry[index].cgstAmt): 0)
       vendorInvoiceEntry[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString(); 
       let totalCGST = 0;
       let totalSGST = 0;
+      let totalProductGrandAmount = 0;
       for (let i = 0; i < vendorInvoiceEntry.length; i++) {
         totalCGST += parseFloat(vendorInvoiceEntry[i].cgstAmt);
         totalSGST += parseFloat(vendorInvoiceEntry[i].sgstAmt);
+        totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
       }
       let gstTotalAmt =  (totalCGST ? totalCGST : 0) + totalSGST
-    let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+    let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
     dispatch(vendorInvoiceEntryHeaderDetailsAction({
       ...vendorInvoiceEntryHeaderDetails,
       gstTotalAmt: gstTotalAmt,
