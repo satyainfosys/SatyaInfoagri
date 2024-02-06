@@ -308,17 +308,25 @@ const AddPaymentDetails = () => {
           netAmount += parseFloat(detail.productAmount); 
           let balanceAmount = detail.productAmount - detail.paidAmount
           let status = ""
-          if (detail.productAmount == detail.paidAmount) {
+          if (detail.productGrandAmt == detail.paidAmount) {
             status = "Fully Paid"
           }
           else {
             status = "Partially Paid"
           }
+          let taxIncluded
+          if (detail.cgstAmt && detail.sgstAmt) {
+            taxIncluded = true
+          }
+          else {
+            taxIncluded = false
+          }
           return {
             ...detail,
             unitName: unitName,
             balanceAmount: balanceAmount,
-            status: status
+            status: status,
+            taxIncluded: taxIncluded
           };
         });
 

@@ -167,8 +167,19 @@ const AddVendorInvoiceDetail = () => {
   const handleSelectedItem = () => {
     if (selectAll) {
       let updatedData;
-      const newRows = purchaseOrderProductDetailsList.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
-
+      let newRows = purchaseOrderProductDetailsList.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
+      newRows = newRows.map((data) => {
+        if (data.productGrandAmt) {
+          return {
+            ...data,
+            taxIncluded: true
+          };
+        } else {
+          return {
+            ...data,
+          };
+        }
+      });
       if (newRows.length > 0) {
         updatedData = [...vendorInvoiceEntryDetails, ...newRows];
       } else {
@@ -176,7 +187,19 @@ const AddVendorInvoiceDetail = () => {
       }
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     } else {
-      const uniqueRows = selectedRows.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
+      let uniqueRows = selectedRows.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
+      uniqueRows = uniqueRows.map((data) => {
+        if (data.productGrandAmt) {
+          return {
+            ...data,
+            taxIncluded: true
+          };
+        } else {
+          return {
+            ...data,
+          };
+        }
+      });
       const updatedData = [...uniqueRows, ...vendorInvoiceEntryDetails];
       dispatch(vendorInvoiceEntryDetailsAction(updatedData));
     }
@@ -209,7 +232,7 @@ const AddVendorInvoiceDetail = () => {
 
     if (response.data.status == 200) {
       if (response.data && response.data.data.length > 0) {
-        dispatch(purchaseOrderProductDetailsAction(response.data.data));
+        dispatch(purchaseOrderProductDetailsAction(response.data.data));        
       }
     }
     else {
@@ -235,7 +258,7 @@ const AddVendorInvoiceDetail = () => {
         vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
         let sgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].sgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].sgstPer) : 0) )/100
         vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
-        let productGrandAmt = totalAmount > 0 ? parseFloat(totalAmount) : 0  + (cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
+        let productGrandAmt = (totalAmount > 0 ? parseFloat(totalAmount) : 0)  + (parseFloat(cgstAmt) > 0 ? cgstAmt : 0)  + (parseFloat(sgstAmt)  > 0 ? sgstAmt: 0)
         vendorInvoiceEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
           let totalCGST = 0;
           let totalSGST = 0;
@@ -758,7 +781,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
                         <td key={index}>
@@ -796,7 +819,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
                         <td key={index}>
@@ -1000,7 +1023,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>

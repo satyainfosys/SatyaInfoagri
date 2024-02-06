@@ -397,7 +397,7 @@ const AddVendorInvoiceHeader = () => {
                 </Form.Group>
                 <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                   <Form.Label column sm="4">
-                    Invoice Grand Amount<span className="text-danger">*</span>
+                    Invoice Grand Amount
                   </Form.Label>
                   <Col sm="8">
                     <Form.Control id="txtInvoiceGrandAmt" name="invoiceGrandAmt" placeholder="Invoice Grand Amount" maxLength={13} value={vendorInvoiceEntryHeaderDetails.invoiceGrandAmt} onChange={handleFieldChange} disabled

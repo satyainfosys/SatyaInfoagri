@@ -65,7 +65,7 @@ const Payment = () => {
     if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
       const updatedPaymentDetails = paymentDetails.map(detail => {
         let status = ""
-        if (parseFloat(detail.productAmount) == parseFloat(detail.paidAmount)) {
+        if (parseFloat(detail.productGrandAmt) == parseFloat(detail.paidAmount)) {
           status = "Fully Paid"
         }
         else {
@@ -97,7 +97,7 @@ const Payment = () => {
 
     for (let i = 0; i < paymentDetails.length; i++) {
       const paymentDetailData = paymentDetails[i];
-      if (parseFloat(paymentDetailData.paidAmount) > parseFloat(paymentDetailData.productAmount)) {
+      if (parseFloat(paymentDetailData.paidAmount) > parseFloat(paymentDetailData.productGrandAmt)) {
         paidAmountErr.invalidPaidAmount = "Product paid amount should not be greater than product amount";
         setTimeout(() => {
           toast.error(paidAmountErr.invalidPaidAmount, {
@@ -136,6 +136,11 @@ const Payment = () => {
         netAmount: paymentDetailData.netAmount ? paymentDetailData.netAmount.toString() : 0,
         paymentAmount: paymentDetailData.paidAmount,
         itemCode: paymentDetailData.productCode,
+        cgstPer: paymentDetailData.cgstPer ? paymentDetailData.cgstPer : 0,
+        cgstAmt: paymentDetailData.cgstAmt ? paymentDetailData.cgstAmt : 0,
+        sgstPer: paymentDetailData.sgstPer ? paymentDetailData.sgstPer : 0,
+        sgstAmt: paymentDetailData.sgstAmt ? paymentDetailData.sgstAmt : 0,
+        productGrandAmt: paymentDetailData.productGrandAmt ? paymentDetailData.productGrandAmt : 0,
         totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
         activeStatus: "A",
         addUser: localStorage.getItem("LoginUserName")
@@ -170,7 +175,7 @@ const Payment = () => {
         }))
 
         let status = ""
-        if (parseFloat(paymentDetailData.productAmount) == parseFloat(paymentDetailData.paidAmount)) {
+        if (parseFloat(paymentDetailData.productGrandAmt) == parseFloat(paymentDetailData.paidAmount)) {
           status = "Fully Paid"
         }
         else {
@@ -203,6 +208,11 @@ const Payment = () => {
           productCode: paymentDetailData.productCode,
           poNo: paymentHeaderDetails.poNo,
           paymentAmount: paymentDetailData.paidAmount,
+          cgstPer: paymentDetailData.cgstPer ? paymentDetailData.cgstPer : 0,
+          cgstAmt: paymentDetailData.cgstAmt ? paymentDetailData.cgstAmt : 0,
+          sgstPer: paymentDetailData.sgstPer ? paymentDetailData.sgstPer : 0,
+          sgstAmt: paymentDetailData.sgstAmt ? paymentDetailData.sgstAmt : 0,
+          productGrandAmt: paymentDetailData.productGrandAmt ? paymentDetailData.productGrandAmt : 0,
           totalPaidAmount: paymentHeaderDetails.invoicePaidAmount,
           modifyUser: localStorage.getItem("LoginUserName")
         };
@@ -241,7 +251,7 @@ const Payment = () => {
           const updatedPaymentDetail = [...paymentDetails];
           let status = ""
          
-          if (parseFloat(paymentDetailData.productAmount) == parseFloat(paymentDetailData.paidAmount)) {
+          if (parseFloat(paymentDetailData.productGrandAmt) == parseFloat(paymentDetailData.paidAmount)) {
             status = "Fully Paid"
           }
           else {

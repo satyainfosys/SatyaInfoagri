@@ -218,7 +218,7 @@ const AddPurchaseOrderDetail = () => {
         purchaseOrderData &&
         <Form>
           <Row>
-            <Col md="4">
+            <Col md="3">
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
                   Vendor Name
@@ -281,7 +281,7 @@ const AddPurchaseOrderDetail = () => {
               </Form.Group>
             </Col>
 
-            <Col md="4">
+            <Col md="3">
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="4">
                   PO Number
@@ -336,7 +336,7 @@ const AddPurchaseOrderDetail = () => {
               </Form.Group>
             </Col>
 
-            <Col md="4">
+            <Col md="3">
               <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                 <Form.Label column sm="3">
                   Gst No
@@ -394,10 +394,12 @@ const AddPurchaseOrderDetail = () => {
                     }
                   </Form.Select>
                 </Col>
-              </Form.Group>
-              <Form.Group as={Row} className="mb-1">
+              </Form.Group>         
+            </Col>
+            <Col md="3">
+            <Form.Group as={Row} className="mb-1">
                 <Form.Label column sm={3}>
-                  Po Grand Amount<span className="text-danger">*</span>
+                  Po Grand Amount
                 </Form.Label>
                 <Col sm={8}>
                   <Form.Control id="txtPoGrandAmt" name="poGrandAmt" placeholder="Po Grand Amount" maxLength={13} value={purchaseOrderData.poGrandAmt} onChange={handleFieldChange} disabled
@@ -412,7 +414,15 @@ const AddPurchaseOrderDetail = () => {
                   />
                 </Col>
               </Form.Group>
-            </Col>
+              <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                <Form.Label column sm="3">
+                  Paid Amount
+                </Form.Label>
+                <Col sm="8">
+                  <Form.Control id="txtPaidAmount" name="paidAmount" placeholder="Paid Amount" value={purchaseOrderData.paidAmount} disabled />
+                </Col>
+              </Form.Group>
+              </Col>
           </Row>
         </Form>
       }

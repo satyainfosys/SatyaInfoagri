@@ -21,6 +21,11 @@ const PoDetailList = () => {
     "Quantity",
     "Rate",
     "Amount",
+    'CGST %',
+    'CGST Amount',
+    'SGST %',
+    'SGST Amount',
+    'Product Grand Amount',
     "Paid Amount",
     "Balance Amount",
     "View"
@@ -89,6 +94,53 @@ const PoDetailList = () => {
       unitName: unitList.find(unit => unit.value === paymentDetailEntry[index].unitCode)?.key || '',
     };
     dispatch(paymentDetailsAction(paymentDetailEntry));
+
+    if(e.target.name == "cgstPer"){ 
+      if(paymentDetailEntry[index].productAmount || paymentDetailEntry[index].invoiceRate){
+      var cgstAmt =  (parseFloat(paymentDetailEntry[index].productAmount)* parseFloat(e.target.value))/100
+      paymentDetailEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
+      var productGrandAmt = (paymentDetailEntry[index].productAmount > 0 ? parseFloat(paymentDetailEntry[index].productAmount ):0) + (cgstAmt > 0 ? cgstAmt : 0) + ( paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt): 0 )
+      paymentDetailEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+      dispatch(paymentDetailsAction(paymentDetailEntry))
+
+      const totalInvoiceAmount = paymentDetailEntry.length > 1
+      ? paymentDetailEntry.reduce((acc, obj) => {
+          const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+          return acc + (isNaN(invoiceAmount) ? 0 : invoiceAmount);
+      }, 0)
+      : paymentDetailEntry.length === 1
+          ? parseFloat(paymentDetailEntry[0].productGrandAmt)
+          : 0;
+          dispatch(paymentHeaderAction({
+            ...paymentHeaderDetails,
+            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount
+        }))
+      }
+    }
+
+    if(e.target.name == "sgstPer"){
+      if(paymentDetailEntry[index].productAmount || paymentDetailEntry[index].invoiceRate){
+      var sgstAmt = (parseFloat(paymentDetailEntry[index].productAmount)  * parseFloat(e.target.value))/100
+      paymentDetailEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
+      var calculatedProductGrandAmt = (paymentDetailEntry[index].productAmount > 0 ? parseFloat(paymentDetailEntry[index].productAmount) : 0) + (sgstAmt > 0 ? sgstAmt : 0) + ( paymentDetailEntry[index].cgstAmt ? parseFloat(paymentDetailEntry[index].cgstAmt): 0)
+      paymentDetailEntry[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString(); 
+      dispatch(paymentDetailsAction(paymentDetailEntry))
+
+      const totalInvoiceAmount = paymentDetailEntry.length > 1
+      ? paymentDetailEntry.reduce((acc, obj) => {
+          const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+          return acc + (isNaN(invoiceAmount) ? 0 : invoiceAmount);
+      }, 0)
+      : paymentDetailEntry.length === 1
+          ? parseFloat(paymentDetailEntry[0].productGrandAmt)
+          : 0;
+          dispatch(paymentHeaderAction({
+            ...paymentHeaderDetails,
+            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount
+        }))
+      }
+    }
+
     if(e.target.value){
       $('#btnSave').attr('disabled', false);
     }
@@ -201,6 +253,101 @@ const PoDetailList = () => {
                             name="amount"
                             placeholder="Amount"
                             value={paymentDetails.productAmount}
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstPer"
+                            placeholder="CGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={paymentDetails.cgstPer ? paymentDetails.cgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={paymentDetails.taxIncluded == true}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="cgstAmt"
+                            placeholder="CGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={paymentDetails.cgstAmt ? paymentDetails.cgstAmt : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstPer"
+                            placeholder="SGST %"
+                            maxLength={4}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={paymentDetails.sgstPer ? paymentDetails.sgstPer : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled={paymentDetails.taxIncluded == true}
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="sgstAmt"
+                            placeholder="SGST Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={paymentDetails.sgstAmt ? paymentDetails.sgstAmt : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
+                            disabled
+                          />
+                        </td>
+                        <td key={index}>
+                          <EnlargableTextbox
+                            name="productGrandAmt"
+                            placeholder="Product Grand Amount"
+                            maxLength={13}
+                            onChange={(e) => handleFieldChange(e, index)}
+                            value={paymentDetails.productGrandAmt ? paymentDetails.productGrandAmt : ""}
+                            onKeyPress={(e) => {
+                              const keyCode = e.which || e.keyCode;
+                              const keyValue = String.fromCharCode(keyCode);
+                              const regex = /^[^A-Za-z]+$/;
+                              if (!regex.test(keyValue)) {
+                                e.preventDefault();
+                              }
+                            }}
+                            required
                             disabled
                           />
                         </td>

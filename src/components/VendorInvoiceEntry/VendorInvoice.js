@@ -404,7 +404,12 @@ const VendorInvoice = () => {
       const vendorInvoiceEntryDetail = vendorInvoiceEntryDetails.map(detail => {
         return {
           ...detail,
-          invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo 
+          invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+          cgstPer: detail.cgstPer ? detail.cgstPer : 0,
+          cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
+          sgstPer: detail.sgstPer ? detail.sgstPer : 0,
+          sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
+          productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
         };
       });
 
@@ -696,10 +701,18 @@ const VendorInvoice = () => {
         const updatedInvoiceDetails = response.data.data.map(detail => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
+          let taxIncluded
+          if (detail.productGrandAmt) {
+            taxIncluded = true
+          }
+          else {
+            taxIncluded = false
+          }
           return {
             ...detail,
             unitName: unitName,
-            invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo 
+            invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+            taxIncluded: taxIncluded
           };
         });
         dispatch(vendorInvoiceEntryDetailsAction(updatedInvoiceDetails))
