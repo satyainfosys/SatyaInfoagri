@@ -785,7 +785,7 @@ const PurchaseOrderProductDetails = () => {
           endEl={
             <Flex>
               {
-                purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved" ?
+                purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F") ?
                   null
                   :
                   <div >
@@ -817,7 +817,7 @@ const PurchaseOrderProductDetails = () => {
                   {rowData &&
                     (<tr>
                       {columnsArray.map((column, index) => {
-                        if (column === 'Delete' && purchaseOrderData.poStatus === "Approved") {
+                        if (column === 'Delete' && (purchaseOrderData.poStatus === "Approved" || purchaseOrderData.poStatus === "P" || purchaseOrderData.poStatus === "F")) {
                           return null;
                         }
                         return (
@@ -1103,7 +1103,7 @@ const PurchaseOrderProductDetails = () => {
                         />
                       </td>
                       {
-                        purchaseOrderData.poStatus != "Approved" &&
+                        (purchaseOrderData.poStatus != "Approved" && purchaseOrderData.poStatus != "P" && purchaseOrderData.poStatus != "F") &&
                         <td key={index}>
                           {
                             poProductDetailData.materialStatus === "Not Received" ?

@@ -86,7 +86,7 @@ const PoDetailList = () => {
   const handleFieldChange = async (e, index) => {
     const { name, value } = e.target;
     var paymentDetailEntry = [...rowData];
-    let balanceAmount = paymentDetailEntry[index].productAmount - value
+    let balanceAmount = paymentDetailEntry[index].productGrandAmt - value
     paymentDetailEntry[index] = {
       ...paymentDetailEntry[index],
       [name]: value,
@@ -101,6 +101,7 @@ const PoDetailList = () => {
       paymentDetailEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
       var productGrandAmt = (paymentDetailEntry[index].productAmount > 0 ? parseFloat(paymentDetailEntry[index].productAmount ):0) + (cgstAmt > 0 ? cgstAmt : 0) + ( paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt): 0 )
       paymentDetailEntry[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+      paymentDetailEntry[index].balanceAmount = parseFloat(paymentDetailEntry[index].productGrandAmt) - (paymentDetailEntry[index].paidAmount ? parseFloat(paymentDetailEntry[index].paidAmount) : 0)
       dispatch(paymentDetailsAction(paymentDetailEntry))
 
       const totalInvoiceAmount = paymentDetailEntry.length > 1
@@ -124,6 +125,7 @@ const PoDetailList = () => {
       paymentDetailEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
       var calculatedProductGrandAmt = (paymentDetailEntry[index].productAmount > 0 ? parseFloat(paymentDetailEntry[index].productAmount) : 0) + (sgstAmt > 0 ? sgstAmt : 0) + ( paymentDetailEntry[index].cgstAmt ? parseFloat(paymentDetailEntry[index].cgstAmt): 0)
       paymentDetailEntry[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString(); 
+      paymentDetailEntry[index].balanceAmount = parseFloat(paymentDetailEntry[index].productGrandAmt) - (paymentDetailEntry[index].paidAmount ? parseFloat(paymentDetailEntry[index].paidAmount) : 0)
       dispatch(paymentDetailsAction(paymentDetailEntry))
 
       const totalInvoiceAmount = paymentDetailEntry.length > 1
@@ -141,7 +143,7 @@ const PoDetailList = () => {
       }
     }
 
-    if(e.target.value){
+    if(paymentDetailEntry[index].paidAmount){
       $('#btnSave').attr('disabled', false);
     }
     else{
@@ -218,7 +220,7 @@ const PoDetailList = () => {
                           <EnlargableTextbox
                             name="productName"
                             placeholder="Product Name"
-                            value={paymentDetails.productName}
+                            value={paymentDetails.productName ? paymentDetails.productName : paymentDetails.itemDescription}
                             disabled
                           />
                         </td>
@@ -272,7 +274,7 @@ const PoDetailList = () => {
                               }
                             }}
                             required
-                            disabled={paymentDetails.taxIncluded == true}
+                            disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
                         </td>
                         <td key={index}>
@@ -310,7 +312,7 @@ const PoDetailList = () => {
                               }
                             }}
                             required
-                            disabled={paymentDetails.taxIncluded == true}
+                            disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
                         </td>
                         <td key={index}>

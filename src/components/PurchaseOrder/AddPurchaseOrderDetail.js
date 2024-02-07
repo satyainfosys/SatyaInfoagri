@@ -29,6 +29,8 @@ const AddPurchaseOrderDetail = () => {
       "gstNo": "",
       "panNo": "",
       "tinNo": "",
+      "poGrandAmt": "",
+      "paidAmount": "",
       "deliveryLocation": "",
       "distributionCentreCode": "",
       "collectionCentreCode": ""

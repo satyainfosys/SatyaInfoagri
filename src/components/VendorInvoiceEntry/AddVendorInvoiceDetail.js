@@ -528,9 +528,14 @@ const AddVendorInvoiceDetail = () => {
                           <th>Unit</th>
                           <th>Quantity</th>
                           <th>Rate</th>
-                          <th>Tax Basis</th>
+                          {/* <th>Tax Basis</th>
                           <th>Tax Rate</th>
-                          <th>Tax Amount</th>
+                          <th>Tax Amount</th> */}
+                          <th>CGST Per</th>
+                          <th>CGST Amount</th>
+                          <th>SGST Per</th>
+                          <th>SGST Amount</th>
+                          <th>Product Grand Amount</th>
                           <th>Total Amount</th>
                         </tr>
                       </thead>
@@ -557,9 +562,14 @@ const AddVendorInvoiceDetail = () => {
                               <td>{data.unitName}</td>
                               <td>{data.quantity}</td>
                               <td>{data.poRate}</td>
-                              <td>{data.taxBasis}</td>
+                              {/* <td>{data.taxBasis}</td>
                               <td>{data.taxRate}</td>
-                              <td>{data.taxAmount}</td>
+                              <td>{data.taxAmount}</td> */}
+                              <td>{data.cgstPer}</td>
+                              <td>{data.cgstAmt}</td>
+                              <td>{data.sgstPer}</td>
+                              <td>{data.sgstAmt}</td>
+                              <td>{data.productGrandAmt}</td>
                               <td>{data.poAmt}</td>
                             </tr>
                           )

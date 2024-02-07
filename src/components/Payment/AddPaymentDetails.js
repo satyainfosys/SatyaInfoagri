@@ -64,7 +64,7 @@ const AddPaymentDetails = () => {
         for (let i = 0; i < updatedPaymentDetails.length; i++) {
           updatedPaymentDetails[i] = {
             ...updatedPaymentDetails[i],
-            paidAmount: updatedPaymentDetails[i].productAmount,
+            paidAmount: updatedPaymentDetails[i].productGrandAmt,
             balanceAmount: 0
           };
         }
@@ -132,24 +132,27 @@ const AddPaymentDetails = () => {
 
   const handleInvoiceDetail = async (invoiceNo) => {
     var invoiceDetail = invoiceList.find(data => data.invoiceNo == invoiceNo);
+
+    await  getInvoiceDetailList(invoiceDetail.invoiceNo)
+      const totalInvoiceAmount = invoiceDetails.length > 1
+    ? invoiceDetails.reduce((acc, obj) => {
+      const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+      return acc + (isNaN(invoiceAmount) ? 0 : invoiceAmount);
+    }, 0)
+    : invoiceDetails.length === 1
+      ? parseFloat(invoiceDetails[0].productGrandAmt)
+      : 0;
+
     dispatch(paymentHeaderAction({
       ...paymentHeaderDetails,
       encryptedInvoiceHeaderCode: invoiceDetail.encryptedInvoiceHeaderCode,
       invoiceNo: invoiceDetail.invoiceNo,
       invoiceDate: invoiceDetail.invoiceDate,
-      invoiceAmount: invoiceDetail.invoiceAmount,
+      invoiceAmount: totalInvoiceAmount,
       invoicePaidAmount: invoiceDetail.invoicePaidAmount,
       invoiceStatus: paymentHeaderDetails.invoiceStatus ? paymentHeaderDetails.invoiceStatus : invoiceDetail.invoiceStatus,
       poNo: invoiceDetail.poNo,
     }))
-    getInvoiceDetailList(invoiceDetail.invoiceNo)
-    if(invoiceDetail.invoicePaidAmount == 0) {
-      $("#btnSave").attr('disabled', true);
-    }
-    else{
-      $('#btnSave').attr('disabled', false);
-    }
-    
   }
 
   const getCompany = async () => {
@@ -299,16 +302,15 @@ const AddPaymentDetails = () => {
     })
 
     if (response.data.status == 200) {
-      if (response.data.data && response.data.data.length > 0) {
-        setInvoiceDetails(response.data.data)
+      if (response.data.data && response.data.data.length > 0) { 
         let netAmount = 0;
         const invoiceDetails = response.data.data.map(detail => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
           netAmount += parseFloat(detail.productAmount); 
-          let balanceAmount = detail.productAmount - detail.paidAmount
+          let balanceAmount = (detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) - detail.paidAmount
           let status = ""
-          if (detail.productGrandAmt == detail.paidAmount) {
+          if ((detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) == detail.paidAmount) {
             status = "Fully Paid"
           }
           else {
@@ -321,10 +323,17 @@ const AddPaymentDetails = () => {
           else {
             taxIncluded = false
           }
+          
           return {
             ...detail,
             unitName: unitName,
             balanceAmount: balanceAmount,
+            cgstPer: detail.paymentCGSTPer ? detail.paymentCGSTPer : detail.cgstPer,
+            cgstAmt: detail.paymentCGSTAmt ? detail.paymentCGSTAmt : detail.cgstAmt,
+            sgstPer: detail.paymentSGSTPer ? detail.paymentSGSTPer : detail.sgstPer,
+            sgstAmt: detail.paymentSGSTAmt ? detail.paymentSGSTAmt : detail.sgstAmt,
+            productGrandAmt: detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt,
+            paidAmount:detail.paymentPaidAmount ? detail.paymentPaidAmount : detail.paidAmount,
             status: status,
             taxIncluded: taxIncluded
           };
@@ -336,7 +345,7 @@ const AddPaymentDetails = () => {
             netAmount: netAmount,
           };
         });
-
+        setInvoiceDetails(updatedInvoiceDetails)
         dispatch(paymentDetailsAction(updatedInvoiceDetails))
 
         let invoiceStatus = ""

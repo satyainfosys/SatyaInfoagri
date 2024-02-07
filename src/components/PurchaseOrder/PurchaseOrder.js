@@ -405,6 +405,17 @@ const PurchaseOrder = () => {
 
     const addPurchaseOrderDetails = () => {
         if (purchaseOrderValidation()) {
+            const purchaseOrderProductDetailsLists = purchaseOrderProductDetailsList.map(detail => {
+                return {
+                  ...detail,
+                  cgstPer: detail.cgstPer ? detail.cgstPer : 0,
+                  cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
+                  sgstPer: detail.sgstPer ? detail.sgstPer : 0,
+                  sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
+                  productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
+                };
+              });
+
             const requestData = {
                 encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                 encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
@@ -416,7 +427,7 @@ const PurchaseOrder = () => {
                 poStatus: purchaseOrderData.poStatus ? purchaseOrderData.poStatus : "Draft",
                 gstNo: purchaseOrderData.gstNo ? purchaseOrderData.gstNo : "",
                 activeStatus: "A",
-                purchaseOrderProductDetails: purchaseOrderProductDetailsList,
+                purchaseOrderProductDetails: purchaseOrderProductDetailsLists,
                 purchaseOrderTermDetails: purchaseOrderTermList,
                 deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
                 gstTotalAmt: purchaseOrderData.gstTotalAmt,
