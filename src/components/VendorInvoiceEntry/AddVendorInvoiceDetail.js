@@ -598,7 +598,7 @@ const AddVendorInvoiceDetail = () => {
           endEl={
             <Flex>
               {
-                (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') ? null
+                (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') ? null
                   :
                   <div >
                     <Button
@@ -640,7 +640,7 @@ const AddVendorInvoiceDetail = () => {
                     if (!vendorInvoiceEntryHeaderDetails.poNo && (column == "PO. Rate")) {
                       return null;
                     }
-                    if (column === 'Delete' && (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')) {
+                    if (column === 'Delete' && (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')) {
                       return null;
                     }
 
@@ -713,7 +713,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Description"
                             value={vendorInvoiceEntryDetails.description ? vendorInvoiceEntryDetails.description : ""}
                             onChange={(e) => handleFieldChange(e, index)}
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                             maxLength={250}
                           />
                         </td>
@@ -733,7 +733,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>
@@ -753,7 +753,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>
@@ -772,7 +772,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>
@@ -791,7 +791,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
                         <td key={index}>
@@ -829,7 +829,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
                         <td key={index}>
@@ -871,7 +871,7 @@ const AddVendorInvoiceDetail = () => {
                           />
                         </td>
                         {
-                          (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")|| vendorInvoiceEntryHeaderDetails.vendorType == 'C') ?
+                          (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")|| vendorInvoiceEntryHeaderDetails.vendorType == 'C') ?
                             null
                             :
                             <td key={index}>
@@ -891,7 +891,7 @@ const AddVendorInvoiceDetail = () => {
                             value={vendorInvoiceEntryDetails.itemDescription}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                             maxLength={50}
                           />
                         </td>
@@ -902,7 +902,7 @@ const AddVendorInvoiceDetail = () => {
                           className="form-control select"
                           onChange={(e) => handleFieldChange(e, index)}
                           value={vendorInvoiceEntryDetails.unitCode ? vendorInvoiceEntryDetails.unitCode : ""}
-                          disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                          disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                           required
                         >
                           <option value=''>Select </option>
@@ -917,7 +917,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Description"
                             value={vendorInvoiceEntryDetails.description}
                             onChange={(e) => handleFieldChange(e, index)}
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                             maxLength={250}
                           />
                         </td>
@@ -937,7 +937,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -957,7 +957,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -976,7 +976,7 @@ const AddVendorInvoiceDetail = () => {
                             }}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
-                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid")}
+                            disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
                           />
                         </td>
                         <td key={index}>
@@ -995,7 +995,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>
@@ -1033,7 +1033,7 @@ const AddVendorInvoiceDetail = () => {
                               }
                             }}
                             required
-                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
+                            disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
                         <td key={index}>
@@ -1075,7 +1075,7 @@ const AddVendorInvoiceDetail = () => {
                           />
                         </td>
                         {
-                          vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Paid") ?
+                          vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") ?
                             null
                             :
                             <td key={index}>
