@@ -132,6 +132,10 @@ const Payment = () => {
         vendorCode: paymentHeaderDetails.code,
         poNo: paymentHeaderDetails.poNo,
         invoiceNo: paymentHeaderDetails.invoiceNo,
+        invoiceAmount: paymentHeaderDetails.invoiceAmount,
+        gstTotalAmt: paymentHeaderDetails.gstTotalAmt,
+        InvoiceGrandAmt: paymentHeaderDetails.invoiceGrandAmt,
+        PoDetailId: paymentDetailData.poDetailId,
         productCode: paymentDetailData.productCode,
         netAmount: paymentDetailData.netAmount ? paymentDetailData.netAmount.toString() : 0,
         paymentAmount: paymentDetailData.paidAmount,
@@ -171,7 +175,9 @@ const Payment = () => {
         }
         dispatch(paymentHeaderAction({
           ...paymentHeaderDetails,
-          invoiceStatus: invoiceStatus
+          invoiceStatus: invoiceStatus,
+          gstTotalAmt: response.data.data.gstTotalAmt,
+          invoiceGrandAmt: response.data.data.invoiceGrandAmt,
         }))
 
         let status = ""
@@ -207,6 +213,11 @@ const Payment = () => {
           vendorCode: paymentHeaderDetails.code,
           productCode: paymentDetailData.productCode,
           poNo: paymentHeaderDetails.poNo,
+          invoiceNo: paymentHeaderDetails.invoiceNo,
+          invoiceAmount: paymentHeaderDetails.invoiceAmount,
+          gstTotalAmt: paymentHeaderDetails.gstTotalAmt,
+          InvoiceGrandAmt: paymentHeaderDetails.invoiceGrandAmt,
+          PoDetailId: paymentDetailData.poDetailId,
           paymentAmount: paymentDetailData.paidAmount,
           cgstPer: paymentDetailData.cgstPer ? paymentDetailData.cgstPer : 0,
           cgstAmt: paymentDetailData.cgstAmt ? paymentDetailData.cgstAmt : 0,

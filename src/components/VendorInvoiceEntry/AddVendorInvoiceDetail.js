@@ -169,7 +169,7 @@ const AddVendorInvoiceDetail = () => {
       let updatedData;
       let newRows = purchaseOrderProductDetailsList.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
       newRows = newRows.map((data) => {
-        if (data.productGrandAmt) {
+        if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
             taxIncluded: true
@@ -189,7 +189,7 @@ const AddVendorInvoiceDetail = () => {
     } else {
       let uniqueRows = selectedRows.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
       uniqueRows = uniqueRows.map((data) => {
-        if (data.productGrandAmt) {
+        if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
             taxIncluded: true

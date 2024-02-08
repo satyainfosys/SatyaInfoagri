@@ -150,6 +150,8 @@ const AddPaymentDetails = () => {
       invoiceDate: invoiceDetail.invoiceDate,
       invoiceAmount: totalInvoiceAmount,
       invoicePaidAmount: invoiceDetail.invoicePaidAmount,
+      gstTotalAmt: invoiceDetail.gstTotalAmt,
+      invoiceGrandAmt: invoiceDetail.invoiceGrandAmt,
       invoiceStatus: paymentHeaderDetails.invoiceStatus ? paymentHeaderDetails.invoiceStatus : invoiceDetail.invoiceStatus,
       poNo: invoiceDetail.poNo,
     }))

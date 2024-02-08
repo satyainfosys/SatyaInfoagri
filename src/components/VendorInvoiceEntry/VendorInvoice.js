@@ -567,7 +567,6 @@ const VendorInvoice = () => {
 
         for (let i = 0; i < vendorInvoiceEntryDetails.length; i++) {
           const vendorInvoiceEntryDetailsData = vendorInvoiceEntryDetails[i];
-
           const keys = ["modifyUser", "addUser", "itemDescription", "description"];
           for (const key of Object.keys(vendorInvoiceEntryDetailsData).filter((key) => keys.includes(key))) {
             vendorInvoiceEntryDetailsData[key] = vendorInvoiceEntryDetailsData[key] ? vendorInvoiceEntryDetailsData[key].toUpperCase() : "";
@@ -578,6 +577,7 @@ const VendorInvoice = () => {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
               encryptedInvoiceDetailCode: vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode,
               invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+              poDetailId: vendorInvoiceEntryDetailsData.poDetailId ? parseInt(vendorInvoiceEntryDetailsData.poDetailId) : 0,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
               productCode: vendorInvoiceEntryDetailsData.productCode,
@@ -612,6 +612,7 @@ const VendorInvoice = () => {
             const requestData = {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
               invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+              poDetailId: vendorInvoiceEntryDetailsData.poDetailId ? parseInt(vendorInvoiceEntryDetailsData.poDetailId) : 0,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
               productCode: vendorInvoiceEntryDetailsData.productCode,
@@ -702,7 +703,7 @@ const VendorInvoice = () => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
           let taxIncluded
-          if (detail.productGrandAmt) {
+          if (detail.cgstAmt && detail.sgstAmt) {
             taxIncluded = true
           }
           else {
