@@ -154,12 +154,12 @@ const AddVendorInvoiceHeader = () => {
       }
 
       let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + parseFloat(e.target.value)
+      let invoiceGrandAmt = gstTotalAmt + (e.target.value ? parseFloat(e.target.value) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
         invoiceGrandAmt: invoiceGrandAmt,
-        invoiceAmount: e.target.value
+        invoiceAmount: e.target.value 
       }))
     } else {
       dispatch(vendorInvoiceEntryHeaderDetailsAction({

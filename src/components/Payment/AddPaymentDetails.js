@@ -37,6 +37,7 @@ const AddPaymentDetails = () => {
       "invoiceNo": "",
       "invoiceDate": "",
       "invoiceAmount": "",
+      "gstTotalAmt" : 0,
       "invoicePaidAmount": 0,
       "balanceAmount": 0
     }))
@@ -124,9 +125,17 @@ const AddPaymentDetails = () => {
       address: companyDetail.address,
       pinCode: companyDetail.pinCode,
       state: companyDetail.state,
-      country: companyDetail.country
+      country: companyDetail.country,
+      invoiceNo: "",
+      invoiceDate: "",
+      invoiceAmount: "",
+      invoicePaidAmount:"",
+      gstTotalAmt: "",
+      invoiceGrandAmt: "",
+      invoiceStatus: "",
     }))
     setInvoiceData([]);
+    dispatch(paymentDetailsAction([]))
     fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
   }
 
@@ -295,6 +304,7 @@ const AddPaymentDetails = () => {
   }
 
   const getInvoiceDetailList = async (invoiceNo) => {
+    
     const request = {
       InvoiceNo: invoiceNo
     }
@@ -304,12 +314,12 @@ const AddPaymentDetails = () => {
     })
 
     if (response.data.status == 200) {
-      if (response.data.data && response.data.data.length > 0) { 
+      if (response.data.data && response.data.data.length > 0) {
         let netAmount = 0;
         const invoiceDetails = response.data.data.map(detail => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
-          netAmount += parseFloat(detail.productAmount); 
+          netAmount += parseFloat(detail.productAmount);
           let balanceAmount = (detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) - detail.paidAmount
           let status = ""
           if ((detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) == detail.paidAmount) {
@@ -325,17 +335,17 @@ const AddPaymentDetails = () => {
           else {
             taxIncluded = false
           }
-          
+  
           return {
             ...detail,
             unitName: unitName,
             balanceAmount: balanceAmount,
-            cgstPer: detail.paymentCGSTPer ? detail.paymentCGSTPer : detail.cgstPer,
-            cgstAmt: detail.paymentCGSTAmt ? detail.paymentCGSTAmt : detail.cgstAmt,
-            sgstPer: detail.paymentSGSTPer ? detail.paymentSGSTPer : detail.sgstPer,
-            sgstAmt: detail.paymentSGSTAmt ? detail.paymentSGSTAmt : detail.sgstAmt,
+            cgstPer: detail.paymentCGSTPer ? detail.paymentCGSTPer : detail.cgstPer ? detail.cgstPer : 0,
+            cgstAmt: detail.paymentCGSTAmt ? detail.paymentCGSTAmt : detail.cgstAmt ? detail.cgstAmt : 0,
+            sgstPer: detail.paymentSGSTPer ? detail.paymentSGSTPer : detail.sgstPer ? detail.sgstPer : 0,
+            sgstAmt: detail.paymentSGSTAmt ? detail.paymentSGSTAmt : detail.sgstAmt ? detail.sgstAmt :0,
             productGrandAmt: detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt,
-            paidAmount:detail.paymentPaidAmount ? detail.paymentPaidAmount : detail.paidAmount,
+            paidAmount: detail.paymentPaidAmount ? detail.paymentPaidAmount : detail.paidAmount,
             status: status,
             taxIncluded: taxIncluded
           };
@@ -347,6 +357,7 @@ const AddPaymentDetails = () => {
             netAmount: netAmount,
           };
         });
+       
         setInvoiceDetails(updatedInvoiceDetails)
         dispatch(paymentDetailsAction(updatedInvoiceDetails))
 

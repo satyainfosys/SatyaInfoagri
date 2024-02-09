@@ -104,6 +104,11 @@ const PoDetailList = () => {
       paymentDetailEntry[index].balanceAmount = parseFloat(paymentDetailEntry[index].productGrandAmt) - (paymentDetailEntry[index].paidAmount ? parseFloat(paymentDetailEntry[index].paidAmount) : 0)
       dispatch(paymentDetailsAction(paymentDetailEntry))
 
+      let gstTotalAmt = 0
+      if(paymentDetailEntry[index].paidAmount){
+       gstTotalAmt = (paymentHeaderDetails.gstTotalAmt ? parseFloat(paymentHeaderDetails.gstTotalAmt) : 0) + cgstAmt + (paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt) : 0)
+      }
+
       const totalInvoiceAmount = paymentDetailEntry.length > 1
       ? paymentDetailEntry.reduce((acc, obj) => {
           const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
@@ -114,7 +119,8 @@ const PoDetailList = () => {
           : 0;
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
-            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount
+            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
         }))
       }
     }
@@ -127,7 +133,11 @@ const PoDetailList = () => {
       paymentDetailEntry[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString(); 
       paymentDetailEntry[index].balanceAmount = parseFloat(paymentDetailEntry[index].productGrandAmt) - (paymentDetailEntry[index].paidAmount ? parseFloat(paymentDetailEntry[index].paidAmount) : 0)
       dispatch(paymentDetailsAction(paymentDetailEntry))
-
+      let gstTotalAmt = 0
+      if(paymentDetailEntry[index].paidAmount){
+       gstTotalAmt = (paymentHeaderDetails.gstTotalAmt ? parseFloat(paymentHeaderDetails.gstTotalAmt) : 0) + (paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt) : 0) + sgstAmt
+      }
+ 
       const totalInvoiceAmount = paymentDetailEntry.length > 1
       ? paymentDetailEntry.reduce((acc, obj) => {
           const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
@@ -138,9 +148,18 @@ const PoDetailList = () => {
           : 0;
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
-            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount
+            invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
         }))
       }
+    }
+   
+    if (e.target.name == "paidAmount" && paymentDetailEntry[index].taxIncluded == false) {
+      let gstTotalAmt = (paymentHeaderDetails.gstTotalAmt ? parseFloat(paymentHeaderDetails.gstTotalAmt) : 0) + (paymentDetailEntry[index].cgstAmt ? parseFloat(paymentDetailEntry[index].cgstAmt) : 0) + (paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt) : 0)
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
+        gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt
+      }))
     }
 
     if(paymentDetailEntry[index].paidAmount){

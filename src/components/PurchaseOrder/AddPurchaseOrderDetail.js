@@ -143,7 +143,7 @@ const AddPurchaseOrderDetail = () => {
       }
 
       let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
-      let poGrandAmt = gstTotalAmt + parseFloat(e.target.value)
+      let poGrandAmt = gstTotalAmt + (e.target.value ? parseFloat(e.target.value) : 0)
       dispatch(purchaseOrderDetailsAction({
         ...purchaseOrderData,
         gstTotalAmt: gstTotalAmt,
