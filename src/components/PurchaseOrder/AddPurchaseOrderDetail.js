@@ -298,7 +298,7 @@ const AddPurchaseOrderDetail = () => {
                   PO Date
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")} />
+                  <Form.Control type='date' id="txtPODate" name="poDate" value={Moment(purchaseOrderData.poDate).format("YYYY-MM-DD")} onChange={handleFieldChange} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0 } />
                   {Object.keys(purchaseOrderErr.poDateErr).map((key) => {
                     return <span className="error-message">{purchaseOrderErr.poDateErr[key]}</span>
                   })}
@@ -310,7 +310,7 @@ const AddPurchaseOrderDetail = () => {
                   PO Amount
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")} />
+                  <Form.Control id="txtPOAmount" name="poAmount" placeholder="PO Amount" onChange={handleFieldChange} value={purchaseOrderData.poAmount} maxLength={15} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0 } />
                 </Col>
               </Form.Group>
 
@@ -319,7 +319,7 @@ const AddPurchaseOrderDetail = () => {
                   PO Status
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus}  disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}>
+                  <Form.Select id="txtStatus" name="poStatus" onChange={handleFieldChange} value={purchaseOrderData.poStatus}  disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0 }>
                     <option value="Draft">Draft</option>
                     <option value="Approved">Approved</option>
                     <option value="Rejected">Rejected</option>
@@ -333,7 +333,7 @@ const AddPurchaseOrderDetail = () => {
                   Delivery Location
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")} />
+                  <Form.Control id="txtDeliverLocation" name="deliveryLocation" placeholder="Delivery Location" onChange={handleFieldChange} value={purchaseOrderData.deliveryLocation} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0} />
                 </Col>
               </Form.Group>
             </Col>
@@ -371,7 +371,7 @@ const AddPurchaseOrderDetail = () => {
                   DC Name
                 </Form.Label>
                 <Col sm="8">
-                  <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")} >
+                  <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.distributionCentreCode} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0} >
                     <option value=''>Select Distribution</option>
                     {distributionList &&
                       distributionList.map((option, index) => (
@@ -387,7 +387,7 @@ const AddPurchaseOrderDetail = () => {
                   Collection Centre
                 </Form.Label>
                 <Col sm={8}>
-                  <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F")}>
+                  <Form.Select id="txtCollectionCentre" name="collectionCentreCode" onChange={handleFieldChange} value={purchaseOrderData.collectionCentreCode} disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}>
                     <option value=''>Select Collection Centre</option>
                     {collectionCentreList &&
                       collectionCentreList.map((option, index) => (

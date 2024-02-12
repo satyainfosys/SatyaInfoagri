@@ -354,7 +354,6 @@ const AdvanceTable = ({
             return (
               <tr key={i} className={rowClassName} {...row.getRowProps()} onDoubleClick={() => toTabPage(row.original)}>
                 {row.cells.map((cell, index) => {
-
                   return (
                     <>
                       <td
@@ -363,7 +362,7 @@ const AdvanceTable = ({
                       >
                         {
                           cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' ?
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' && cell.column.id !== 'receiveStatus'?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -460,14 +459,38 @@ const AdvanceTable = ({
                                                       {cell.render('Cell')}
                                                     </Badge>
                                                     :
-                                                    cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
-                                                      <IconButton
-                                                        variant="falcon-default"
-                                                        size="sm"
-                                                        icon="print"
-                                                        iconClassName="me-1"
-                                                        className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                        onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                                    cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Fully Received" ?
+                                                      <Badge
+                                                        pill
+                                                        bg="success"
+                                                      >
+                                                        {cell.render('Cell')}
+                                                      </Badge>
+                                                      :
+                                                      cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Partially Received" ?
+                                                        <Badge
+                                                          pill
+                                                          bg="info"
+                                                        >
+                                                          {cell.render('Cell')}
+                                                        </Badge>
+                                                        :
+                                                        cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Not Received" ?
+                                                          <Badge
+                                                            pill
+                                                            bg="danger"
+                                                          >
+                                                            {cell.render('Cell')}
+                                                          </Badge>
+                                                          :
+                                                          cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
+                                                            <IconButton
+                                                              variant="falcon-default"
+                                                              size="sm"
+                                                              icon="print"
+                                                              iconClassName="me-1"
+                                                              className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                              onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
                                                       >
                                                         Print
                                                       </IconButton>

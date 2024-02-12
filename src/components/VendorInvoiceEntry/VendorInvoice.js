@@ -209,7 +209,7 @@ const VendorInvoice = () => {
     }
     else if (vendorInvoiceEntryDetails && vendorInvoiceEntryDetails.length > 0) {
       vendorInvoiceEntryDetails.forEach((row, index) => {
-        if (!row.invoiceQty || !row.invoiceRate || !row.productAmount) {
+        if (!row.invoiceQty || !row.productAmount) {
           vendorInvoiceEntryDetailErr.invalidVendorInvoiceEntryDetail = "Fill the required fields"
           isValid = false;
         }
@@ -409,6 +409,7 @@ const VendorInvoice = () => {
           cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
           sgstPer: detail.sgstPer ? detail.sgstPer : 0,
           sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
+          taxIncluded : detail.taxIncluded ? "true" : "false",
           productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
         };
       });
@@ -506,6 +507,7 @@ const VendorInvoice = () => {
         invoiceDate: vendorInvoiceEntryHeaderDetails.invoiceDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
         invoiceDueDate: vendorInvoiceEntryHeaderDetails.invoiceDueDate ? Moment(vendorInvoiceEntryHeaderDetails.invoiceDueDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
         invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
+        taxIncluded: vendorInvoiceEntryHeaderDetails.taxIncluded,
         modifyUser: localStorage.getItem("LoginUserName"),
       }
 
@@ -592,6 +594,7 @@ const VendorInvoice = () => {
               sgstPer: vendorInvoiceEntryDetailsData.sgstPer ? vendorInvoiceEntryDetailsData.sgstPer : 0,
               sgstAmt: vendorInvoiceEntryDetailsData.sgstAmt ? vendorInvoiceEntryDetailsData.sgstAmt : 0,
               productGrandAmt: vendorInvoiceEntryDetailsData.productGrandAmt ? vendorInvoiceEntryDetailsData.productGrandAmt : 0,
+              invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
               modifyUser: localStorage.getItem("LoginUserName"),
             }
             setIsLoading(true);
@@ -621,6 +624,7 @@ const VendorInvoice = () => {
               invoiceQty: vendorInvoiceEntryDetailsData.invoiceQty.toString(),
               invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate.toString(),
               UnitCode: vendorInvoiceEntryDetailsData.unitCode,
+              invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
               productAmount: vendorInvoiceEntryDetailsData.productAmount.toString(),
               cgstPer: vendorInvoiceEntryDetailsData.cgstPer ? vendorInvoiceEntryDetailsData.cgstPer : 0,
               cgstAmt: vendorInvoiceEntryDetailsData.cgstAmt ? vendorInvoiceEntryDetailsData.cgstAmt : 0,

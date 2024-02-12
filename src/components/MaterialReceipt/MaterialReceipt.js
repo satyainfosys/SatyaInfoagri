@@ -329,6 +329,7 @@ const MaterialReceipt = () => {
                     Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
                 personName: localStorage.getItem("Name"),
                 challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                receivedPoQty: materialReceiptHeaderData.receivedPoQty ? materialReceiptHeaderData.receivedPoQty : 0,
                 activeStatus: "A",
                 addUser: localStorage.getItem("LoginUserName"),
                 materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
@@ -410,6 +411,7 @@ const MaterialReceipt = () => {
                     Moment(materialReceiptHeaderData.materialReceiptDate).format("YYYY-MM-DD") : Moment().format("YYYY-MM-DD"),
                 personName: localStorage.getItem("Name"),
                 challanNo: materialReceiptHeaderData.challanNo ? materialReceiptHeaderData.challanNo : "",
+                receivedPoQty: materialReceiptHeaderData.receivedPoQty ? materialReceiptHeaderData.receivedPoQty : 0,
                 materialStatus: materialReceiptHeaderData.materialStatus && materialReceiptHeaderData.materialStatus == "Approved" ? "A" : "D",
                 modifyUser: localStorage.getItem("LoginUserName"),
             }

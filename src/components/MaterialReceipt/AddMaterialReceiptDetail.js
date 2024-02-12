@@ -7,7 +7,7 @@ import Flex from 'components/common/Flex';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { formChangedAction, materialReceiptDetailsAction, purchaseOrderProductDetailsAction } from 'actions';
+import { formChangedAction, materialReceiptDetailsAction, purchaseOrderProductDetailsAction,materialReceiptHeaderDetailsAction } from 'actions';
 
 const AddMaterialReceiptDetail = () => {
 
@@ -231,6 +231,17 @@ const AddMaterialReceiptDetail = () => {
                 materialReceipt[index].amount = totalAmount.toString();
                 dispatch(materialReceiptDetailsAction(materialReceipt))
             }
+
+            let receivedPoQty = 0;
+
+            for (let i = 0; i < materialReceipt.length; i++) {
+                receivedPoQty += materialReceipt[i].receivedQuantity ? parseFloat(materialReceipt[i].receivedQuantity) : 0;
+            }
+
+            dispatch(materialReceiptHeaderDetailsAction({
+                ...materialReceiptHeaderData,
+                receivedPoQty: receivedPoQty
+            }))
         }
 
         if (e.target.name == "rate") {
@@ -244,7 +255,8 @@ const AddMaterialReceiptDetail = () => {
         if (materialReceipt[index].encryptedMaterialReceiptDetailId) {
             dispatch(formChangedAction({
                 ...formChangedData,
-                materialReceiptDetailUpdate: true
+                materialReceiptDetailUpdate: true, 
+                materialReceiptHeaderDetailUpdate : true
             }))
         } else {
             dispatch(formChangedAction({

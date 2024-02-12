@@ -17,6 +17,7 @@ const listColumnArray = [
     { accessor: 'poAmount', Header: 'PO Amount' },
     { accessor: 'vendorName', Header: 'Vendor Name' },
     { accessor: 'poStatus', Header: 'PO Status' },
+    { accessor: 'receiveStatus', Header: 'Receive Status'},
     { accessor: 'poPrintStatus', Header: 'Print' },
 ]
 
@@ -430,6 +431,7 @@ const PurchaseOrder = () => {
                 purchaseOrderProductDetails: purchaseOrderProductDetailsLists,
                 purchaseOrderTermDetails: purchaseOrderTermList,
                 deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
+                totalPOQty: purchaseOrderData.totalPOQty ? purchaseOrderData.totalPOQty : 0,
                 gstTotalAmt: purchaseOrderData.gstTotalAmt,
                 poGrandAmt: purchaseOrderData.poGrandAmt,
                 addUser: localStorage.getItem("LoginUserName")
@@ -504,6 +506,7 @@ const PurchaseOrder = () => {
                 distributionCentreCode: purchaseOrderData.distributionCentreCode ? purchaseOrderData.distributionCentreCode : "",
                 collectionCentreCode: purchaseOrderData.collectionCentreCode ? purchaseOrderData.collectionCentreCode : "",
                 deliveryLocation: purchaseOrderData.deliveryLocation ? purchaseOrderData.deliveryLocation : "",
+                totalPOQty: purchaseOrderData.totalPOQty ? purchaseOrderData.totalPOQty : 0,
                 gstTotalAmt: purchaseOrderData.gstTotalAmt ? purchaseOrderData.gstTotalAmt : 0,
                 poGrandAmt: purchaseOrderData.poGrandAmt ? purchaseOrderData.poGrandAmt: 0,
                 modifyUser: localStorage.getItem("LoginUserName")

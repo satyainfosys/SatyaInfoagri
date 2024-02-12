@@ -97,7 +97,7 @@ const AddVendorInvoiceDetail = () => {
     if (vendorInvoiceEntryDetails && vendorInvoiceEntryDetails.length > 0) {
       vendorInvoiceEntryDetails.forEach((row, index) => {
         if (vendorInvoiceEntryHeaderDetails.poNo) {
-          if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.invoiceQty || !row.invoiceRate || !row.productAmount || !row.itemDescription) {
+          if (!row.productLineCode || !row.productCategoryCode || !row.productCode || !row.invoiceQty || !row.productAmount || !row.itemDescription) {
             isValid = false;
             setFormError(true);
           }
@@ -172,11 +172,14 @@ const AddVendorInvoiceDetail = () => {
         if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
+            cgstAmt: 0,
+            sgstAmt: 0,
             taxIncluded: true
           };
         } else {
           return {
             ...data,
+            taxIncluded: false
           };
         }
       });
@@ -192,11 +195,14 @@ const AddVendorInvoiceDetail = () => {
         if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
+            cgstAmt: 0,
+            sgstAmt: 0,
             taxIncluded: true
           };
         } else {
           return {
             ...data,
+            taxIncluded: false
           };
         }
       });
@@ -250,8 +256,8 @@ const AddVendorInvoiceDetail = () => {
     dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry));
 
     if (e.target.name == "invoiceQty") {
-      if (vendorInvoiceEntry[index].invoiceRate) {
-        var totalAmount = (e.target.value !== "" ?parseFloat(e.target.value): 0) * parseFloat(vendorInvoiceEntry[index].invoiceRate)
+      // if (vendorInvoiceEntry[index].invoiceRate) {
+        var totalAmount = (e.target.value !== "" ?parseFloat(e.target.value): 0) * (vendorInvoiceEntry[index].invoiceRate ? parseFloat(vendorInvoiceEntry[index].invoiceRate) : parseFloat(vendorInvoiceEntry[index].poRate))
         vendorInvoiceEntry[index].productAmount = isNaN(totalAmount) ? 0 : totalAmount.toString();
 
         let cgstAmt = (parseFloat(totalAmount) * (parseFloat(vendorInvoiceEntry[index].cgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
@@ -279,7 +285,7 @@ const AddVendorInvoiceDetail = () => {
         })) 
 
         dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
-      }
+      // }
     }
 
     if (e.target.name == "invoiceRate") {
@@ -320,8 +326,8 @@ const AddVendorInvoiceDetail = () => {
     }
 
     if (e.target.name == "productAmount") {
-      if (vendorInvoiceEntry[index].invoiceRate) {
-        var totalQuantity = parseFloat(e.target.value) / parseFloat(vendorInvoiceEntry[index].invoiceRate)
+      // if (vendorInvoiceEntry[index].invoiceRate) {
+        var totalQuantity = parseFloat(e.target.value) / (vendorInvoiceEntry[index].invoiceRate ?  parseFloat(vendorInvoiceEntry[index].invoiceRate) : parseFloat(vendorInvoiceEntry[index].poRate))
         vendorInvoiceEntry[index].invoiceQty = isNaN(totalQuantity) ? 0 : totalQuantity.toString();
 
         let cgstAmt = (parseFloat(e.target.value) * (parseFloat(vendorInvoiceEntry[index].cgstPer) !== "" ? parseFloat(vendorInvoiceEntry[index].cgstPer) : 0) )/100
@@ -349,10 +355,9 @@ const AddVendorInvoiceDetail = () => {
 
         dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
       }
-    }
 
     if(e.target.name == "cgstPer"){ 
-      if(vendorInvoiceEntry[index].productAmount || vendorInvoiceEntry[index].invoiceRate){
+      if(vendorInvoiceEntry[index].productAmount){
       var cgstAmt =  (parseFloat(vendorInvoiceEntry[index].productAmount)* parseFloat(e.target.value))/100
       vendorInvoiceEntry[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
       var productGrandAmt = (vendorInvoiceEntry[index].productAmount > 0 ? parseFloat(vendorInvoiceEntry[index].productAmount ):0) + (cgstAmt > 0 ? cgstAmt : 0) + ( vendorInvoiceEntry[index].sgstAmt ? parseFloat(vendorInvoiceEntry[index].sgstAmt): 0 )
@@ -378,7 +383,7 @@ const AddVendorInvoiceDetail = () => {
     }
 
     if(e.target.name == "sgstPer"){
-      if(vendorInvoiceEntry[index].productAmount || vendorInvoiceEntry[index].invoiceRate){
+      if(vendorInvoiceEntry[index].productAmount){
       var sgstAmt = (parseFloat(vendorInvoiceEntry[index].productAmount)  * parseFloat(e.target.value))/100
       vendorInvoiceEntry[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
       var calculatedProductGrandAmt = (vendorInvoiceEntry[index].productAmount > 0 ? parseFloat(vendorInvoiceEntry[index].productAmount) : 0) + (sgstAmt > 0 ? sgstAmt : 0) + ( vendorInvoiceEntry[index].cgstAmt ? parseFloat(vendorInvoiceEntry[index].cgstAmt): 0)
@@ -640,6 +645,9 @@ const AddVendorInvoiceDetail = () => {
                     if (!vendorInvoiceEntryHeaderDetails.poNo && (column == "PO. Rate")) {
                       return null;
                     }
+                    if(vendorInvoiceEntryHeaderDetails.poNo && (column == "Rate")) {
+                      return null;
+                    }
                     if (column === 'Delete' && (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')) {
                       return null;
                     }
@@ -736,7 +744,7 @@ const AddVendorInvoiceDetail = () => {
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
-                        <td key={index}>
+                        {/* <td key={index}>
                           <EnlargableTextbox
                             name="invoiceRate"
                             placeholder="Rate"
@@ -755,7 +763,7 @@ const AddVendorInvoiceDetail = () => {
                             required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
-                        </td>
+                        </td> */}
                         <td key={index}>
                           <EnlargableTextbox
                             name="productAmount"
