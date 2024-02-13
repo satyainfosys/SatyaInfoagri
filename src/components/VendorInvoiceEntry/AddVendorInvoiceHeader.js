@@ -171,7 +171,8 @@ const AddVendorInvoiceHeader = () => {
     if (vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode) {
       dispatch(formChangedAction({
         ...formChangedData,
-        vendorInvoiceEntryHeaderDetailUpdate: true
+        vendorInvoiceEntryHeaderDetailUpdate: true,
+        vendorInvoiceEntryDetailsUpdate: true
       }))
     } else {
       dispatch(formChangedAction({

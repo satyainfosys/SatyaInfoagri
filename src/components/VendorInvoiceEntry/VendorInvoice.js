@@ -411,6 +411,7 @@ const VendorInvoice = () => {
           sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
           taxIncluded : detail.taxIncluded ? "true" : "false",
           productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
+          invoiceRate: detail.invoiceRate ? detail.invoiceRate : detail.poRate
         };
       });
 
@@ -579,6 +580,7 @@ const VendorInvoice = () => {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
               encryptedInvoiceDetailCode: vendorInvoiceEntryDetailsData.encryptedInvoiceDetailCode,
               invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+              poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
               poDetailId: vendorInvoiceEntryDetailsData.poDetailId ? parseInt(vendorInvoiceEntryDetailsData.poDetailId) : 0,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
@@ -586,7 +588,7 @@ const VendorInvoice = () => {
               itemDescription: vendorInvoiceEntryDetailsData.itemDescription ? vendorInvoiceEntryDetailsData.itemDescription : "",
               description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
               invoiceQty: parseFloat(vendorInvoiceEntryDetailsData.invoiceQty),
-              invoiceRate: parseFloat(vendorInvoiceEntryDetailsData.invoiceRate),
+              invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate ? parseFloat(vendorInvoiceEntryDetailsData.invoiceRate) : parseFloat(vendorInvoiceEntryDetailsData.poRate) ,
               UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               productAmount: parseFloat(vendorInvoiceEntryDetailsData.productAmount),
               cgstPer: vendorInvoiceEntryDetailsData.cgstPer ? vendorInvoiceEntryDetailsData.cgstPer : 0,
@@ -615,6 +617,7 @@ const VendorInvoice = () => {
             const requestData = {
               encryptedInvoiceHeaderCode: localStorage.getItem("EncryptedInvoiceHeaderCode"),
               invoiceNo: vendorInvoiceEntryHeaderDetails.invoiceNo,
+              poNo: vendorInvoiceEntryHeaderDetails.poNo ? vendorInvoiceEntryHeaderDetails.poNo : "",
               poDetailId: vendorInvoiceEntryDetailsData.poDetailId ? parseInt(vendorInvoiceEntryDetailsData.poDetailId) : 0,
               productLineCode: vendorInvoiceEntryDetailsData.productLineCode,
               productCategoryCode: vendorInvoiceEntryDetailsData.productCategoryCode,
@@ -622,7 +625,7 @@ const VendorInvoice = () => {
               itemDescription: vendorInvoiceEntryDetailsData.itemDescription ? vendorInvoiceEntryDetailsData.itemDescription : "",
               description: vendorInvoiceEntryDetailsData.description ? vendorInvoiceEntryDetailsData.description : "",
               invoiceQty: vendorInvoiceEntryDetailsData.invoiceQty.toString(),
-              invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate.toString(),
+              invoiceRate: vendorInvoiceEntryDetailsData.invoiceRate ? (vendorInvoiceEntryDetailsData.invoiceRate).toString() : (vendorInvoiceEntryDetailsData.poRate).toString(),
               UnitCode: vendorInvoiceEntryDetailsData.unitCode,
               invoiceStatus: vendorInvoiceEntryHeaderDetails.invoiceStatus && vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" ? "A" : vendorInvoiceEntryHeaderDetails.invoiceStatus == "Rejected" ? "R" : "D",
               productAmount: vendorInvoiceEntryDetailsData.productAmount.toString(),

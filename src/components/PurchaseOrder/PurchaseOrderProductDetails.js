@@ -147,7 +147,12 @@ const PurchaseOrderProductDetails = () => {
       }))
 
       const updatedData = vendorProductCatalogueList.map(item => ({
-        ...item,
+        ...item,     
+        productGrandAmt: 0,
+        cgstPer: 0,
+        cgstAmt: 0,
+        sgstPer: 0,
+        sgstAmt: 0,
         materialStatus: "Not Received"
       }));
 
@@ -166,6 +171,11 @@ const PurchaseOrderProductDetails = () => {
 
       const updatedRows = selectedRows.map(item => ({
         ...item,
+        productGrandAmt: 0,
+        cgstPer: 0,
+        cgstAmt: 0,
+        sgstPer: 0,
+        sgstAmt: 0,
         materialStatus: "Not Received"
       }));
 

@@ -172,13 +172,21 @@ const AddVendorInvoiceDetail = () => {
         if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
+            productGrandAmt: 0,
+            cgstPer: 0,
             cgstAmt: 0,
+            sgstPer: 0,
             sgstAmt: 0,
             taxIncluded: true
           };
         } else {
           return {
             ...data,
+            productGrandAmt: 0,
+            cgstPer: 0,
+            cgstAmt: 0,
+            sgstPer: 0,
+            sgstAmt: 0,
             taxIncluded: false
           };
         }
@@ -195,13 +203,21 @@ const AddVendorInvoiceDetail = () => {
         if (data.sgstAmt && data.sgstPer) {
           return {
             ...data,
+            productGrandAmt: 0,
+            cgstPer: 0,
             cgstAmt: 0,
+            sgstPer: 0,
             sgstAmt: 0,
             taxIncluded: true
           };
         } else {
           return {
             ...data,
+            productGrandAmt: 0,
+            cgstPer: 0,
+            cgstAmt: 0,
+            sgstPer: 0,
+            sgstAmt: 0,
             taxIncluded: false
           };
         }
