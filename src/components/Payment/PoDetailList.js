@@ -208,7 +208,7 @@ const PoDetailList = () => {
           <Card.Body className="position-relative pb-0 p3px cp-table-card">
             <Form
               noValidate
-              validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount)}
+              validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount &&  paymentErr.invalidPaymentDetail)}
               className="details-form"
               id="AddCropPurchaseDetails"
             >
@@ -281,18 +281,22 @@ const PoDetailList = () => {
                           <EnlargableTextbox
                             name="cgstPer"
                             placeholder="CGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.cgstPer ? paymentDetails.cgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
                         </td>
@@ -319,14 +323,19 @@ const PoDetailList = () => {
                           <EnlargableTextbox
                             name="sgstPer"
                             placeholder="SGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.sgstPer ? paymentDetails.sgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}

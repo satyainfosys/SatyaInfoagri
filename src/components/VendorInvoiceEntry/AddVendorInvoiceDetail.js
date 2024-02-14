@@ -169,14 +169,14 @@ const AddVendorInvoiceDetail = () => {
       let updatedData;
       let newRows = purchaseOrderProductDetailsList.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
       newRows = newRows.map((data) => {
-        if (data.sgstAmt && data.sgstPer) {
+        if (data.sgstAmt > 0 && data.sgstPer > 0) {
           return {
             ...data,
-            productGrandAmt: 0,
-            cgstPer: 0,
-            cgstAmt: 0,
-            sgstPer: 0,
-            sgstAmt: 0,
+            productGrandAmt: data.productGrandAmt ? data.productGrandAmt : 0,
+            cgstPer: data.cgstPer ? data.cgstPer : 0,
+            cgstAmt: data.cgstAmt ? data.cgstAmt : 0,
+            sgstPer: data.sgstPer ? data.sgstPer : 0,
+            sgstAmt: data.sgstAmt ? data.sgstAmt : 0,
             taxIncluded: true
           };
         } else {
@@ -200,14 +200,14 @@ const AddVendorInvoiceDetail = () => {
     } else {
       let uniqueRows = selectedRows.filter(row => !vendorInvoiceEntryDetails.some(existingRow => existingRow.productCode === row.productCode));
       uniqueRows = uniqueRows.map((data) => {
-        if (data.sgstAmt && data.sgstPer) {
+        if (data.sgstAmt > 0 && data.sgstPer > 0) {
           return {
             ...data,
-            productGrandAmt: 0,
-            cgstPer: 0,
-            cgstAmt: 0,
-            sgstPer: 0,
-            sgstAmt: 0,
+            productGrandAmt: data.productGrandAmt ? data.productGrandAmt : 0,
+            cgstPer: data.cgstPer ? data.cgstPer : 0,
+            cgstAmt: data.cgstAmt ? data.cgstAmt : 0,
+            sgstPer: data.sgstPer ? data.sgstPer : 0,
+            sgstAmt: data.sgstAmt ? data.sgstAmt : 0,
             taxIncluded: true
           };
         } else {
@@ -272,7 +272,6 @@ const AddVendorInvoiceDetail = () => {
     dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry));
 
     if (e.target.name == "invoiceQty") {
-      // if (vendorInvoiceEntry[index].invoiceRate) {
         var totalAmount = (e.target.value !== "" ?parseFloat(e.target.value): 0) * (vendorInvoiceEntry[index].invoiceRate ? parseFloat(vendorInvoiceEntry[index].invoiceRate) : parseFloat(vendorInvoiceEntry[index].poRate))
         vendorInvoiceEntry[index].productAmount = isNaN(totalAmount) ? 0 : totalAmount.toString();
 
@@ -301,7 +300,6 @@ const AddVendorInvoiceDetail = () => {
         })) 
 
         dispatch(vendorInvoiceEntryDetailsAction(vendorInvoiceEntry))
-      // }
     }
 
     if (e.target.name == "invoiceRate") {
@@ -342,7 +340,6 @@ const AddVendorInvoiceDetail = () => {
     }
 
     if (e.target.name == "productAmount") {
-      // if (vendorInvoiceEntry[index].invoiceRate) {
         var totalQuantity = parseFloat(e.target.value) / (vendorInvoiceEntry[index].invoiceRate ?  parseFloat(vendorInvoiceEntry[index].invoiceRate) : parseFloat(vendorInvoiceEntry[index].poRate))
         vendorInvoiceEntry[index].invoiceQty = isNaN(totalQuantity) ? 0 : totalQuantity.toString();
 
@@ -803,18 +800,22 @@ const AddVendorInvoiceDetail = () => {
                           <EnlargableTextbox
                             name="cgstPer"
                             placeholder="CGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
@@ -841,18 +842,22 @@ const AddVendorInvoiceDetail = () => {
                           <EnlargableTextbox
                             name="sgstPer"
                             placeholder="SGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
@@ -1007,18 +1012,22 @@ const AddVendorInvoiceDetail = () => {
                           <EnlargableTextbox
                             name="cgstPer"
                             placeholder="CGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
@@ -1045,18 +1054,22 @@ const AddVendorInvoiceDetail = () => {
                           <EnlargableTextbox
                             name="sgstPer"
                             placeholder="SGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>

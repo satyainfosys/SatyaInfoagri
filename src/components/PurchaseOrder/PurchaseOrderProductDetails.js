@@ -1046,18 +1046,22 @@ const PurchaseOrderProductDetails = () => {
                         <EnlargableTextbox
                           name="cgstPer"
                           placeholder="CGST %"
-                          maxLength={4}
+                          maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.cgstPer ? poProductDetailData.cgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
+                            const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
+                                e.preventDefault();
+                              }
                           }}
-                          required
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>
@@ -1084,18 +1088,22 @@ const PurchaseOrderProductDetails = () => {
                         <EnlargableTextbox
                           name="sgstPer"
                           placeholder="SGST %"
-                          maxLength={4}
+                          maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.sgstPer ? poProductDetailData.sgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
+                            const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
+                                e.preventDefault();
+                              }
                           }}
-                          required
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>

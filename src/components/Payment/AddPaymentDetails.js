@@ -329,13 +329,12 @@ const AddPaymentDetails = () => {
             status = "Partially Paid"
           }
           let taxIncluded
-          if (detail.cgstAmt && detail.sgstAmt) {
+          if (detail.cgstAmt > 0 && detail.sgstAmt > 0) {
             taxIncluded = true
           }
           else {
             taxIncluded = false
           }
-  
           return {
             ...detail,
             unitName: unitName,
@@ -344,22 +343,16 @@ const AddPaymentDetails = () => {
             cgstAmt: detail.paymentCGSTAmt ? detail.paymentCGSTAmt : detail.cgstAmt ? detail.cgstAmt : 0,
             sgstPer: detail.paymentSGSTPer ? detail.paymentSGSTPer : detail.sgstPer ? detail.sgstPer : 0,
             sgstAmt: detail.paymentSGSTAmt ? detail.paymentSGSTAmt : detail.sgstAmt ? detail.sgstAmt :0,
-            productGrandAmt: detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt,
+            productGrandAmt: detail.paymentProductGrandAmt > 0 ? detail.paymentProductGrandAmt : detail.productGrandAmt,
             paidAmount: detail.paymentPaidAmount ? detail.paymentPaidAmount : detail.paidAmount,
+            netAmount: netAmount,
             status: status,
             taxIncluded: taxIncluded
           };
         });
 
-        const updatedInvoiceDetails = invoiceDetails.map(detail => {
-          return {
-            ...detail,
-            netAmount: netAmount,
-          };
-        });
-       
-        setInvoiceDetails(updatedInvoiceDetails)
-        dispatch(paymentDetailsAction(updatedInvoiceDetails))
+        setInvoiceDetails(invoiceDetails)
+        dispatch(paymentDetailsAction(invoiceDetails))
 
         let invoiceStatus = ""
         if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {

@@ -1,6 +1,7 @@
 const initialState = {
     paymentError: {
         paidAmountErr: {},
+        paymentDetailErr: {}
     }
 };
 
