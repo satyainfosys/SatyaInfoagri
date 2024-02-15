@@ -111,15 +111,18 @@ const Payment = () => {
 
 
     paymentDetails.forEach((row) => {
-      if (row.cgstAmt == "0" || row.sgstAmt == "0") {
-        paymentDetailErr.invalidPaymentDetail = "Fill the required fields"
-        setTimeout(() => {
-          toast.error(paymentDetailErr.invalidPaymentDetail, {
-            theme: 'colored'
-          });
-        }, 1000);
-        isValid = false;
-      }})
+      if(row.paidAmount > 0){
+        if (row.cgstAmt == "0" || row.sgstAmt == "0") {
+          paymentDetailErr.invalidPaymentDetail = "Fill the required fields"
+          setTimeout(() => {
+            toast.error(paymentDetailErr.invalidPaymentDetail, {
+              theme: 'colored'
+            });
+          }, 1000);
+          isValid = false;
+        }
+      }
+     })
 
     if (!isValid) {
       var errorObject = {
@@ -201,6 +204,11 @@ const Payment = () => {
         else {
           status = "Partially Paid"
         }
+
+        updatedPaymentDetail[i] = {
+          ...updatedPaymentDetail[i],
+          status: status
+        };
        
         dispatch(paymentDetailsAction(updatedPaymentDetail));
         getInvoiceDetailList()
@@ -309,9 +317,19 @@ const Payment = () => {
           else {
             taxIncluded = false
           }
+
+          let status = ""
+          if (parseFloat(detail.productGrandAmt) == parseFloat(detail.paidAmount)) {
+            status = "Fully Paid"
+          }
+          else {
+            status = "Partially Paid"
+          }
+
           return {
             ...detail,
-            taxIncluded: taxIncluded
+            taxIncluded: taxIncluded,
+            status: status
           };
         });
         dispatch(paymentDetailsAction(invoiceDetails));

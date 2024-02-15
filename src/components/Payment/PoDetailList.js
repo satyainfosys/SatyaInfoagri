@@ -47,31 +47,11 @@ const PoDetailList = () => {
       setRowData([]);
     }
 
-    const invoicePaidAmount = paymentDetails.length >= 1
-      ? paymentDetails.reduce((acc, obj) => {
-        const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
-        return acc + (isNaN(paidAmount) ? 0 : paidAmount);
-      }, 0)
-      : paymentDetails.length === 1
-        ? parseFloat(paymentDetails[0].poAmt)
-        : 0;
-
-    let balanceAmount
-    if (paymentHeaderDetails.invoiceAmount) {
-      balanceAmount = paymentHeaderDetails.invoiceAmount - invoicePaidAmount
-    }
-
-    dispatch(paymentHeaderAction({
-      ...paymentHeaderDetails,
-      invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
-      balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
-    }));
-
     if (paymentDetails && paymentDetails.length > 0) {
       getUnitList()
     }
 
-  }, [paymentDetails, paymentHeaderDetails.invoiceAmount])
+  }, [paymentDetails])
 
   const handleViewItem = (encryptedInvoiceDetailCode, index) => {
     setProductModal(true);
@@ -154,11 +134,28 @@ const PoDetailList = () => {
       }
     }
    
-    if (e.target.name == "paidAmount" && paymentDetailEntry[index].taxIncluded == false) {
+    if (e.target.name == "paidAmount") {
       let gstTotalAmt = (paymentHeaderDetails.gstTotalAmt ? parseFloat(paymentHeaderDetails.gstTotalAmt) : 0) + (paymentDetailEntry[index].cgstAmt ? parseFloat(paymentDetailEntry[index].cgstAmt) : 0) + (paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt) : 0)
+
+      const invoicePaidAmount = paymentDetailEntry.length >= 1
+        ? paymentDetailEntry.reduce((acc, obj) => {
+          const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
+          return acc + (isNaN(paidAmount) ? 0 : paidAmount);
+        }, 0)
+        : paymentDetails.length === 1
+          ? parseFloat(paymentDetails[0].poAmt)
+          : 0;
+
+      let balanceAmount
+      if (paymentHeaderDetails.invoiceAmount) {
+        balanceAmount = paymentHeaderDetails.invoiceAmount - invoicePaidAmount
+      }
+
       dispatch(paymentHeaderAction({
         ...paymentHeaderDetails,
-        gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt
+        gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt,
+        invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
+        balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
       }))
     }
 

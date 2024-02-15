@@ -37,7 +37,7 @@ const AddPaymentDetails = () => {
       "invoiceNo": "",
       "invoiceDate": "",
       "invoiceAmount": "",
-      "gstTotalAmt" : 0,
+      "gstTotalAmt": 0,
       "invoicePaidAmount": 0,
       "balanceAmount": 0
     }))
@@ -52,7 +52,7 @@ const AddPaymentDetails = () => {
     if (e.target.name === 'companyCode' && e.target.value) {
       var companyDetail = companyMasterList.find(company => company.encryptedCompanyCode == e.target.value);
       getVendorAndFarmerList(companyDetail.encryptedCompanyCode)
-      localStorage.setItem("EncryptedCompanyCode",companyDetail.encryptedCompanyCode)
+      localStorage.setItem("EncryptedCompanyCode", companyDetail.encryptedCompanyCode)
       dispatch(paymentDetailsAction([]))
       resetInvoiceEntryHeaderDetails()
       setInvoiceData([]);
@@ -78,35 +78,34 @@ const AddPaymentDetails = () => {
         balanceAmount: balanceAmount,
       }))
 
-      if(e.target.value > 0){
+      if (e.target.value > 0) {
         $('#btnSave').attr('disabled', false);
       }
-      else{
+      else {
         $("#btnSave").attr('disabled', true);
       }
     }
-    else if(e.target.name === 'invoicePaidAmount')
-    {
-        let updatedPaymentDetails = [...paymentDetails];
-        for (let i = 0; i < updatedPaymentDetails.length; i++) {
-          updatedPaymentDetails[i] = {
-            ...updatedPaymentDetails[i],
-            paidAmount: "",
-          };
-        }
-        dispatch(paymentDetailsAction(updatedPaymentDetails));
-        dispatch(paymentHeaderAction({
-          ...paymentHeaderDetails,
-          invoicePaidAmount:"",
-          balanceAmount: paymentHeaderDetails.invoiceAmount ,
-        }))
+    else if (e.target.name === 'invoicePaidAmount') {
+      let updatedPaymentDetails = [...paymentDetails];
+      for (let i = 0; i < updatedPaymentDetails.length; i++) {
+        updatedPaymentDetails[i] = {
+          ...updatedPaymentDetails[i],
+          paidAmount: "",
+        };
+      }
+      dispatch(paymentDetailsAction(updatedPaymentDetails));
+      dispatch(paymentHeaderAction({
+        ...paymentHeaderDetails,
+        invoicePaidAmount: "",
+        balanceAmount: paymentHeaderDetails.invoiceAmount,
+      }))
 
-        if(e.target.value > 0){
-          $('#btnSave').attr('disabled', false);
-        }
-        else{
-          $("#btnSave").attr('disabled', true);
-        }  
+      if (e.target.value > 0) {
+        $('#btnSave').attr('disabled', false);
+      }
+      else {
+        $("#btnSave").attr('disabled', true);
+      }
     }
     else {
       dispatch(paymentHeaderAction({
@@ -129,10 +128,11 @@ const AddPaymentDetails = () => {
       invoiceNo: "",
       invoiceDate: "",
       invoiceAmount: "",
-      invoicePaidAmount:"",
+      invoicePaidAmount: "",
       gstTotalAmt: "",
       invoiceGrandAmt: "",
       invoiceStatus: "",
+      balanceAmount:""
     }))
     setInvoiceData([]);
     dispatch(paymentDetailsAction([]))
@@ -140,30 +140,7 @@ const AddPaymentDetails = () => {
   }
 
   const handleInvoiceDetail = async (invoiceNo) => {
-    var invoiceDetail = invoiceList.find(data => data.invoiceNo == invoiceNo);
-
-    await  getInvoiceDetailList(invoiceDetail.invoiceNo)
-      const totalInvoiceAmount = invoiceDetails.length > 1
-    ? invoiceDetails.reduce((acc, obj) => {
-      const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
-      return acc + (isNaN(invoiceAmount) ? 0 : invoiceAmount);
-    }, 0)
-    : invoiceDetails.length === 1
-      ? parseFloat(invoiceDetails[0].productGrandAmt)
-      : 0;
-
-    dispatch(paymentHeaderAction({
-      ...paymentHeaderDetails,
-      encryptedInvoiceHeaderCode: invoiceDetail.encryptedInvoiceHeaderCode,
-      invoiceNo: invoiceDetail.invoiceNo,
-      invoiceDate: invoiceDetail.invoiceDate,
-      invoiceAmount: totalInvoiceAmount,
-      invoicePaidAmount: invoiceDetail.invoicePaidAmount,
-      gstTotalAmt: invoiceDetail.gstTotalAmt,
-      invoiceGrandAmt: invoiceDetail.invoiceGrandAmt,
-      invoiceStatus: paymentHeaderDetails.invoiceStatus ? paymentHeaderDetails.invoiceStatus : invoiceDetail.invoiceStatus,
-      poNo: invoiceDetail.poNo,
-    }))
+    await getInvoiceDetailList(invoiceNo)
   }
 
   const getCompany = async () => {
@@ -251,6 +228,7 @@ const AddPaymentDetails = () => {
         invoicePaidAmount: "",
         invoiceStatus: "",
         poNo: "",
+        balanceAmount:""
       }))
       dispatch(paymentDetailsAction([]))
     }
@@ -265,7 +243,7 @@ const AddPaymentDetails = () => {
     const listFilter = {
       pageNumber: page,
       pageSize: size,
-      EncryptedCompanyCode:localStorage.getItem("EncryptedCompanyCode"),
+      EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
       code: code
     }
 
@@ -303,8 +281,7 @@ const AddPaymentDetails = () => {
     }
   }
 
-  const getInvoiceDetailList = async (invoiceNo) => {
-    
+  const getInvoiceDetailList = async (invoiceNo) => {   
     const request = {
       InvoiceNo: invoiceNo
     }
@@ -339,12 +316,12 @@ const AddPaymentDetails = () => {
             ...detail,
             unitName: unitName,
             balanceAmount: balanceAmount,
-            cgstPer: detail.paymentCGSTPer ? detail.paymentCGSTPer : detail.cgstPer ? detail.cgstPer : 0,
-            cgstAmt: detail.paymentCGSTAmt ? detail.paymentCGSTAmt : detail.cgstAmt ? detail.cgstAmt : 0,
-            sgstPer: detail.paymentSGSTPer ? detail.paymentSGSTPer : detail.sgstPer ? detail.sgstPer : 0,
-            sgstAmt: detail.paymentSGSTAmt ? detail.paymentSGSTAmt : detail.sgstAmt ? detail.sgstAmt :0,
+            cgstPer: detail.paymentCGSTPer > 0 ? detail.paymentCGSTPer : detail.cgstPer ? detail.cgstPer : 0,
+            cgstAmt: detail.paymentCGSTAmt > 0 ? detail.paymentCGSTAmt : detail.cgstAmt ? detail.cgstAmt : 0,
+            sgstPer: detail.paymentSGSTPer > 0 ? detail.paymentSGSTPer : detail.sgstPer ? detail.sgstPer : 0,
+            sgstAmt: detail.paymentSGSTAmt > 0 ? detail.paymentSGSTAmt : detail.sgstAmt ? detail.sgstAmt : 0,
             productGrandAmt: detail.paymentProductGrandAmt > 0 ? detail.paymentProductGrandAmt : detail.productGrandAmt,
-            paidAmount: detail.paymentPaidAmount ? detail.paymentPaidAmount : detail.paidAmount,
+            paidAmount: detail.paymentPaidAmount > 0 ? detail.paymentPaidAmount : detail.paidAmount ? detail.paidAmount : 0,
             netAmount: netAmount,
             status: status,
             taxIncluded: taxIncluded
@@ -353,6 +330,31 @@ const AddPaymentDetails = () => {
 
         setInvoiceDetails(invoiceDetails)
         dispatch(paymentDetailsAction(invoiceDetails))
+
+        var invoiceDetail = invoiceList.find(data => data.invoiceNo == invoiceNo);
+
+        const totalInvoiceAmount = invoiceDetails.length > 1
+          ? invoiceDetails.reduce((acc, obj) => {
+            const invoiceAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+            return acc + (isNaN(invoiceAmount) ? 0 : invoiceAmount);
+          }, 0)
+          : invoiceDetails.length === 1
+            ? parseFloat(invoiceDetails[0].productGrandAmt)
+            : 0;
+
+        const invoicePaidAmount = paymentDetails.length >= 1
+          ? paymentDetails.reduce((acc, obj) => {
+            const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
+            return acc + (isNaN(paidAmount) ? 0 : paidAmount);
+          }, 0)
+          : paymentDetails.length === 1
+            ? parseFloat(paymentDetails[0].poAmt)
+            : 0;
+
+        let balanceAmount
+        if (totalInvoiceAmount > 0) {
+          balanceAmount = totalInvoiceAmount - invoicePaidAmount
+        }
 
         let invoiceStatus = ""
         if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
@@ -364,7 +366,16 @@ const AddPaymentDetails = () => {
 
         dispatch(paymentHeaderAction({
           ...paymentHeaderDetails,
-          invoiceStatus: invoiceStatus
+          invoiceStatus: invoiceStatus,
+          encryptedInvoiceHeaderCode: invoiceDetail.encryptedInvoiceHeaderCode,
+          invoiceNo: invoiceDetail.invoiceNo,
+          invoiceDate: invoiceDetail.invoiceDate,
+          invoiceAmount: totalInvoiceAmount,
+          gstTotalAmt: invoiceDetail.gstTotalAmt,
+          invoiceGrandAmt: invoiceDetail.invoiceGrandAmt,
+          poNo: invoiceDetail.poNo,
+          invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
+          balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
         }))
 
       } else {

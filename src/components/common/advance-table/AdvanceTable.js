@@ -44,7 +44,7 @@ const AdvanceTable = ({
     }
     else if (rowData.hasOwnProperty('encryptedInvoiceHeaderCode')) {
       if (rowData.vendorType == "C") {
-        getFarmerDetail("",rowData.vendorCode)
+        getFarmerDetail("", rowData.vendorCode)
       }
       localStorage.setItem("OldInvoiceStatus", rowData.invoiceStatus);
       localStorage.setItem('EncryptedInvoiceHeaderCode', rowData.encryptedInvoiceHeaderCode);
@@ -362,7 +362,7 @@ const AdvanceTable = ({
                       >
                         {
                           cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' && cell.column.id !== 'receiveStatus'?
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' && cell.column.id !== 'receiveStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -459,7 +459,7 @@ const AdvanceTable = ({
                                                       {cell.render('Cell')}
                                                     </Badge>
                                                     :
-                                                    cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Fully Received" ?
+                                                    cell.column.id == "poStatus" && cell.row.values.poStatus == "Invoiced" ?
                                                       <Badge
                                                         pill
                                                         bg="success"
@@ -467,7 +467,7 @@ const AdvanceTable = ({
                                                         {cell.render('Cell')}
                                                       </Badge>
                                                       :
-                                                      cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Partially Received" ?
+                                                      cell.column.id == "poStatus" && cell.row.values.poStatus == "Partially Paid" ?
                                                         <Badge
                                                           pill
                                                           bg="info"
@@ -475,51 +475,15 @@ const AdvanceTable = ({
                                                           {cell.render('Cell')}
                                                         </Badge>
                                                         :
-                                                        cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Not Received" ?
+                                                        cell.column.id == "poStatus" && cell.row.values.poStatus == "Fully Paid" ?
                                                           <Badge
                                                             pill
-                                                            bg="danger"
+                                                            bg="success"
                                                           >
                                                             {cell.render('Cell')}
                                                           </Badge>
                                                           :
-                                                          cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
-                                                            <IconButton
-                                                              variant="falcon-default"
-                                                              size="sm"
-                                                              icon="print"
-                                                              iconClassName="me-1"
-                                                              className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                              onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
-                                                      >
-                                                        Print
-                                                      </IconButton>
-                                                      :
-                                                      cell.column.id == "poPrintStatus" && cell.row.values.poPrintStatus == "Approved" ?
-                                                        <IconButton
-                                                          variant="falcon-default"
-                                                          size="sm"
-                                                          icon="print"
-                                                          iconClassName="me-1"
-                                                          className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                          onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
-                                                        >
-                                                          Print
-                                                        </IconButton>
-                                                        :
-                                                        cell.column.id == "vendorInvoicePrintStatus" && cell.row.values.vendorInvoicePrintStatus == "Approved" ?
-                                                          <IconButton
-                                                            variant="falcon-default"
-                                                            size="sm"
-                                                            icon="print"
-                                                            iconClassName="me-1"
-                                                            className="me-1 mb-2 mb-sm-0 hide-on-print"
-                                                            onClick={() => generatePdf('', '', '', '', cell.row.original.encryptedInvoiceHeaderCode)}
-                                                          >
-                                                            Print
-                                                          </IconButton>
-                                                          :
-                                                          cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
+                                                          cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Fully Received" ?
                                                             <Badge
                                                               pill
                                                               bg="success"
@@ -527,7 +491,7 @@ const AdvanceTable = ({
                                                               {cell.render('Cell')}
                                                             </Badge>
                                                             :
-                                                            cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Draft" ?
+                                                            cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Partially Received" ?
                                                               <Badge
                                                                 pill
                                                                 bg="info"
@@ -535,14 +499,90 @@ const AdvanceTable = ({
                                                                 {cell.render('Cell')}
                                                               </Badge>
                                                               :
-                                                              cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Rejected" ?
+                                                              cell.column.id == "receiveStatus" && cell.row.values.receiveStatus == "Not Received" ?
                                                                 <Badge
                                                                   pill
                                                                   bg="danger"
                                                                 >
                                                                   {cell.render('Cell')}
                                                                 </Badge>
-                                                                : ''
+                                                                :
+                                                                cell.column.id == "printStatus" && cell.row.values.printStatus == "Approved" ?
+                                                                  <IconButton
+                                                                    variant="falcon-default"
+                                                                    size="sm"
+                                                                    icon="print"
+                                                                    iconClassName="me-1"
+                                                                    className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                                    onClick={() => generatePdf(cell.row.original.farmerCode, cell.row.original.vendorCode, cell.row.original.encryptedMaterialReceiptId)}
+                                                                  >
+                                                                    Print
+                                                                  </IconButton>
+                                                                  :
+                                                                  cell.column.id == "poPrintStatus" && cell.row.values.poPrintStatus == "Approved" ?
+                                                                    <IconButton
+                                                                      variant="falcon-default"
+                                                                      size="sm"
+                                                                      icon="print"
+                                                                      iconClassName="me-1"
+                                                                      className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                                      onClick={() => generatePdf('', '', '', cell.row.original.encryptedPoNo)}
+                                                                    >
+                                                                      Print
+                                                                    </IconButton>
+                                                                    :
+                                                                    cell.column.id == "vendorInvoicePrintStatus" && cell.row.values.vendorInvoicePrintStatus == "Approved" ?
+                                                                      <IconButton
+                                                                        variant="falcon-default"
+                                                                        size="sm"
+                                                                        icon="print"
+                                                                        iconClassName="me-1"
+                                                                        className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                                        onClick={() => generatePdf('', '', '', '', cell.row.original.encryptedInvoiceHeaderCode)}
+                                                                      >
+                                                                        Print
+                                                                      </IconButton>
+                                                                      :
+                                                                      cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Approved" ?
+                                                                        <Badge
+                                                                          pill
+                                                                          bg="success"
+                                                                        >
+                                                                          {cell.render('Cell')}
+                                                                        </Badge>
+                                                                        :
+                                                                        cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Draft" ?
+                                                                          <Badge
+                                                                            pill
+                                                                            bg="info"
+                                                                          >
+                                                                            {cell.render('Cell')}
+                                                                          </Badge>
+                                                                          :
+                                                                          cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Rejected" ?
+                                                                            <Badge
+                                                                              pill
+                                                                              bg="danger"
+                                                                            >
+                                                                              {cell.render('Cell')}
+                                                                            </Badge>
+                                                                            :
+                                                                            cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Partially Paid" ?
+                                                                              <Badge
+                                                                                pill
+                                                                                bg="info"
+                                                                              >
+                                                                                {cell.render('Cell')}
+                                                                              </Badge>
+                                                                              :
+                                                                              cell.column.id == "invoiceStatus" && cell.row.values.invoiceStatus == "Fully Paid" ?
+                                                                                <Badge
+                                                                                  pill
+                                                                                  bg="success"
+                                                                                >
+                                                                                  {cell.render('Cell')}
+                                                                                </Badge>
+                                                                                : ''
                         }
                       </td>
                     </>
