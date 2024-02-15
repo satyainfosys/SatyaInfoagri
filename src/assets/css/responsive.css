@@ -175,6 +175,12 @@
         overflow-y: scroll;
     }
 
+    .cp-table-card-responsive {
+        max-height: 162px;
+        min-height: 300px !important;
+        overflow-y: scroll;
+    }
+
     .mr-table-card {
         min-height: 157px;
         max-height: 157px;
@@ -218,6 +224,10 @@
 
     .farmer-card-row1 {
         min-height: 237px;
+    }
+
+    .farmer-card-row1 {
+        min-height: 90% !important;
     }
 
     .farmer-card-row2 {
@@ -272,6 +282,12 @@
     .cp-table-card {
         min-height: 233px;
         max-height: 233px;
+        overflow-y: scroll;
+    }
+
+    .cp-table-card-responsive {
+        min-height: 233px;
+        max-height: 413px !important;
         overflow-y: scroll;
     }
 
@@ -339,6 +355,12 @@
         overflow-y: scroll;
     }
 
+    .cp-table-card-responsive {
+        min-height: 233px;
+        max-height: 413px !important;
+        overflow-y: scroll;
+    }
+
     .mr-table-card {
         min-height: 323px;
         max-height: 323px;
@@ -372,6 +394,15 @@
     .big-card-body {
         min-height: 485px;
     }
+}
+@media (min-width:1400px) {
+
+    .cp-table-card-responsive {
+        min-height: 233px;
+        min-height: 400px !important;
+        overflow-y: scroll;
+    }
+
 }
 
 @media (min-width:1680px) {
@@ -409,6 +440,12 @@
     .cp-table-card {
         min-height: 360px;
         max-height: 360px;
+        overflow-y: scroll;
+    }
+    
+    .cp-table-card-responsive{
+        min-height: 480px !important;
+        max-height: 360px !important;
         overflow-y: scroll;
     }
 

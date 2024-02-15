@@ -198,14 +198,14 @@ const PoDetailList = () => {
     <>
       {
         paymentDetails && paymentDetails.length > 0 &&
-        <Card className="h-100 mb-2 mt-2">
+        <Card className="h-100 mb-2 mt-0 ">
           <FalconCardHeader
             title="Po Details"
             titleTag="h6"
             className="py-2"
             light
           />
-          <Card.Body className="position-relative pb-0 p3px cp-table-card">
+          <Card.Body className="position-relative pb-0 p3px cp-table-card cp-table-card-responsive">
             <Form
               noValidate
               validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount)}

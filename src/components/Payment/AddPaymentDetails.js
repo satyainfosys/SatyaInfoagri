@@ -410,13 +410,13 @@ const AddPaymentDetails = () => {
           </Row>
         </Card.Body>
       </Card >
-      <Row >
-        <Col lg={2} className="no-pd-card no-right-pad">
-          <Card className='mb-3'>
-            <Card.Body className="fs--1">
+      <Row className='mb-1'>
+        <Col lg={2} className="no-pd-card no-right-pad margin-right-11">
+          <Card className='mb-1'>
+            <Card.Body className="fs--1 vendor-card-body">
               <Flex>
-                <div className="ms-2 flex-1">
-                  <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                <div className=" flex-1">
+                  <Form.Group as={Row} className="" controlId="formPlaintextPassword">
                     <Col sm="12">
                       <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
                         onKeyDown={(e) => {
@@ -433,7 +433,7 @@ const AddPaymentDetails = () => {
           </Card>
           {
             vendorAndMasterDetail && vendorAndMasterDetail.length > 0 &&
-            <Card className="mb-3">
+            <Card className="mb-3 custom-card-scroll">
               <Card.Header
                 as={Flex}
                 alignItems="center"
@@ -442,22 +442,22 @@ const AddPaymentDetails = () => {
               >
                 <h5 className="mb-0">Vendors</h5>
               </Card.Header>
-              <Card.Body>
+              <Card.Body className='vebdor-card-item'>
                 {vendorAndMasterDetail.map((item) => (
-                  <div className="flex-1 ms-2">
+                  <div className="flex-1 " >
                     <h6 className="mb-0">
                       <Link to="" style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleVendorAndFarmerDetail(item.code, item.name); }} >{item.name}</Link>
                     </h6>
-                    <div className="border-dashed border-bottom my-3" />
+                    <div className="border-dashed border-bottom my-1" />
                   </div>
                 ))}
               </Card.Body>
             </Card>
           }
         </Col>
-        <Col lg={4} className="no-pd-card no-right-pad">
-          <FalconComponentCard className="farmer-card-row1">
-            <FalconCardBody >
+        <Col lg={4} className="no-pd-card  no-right-pad ">
+          <FalconComponentCard className="farmer-card-row1 ">
+            <FalconCardBody className='card-box-padding' >
               <Form noValidate className="details-form" id='ClientUserDetailsForm'>
                 <Row>
                   <Col className="me-3 ms-3">
@@ -508,9 +508,9 @@ const AddPaymentDetails = () => {
             </FalconCardBody>
           </FalconComponentCard>
         </Col>
-        <Col lg={4} className="no-pd-card no-right-pad">
+        <Col lg={4} className="no-pd-card no-right-pad no-left-pad">
           <FalconComponentCard className="farmer-card-row1">
-            <FalconCardBody>
+            <FalconCardBody className='card-box-padding'>
               <Form noValidate className="details-form" id='ClientUserDetailsForm'>
                 <Row>
                   <Col className="me-3 ms-3">
@@ -570,14 +570,14 @@ const AddPaymentDetails = () => {
             </FalconCardBody>
           </FalconComponentCard>
         </Col>
-        <Col lg={2} className="no-pd-card ">
-          <Card className='mb-3'>
-            <Card.Body className="fs--1">
+        <Col lg={2} className="no-pd-card  margin-left-11">
+          <Card className='mb-1'>
+            <Card.Body className="fs--1 vendor-card-body ">
               <Flex>
-                <div className="ms-2 flex-1">
-                  <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
+                <div className=" flex-1">
+                  <Form.Group as={Row} className="" controlId="formPlaintextPassword">
                     <Col sm="12">
-                      <Form.Control id="txtSearchInvoice" name="searchInvoice" placeholder="Search Invoice" maxLength={45} onChange={handleInvoiceOnChange}
+                      <Form.Control id="txtSearchInvoice" className='' name="searchInvoice" placeholder="Search Invoice" maxLength={45} onChange={handleInvoiceOnChange}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -592,7 +592,7 @@ const AddPaymentDetails = () => {
           </Card>
           {
             invoiceData && invoiceData.length > 0 &&
-            <Card className="mb-3">
+            <Card className="mb-3 custom-card-scroll">
               <Card.Header
                 as={Flex}
                 alignItems="center"
@@ -601,13 +601,13 @@ const AddPaymentDetails = () => {
               >
                 <h5 className="mb-0">Invoice</h5>
               </Card.Header>
-              <Card.Body>
+              <Card.Body className='custom-card-scroll vebdor-card-item'>
                 {invoiceData.length > 0 && invoiceData.map((item) => (
-                  <div className="flex-1 ms-2">
+                  <div className="flex-1 ">
                     <h6 className="mb-0">
                       <Link style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleInvoiceDetail(item.invoiceNo); }}>{item.invoiceNo}</Link>
                     </h6>
-                    <div className="border-dashed border-bottom my-3" />
+                    <div className="border-dashed border-bottom my-1" />
                   </div>
                 ))}
               </Card.Body>
