@@ -83,6 +83,7 @@ const Payment = () => {
   const paymentValidation = () => {
     const paidAmountErr = {};
     const invoicePaidAmountErr = {};
+    const paymentDetailErr = {};
     let isValid = true;
 
     if (parseFloat(paymentHeaderDetails.invoicePaidAmount) > parseFloat(paymentHeaderDetails.invoiceAmount)) {
@@ -108,10 +109,26 @@ const Payment = () => {
       }
     }
 
+
+    paymentDetails.forEach((row) => {
+      if(row.paidAmount > 0){
+        if (row.cgstAmt == "0" || row.sgstAmt == "0") {
+          paymentDetailErr.invalidPaymentDetail = "Fill the required fields"
+          setTimeout(() => {
+            toast.error(paymentDetailErr.invalidPaymentDetail, {
+              theme: 'colored'
+            });
+          }, 1000);
+          isValid = false;
+        }
+      }
+     })
+
     if (!isValid) {
       var errorObject = {
         paidAmountErr,
         invoicePaidAmountErr,
+        paymentDetailErr
       }
     }
     dispatch(paymentErrorAction(errorObject))
@@ -190,11 +207,11 @@ const Payment = () => {
 
         updatedPaymentDetail[i] = {
           ...updatedPaymentDetail[i],
-          encryptedPaymentDetailCode: response.data.data.encryptedPaymentDetailCode,
           status: status
         };
-
+       
         dispatch(paymentDetailsAction(updatedPaymentDetail));
+        getInvoiceDetailList()
       }
     }
   };
@@ -280,6 +297,45 @@ const Payment = () => {
       }
     }
   };
+
+  const getInvoiceDetailList = async () => {
+    const request = {
+      InvoiceNo: paymentHeaderDetails.invoiceNo
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+      if (response.data.data && response.data.data.length > 0) {
+        const invoiceDetails = response.data.data.map(detail => {
+          let taxIncluded
+          if (detail.cgstAmt > 0 && detail.sgstAmt > 0) {
+            taxIncluded = true
+          }
+          else {
+            taxIncluded = false
+          }
+
+          let status = ""
+          if (parseFloat(detail.productGrandAmt) == parseFloat(detail.paidAmount)) {
+            status = "Fully Paid"
+          }
+          else {
+            status = "Partially Paid"
+          }
+
+          return {
+            ...detail,
+            taxIncluded: taxIncluded,
+            status: status
+          };
+        });
+        dispatch(paymentDetailsAction(invoiceDetails));
+      }
+    }
+  }
 
   return (
     <>

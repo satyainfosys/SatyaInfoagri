@@ -329,6 +329,12 @@ const AddVendorInvoiceHeader = () => {
                       <option value="Draft">Draft</option>
                       <option value="Approved">Approved</option>
                       <option value="Rejected">Rejected</option>
+                      {vendorInvoiceEntryHeaderDetails.invoiceStatus === "Partially Paid" && (
+                        <option value="Partially Paid">Partially Paid</option>
+                      )}
+                      {vendorInvoiceEntryHeaderDetails.invoiceStatus === "Fully Paid" && (
+                        <option value="Fully Paid">Fully Paid</option>
+                      )}
                     </Form.Select>
                   </Col>
                 </Form.Group>

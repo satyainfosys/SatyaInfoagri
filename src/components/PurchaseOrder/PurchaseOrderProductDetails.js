@@ -820,7 +820,7 @@ const PurchaseOrderProductDetails = () => {
           endEl={
             <Flex>
               {
-                purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") && purchaseOrderData.receivedPoQty > 0 ?
+                purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") && purchaseOrderData.receivedPoQty > 0 ?
                   null
                   :
                   <div >
@@ -852,7 +852,7 @@ const PurchaseOrderProductDetails = () => {
                   {rowData &&
                     (<tr>
                       {columnsArray.map((column, index) => {
-                        if (column === 'Delete' && (purchaseOrderData.poStatus === "Approved" || purchaseOrderData.poStatus === "P" || purchaseOrderData.poStatus === "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0 ) {
+                        if (column === 'Delete' && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") ) {
                           return null;
                         }
                         return (
@@ -915,7 +915,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.unitCode}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         >
                           <option value=''>Select </option>
                           {quantityUnitList.map((option, index) => (
@@ -932,7 +932,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.quantity ? poProductDetailData.quantity : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -953,7 +953,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.poRate ? poProductDetailData.poRate : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -1030,7 +1030,7 @@ const PurchaseOrderProductDetails = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.poAmt ? poProductDetailData.poAmt : ""}
                           required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
@@ -1046,19 +1046,23 @@ const PurchaseOrderProductDetails = () => {
                         <EnlargableTextbox
                           name="cgstPer"
                           placeholder="CGST %"
-                          maxLength={4}
+                          maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.cgstPer ? poProductDetailData.cgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
+                            const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
+                                e.preventDefault();
+                              }
                           }}
-                          required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>
                       <td key={index}>
@@ -1084,19 +1088,23 @@ const PurchaseOrderProductDetails = () => {
                         <EnlargableTextbox
                           name="sgstPer"
                           placeholder="SGST %"
-                          maxLength={4}
+                          maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.sgstPer ? poProductDetailData.sgstPer : ""}
                           onKeyPress={(e) => {
                             const keyCode = e.which || e.keyCode;
                             const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
+                            const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
+                                e.preventDefault();
+                              }
                           }}
-                          required
-                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "P" || purchaseOrderData.poStatus == "F" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
+                          disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>
                       <td key={index}>
@@ -1138,7 +1146,7 @@ const PurchaseOrderProductDetails = () => {
                         />
                       </td>
                       {
-                        (purchaseOrderData.poStatus != "Approved" && purchaseOrderData.poStatus != "P" && purchaseOrderData.poStatus != "F"  && purchaseOrderData.poStatus != "Invoiced"|| purchaseOrderData.receivedPoQty > 0 ) &&
+                        (purchaseOrderData.poStatus != "Approved" && purchaseOrderData.poStatus != "Partially Paid" && purchaseOrderData.poStatus != "Fully Paid"  && purchaseOrderData.poStatus != "Invoiced"|| purchaseOrderData.receivedPoQty > 0 ) &&
                         <td key={index}>
                           {
                             poProductDetailData.materialStatus === "Not Received" ?

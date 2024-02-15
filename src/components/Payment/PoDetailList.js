@@ -47,31 +47,11 @@ const PoDetailList = () => {
       setRowData([]);
     }
 
-    const invoicePaidAmount = paymentDetails.length >= 1
-      ? paymentDetails.reduce((acc, obj) => {
-        const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
-        return acc + (isNaN(paidAmount) ? 0 : paidAmount);
-      }, 0)
-      : paymentDetails.length === 1
-        ? parseFloat(paymentDetails[0].poAmt)
-        : 0;
-
-    let balanceAmount
-    if (paymentHeaderDetails.invoiceAmount) {
-      balanceAmount = paymentHeaderDetails.invoiceAmount - invoicePaidAmount
-    }
-
-    dispatch(paymentHeaderAction({
-      ...paymentHeaderDetails,
-      invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
-      balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
-    }));
-
     if (paymentDetails && paymentDetails.length > 0) {
       getUnitList()
     }
 
-  }, [paymentDetails, paymentHeaderDetails.invoiceAmount])
+  }, [paymentDetails])
 
   const handleViewItem = (encryptedInvoiceDetailCode, index) => {
     setProductModal(true);
@@ -117,10 +97,14 @@ const PoDetailList = () => {
       : paymentDetailEntry.length === 1
           ? parseFloat(paymentDetailEntry[0].productGrandAmt)
           : 0;
+  
+          let balanceAmount = totalInvoiceAmount - paymentHeaderDetails.invoicePaidAmount
+          
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
             invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
-            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt,
+            balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
         }))
       }
     }
@@ -146,19 +130,40 @@ const PoDetailList = () => {
       : paymentDetailEntry.length === 1
           ? parseFloat(paymentDetailEntry[0].productGrandAmt)
           : 0;
+
+          let balanceAmount = totalInvoiceAmount - paymentHeaderDetails.invoicePaidAmount
+
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
             invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
-            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt,
+            balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
         }))
       }
     }
    
-    if (e.target.name == "paidAmount" && paymentDetailEntry[index].taxIncluded == false) {
+    if (e.target.name == "paidAmount") {
       let gstTotalAmt = (paymentHeaderDetails.gstTotalAmt ? parseFloat(paymentHeaderDetails.gstTotalAmt) : 0) + (paymentDetailEntry[index].cgstAmt ? parseFloat(paymentDetailEntry[index].cgstAmt) : 0) + (paymentDetailEntry[index].sgstAmt ? parseFloat(paymentDetailEntry[index].sgstAmt) : 0)
+
+      const invoicePaidAmount = paymentDetailEntry.length >= 1
+        ? paymentDetailEntry.reduce((acc, obj) => {
+          const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
+          return acc + (isNaN(paidAmount) ? 0 : paidAmount);
+        }, 0)
+        : paymentDetails.length === 1
+          ? parseFloat(paymentDetails[0].poAmt)
+          : 0;
+
+      let balanceAmount
+      if (paymentHeaderDetails.invoiceAmount) {
+        balanceAmount = paymentHeaderDetails.invoiceAmount - invoicePaidAmount
+      }
+
       dispatch(paymentHeaderAction({
         ...paymentHeaderDetails,
-        gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt
+        gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt,
+        invoicePaidAmount: isNaN(invoicePaidAmount) ? 0 : invoicePaidAmount,
+        balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
       }))
     }
 
@@ -208,7 +213,7 @@ const PoDetailList = () => {
           <Card.Body className="position-relative pb-0 p3px cp-table-card cp-table-card-responsive">
             <Form
               noValidate
-              validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount)}
+              validated={(paymentErr.paidAmountErr && paymentErr.paidAmountErr.invalidPaidAmount &&  paymentErr.invalidPaymentDetail)}
               className="details-form"
               id="AddCropPurchaseDetails"
             >
@@ -281,18 +286,22 @@ const PoDetailList = () => {
                           <EnlargableTextbox
                             name="cgstPer"
                             placeholder="CGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.cgstPer ? paymentDetails.cgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
-                            required
                             disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
                         </td>
@@ -319,14 +328,19 @@ const PoDetailList = () => {
                           <EnlargableTextbox
                             name="sgstPer"
                             placeholder="SGST %"
-                            maxLength={4}
+                            maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.sgstPer ? paymentDetails.sgstPer : ""}
                             onKeyPress={(e) => {
                               const keyCode = e.which || e.keyCode;
                               const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
+                              const regex = /^[0-9.\b]+$/;
+                              const value = e.target.value + keyValue; 
+                              if (!regex.test(value)) {
+                                e.preventDefault();
+                              }
+                              const [integerPart, decimalPart] = value.split('.');
+                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
                                 e.preventDefault();
                               }
                             }}
