@@ -342,8 +342,8 @@ const AddPaymentDetails = () => {
             ? parseFloat(invoiceDetails[0].productGrandAmt)
             : 0;
 
-        const invoicePaidAmount = paymentDetails.length >= 1
-          ? paymentDetails.reduce((acc, obj) => {
+        const invoicePaidAmount = invoiceDetails.length >= 1
+          ? invoiceDetails.reduce((acc, obj) => {
             const paidAmount = obj.paidAmount !== "" ? parseFloat(obj.paidAmount) : 0;
             return acc + (isNaN(paidAmount) ? 0 : paidAmount);
           }, 0)
@@ -357,7 +357,7 @@ const AddPaymentDetails = () => {
         }
 
         let invoiceStatus = ""
-        if (parseFloat(paymentHeaderDetails.invoiceAmount) == parseFloat(paymentHeaderDetails.invoicePaidAmount)) {
+        if (parseFloat(totalInvoiceAmount) == parseFloat(invoicePaidAmount)) {
           invoiceStatus = "Fully Paid"
         }
         else {

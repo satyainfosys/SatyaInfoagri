@@ -97,10 +97,14 @@ const PoDetailList = () => {
       : paymentDetailEntry.length === 1
           ? parseFloat(paymentDetailEntry[0].productGrandAmt)
           : 0;
+  
+          let balanceAmount = totalInvoiceAmount - paymentHeaderDetails.invoicePaidAmount
+          
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
             invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
-            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt,
+            balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
         }))
       }
     }
@@ -126,10 +130,14 @@ const PoDetailList = () => {
       : paymentDetailEntry.length === 1
           ? parseFloat(paymentDetailEntry[0].productGrandAmt)
           : 0;
+
+          let balanceAmount = totalInvoiceAmount - paymentHeaderDetails.invoicePaidAmount
+
           dispatch(paymentHeaderAction({
             ...paymentHeaderDetails,
             invoiceAmount: isNaN(totalInvoiceAmount) ? 0 : totalInvoiceAmount,
-            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt
+            gstTotalAmt: isNaN(gstTotalAmt) ? 0 : gstTotalAmt > 0 ? gstTotalAmt : paymentHeaderDetails.gstTotalAmt,
+            balanceAmount: isNaN(balanceAmount) ? 0 : balanceAmount
         }))
       }
     }
