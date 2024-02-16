@@ -119,6 +119,7 @@ const AddPaymentDetails = () => {
       localStorage.removeItem("EncryptedCompanyCode")
       resetInvoiceEntryHeaderDetails()
       dispatch(paymentDetailsAction([]))
+      setInvoiceList([]);
     }
   }
 
