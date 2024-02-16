@@ -223,8 +223,8 @@ input::placeholder,
 }
 
 .custom-card-scroll {
-    max-height: 150px;
-    min-height: 150px;
+    max-height: 112px;
+    min-height: 111px;
     overflow-y: auto;
 }
 
@@ -237,6 +237,21 @@ input::placeholder,
 }
 
 .vebdor-card-item {
+    padding: 9px 5px 4px 16px !important;
+}
 
-    padding: 9px 5px 17px 16px !important;
+.no-padding-mar{
+    padding: 0px !important;
+    margin: 0px !important;
+}
+
+.custom-card-invoice-scroll {
+    max-height: 111px;
+    min-height: 111px;
+    overflow-y: auto;
+}
+
+.vebdor-card-invoice-item {
+
+    padding: 10px 5px 4px 16px !important;
 }
