@@ -115,7 +115,10 @@ const AddPaymentDetails = () => {
       }))
       setVendorAndFarmerList([])
       setVendorAndMasterDetail([])
+      setInvoiceData([])
       localStorage.removeItem("EncryptedCompanyCode")
+      resetInvoiceEntryHeaderDetails()
+      dispatch(paymentDetailsAction([]))
     }
   }
 
@@ -138,7 +141,6 @@ const AddPaymentDetails = () => {
       invoiceStatus: "",
       balanceAmount:""
     }))
-    setInvoiceData([]);
     setInvoiceList([]);
     dispatch(paymentDetailsAction([]))
     fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
@@ -180,6 +182,10 @@ const AddPaymentDetails = () => {
         }
       }
     } else {
+      toast.error(companyResponse.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
       setCompanyList([])
     }
   }
@@ -199,6 +205,30 @@ const AddPaymentDetails = () => {
         setVendorAndFarmerList([])
       }
     }
+    else{
+      toast.error(response.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
+    }
+  }
+
+  const companyValidation = () => {
+    if(!localStorage.getItem("EncryptedCompanyCode")){
+      toast.error("Please select company first", {
+        theme: 'colored',
+        autoClose: 5000
+    });
+    }
+  }
+
+  const vendorValidation = () => {
+    if(!paymentHeaderDetails.code || paymentHeaderDetails.code == ""){
+      toast.error("Please select vendor first", {
+        theme: 'colored',
+        autoClose: 5000
+    });
+    }
   }
 
   const handleVendorAndFarmerOnChange = (e) => {
@@ -206,21 +236,10 @@ const AddPaymentDetails = () => {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
-      if(!localStorage.getItem("EncryptedCompanyCode")){
-        toast.error("Please select company first", {
-          theme: 'colored',
-          autoClose: 5000
-      });
-      }
       setVendorAndMasterDetail(filteredList);
-      resetInvoiceEntryHeaderDetails()
-      setInvoiceData([]);
-      setInvoiceList([]);
-      dispatch(paymentDetailsAction([]))
     }
     else {
       setVendorAndMasterDetail([]);
-      resetInvoiceEntryHeaderDetails();  
     }
   }
 
@@ -229,25 +248,7 @@ const AddPaymentDetails = () => {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = invoiceList && invoiceList.filter(data => regex.test(data.invoiceNo));
-      if(!paymentHeaderDetails.code || paymentHeaderDetails.code == ""){
-        toast.error("Please select vendor first", {
-          theme: 'colored',
-          autoClose: 5000
-      });
-      }
       setInvoiceData(filteredList);
-      dispatch(paymentHeaderAction({
-        ...paymentHeaderDetails,
-        encryptedInvoiceHeaderCode: "",
-        invoiceNo: "",
-        invoiceDate: "",
-        invoiceAmount: "",
-        invoicePaidAmount: "",
-        invoiceStatus: "",
-        poNo: "",
-        balanceAmount:""
-      }))
-      dispatch(paymentDetailsAction([]))
     }
     else {
       setInvoiceData(invoiceList);
@@ -272,7 +273,12 @@ const AddPaymentDetails = () => {
       setInvoiceList(response.data.data);
       setInvoiceData(response.data.data)
     } else {
+      toast.error(response.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
       setInvoiceList([])
+      setInvoiceData([])
     }
   }
 
@@ -400,6 +406,12 @@ const AddPaymentDetails = () => {
         setInvoiceDetails([])
       }
     }
+    else{
+      toast.error(response.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
+    }
   }
 
   return (
@@ -440,7 +452,7 @@ const AddPaymentDetails = () => {
                 <div className=" flex-1">
                   <Form.Group as={Row} className="" controlId="formPlaintextPassword">
                     <Col sm="12">
-                      <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange}
+                      <Form.Control id="txtSearchVendor" name="searchVendor" placeholder="Search Vendor" maxLength={45} onChange={handleVendorAndFarmerOnChange} onBlur={() => companyValidation()}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -577,7 +589,7 @@ const AddPaymentDetails = () => {
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">
                       <Form.Label column sm="4">
-                        Balance Amount
+                      Bal. Amount
                       </Form.Label>
                       <Col sm="8">
                         <Form.Control id="txtBalanceAmount" name="balanceAmount" placeholder="Balance Amount" value={paymentHeaderDetails.balanceAmount} disabled />
@@ -596,7 +608,7 @@ const AddPaymentDetails = () => {
                 <div className=" flex-1">
                   <Form.Group as={Row} className="" controlId="formPlaintextPassword">
                     <Col sm="12">
-                      <Form.Control id="txtSearchInvoice" className='' name="searchInvoice" placeholder="Search Invoice" maxLength={45} onChange={handleInvoiceOnChange}
+                      <Form.Control id="txtSearchInvoice" className='' name="searchInvoice" placeholder="Search Invoice" maxLength={45} onChange={handleInvoiceOnChange} onBlur={() => vendorValidation()}
                         onKeyDown={(e) => {
                           if (e.key === 'Enter') {
                             e.preventDefault();
@@ -616,7 +628,7 @@ const AddPaymentDetails = () => {
                 justifyContent="between"
                 className="bg-light"
               >
-                <h5 className="mb-0">Invoice</h5>
+                <h5 className="mb-0">Invoices</h5>
               </Card.Header>
               <Card.Body className='custom-card-invoice-scroll vebdor-card-invoice-item '>
                 {invoiceData && invoiceData.length > 0 && invoiceData.map((item) => (

@@ -335,6 +335,13 @@ const Payment = () => {
         dispatch(paymentDetailsAction(invoiceDetails));
       }
     }
+    else{
+      toast.error(response.data.message, {
+        theme: 'colored',
+        autoClose: 10000
+      });
+      setIsLoading(false);
+    }
   }
 
   return (

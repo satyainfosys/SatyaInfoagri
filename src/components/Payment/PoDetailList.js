@@ -27,7 +27,7 @@ const PoDetailList = () => {
     'SGST Amount',
     'Product Grand Amount',
     "Paid Amount",
-    "Balance Amount",
+    "Bal. Amount",
     "View"
   ];
 
@@ -506,7 +506,7 @@ const PoDetailList = () => {
                     </tr>
                     <tr>
                       <td>
-                        Balance Amount
+                      Bal. Amount
                       </td>
                       <td>
                         {invoiceDetailModal.balanceAmount}
