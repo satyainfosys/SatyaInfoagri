@@ -415,7 +415,7 @@ const AddPaymentDetails = () => {
           </Row>
         </Card.Body>
       </Card >
-      <Row className='mb-1'>
+      <Row className='mb-0'>
         <Col lg={2} className="no-pd-card no-right-pad margin-right-11">
           <Card className='mb-1'>
             <Card.Body className="fs--1 vendor-card-body">
@@ -445,7 +445,7 @@ const AddPaymentDetails = () => {
               >
                 <h5 className="mb-0">Vendors</h5>
               </Card.Header>
-              <Card.Body className='vebdor-card-item'>
+              <Card.Body className='vebdor-card-item custom-card-scroll'>
                 {vendorAndMasterDetail.map((item) => (
                   <div className="flex-1 " >
                     <h6 className="mb-0">
@@ -601,7 +601,7 @@ const AddPaymentDetails = () => {
               >
                 <h5 className="mb-0">Invoice</h5>
               </Card.Header>
-              <Card.Body className='custom-card-scroll vebdor-card-item'>
+              <Card.Body className='custom-card-invoice-scroll vebdor-card-invoice-item '>
                 {invoiceData.length > 0 && invoiceData.map((item) => (
                   <div className="flex-1 ">
                     <h6 className="mb-0">
