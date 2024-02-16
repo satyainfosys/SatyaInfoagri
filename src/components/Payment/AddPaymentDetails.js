@@ -6,6 +6,7 @@ import FalconCardBody from 'components/common/FalconCardBody';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { paymentDetailsAction, paymentHeaderAction } from 'actions';
 import { Link } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import Flex from 'components/common/Flex';
 
 const AddPaymentDetails = () => {
@@ -112,6 +113,9 @@ const AddPaymentDetails = () => {
         ...paymentHeaderDetails,
         [e.target.name]: e.target.value
       }))
+      setVendorAndFarmerList([])
+      setVendorAndMasterDetail([])
+      localStorage.removeItem("EncryptedCompanyCode")
     }
   }
 
@@ -135,6 +139,7 @@ const AddPaymentDetails = () => {
       balanceAmount:""
     }))
     setInvoiceData([]);
+    setInvoiceList([]);
     dispatch(paymentDetailsAction([]))
     fetchVendorInvoiceEntryHeaderList(1, perPage, paymentHeaderDetails.encryptedCompanyCode, code);
   }
@@ -201,15 +206,21 @@ const AddPaymentDetails = () => {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
+      if(!localStorage.getItem("EncryptedCompanyCode")){
+        toast.error("Please select company first", {
+          theme: 'colored',
+          autoClose: 5000
+      });
+      }
       setVendorAndMasterDetail(filteredList);
       resetInvoiceEntryHeaderDetails()
-      dispatch(paymentDetailsAction([]))
       setInvoiceData([]);
       setInvoiceList([]);
+      dispatch(paymentDetailsAction([]))
     }
     else {
       setVendorAndMasterDetail([]);
-      resetInvoiceEntryHeaderDetails()
+      resetInvoiceEntryHeaderDetails();  
     }
   }
 
@@ -218,6 +229,12 @@ const AddPaymentDetails = () => {
       const searchText = e.target.value;
       const regex = new RegExp(searchText, 'i');
       const filteredList = invoiceList && invoiceList.filter(data => regex.test(data.invoiceNo));
+      if(!paymentHeaderDetails.code || paymentHeaderDetails.code == ""){
+        toast.error("Please select vendor first", {
+          theme: 'colored',
+          autoClose: 5000
+      });
+      }
       setInvoiceData(filteredList);
       dispatch(paymentHeaderAction({
         ...paymentHeaderDetails,
@@ -298,7 +315,7 @@ const AddPaymentDetails = () => {
           const unit = unitList.find(u => u.value === detail.unitCode);
           const unitName = unit ? unit.key : '';
           netAmount += parseFloat(detail.productAmount);
-          let balanceAmount = (detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) - detail.paidAmount
+          let balanceAmount = (detail.paymentProductGrandAmt > 0 ? detail.paymentProductGrandAmt : detail.productGrandAmt) - detail.paidAmount
           let status = ""
           if ((detail.paymentProductGrandAmt ? detail.paymentProductGrandAmt : detail.productGrandAmt) == detail.paidAmount) {
             status = "Fully Paid"
@@ -436,8 +453,6 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-          {/* {
-            vendorAndMasterDetail && vendorAndMasterDetail.length > 0 && */}
             <Card className="mb-1 ">
               <Card.Header
                 as={Flex}
@@ -448,7 +463,7 @@ const AddPaymentDetails = () => {
                 <h5 className="mb-0">Vendors</h5>
               </Card.Header>
               <Card.Body className='vebdor-card-item custom-card-scroll'>
-                {vendorAndMasterDetail.map((item) => (
+                {vendorAndMasterDetail && vendorAndMasterDetail.map((item) => (
                   <div className="flex-1 " >
                     <h6 className="mb-0">
                       <Link to="" style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleVendorAndFarmerDetail(item.code, item.name); }} >{item.name}</Link>
@@ -458,7 +473,6 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
-          {/* } */}
         </Col>
         <Col lg={4} className="no-pd-card  no-right-pad ">
           <FalconComponentCard className="farmer-card-row1 ">
@@ -595,8 +609,6 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-          {/* {
-            invoiceData && invoiceData.length > 0 && */}
             <Card className="mb-1 ">
               <Card.Header
                 as={Flex}
@@ -607,7 +619,7 @@ const AddPaymentDetails = () => {
                 <h5 className="mb-0">Invoice</h5>
               </Card.Header>
               <Card.Body className='custom-card-invoice-scroll vebdor-card-invoice-item '>
-                {invoiceData.length > 0 && invoiceData.map((item) => (
+                {invoiceData && invoiceData.length > 0 && invoiceData.map((item) => (
                   <div className="flex-1 ">
                     <h6 className="mb-0">
                       <Link style={{ color: 'black' }} onClick={(e) => { e.preventDefault(); handleInvoiceDetail(item.invoiceNo); }}>{item.invoiceNo}</Link>
@@ -617,7 +629,6 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
-          {/* } */}
         </Col>
       </Row>
     </>
