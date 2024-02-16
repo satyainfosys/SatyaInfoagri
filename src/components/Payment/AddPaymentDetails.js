@@ -233,7 +233,7 @@ const AddPaymentDetails = () => {
       dispatch(paymentDetailsAction([]))
     }
     else {
-      setInvoiceData([]);
+      setInvoiceData(invoiceList);
     }
   }
 
@@ -253,6 +253,7 @@ const AddPaymentDetails = () => {
 
     if (response.data.status == 200) {
       setInvoiceList(response.data.data);
+      setInvoiceData(response.data.data)
     } else {
       setInvoiceList([])
     }
@@ -435,8 +436,6 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-          {
-            vendorAndMasterDetail && vendorAndMasterDetail.length > 0 &&
             <Card className="mb-3 custom-card-scroll">
               <Card.Header
                 as={Flex}
@@ -457,7 +456,6 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
-          }
         </Col>
         <Col lg={4} className="no-pd-card  no-right-pad ">
           <FalconComponentCard className="farmer-card-row1 ">
@@ -594,8 +592,6 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-          {
-            invoiceData && invoiceData.length > 0 &&
             <Card className="mb-3 custom-card-scroll">
               <Card.Header
                 as={Flex}
@@ -616,7 +612,6 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
-          }
         </Col>
       </Row>
     </>
