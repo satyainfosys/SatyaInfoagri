@@ -436,7 +436,9 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-            <Card className="mb-3 custom-card-scroll">
+          {/* {
+            vendorAndMasterDetail && vendorAndMasterDetail.length > 0 && */}
+            <Card className="mb-1 ">
               <Card.Header
                 as={Flex}
                 alignItems="center"
@@ -456,6 +458,7 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
+          {/* } */}
         </Col>
         <Col lg={4} className="no-pd-card  no-right-pad ">
           <FalconComponentCard className="farmer-card-row1 ">
@@ -592,7 +595,9 @@ const AddPaymentDetails = () => {
               </Flex>
             </Card.Body>
           </Card>
-            <Card className="mb-3 custom-card-scroll">
+          {/* {
+            invoiceData && invoiceData.length > 0 && */}
+            <Card className="mb-1 ">
               <Card.Header
                 as={Flex}
                 alignItems="center"
@@ -612,6 +617,7 @@ const AddPaymentDetails = () => {
                 ))}
               </Card.Body>
             </Card>
+          {/* } */}
         </Col>
       </Row>
     </>
