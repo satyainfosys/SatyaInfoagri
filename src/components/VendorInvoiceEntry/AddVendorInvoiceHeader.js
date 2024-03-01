@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { vendorInvoiceEntryHeaderDetailsAction, formChangedAction, vendorInvoiceEntryDetailsAction } from 'actions';
+import IconButton from 'components/common/IconButton';
 
 const AddVendorInvoiceHeader = () => {
   const [poList, setPoList] = useState([]);
@@ -154,7 +155,8 @@ const AddVendorInvoiceHeader = () => {
       }
 
       let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (e.target.value ? parseFloat(e.target.value) : 0)
+      // let invoiceGrandAmt = gstTotalAmt + (e.target.value ? parseFloat(e.target.value) : 0)
+      let invoiceGrandAmt = (e.target.value ? parseFloat(e.target.value) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
@@ -193,7 +195,7 @@ const AddVendorInvoiceHeader = () => {
             <Col sm={6} lg={4} className='no-pd-card'>
               <h5 className="mb-2 mb-md-0">{localStorage.getItem("CompanyName")}</h5>
             </Col>
-            {/* <Col xs="auto">
+            <Col xs="auto">
               {vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && oldInvoiceStatus == "Approved" &&
 
                 <IconButton
@@ -203,14 +205,14 @@ const AddVendorInvoiceHeader = () => {
                   iconClassName="me-1"
                   className="me-1 mb-2 mb-sm-1"
                   onClick={() => {
-                    const url = `/material-receipt/${materialReceiptHeaderData.encryptedMaterialReceiptId}`;
+                    const url = `/vendor-invoice-entry/${vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode}`;
                     window.open(url, '_blank');
                   }}
                 >
                   Print
                 </IconButton>
               }
-            </Col> */}
+            </Col>
           </Row>
         </Card.Body>
       </Card>

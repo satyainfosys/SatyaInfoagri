@@ -86,7 +86,8 @@ const PurchaseOrderProductDetails = () => {
 
     dispatch(purchaseOrderDetailsAction({
       ...purchaseOrderData,
-      poAmount: isNaN(totalPoAmount) ? 0 : totalPoAmount
+      poAmount: isNaN(totalPoAmount) ? 0 : totalPoAmount,
+      poGrandAmt : isNaN(totalPoAmount) ? 0 : totalPoAmount
     }))
 
     if (purchaseOrderData.encryptedPoNo && purchaseOrderData.poStatus == "Approved") {
@@ -184,7 +185,8 @@ const PurchaseOrderProductDetails = () => {
     }
     dispatch(formChangedAction({
       ...formChangedData,
-      purchaseOrderProductDetailsAdd: true
+      purchaseOrderProductDetailsAdd: true,
+      purchaseOrderDetailUpdate: true
     }))
 
     setVendorModal(false);
@@ -562,7 +564,8 @@ const PurchaseOrderProductDetails = () => {
 
     dispatch(formChangedAction({
       ...formChangedData,
-      purchaseOrderProductDetailsDelete: true
+      purchaseOrderProductDetailsDelete: true,
+      purchaseOrderDetailUpdate: true,
     }))
 
     setModalShow(false);

@@ -292,7 +292,7 @@ const AddVendorInvoiceDetail = () => {
           }
       
         let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-        let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        let invoiceGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
         dispatch(vendorInvoiceEntryHeaderDetailsAction({
           ...vendorInvoiceEntryHeaderDetails,
           gstTotalAmt: gstTotalAmt,
@@ -329,7 +329,7 @@ const AddVendorInvoiceDetail = () => {
         }
  
       let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      let invoiceGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
@@ -359,7 +359,7 @@ const AddVendorInvoiceDetail = () => {
           }
    
         let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
-        let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        let invoiceGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
         dispatch(vendorInvoiceEntryHeaderDetailsAction({
           ...vendorInvoiceEntryHeaderDetails,
           gstTotalAmt: gstTotalAmt,
@@ -385,7 +385,7 @@ const AddVendorInvoiceDetail = () => {
         }
  
       let gstTotalAmt =  totalCGST + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      let invoiceGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
@@ -410,7 +410,7 @@ const AddVendorInvoiceDetail = () => {
         totalProductGrandAmount += parseFloat(vendorInvoiceEntry[i].productGrandAmt);
       }
       let gstTotalAmt =  (totalCGST ? totalCGST : 0) + totalSGST
-    let invoiceGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+    let invoiceGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
     dispatch(vendorInvoiceEntryHeaderDetailsAction({
       ...vendorInvoiceEntryHeaderDetails,
       gstTotalAmt: gstTotalAmt,
@@ -462,13 +462,32 @@ const AddVendorInvoiceDetail = () => {
       }
 
       let gstTotalAmt = totalCGST + (totalSGST ? totalSGST : 0)
-      let invoiceGrandAmt = gstTotalAmt + (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
+      // let invoiceGrandAmt = (vendorInvoiceEntryHeaderDetails.invoiceAmount > 0 ? parseFloat(vendorInvoiceEntryHeaderDetails.invoiceAmount) : 0)
       dispatch(vendorInvoiceEntryHeaderDetailsAction({
         ...vendorInvoiceEntryHeaderDetails,
         gstTotalAmt: gstTotalAmt,
-        invoiceGrandAmt: invoiceGrandAmt
+        // invoiceGrandAmt: invoiceGrandAmt
       }))
     }
+
+    const totalInvoiceGrandAmount = vendorInvoiceEntryDetails.length > 1
+    ? vendorInvoiceEntryDetails.reduce((acc, obj) => {
+      const invoiceGrandAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+      return acc + (isNaN(invoiceGrandAmount) ? 0 : invoiceGrandAmount);
+    }, 0)
+    : vendorInvoiceEntryDetails.length === 1
+      ? parseFloat(vendorInvoiceEntryDetails[0].productGrandAmt)
+      : 0;
+    
+      
+      dispatch(vendorInvoiceEntryHeaderDetailsAction({
+        ...vendorInvoiceEntryHeaderDetails,
+
+        // gstTotalAmt: gstTotalAmt,
+        invoiceAmount: isNaN(totalInvoiceGrandAmount) ? 0 : totalInvoiceGrandAmount,
+        invoiceGrandAmt : isNaN(totalInvoiceGrandAmount) ? 0 : totalInvoiceGrandAmount
+      }))
+
 
     toast.success("Vendor invoice entry detail deleted successfully", {
       theme: 'colored'
@@ -478,7 +497,8 @@ const AddVendorInvoiceDetail = () => {
 
     dispatch(formChangedAction({
       ...formChangedData,
-      vendorInvoiceEntryDetailsDelete: true
+      vendorInvoiceEntryDetailsDelete: true,
+      vendorInvoiceEntryHeaderDetailUpdate : true,
     }));
 
     setModalShow(false);

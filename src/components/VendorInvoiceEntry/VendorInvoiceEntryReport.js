@@ -15,7 +15,6 @@ const VendorInvoiceEntryReport = () => {
   useEffect(() => {
     if (invoiceHeaderCode) {
       getVendorInvoiceHeaderData();
-      getVendorInvoiceDetailList();
     }
 
     setTimeout(() => {
@@ -34,16 +33,18 @@ const VendorInvoiceEntryReport = () => {
     })
 
     if (response.data.status == 200) {
-      setVendorInvoiceEntryHeaderData(response.data.data)
+      const invoiceNo = response?.data?.data?.invoiceNo;
+      setVendorInvoiceEntryHeaderData(response.data.data);
+      getVendorInvoiceDetailList(invoiceNo);
     }
     else {
       setVendorInvoiceEntryHeaderData()
     }
   }
 
-  const getVendorInvoiceDetailList = async () => {
+  const getVendorInvoiceDetailList = async (invoiceNo) => {
     const request = {
-      encryptedInvoiceHeaderCode: invoiceHeaderCode
+      InvoiceNo: invoiceNo
     }
 
     let response = await axios.post(process.env.REACT_APP_API_URL + '/get-vendor-invoice-entry-detail-list', request, {

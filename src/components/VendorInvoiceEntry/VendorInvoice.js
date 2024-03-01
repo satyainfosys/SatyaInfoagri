@@ -182,6 +182,12 @@ const VendorInvoice = () => {
       isValid = false;
     }
 
+    if(vendorInvoiceEntryHeaderDetails.invoiceDate && vendorInvoiceEntryHeaderDetails.invoiceDueDate) {
+      if( new Date(vendorInvoiceEntryHeaderDetails.invoiceDueDate) < new Date(vendorInvoiceEntryHeaderDetails.invoiceDate)) {
+        invoiceDueDateErr.empty = "Invoice due date cannot be less than invoice date";
+        isValid = false;
+      }
+    }
     // if (!vendorInvoiceEntryHeaderDetails.poNo) {
     //   const itemDescriptions = new Set();
 
