@@ -67,6 +67,8 @@ import AddVendorInvoiceHeader from 'components/VendorInvoiceEntry/AddVendorInvoi
 import AddVendorInvoiceDetail from 'components/VendorInvoiceEntry/AddVendorInvoiceDetail';
 import AddPaymentDetails from 'components/Payment/AddPaymentDetails';
 import PoDetailList from 'components/Payment/PoDetailList';
+import AddDemand from 'components/Demand/AddDemand';
+import AddDemandDetail from 'components/Demand/AddDemandDetail';
 
 const TabPage = ({
   listData,
@@ -191,13 +193,26 @@ const TabPage = ({
               className={
                 index == 0
                   ? 'border p-1'
-                  : tab == 'Customer Details' || tab == 'Maintenance' || tab == 'Product Detail' || tab == 'Add Farmer' || tab == 'Add Collection Centre' || tab == 'Add New Distribution'
-                    || tab == 'Add Product' || tab == 'Add Product Master' || tab == 'ADD OEM' || tab == 'Add Vendor' || tab == "Add PO" || tab == 'Add Material' || tab == "Add Crop PurchaseV1"
-                    || tab == 'Add Crop Purchase' || tab == 'Add Vendor Invoice Entry' ? 'border p-1 tab-page-tab'
-                    : ''
+                  : tab == 'Customer Details' ||
+                    tab == 'Maintenance' ||
+                    tab == 'Product Detail' ||
+                    tab == 'Add Farmer' ||
+                    tab == 'Add Collection Centre' ||
+                    tab == 'Add New Distribution' ||
+                    tab == 'Add Product' ||
+                    tab == 'Add Product Master' ||
+                    tab == 'ADD OEM' ||
+                    tab == 'Add Vendor' ||
+                    tab == 'Add PO' ||
+                    tab == 'Add Material' ||
+                    tab == 'Add Crop PurchaseV1' ||
+                    tab == 'Add Crop Purchase' ||
+                    tab == 'Add Vendor Invoice Entry' ||
+                    tab == 'Add Demand'
+                  ? 'border p-1 tab-page-tab'
+                  : ''
               }
             >
-
               {index == 0 && module == 'AddMenu' && (
                 <>
                   <FalconComponentCard>
@@ -442,6 +457,19 @@ const TabPage = ({
                   </FalconComponentCard>
 
                   <PurchaseOrderProductDetails />
+                </>
+              )}
+
+              {index == 1 && module == 'DemandCollection' && (
+                <>
+                  <TabInfoRow />
+                  <FalconComponentCard className="no-pb mb-1">
+                    <FalconComponentCard.Body language="jsx">
+                      <AddDemand />
+                    </FalconComponentCard.Body>
+                  </FalconComponentCard>
+
+                  <AddDemandDetail />
                 </>
               )}
 

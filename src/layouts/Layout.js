@@ -41,6 +41,7 @@ import ClientUser from 'components/ClientUsers/ClientUsers';
 import VendorInvoice from 'components/VendorInvoiceEntry/VendorInvoice';
 import VendorInvoiceEntryReport from 'components/VendorInvoiceEntry/VendorInvoiceEntryReport';
 import Payment from 'components/Payment/Payment';
+import Demand from 'components/Demand/Demand';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -140,7 +141,10 @@ const Layout = () => {
         </Route>     
         <Route element={<MainLayout />}>
           <Route path="/Payments" element={<Payment/>} />
-        </Route>      
+        </Route>
+        <Route element={<MainLayout />}>
+          <Route path="/demand-collection" element={<Demand />} />
+        </Route>
       </Routes>
       <ToastContainer icon={false} position={toast.POSITION.TOP_RIGHT} />
     </>
