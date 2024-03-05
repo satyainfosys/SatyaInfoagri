@@ -24,6 +24,7 @@ const Demand = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [companyList, setCompanyList] = useState([]);
   const [listData, setListData] = useState([]);
+  const [perPage, setPerPage] = useState(15);
   const [activeTabName, setActiveTabName] = useState();
   const [modalShow, setModalShow] = useState(false);
 
@@ -69,6 +70,7 @@ const Demand = () => {
             );
             localStorage.setItem('CompanyName', companyDetail.companyName);
             setCompanyList(companyData);
+            fetchDemandHeaderList(1, perPage, companyDetail.encryptedCompanyCode);
           } else {
             companyResponse.data.data.forEach(company => {
               companyData.push({
@@ -95,6 +97,31 @@ const Demand = () => {
       setCompanyList([]);
     }
   };
+
+  const fetchDemandHeaderList = async (page, size = perPage, encryptedCompanyCode) => {
+
+    let token = localStorage.getItem('Token');
+
+    const listFilter = {
+        pageNumber: page,
+        pageSize: size,
+        EncryptedCompanyCode: encryptedCompanyCode
+    }
+
+    setIsLoading(true);
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-demand-header-list', listFilter, {
+        headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+    })
+
+    if (response.data.status == 200) {
+        setIsLoading(false);
+        setListData(response.data.data);
+    } else {
+        setIsLoading(false);
+        setListData([])
+    }
+}
+
 
   $('[data-rr-ui-event-key*="Demand List"]')
     .off('click')
@@ -160,6 +187,7 @@ const Demand = () => {
 		const selectedOption = e.target.options[e.target.selectedIndex];
 		const selectedKey = selectedOption.dataset.key || selectedOption.label;
 		localStorage.setItem("CompanyName", selectedKey)
+    fetchDemandHeaderList(1, perPage, e.target.value);
 }
 
   return (
