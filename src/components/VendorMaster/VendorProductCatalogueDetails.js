@@ -8,6 +8,7 @@ import Flex from 'components/common/Flex';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import axios from 'axios';
 import Moment from "moment";
+import { handleNumericInputKeyPress } from "./../../helpers/utils.js"
 import { formChangedAction, oemProductDetailsAction, vendorProductCatalogueDetailsAction } from 'actions';
 
 export const VendorProductCatalogueDetails = () => {
@@ -784,6 +785,7 @@ export const VendorProductCatalogueDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Quantity"
                                                     maxLength={5}
+                                                    onKeyPress={handleNumericInputKeyPress}
                                                 />
                                             </td>
 
@@ -810,6 +812,7 @@ export const VendorProductCatalogueDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="Vendor Rate"
                                                     maxLength={13}
+                                                    onKeyPress={handleNumericInputKeyPress}
                                                 />
                                             </td>
 
@@ -831,6 +834,7 @@ export const VendorProductCatalogueDetails = () => {
                                                     onChange={(e) => handleFieldChange(e, index)}
                                                     placeholder="OEM Rate"
                                                     maxLength={13}
+                                                    onKeyPress={handleNumericInputKeyPress}
                                                 />
                                             </td>
 

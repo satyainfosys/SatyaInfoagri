@@ -181,3 +181,53 @@ export const isLoggedIn = () => {
     localStorage.setItem('Token', JSON.stringify(config));
   }
 }
+
+export const handleNumericInputKeyPress  = (e) => {
+  const keyCode = e.which || e.keyCode;
+  const keyValue = String.fromCharCode(keyCode);
+
+  const currentValue = e.target.value;
+  const hasDecimal = currentValue.includes('.');
+  // Check if the entered key is a decimal point and if there's already one in the textbox
+  if (keyValue === '.' && hasDecimal) {
+    e.preventDefault();
+    return;
+  }
+  // Prevent only alphabetic characters
+  // const regex = /^[^A-Za-z]+$/;
+
+  // Allow only numbers, decimal point, and backspace
+  const regex = /^[0-9.]+$/;
+  if (!regex.test(keyValue)) {
+    e.preventDefault();
+    return;
+  }
+  // const [integerPart, decimalPart] = currentValue.split('.');
+  // if (decimalPart && decimalPart.length >= 2) {
+  //   e.preventDefault();
+  //   return;
+  // }
+};
+
+export const handlePercentageKeyPress = (e) => {
+  const keyCode = e.which || e.keyCode;
+  const keyValue = String.fromCharCode(keyCode);
+  const currentValue = e.target.value;
+  const regex = /^[0-9.\b]+$/;
+  const value = currentValue + keyValue;
+  if (!regex.test(value)) {
+    e.preventDefault();
+    return;
+  }
+  const [integerPart, decimalPart] = value.split('.');
+  // Prevent more than two digits before or after the decimal point
+  if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
+    e.preventDefault();
+    return;
+  }
+  // Prevent more than one decimal point
+  if ((keyValue === '.' && currentValue.includes('.')) || (currentValue === '.' && keyValue === '.')) {
+    e.preventDefault();
+    return;
+  }
+};

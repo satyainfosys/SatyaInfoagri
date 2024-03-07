@@ -5,6 +5,7 @@ import axios from 'axios';
 import FalconCardBody from 'components/common/FalconCardBody';
 import FalconComponentCard from 'components/common/FalconComponentCard';
 import { paymentDetailsAction, paymentHeaderAction } from 'actions';
+import { handleNumericInputKeyPress } from "./../../helpers/utils.js"
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Flex from 'components/common/Flex';
@@ -578,14 +579,7 @@ const AddPaymentDetails = () => {
                       </Form.Label>
                       <Col sm="8">
                         <Form.Control id="txtInvoicePaidAmount" name="invoicePaidAmount" placeholder="Paid Amount" value={paymentHeaderDetails.invoicePaidAmount} onChange={handleFieldChange} disabled={paymentHeaderDetails.invoiceStatus == "Fully Paid"}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[0-9]*\.?[0-9]*$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }} />
+                         onKeyPress={handleNumericInputKeyPress} />
                       </Col>
                     </Form.Group>
                     <Form.Group as={Row} className="mb-1" controlId="formPlaintextPassword">

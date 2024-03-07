@@ -7,6 +7,7 @@ import Flex from 'components/common/Flex';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { handleNumericInputKeyPress } from '../../helpers/utils.js';
 import { formChangedAction, materialReceiptDetailsAction, purchaseOrderProductDetailsAction,materialReceiptHeaderDetailsAction } from 'actions';
 
 const AddMaterialReceiptDetail = () => {
@@ -605,15 +606,7 @@ const AddMaterialReceiptDetail = () => {
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.quantity}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         required
                                                         disabled
                                                     />
@@ -626,15 +619,7 @@ const AddMaterialReceiptDetail = () => {
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         required
                                                         disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
@@ -679,15 +664,7 @@ const AddMaterialReceiptDetail = () => {
                                                         placeholder="Rejected Quantity"
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : ""}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         maxLength={5}
                                                         disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
@@ -787,15 +764,7 @@ const AddMaterialReceiptDetail = () => {
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.quantity}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         disabled
                                                     />
                                                 </td>
@@ -807,15 +776,7 @@ const AddMaterialReceiptDetail = () => {
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.receivedQuantity ? materialReceiptDetailData.receivedQuantity : ""}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         required
                                                         disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
@@ -828,15 +789,7 @@ const AddMaterialReceiptDetail = () => {
                                                         maxLength={5}
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.rate ? materialReceiptDetailData.rate : ""}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         required
                                                         disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />
@@ -860,15 +813,7 @@ const AddMaterialReceiptDetail = () => {
                                                         placeholder="Rejected Quantity"
                                                         onChange={(e) => handleFieldChange(e, index)}
                                                         value={materialReceiptDetailData.rejectedQuantity ? materialReceiptDetailData.rejectedQuantity : ""}
-                                                        onKeyPress={(e) => {
-                                                            const keyCode = e.which || e.keyCode;
-                                                            const keyValue = String.fromCharCode(keyCode);
-                                                            const regex = /^[^A-Za-z]+$/;
-
-                                                            if (!regex.test(keyValue)) {
-                                                                e.preventDefault();
-                                                            }
-                                                        }}
+                                                        onKeyPress={handleNumericInputKeyPress}
                                                         maxLength={5}
                                                         disabled={materialReceiptHeaderData.encryptedMaterialReceiptId && oldMaterialStatus == "Approved"}
                                                     />

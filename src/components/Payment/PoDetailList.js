@@ -5,6 +5,7 @@ import axios from 'axios';
 import { paymentDetailsAction, paymentHeaderAction } from 'actions';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
+import { handleNumericInputKeyPress, handlePercentageKeyPress } from "./../../helpers/utils.js"
 
 const PoDetailList = () => {
   const [productModal, setProductModal] = useState(false);
@@ -289,19 +290,7 @@ const PoDetailList = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.cgstPer ? paymentDetails.cgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
                         </td>
@@ -312,14 +301,7 @@ const PoDetailList = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.cgstAmt ? paymentDetails.cgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -331,19 +313,7 @@ const PoDetailList = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.sgstPer ? paymentDetails.sgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             required
                             disabled={paymentDetails.taxIncluded == true || paymentDetails.status == "Fully Paid"}
                           />
@@ -355,14 +325,7 @@ const PoDetailList = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.sgstAmt ? paymentDetails.sgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -374,14 +337,7 @@ const PoDetailList = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={paymentDetails.productGrandAmt ? paymentDetails.productGrandAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -392,6 +348,7 @@ const PoDetailList = () => {
                             placeholder="Paid Amount"
                             value={paymentDetails.paidAmount}
                             onChange={(e) => handleFieldChange(e, index)}
+                            onKeyPress={handleNumericInputKeyPress}
                             disabled={paymentDetails.status == "Fully Paid"}
                           />
                         </td>

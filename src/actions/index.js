@@ -501,3 +501,10 @@ export const paymentErrorAction = (payload) => {
     payload
   };
 };
+
+export const demandHeaderAction = (payload) => {
+  return {
+    type: 'DEMANDHEADER',
+    payload
+  };
+};

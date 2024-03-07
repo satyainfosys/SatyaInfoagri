@@ -6,6 +6,7 @@ import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { handleNumericInputKeyPress, handlePercentageKeyPress } from "./../../helpers/utils.js"
 import { purchaseOrderProductDetailsAction, vendorInvoiceEntryDetailsAction, formChangedAction, vendorInvoiceEntryHeaderDetailsAction } from 'actions';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -765,14 +766,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.invoiceQty ? vendorInvoiceEntryDetails.invoiceQty : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
@@ -804,14 +798,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.productAmount ? vendorInvoiceEntryDetails.productAmount : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
@@ -823,19 +810,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
@@ -846,14 +821,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstAmt ? vendorInvoiceEntryDetails.cgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -865,19 +833,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C') || vendorInvoiceEntryDetails.taxIncluded == true}
                           />
                         </td>
@@ -888,14 +844,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstAmt ? vendorInvoiceEntryDetails.sgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -907,14 +856,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.productGrandAmt ? vendorInvoiceEntryDetails.productGrandAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -995,15 +937,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Rate"
                             maxLength={5}
                             value={vendorInvoiceEntryDetails.invoiceRate ? vendorInvoiceEntryDetails.invoiceRate : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
@@ -1015,14 +949,7 @@ const AddVendorInvoiceDetail = () => {
                             placeholder="Product Amount"
                             maxLength={13}
                             value={vendorInvoiceEntryDetails.productAmount ? vendorInvoiceEntryDetails.productAmount : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             onChange={(e) => handleFieldChange(e, index)}
                             required
                             disabled={vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid")}
@@ -1035,19 +962,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstPer ? vendorInvoiceEntryDetails.cgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
@@ -1058,14 +973,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.cgstAmt ? vendorInvoiceEntryDetails.cgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -1077,19 +985,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={5}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstPer ? vendorInvoiceEntryDetails.sgstPer : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handlePercentageKeyPress}
                             disabled={(vendorInvoiceEntryHeaderDetails.encryptedInvoiceHeaderCode  && (vendorInvoiceEntryHeaderDetails.invoiceStatus == "Approved" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Partially Paid" || vendorInvoiceEntryHeaderDetails.invoiceStatus == "Fully Paid") || vendorInvoiceEntryHeaderDetails.vendorType == 'C')}
                           />
                         </td>
@@ -1100,14 +996,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.sgstAmt ? vendorInvoiceEntryDetails.sgstAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />
@@ -1119,14 +1008,7 @@ const AddVendorInvoiceDetail = () => {
                             maxLength={13}
                             onChange={(e) => handleFieldChange(e, index)}
                             value={vendorInvoiceEntryDetails.productGrandAmt ? vendorInvoiceEntryDetails.productGrandAmt : ""}
-                            onKeyPress={(e) => {
-                              const keyCode = e.which || e.keyCode;
-                              const keyValue = String.fromCharCode(keyCode);
-                              const regex = /^[^A-Za-z]+$/;
-                              if (!regex.test(keyValue)) {
-                                e.preventDefault();
-                              }
-                            }}
+                            onKeyPress={handleNumericInputKeyPress}
                             required
                             disabled
                           />

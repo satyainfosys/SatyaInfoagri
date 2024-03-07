@@ -7,6 +7,7 @@ import Flex from 'components/common/Flex';
 import { useSelector, useDispatch } from 'react-redux';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { handleNumericInputKeyPress, handlePercentageKeyPress } from "./../../helpers/utils.js";
 import { formChangedAction, purchaseOrderDetailsAction, purchaseOrderProductDetailsAction, vendorProductCatalogueDetailsAction } from 'actions';
 
 const PurchaseOrderProductDetails = () => {
@@ -936,15 +937,7 @@ const PurchaseOrderProductDetails = () => {
                           value={poProductDetailData.quantity ? poProductDetailData.quantity : ""}
                           required
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
 
@@ -957,15 +950,7 @@ const PurchaseOrderProductDetails = () => {
                           value={poProductDetailData.poRate ? poProductDetailData.poRate : ""}
                           required
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
 
@@ -1034,15 +1019,7 @@ const PurchaseOrderProductDetails = () => {
                           value={poProductDetailData.poAmt ? poProductDetailData.poAmt : ""}
                           required
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
                       <td key={index}>
@@ -1052,19 +1029,7 @@ const PurchaseOrderProductDetails = () => {
                           maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.cgstPer ? poProductDetailData.cgstPer : ""}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                          }}
+                          onKeyPress={handlePercentageKeyPress}                          
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>
@@ -1075,14 +1040,7 @@ const PurchaseOrderProductDetails = () => {
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.cgstAmt ? poProductDetailData.cgstAmt : ""}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress={handleNumericInputKeyPress}
                           required
                           disabled
                         />
@@ -1094,19 +1052,7 @@ const PurchaseOrderProductDetails = () => {
                           maxLength={5}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.sgstPer ? poProductDetailData.sgstPer : ""}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[0-9.\b]+$/;
-                              const value = e.target.value + keyValue; 
-                              if (!regex.test(value)) {
-                                e.preventDefault();
-                              }
-                              const [integerPart, decimalPart] = value.split('.');
-                              if (integerPart.length > 2 || (decimalPart && decimalPart.length > 2)) {
-                                e.preventDefault();
-                              }
-                          }}
+                          onKeyPress={handlePercentageKeyPress} 
                           disabled={purchaseOrderData.encryptedPoNo && (purchaseOrderData.poStatus == "Approved" || purchaseOrderData.poStatus == "Partially Paid" || purchaseOrderData.poStatus == "Fully Paid" || purchaseOrderData.poStatus == "Invoiced") || purchaseOrderData.receivedPoQty > 0}
                         />
                       </td>
@@ -1117,14 +1063,7 @@ const PurchaseOrderProductDetails = () => {
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.sgstAmt ? poProductDetailData.sgstAmt : ""}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress={handleNumericInputKeyPress}
                           required
                           disabled
                         />
@@ -1136,14 +1075,7 @@ const PurchaseOrderProductDetails = () => {
                           maxLength={13}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={poProductDetailData.productGrandAmt ? poProductDetailData.productGrandAmt : ""}
-                          onKeyPress={(e) => {
-                            const keyCode = e.which || e.keyCode;
-                            const keyValue = String.fromCharCode(keyCode);
-                            const regex = /^[^A-Za-z]+$/;
-                            if (!regex.test(keyValue)) {
-                              e.preventDefault();
-                            }
-                          }}
+                          onKeyPress={handleNumericInputKeyPress}
                           required
                           disabled
                         />

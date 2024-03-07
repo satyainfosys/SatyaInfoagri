@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from 'jquery';
 import { tabInfoAction } from 'actions';
+import { toast } from 'react-toastify';
 
 const tabArray = ['Demand List', 'Add Demand'];
 
@@ -150,10 +151,17 @@ const Demand = () => {
     });
 
   const newDetails = () => {
-    $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', false);
-    $('[data-rr-ui-event-key*="Add Demand"]').trigger('click');
-    $('#btnSave').attr('disabled', false);
-		dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+    if (localStorage.getItem("EncryptedCompanyCode") && localStorage.getItem("CompanyName")) {
+      $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Demand"]').trigger('click');
+      $('#btnSave').attr('disabled', false);
+	dispatch(tabInfoAction({ title1: `${localStorage.getItem("CompanyName")}` }))
+    } else {
+      toast.error("Please select company first", {
+          theme: 'colored',
+          autoClose: 5000
+      });
+    }
   };
 
   const cancelClick = () => {
