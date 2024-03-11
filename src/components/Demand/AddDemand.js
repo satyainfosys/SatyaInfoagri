@@ -8,6 +8,8 @@ import { demandHeaderAction } from 'actions';
 const AddDemand = () => {
 
   const [farmerDetailsList, setFarmerDetailsList] = useState([]);
+  const [showFarmerDropdown, setShowFarmerDropdown] = useState(true); // State variable to toggle visibility
+  const [showSearchFarmerValue, setShowSearchFarmerValue] = useState("");
 
   const dispatch = useDispatch();
 
@@ -29,23 +31,44 @@ const AddDemand = () => {
 
     if (response.data.status == 200) {
         if (response.data && response.data.data.length > 0) {
+          resetDemandHeaderData();
             setFarmerDetailsList(response.data.data)
+            setShowFarmerDropdown(true);
         }
-    }
-    else {
+    } else {
         setFarmerDetailsList([]);
     }
+}
+
+const resetDemandHeaderData = () => {
+  dispatch(demandHeaderAction({
+    ...demandHeaderDetails,
+    farmerCode: "",
+    encryptedFarmerCode : "",
+    farmerName: "",
+    fatherName: "",
+    village: "",
+    phoneNumber: "",
+    farmerCollCenterCode: "",
+    amount: "",
+    demandDate: "",
+    deliveryDate: "",
+    advancedAmt: "",
+    distributionCenterCode: "",
+    distributionCenterName: "",
+    collCenterCode: "",
+    collCenterName:"",
+    demandStatus: "",
+  }))
 }
 
 const handleFarmerOnChange = (e) => {
   if (e.target.value !== "") {
     const searchText = e.target.value;
+    setShowSearchFarmerValue(searchText);
     getFarmerDetailsList(searchText);
-    // const regex = new RegExp(searchText, 'i');
-    // const filteredList = vendorAndFarmerList && vendorAndFarmerList.filter(data => regex.test(data.name));
-    // setFarmerDetails(filteredList);
-  }
-  else {
+  } else {
+    setShowSearchFarmerValue("");
     setFarmerDetailsList([]);
   }
 }
@@ -71,6 +94,9 @@ const handleFarmerDetail = async (farmerCode, farmerName) => {
     collCenterName:"",
     demandStatus: "",
   }))
+
+   // Hide the farmer dropdown after selection
+    setShowFarmerDropdown(false);
 }
 
 
@@ -93,6 +119,7 @@ const handleFarmerDetail = async (farmerCode, farmerName) => {
                   name="searchFarmer"
                   placeholder="Search Farmer"
                   maxLength={45}
+                  value={demandHeaderDetails.farmerName || showSearchFarmerValue}
                   onChange={handleFarmerOnChange}
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
@@ -101,22 +128,23 @@ const handleFarmerDetail = async (farmerCode, farmerName) => {
                   }}
                 />
 
-                  {farmerDetailsList.length > 0 && (
+                  {showFarmerDropdown && farmerDetailsList.length > 0 && (
                 <Card className="mb-1 ">
-                  <Card.Header
+                  {/* <Card.Header
                     as={Flex}
                     alignItems="center"
                     justifyContent="between"
                     className="bg-light"
                   >
                     <h5 className="mb-0">Farmers</h5>
-                  </Card.Header>
+                  </Card.Header> */}
                     <Card.Body className="vebdor-card-item custom-card-scroll">
                       {farmerDetailsList.map((farmer, index) => (
                         <div className="flex-1" key={index}>
                           <h6 className="mb-0">
                             <Link to="" style={{ color: 'black' }}
-                              onClick={(e) => { e.preventDefault(); handleFarmerDetail(farmer.farmerCode, farmer.farmerName); }} >
+                              onClick={(e) => { e.preventDefault(); handleFarmerDetail(farmer.farmerCode, farmer.farmerName); }} 
+                              >
                               {farmer.farmerName}
                             </Link>
                           </h6>
