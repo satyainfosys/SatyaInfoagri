@@ -508,3 +508,10 @@ export const demandHeaderAction = (payload) => {
     payload
   };
 };
+
+export const productCatalogueDetailsAction = (payload) => {
+  return {
+    type: 'PRODUCTCATALOGUEDETAILS',
+    payload
+  };
+};

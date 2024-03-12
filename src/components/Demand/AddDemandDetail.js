@@ -3,10 +3,15 @@ import { Button, Form, Modal, Card, Row, Col, Table } from 'react-bootstrap';
 import EnlargableTextbox from 'components/common/EnlargableTextbox';
 import FalconCardHeader from 'components/common/FalconCardHeader';
 import Flex from 'components/common/Flex';
+import axios from 'axios';
+import { useSelector, useDispatch } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { productCatalogueDetailsAction } from 'actions';
 
 
 const AddDemandDetail = () => {
+
+  const dispatch = useDispatch();
   const [vendorModal, setVendorModal] = useState(false);
   useEffect(() => {
   }, [])
@@ -33,10 +38,34 @@ const AddDemandDetail = () => {
     'Delete',
   ];
 
+  let productCatalogueDetailsReducer = useSelector((state) => state.rootReducer.productCatalogueDetailsReducer)
+  let productCatalogueList = productCatalogueDetailsReducer.productCatalogueDetails;
+
   const handleAddItem = () => {
     setVendorModal(true)
+    getProductCatalogueMasterList();
   }
 
+  const getProductCatalogueMasterList = async (searchText, productCategoryCode, productCode, isManualFilter = false) => {
+    const requestData = {
+      EncryptedCompanyCode: localStorage.getItem('EncryptedCompanyCode'),
+      searchText: "",
+      ProductCategoryCode: "",
+      ProductCode: ""
+    }
+
+    const response = await axios.post(process.env.REACT_APP_API_URL + '/get-product-catalogue-master-list', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+    if (response.data.status == 200) {
+      if (response.data && response.data.data.length > 0) {
+        dispatch(productCatalogueDetailsAction(response.data.data));
+      }
+    }
+    else {
+      dispatch(productCatalogueDetailsAction([]));
+    }
+  }
   const onCancelClick = async () => {
     setVendorModal(false);
   }
@@ -114,42 +143,82 @@ const AddDemandDetail = () => {
                   </Form.Group>
                 </Col>
 
-                <Table
-                  striped
-                  bordered
-                  responsive
-                  id="TableList"
-                  className="no-pb text-nowrap tab-page-table"
-                >
-                  <thead className="custom-bg-200">
-                    <tr>
-                      <th>S.No</th>
-                      <th>
-                        Select{' '}
-                        <Form.Check type="checkbox" id="vendorListChkbox">
-                          <Form.Check.Input
-                            type="checkbox"
-                            name="selectAll"
-                            style={{ width: '15px', height: '15px' }}
-                          />
-                        </Form.Check>
-                      </th>
-                      <th>OEM Name</th>
-                      <th>Product Category</th>
-                      <th>Product</th>
-                      <th>Variety</th>
-                      <th>Brand</th>
-                      <th>Type</th>
-                      <th>Unit</th>
-                      <th>Rate</th>
-                      <th>Org/Inorg</th>
-                      <th>Season</th>
-                      <th>Area</th>
-                      <th>Sowing</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </Table>
+                {productCatalogueDetailsReducer.productCatalogueDetails.length >
+                0 ? (
+                  <Table
+                    striped
+                    bordered
+                    responsive
+                    id="TableList"
+                    className="no-pb text-nowrap tab-page-table"
+                  >
+                    <thead className="custom-bg-200">
+                      <tr>
+                        <th>S.No</th>
+                        <th>
+                          Select{' '}
+                          <Form.Check type="checkbox" id="vendorListChkbox">
+                            <Form.Check.Input
+                              type="checkbox"
+                              name="selectAll"
+                              style={{ width: '15px', height: '15px' }}
+                            />
+                          </Form.Check>
+                        </th>
+                        <th>OEM Name</th>
+                        <th>Product Category</th>
+                        <th>Product</th>
+                        <th>Variety</th>
+                        <th>Brand</th>
+                        <th>Type</th>
+                        <th>Unit</th>
+                        <th>Rate</th>
+                        <th>Org/Inorg</th>
+                        <th>Season</th>
+                        <th>Area</th>
+                        <th>Sowing</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {productCatalogueDetailsReducer.productCatalogueDetails.map(
+                        (data, index) => (
+                          <>
+                          <tr>
+                            <td>{index + 1}</td>
+                            <td key={index}>
+                              <Form.Check type="checkbox" className="mb-1">
+                                <Form.Check.Input
+                                  type="checkbox"
+                                  name="singleChkBox"
+                                  style={{ width: '20px', height: '20px' }}
+                                  // onChange={() => handleCheckboxChange(data)}
+                                  // checked={
+                                  //   selectAll || selectedRows.includes(data)
+                                  // }
+                                />
+                              </Form.Check>
+                            </td>
+                            <td>{data.oemName}</td>
+                            <td>{data.productCategoryName}</td>
+                            <td>{data.productName}</td>
+                            <td>{data.varietyName}</td>
+                            <td>{data.brandName}</td>
+                            <td>{data.type}</td>
+                            <td>{data.unitName}</td>
+                            <td>{data.vendorRate}</td>
+                            <td>{data.orgInorg}</td>
+                            <td>{data.season}</td>
+                            <td>{data.area}</td>
+                            <td>{data.sowing}</td>
+                          </tr>
+                          </>
+                        )
+                      )}
+                    </tbody>
+                  </Table>
+                ) : (
+                  <h5>No record found</h5>
+                )}
               </Row>
             </Form>
           </Modal.Body>

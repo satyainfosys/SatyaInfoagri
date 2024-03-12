@@ -4,7 +4,7 @@ import { useDispatch } from 'react-redux';
 import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from 'jquery';
-import { tabInfoAction } from 'actions';
+import { tabInfoAction, distributionCentreListAction } from 'actions';
 import { toast } from 'react-toastify';
 
 const tabArray = ['Demand List', 'Add Demand'];
@@ -72,6 +72,7 @@ const Demand = () => {
             localStorage.setItem('CompanyName', companyDetail.companyName);
             setCompanyList(companyData);
             fetchDemandHeaderList(1, perPage, companyDetail.encryptedCompanyCode);
+            fetchDistributionCentreList(companyDetail.encryptedCompanyCode);
           } else {
             companyResponse.data.data.forEach(company => {
               companyData.push({
@@ -85,6 +86,8 @@ const Demand = () => {
         }
       }
       if (companyResponse.data.data.length == 1) {
+        fetchDemandHeaderList(1, perPage, companyResponse.data.data[0].encryptedCompanyCode);
+        fetchDistributionCentreList(companyResponse.data.data[0].encryptedCompanyCode);
         localStorage.setItem(
           'CompanyName',
           companyResponse.data.data[0].companyName
@@ -99,29 +102,60 @@ const Demand = () => {
     }
   };
 
-  const fetchDemandHeaderList = async (page, size = perPage, encryptedCompanyCode) => {
-
-    let token = localStorage.getItem('Token');
-
-    const listFilter = {
-        pageNumber: page,
-        pageSize: size,
+  const fetchDistributionCentreList = async (encryptedCompanyCode) => {
+    const request = {
+        EncryptedClientCode: localStorage.getItem("EncryptedClientCode"),
         EncryptedCompanyCode: encryptedCompanyCode
     }
 
-    setIsLoading(true);
-    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-demand-header-list', listFilter, {
-        headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-distribution-centre-list', request, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
     })
-
+    let distributionCentreListData = [];
     if (response.data.status == 200) {
-        setIsLoading(false);
-        setListData(response.data.data);
-    } else {
-        setIsLoading(false);
-        setListData([])
+        if (response.data && response.data.data.length > 0) {
+            response.data.data.forEach(distributionCentre => {
+                distributionCentreListData.push({
+                    key: distributionCentre.distributionName,
+                    value: distributionCentre.distributionCentreCode
+                })
+            })
+        }
+        dispatch(distributionCentreListAction(distributionCentreListData));
     }
 }
+
+
+    const fetchDemandHeaderList = async (
+      page,
+      size = perPage,
+      encryptedCompanyCode
+    ) => {
+      let token = localStorage.getItem('Token');
+
+      const listFilter = {
+        pageNumber: page,
+        pageSize: size,
+        EncryptedCompanyCode: encryptedCompanyCode
+      };
+
+      setIsLoading(true);
+      let response = await axios.post(
+        process.env.REACT_APP_API_URL + '/get-demand-header-list',
+        listFilter,
+        {
+          headers: { Authorization: `Bearer ${JSON.parse(token).value}` }
+        }
+      );
+
+      if (response.data.status == 200) {
+        setIsLoading(false);
+        setListData(response.data.data);
+      } else {
+        setIsLoading(false);
+        setListData([]);
+      }
+    };
 
 
   $('[data-rr-ui-event-key*="Demand List"]')
@@ -196,6 +230,7 @@ const Demand = () => {
 		const selectedKey = selectedOption.dataset.key || selectedOption.label;
 		localStorage.setItem("CompanyName", selectedKey)
     fetchDemandHeaderList(1, perPage, e.target.value);
+    fetchDistributionCentreList(e.target.value);
 }
 
   return (

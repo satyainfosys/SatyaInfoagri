@@ -64,6 +64,7 @@ import paymentDetailReducer from './paymentDetailReducer';
 import paymentHeaderReducer from './paymentHeaderReducer';
 import paymentErrorReducer from './paymentErrorReducer';
 import demandHeaderReducer from './demandHeaderReducer';
+import productCatalogueDetailsReducer from './productCatalogueDetailsReducer';
 
 const rootReducer = combineReducers({
   loginReducer,
@@ -130,7 +131,8 @@ const rootReducer = combineReducers({
   paymentDetailReducer,
   paymentHeaderReducer,
   paymentErrorReducer,
-  demandHeaderReducer
+  demandHeaderReducer,
+  productCatalogueDetailsReducer
 });
 
 export default rootReducer;
