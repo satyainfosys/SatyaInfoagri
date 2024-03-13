@@ -3,13 +3,15 @@ import { Col, Form, Row, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { demandHeaderAction } from 'actions';
+import { demandHeaderAction, formChangedAction } from 'actions';
 import { handleNumericInputKeyPress } from "./../../helpers/utils.js";
 import Flex from 'components/common/Flex';
 
 const AddDemand = () => {
 
   const today = new Date().toISOString().split('T')[0];
+
+  const [isLoading, setIsLoading] = useState(false);
   const [farmerDetailsList, setFarmerDetailsList] = useState([]);
   const [showFarmerDropdown, setShowFarmerDropdown] = useState(true); // State variable to toggle visibility
   const [showSearchFarmerValue, setShowSearchFarmerValue] = useState("");
@@ -17,11 +19,45 @@ const AddDemand = () => {
 
   const dispatch = useDispatch();
 
+  const resetDemandHeaderDetails = () => {
+    dispatch(
+      demandHeaderAction({
+        ...demandHeaderDetails,
+        farmerCode: '',
+        encryptedFarmerCode: '',
+        farmerName: '',
+        fatherName: '',
+        village: '',
+        phoneNumber: '',
+        farmerCollCenterCode: '',
+        demandAmount:'',
+        demandDate:'',
+        deliveryDate:'',
+        advancedAmount:'',
+        distributionCentreCode:'',
+        collCenterCode:'',
+        demandStatus:'',
+      })
+    );
+  };
+
   const demandHeaderDetailsReducer = useSelector((state) => state.rootReducer.demandHeaderReducer)
   var demandHeaderDetails = demandHeaderDetailsReducer.demandHeaderDetail;
 
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
+  const demandHeaderDetailsErrorReducer = useSelector((state) => state.rootReducer.demandHeaderDetailsErrorReducer)
+  const demandHeaderErr = demandHeaderDetailsErrorReducer.demandHeaderDetailsError;
+
   const distributionCentreListReducer = useSelector((state) => state.rootReducer.distributionCentreListReducer)
   const distributionList = distributionCentreListReducer.distributionCentreList
+
+  if (!demandHeaderDetailsReducer.demandHeaderDetails ||
+    Object.keys(demandHeaderDetailsReducer.demandHeaderDetails).length <= 0) {
+    resetDemandHeaderDetails();
+  }
+
 
   const getFarmerDetailsList = async searchText => {
     const requestData = {
@@ -171,6 +207,9 @@ const AddDemand = () => {
                     }
                   }}
                 />
+                {/* {Object.keys(demandHeaderErr.farmerErr).map((key) => {
+                        return <span className="error-message">{demandHeaderErr.farmerErr[key]}</span>
+                      })} */}
 
                   {(showFarmerDropdown && farmerDetailsList.length > 0) && (
                 <Card className="mb-1 ">

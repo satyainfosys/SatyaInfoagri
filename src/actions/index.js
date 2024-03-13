@@ -515,3 +515,17 @@ export const productCatalogueDetailsAction = (payload) => {
     payload
   };
 };
+
+export const demandProductDetailsAction = (payload) => {
+  return {
+    type: 'DEMANDPRODUCTDETAILS',
+    payload
+  };
+};
+
+export const demandHeaderDetailsErrAction = (payload) => {
+  return {
+    type: 'DEMANDHEADERDETAILSERROR',
+    payload
+  };
+};

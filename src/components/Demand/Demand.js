@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import TabPage from 'components/common/TabPage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import axios from 'axios';
 import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from 'jquery';
-import { tabInfoAction, distributionCentreListAction } from 'actions';
+import { tabInfoAction, distributionCentreListAction, formChangedAction, demandHeaderAction, demandProductDetailsAction, demandHeaderDetailsErrAction, productCatalogueDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
 
 const tabArray = ['Demand List', 'Add Demand'];
@@ -28,11 +28,23 @@ const Demand = () => {
   const [perPage, setPerPage] = useState(15);
   const [activeTabName, setActiveTabName] = useState();
   const [modalShow, setModalShow] = useState(false);
+  const [formHasError, setFormError] = useState(false);
 
   useEffect(() => {
     $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', true);
     getCompany();
   }, []);
+
+  const demandHeaderDetailReducer = useSelector((state) => state.rootReducer.demandHeaderReducer)
+    var demandHeaderDetails = demandHeaderDetailReducer.demandHeaderDetails;
+
+    let demandProductDetailsReducer = useSelector((state) => state.rootReducer.demandProductDetailsReducer)
+    let demandProductDetails = demandProductDetailsReducer.demandProductDetails;
+  
+  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
+  var formChangedData = formChangedReducer.formChanged;
+
+  let isFormChanged = Object.values(formChangedData).some(value => value === true);
 
   const getCompany = async () => {
     let companyData = [];
@@ -125,7 +137,6 @@ const Demand = () => {
     }
 }
 
-
     const fetchDemandHeaderList = async (
       page,
       size = perPage,
@@ -172,6 +183,9 @@ const Demand = () => {
         $('#btnSave').hide();
         $('#btnCancel').hide();
         $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', true);
+        clearDemandReducers();
+        dispatch(demandHeaderAction(undefined));
+        dispatch(productCatalogueDetailsAction([]));
       }
     });
 
@@ -210,8 +224,14 @@ const Demand = () => {
 
   const exitModule = () => {
     $('#btnExit').attr('isExit', 'true');
-    setModalShow(true);
-    window.location.href = '/dashboard';
+    if (isFormChanged) {
+      setModalShow(true);
+    } else {
+      window.location.href = '/dashboard';
+      clearDemandReducers();
+      dispatchEvent(demandHeaderAction(undefined));
+      dispatch(productCatalogueDetailsAction(undefined));
+    }
   };
 
   const discardChanges = () => {
@@ -232,6 +252,76 @@ const Demand = () => {
     fetchDemandHeaderList(1, perPage, e.target.value);
     fetchDistributionCentreList(e.target.value);
 }
+
+const clearDemandReducers = () => {
+  dispatch(formChangedAction(undefined));
+  dispatch(demandHeaderAction([]));
+  dispatch(demandProductDetailsAction([]));
+  dispatch(demandHeaderDetailsErrAction(undefined));
+}
+
+const demandValidation = () => {
+  setModalShow(false);
+
+  const farmerErr = {};
+  const distributionCentreCodeErr = {};
+  const collCenterCodeErr = {};
+  const productDetailsErr = {};
+
+  let isValid = true;
+
+  if (!demandHeaderDetails.farmerCode) {
+      farmerErr.empty = "Select Farmer";
+      isValid = false;
+      setFormError(true);
+  }
+
+  if (!demandHeaderDetails.distributionCentreCode) {
+    distributionCentreCodeErr.empty = "Select Distribution Center";
+      isValid = false;
+      setFormError(true);
+  }
+
+  if (!demandHeaderDetails.collCenterCode) {
+    collCenterCodeErr.empty = "Select Collection Center";
+      isValid = false;
+      setFormError(true);
+  }
+
+
+  if (demandProductDetails.length < 1) {
+      productDetailsErr.productDetailEmpty = "At least one product detail required";
+      setTimeout(() => {
+          toast.error(productDetailsErr.productDetailEmpty, {
+              theme: 'colored'
+          });
+      }, 1000);
+      isValid = false;
+  }
+  else if (demandProductDetails && demandProductDetails.length > 0) {
+    demandProductDetails.forEach((row, index) => {
+          if (!row.ProductCode || !row.ProductCategoryCode) {
+              productDetailsErr.invalidProductDetail = "Fill the required fields in product detail";
+              isValid = false;
+              setFormError(true);
+          }
+      })
+  }
+
+  if (!isValid) {
+      var errorObject = {
+        farmerErr,
+        distributionCentreCodeErr,
+        collCenterCodeErr,
+        productDetailsErr
+      }
+
+      dispatch(demandHeaderDetailsErrAction(errorObject))
+  }
+
+  return isValid;
+}
+
 
   return (
     <>
