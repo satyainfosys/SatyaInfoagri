@@ -1,28 +1,20 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Col, Form, Row, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { demandHeaderAction, formChangedAction } from 'actions';
-import { handleNumericInputKeyPress } from "./../../helpers/utils.js";
+import { handleNumericInputKeyPress } from './../../helpers/utils.js';
 import Flex from 'components/common/Flex';
 
 const AddDemand = () => {
-
-  const today = new Date().toISOString().split('T')[0];
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [farmerDetailsList, setFarmerDetailsList] = useState([]);
-  const [showFarmerDropdown, setShowFarmerDropdown] = useState(true); // State variable to toggle visibility
-  const [showSearchFarmerValue, setShowSearchFarmerValue] = useState("");
-  const [collectionCentreList, setCollectionCentreList] = useState([]);
+  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
 
   const dispatch = useDispatch();
 
-  const resetDemandHeaderDetails = () => {
+  const resetDemandHeaderDetails = useCallback(() => {
     dispatch(
       demandHeaderAction({
-        ...demandHeaderDetails,
         farmerCode: '',
         encryptedFarmerCode: '',
         farmerName: '',
@@ -30,36 +22,51 @@ const AddDemand = () => {
         village: '',
         phoneNumber: '',
         farmerCollCenterCode: '',
-        demandAmount:'',
-        demandDate:'',
-        deliveryDate:'',
-        advancedAmount:'',
-        distributionCentreCode:'',
-        collCenterCode:'',
-        demandStatus:'',
+        demandAmount: '',
+        demandDate: '',
+        deliveryDate: '',
+        advancedAmount: '',
+        distributionCentreCode: '',
+        collCenterCode: '',
+        demandStatus: '',
       })
     );
-  };
+  }, [dispatch]);
 
-  const demandHeaderDetailsReducer = useSelector((state) => state.rootReducer.demandHeaderReducer)
-  var demandHeaderDetails = demandHeaderDetailsReducer.demandHeaderDetail;
+  const demandHeaderDetails = useSelector((state) => state.rootReducer.demandHeaderReducer.demandHeaderDetail);
 
-  const formChangedReducer = useSelector((state) => state.rootReducer.formChangedReducer)
-  var formChangedData = formChangedReducer.formChanged;
+  const formChangedData = useSelector((state) => state.rootReducer.formChangedReducer.formChanged);
 
-  const demandHeaderDetailsErrorReducer = useSelector((state) => state.rootReducer.demandHeaderDetailsErrorReducer)
-  const demandHeaderErr = demandHeaderDetailsErrorReducer.demandHeaderDetailsError;
+  const demandHeaderErr = useSelector((state) => state.rootReducer.demandHeaderDetailsErrorReducer.demandHeaderDetailsError);
 
-  const distributionCentreListReducer = useSelector((state) => state.rootReducer.distributionCentreListReducer)
-  const distributionList = distributionCentreListReducer.distributionCentreList
+  const distributionList = useSelector((state) => state.rootReducer.distributionCentreListReducer.distributionCentreList);
 
-  if (!demandHeaderDetailsReducer.demandHeaderDetails ||
-    Object.keys(demandHeaderDetailsReducer.demandHeaderDetails).length <= 0) {
+  if (!demandHeaderDetails ||
+    Object.keys(demandHeaderDetails).length <= 0) {
     resetDemandHeaderDetails();
   }
 
+  const [isLoading, setIsLoading] = useState(false);
+  const [farmerDetailsList, setFarmerDetailsList] = useState([]);
+  const [showFarmerDropdown, setShowFarmerDropdown] = useState(true);
+  const [showSearchFarmerValue, setShowSearchFarmerValue] = useState("");
+  const [collectionCentreList, setCollectionCentreList] = useState([]);
 
-  const getFarmerDetailsList = async searchText => {
+  const resetFarmerDetail = useCallback(() => {
+    dispatch(
+      demandHeaderAction({
+        farmerCode: '',
+        encryptedFarmerCode: '',
+        farmerName: '',
+        fatherName: '',
+        village: '',
+        phoneNumber: '',
+        farmerCollCenterCode: '',
+      })
+    );
+  }, [dispatch]);
+
+  const getFarmerDetailsList = useCallback(async (searchText) => {
     const requestData = {
       pageNumber: 1,
       pageSize: 10,
@@ -68,117 +75,107 @@ const AddDemand = () => {
       searchText: searchText
     };
 
-    let response = await axios.post(
-      process.env.REACT_APP_API_URL + '/farmer-list',
-      requestData,
-      {
-        headers: {
-          Authorization: `Bearer ${
-            JSON.parse(localStorage.getItem('Token')).value
-          }`
+    try {
+      const response = await axios.post(
+        process.env.REACT_APP_API_URL + '/farmer-list',
+        requestData,
+        {
+          headers: {
+            Authorization: `Bearer ${
+              JSON.parse(localStorage.getItem('Token')).value
+            }`
+          }
         }
-      }
-    );
+      );
 
-    if (response.data.status == 200) {
-      if (response.data && response.data.data.length > 0) {
+      if (response.data.status === 200 && response.data.data.length > 0) {
         resetFarmerDetail();
         setFarmerDetailsList(response.data.data);
         setShowFarmerDropdown(true);
+      } else {
+        setFarmerDetailsList([]);
+        resetFarmerDetail();
       }
-    } else {
-      setFarmerDetailsList([]);
-      resetFarmerDetail();
+    } catch (error) {
+      console.error('Error fetching farmer details:', error);
     }
-  };
+  }, [resetFarmerDetail]);
 
-  const resetFarmerDetail = () => {
-    dispatch(
-      demandHeaderAction({
-        ...demandHeaderDetails,
-        farmerCode: '',
-        encryptedFarmerCode: '',
-        farmerName: '',
-        fatherName: '',
-        village: '',
-        phoneNumber: '',
-        farmerCollCenterCode: '',
-      })
-    );
-  };
-
-  const handleFarmerOnChange = (e) => {
-    if (e.target.value !== "") {
-      const searchText = e.target.value;
-      setShowSearchFarmerValue(searchText);
+  const handleFarmerOnChange = useCallback((e) => {
+    const searchText = e.target.value;
+    setShowSearchFarmerValue(searchText);
+    if (searchText !== "") {
       getFarmerDetailsList(searchText);
     } else {
       setShowFarmerDropdown(false);
       setShowSearchFarmerValue("");
       setFarmerDetailsList([]);
     }
-  }
+  }, [getFarmerDetailsList]);
 
-  const handleFieldChange = e => {
-    if (e.target.name == 'distributionCentreCode') {
+  const handleFieldChange = useCallback((e) => {
+    const { name, value } = e.target;
+    if (name === 'distributionCentreCode') {
       dispatch(
         demandHeaderAction({
           ...demandHeaderDetails,
-          distributionCentreCode: e.target.value,
+          distributionCentreCode: value,
           collCenterCode: null
         })
       );
       setCollectionCentreList([]);
-      e.target.value && getCollectionCentre(e.target.value);
+      if (value) {
+        getCollectionCentre(value);
+      }
     } else {
       dispatch(
         demandHeaderAction({
           ...demandHeaderDetails,
-          [e.target.name]: e.target.value
+          [name]: value
         })
       );
     }
-  };
+  }, [dispatch, demandHeaderDetails]);
 
-  const getCollectionCentre = async (distributionCentreCode) => {
+  const getCollectionCentre = useCallback(async (distributionCentreCode) => {
     const requestData = {
       EncryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
       DistributionCode: distributionCentreCode
-    }
+    };
 
-    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
-      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-    })
-    let collectionCentreData = [];
-    if (response.data.status == 200) {
-      if (response.data && response.data.data.length > 0) {
-        response.data.data.forEach(collectionCentre => {
-          collectionCentreData.push({
-            key: collectionCentre.collectionCentreName,
-            value: collectionCentre.collectionCentreCode
-          })
-        })
+    try {
+      const response = await axios.post(process.env.REACT_APP_API_URL + '/get-collection-centre-list', requestData, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+      });
+
+      if (response.data.status === 200 && response.data.data.length > 0) {
+        const collectionCentreData = response.data.data.map(collectionCentre => ({
+          key: collectionCentre.collectionCentreName,
+          value: collectionCentre.collectionCentreCode
+        }));
+        setCollectionCentreList(collectionCentreData);
       }
-      setCollectionCentreList(collectionCentreData);
+    } catch (error) {
+      console.error('Error fetching collection centres:', error);
     }
-  }
+  }, []);
 
-  const handleFarmerDetail = async (farmerCode, farmerName) => {
-    var farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode == farmerCode && farmer.farmerName == farmerName);
+  const handleFarmerDetail = useCallback((farmerCode, farmerName) => {
+    const farmerDetail = farmerDetailsList.find(farmer => farmer.farmerCode === farmerCode && farmer.farmerName === farmerName);
     dispatch(demandHeaderAction({
       ...demandHeaderDetails,
       farmerCode: farmerDetail.farmerCode,
-      encryptedFarmerCode : farmerDetail.encryptedFarmerCode,
+      encryptedFarmerCode: farmerDetail.encryptedFarmerCode,
       farmerName: farmerDetail.farmerName,
       fatherName: farmerDetail.farmerFatherName,
       village: farmerDetail.village,
       phoneNumber: farmerDetail.farmerPhoneNumber,
       farmerCollCenterCode: farmerDetail.farmerCollCenterCode,
-    }))
+    }));
 
     // Hide the farmer dropdown after selection
-      setShowFarmerDropdown(false);
-  }
+    setShowFarmerDropdown(false);
+  }, [dispatch, demandHeaderDetails, farmerDetailsList]);
 
   return (
     <>
@@ -207,10 +204,9 @@ const AddDemand = () => {
                     }
                   }}
                 />
-                {/* {Object.keys(demandHeaderErr.farmerErr).map((key) => {
-                        return <span className="error-message">{demandHeaderErr.farmerErr[key]}</span>
-                      })} */}
-
+                {demandHeaderErr.farmerErr && Object.keys(demandHeaderErr.farmerErr).map((key) => (
+                  <span key={key} className="error-message">{demandHeaderErr.farmerErr[key]}</span>
+                ))}
                   {(showFarmerDropdown && farmerDetailsList.length > 0) && (
                 <Card className="mb-1 ">
                     <Card.Body className="vebdor-card-item custom-card-scroll">
@@ -382,6 +378,9 @@ const AddDemand = () => {
                       ))
                     }
                   </Form.Select>
+                  {demandHeaderErr.distributionCentreCodeErr && Object.keys(demandHeaderErr.distributionCentreCodeErr).map((key) => (
+                  <span key={key} className="error-message">{demandHeaderErr.distributionCentreCodeErr[key]}</span>
+                ))}
                 </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-1">
@@ -397,6 +396,9 @@ const AddDemand = () => {
                       ))
                     }
                   </Form.Select>
+                  {demandHeaderErr.collCenterCodeErr && Object.keys(demandHeaderErr.collCenterCodeErr).map((key) => (
+                  <span key={key} className="error-message">{demandHeaderErr.collCenterCodeErr[key]}</span>
+                ))}
                 </Col>
             </Form.Group>
 

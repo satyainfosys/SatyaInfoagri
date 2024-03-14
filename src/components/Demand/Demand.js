@@ -36,7 +36,7 @@ const Demand = () => {
   }, []);
 
   const demandHeaderDetailReducer = useSelector((state) => state.rootReducer.demandHeaderReducer)
-    var demandHeaderDetails = demandHeaderDetailReducer.demandHeaderDetails;
+    var demandHeaderDetails = demandHeaderDetailReducer.demandHeaderDetail;
 
     let demandProductDetailsReducer = useSelector((state) => state.rootReducer.demandProductDetailsReducer)
     let demandProductDetails = demandProductDetailsReducer.demandProductDetails;
@@ -322,6 +322,11 @@ const demandValidation = () => {
   return isValid;
 }
 
+const addDemandDetails = () => {
+  if(demandValidation()) {
+
+  }
+}
 
   return (
     <>
@@ -363,6 +368,7 @@ const demandValidation = () => {
         listColumnArray={listColumnArray}
         tabArray={tabArray}
         module="DemandCollection"
+        saveDetails = {addDemandDetails}
         newDetails={newDetails}
         cancelClick={cancelClick}
         exitModule={exitModule}

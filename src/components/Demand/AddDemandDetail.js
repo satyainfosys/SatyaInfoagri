@@ -562,7 +562,7 @@ const AddDemandDetail = () => {
                           maxLength={5}
                           required
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={productDetail.quantity ? productDetail.quantity : ""}
+                          // value={productDetail.quantity ? productDetail.quantity : ""}
                           onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
