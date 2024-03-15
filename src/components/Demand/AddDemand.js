@@ -29,6 +29,7 @@ const AddDemand = () => {
         distributionCentreCode: '',
         collCenterCode: '',
         demandStatus: '',
+        khasraNo : null
       })
     );
   }, [dispatch]);
@@ -62,6 +63,7 @@ const AddDemand = () => {
         village: '',
         phoneNumber: '',
         farmerCollCenterCode: '',
+        khasraNo : null
       })
     );
   }, [dispatch]);
@@ -171,6 +173,7 @@ const AddDemand = () => {
       village: farmerDetail.village,
       phoneNumber: farmerDetail.farmerPhoneNumber,
       farmerCollCenterCode: farmerDetail.farmerCollCenterCode,
+      khasraNo : farmerDetail.khasraNos
     }));
 
     // Hide the farmer dropdown after selection

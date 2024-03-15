@@ -12,6 +12,8 @@ import { productCatalogueDetailsAction, demandHeaderAction, demandProductDetails
 
 const AddDemandDetail = () => {
   const dispatch = useDispatch();
+  const [modalShow, setModalShow] = useState(false);
+  const [paramsData, setParamsData] = useState({});
   const [formHasError, setFormError] = useState(false);
   const [vendorModal, setVendorModal] = useState(false);
   const [selectAll, setSelectAll] = useState(false);
@@ -281,8 +283,63 @@ const AddDemandDetail = () => {
     }
   };
 
+  const ModalPreview = (encryptedDemandDetailId) => {
+    setModalShow(true);
+    setParamsData({ encryptedDemandDetailId });
+  }
+
+  const deleteDemandProductDetail = () => {
+    if (!paramsData)
+      return false;
+
+    var objectIndex = demandProductDetailsReducer.demandProductDetails.findIndex(x => x.encryptedDemandDetailId == paramsData.encryptedDemandDetailId);
+    demandProductDetailsReducer.demandProductDetails.splice(objectIndex, 1)
+
+    var deleteDemandProductDetailId = localStorage.getItem("DeleteDemandProductDetailIds");
+
+    if (paramsData.encryptedDemandDetailId) {
+      var deleteDemandProductDetail = deleteDemandProductDetailId ? deletePoProductDetailId + "," + paramsData.encryptedDemandDetailId : paramsData.encryptedDemandDetailId;
+      localStorage.setItem("DeleteDemandProductDetailIds", deleteDemandProductDetail);
+    }
+
+    toast.success("Demand product details deleted successfully", {
+      theme: 'colored'
+    });
+
+    dispatch(demandProductDetailsAction(objectIndex));
+
+    dispatch(formChangedAction({
+      ...formChangedData,
+      demandProductDetailsDelete: true,
+      demandProductDetailUpdate: true,
+    }))
+
+    setModalShow(false);
+  }
+
   return (
     <>
+    {modalShow && paramsData &&
+        <Modal
+          show={modalShow}
+          onHide={() => setModalShow(false)}
+          size="md"
+          aria-labelledby="contained-modal-title-vcenter"
+          centered
+          backdrop="static"
+        >
+          <Modal.Header closeButton>
+            <Modal.Title id="contained-modal-title-vcenter">Confirmation</Modal.Title>
+          </Modal.Header>
+          <Modal.Body>
+            <h4>Are you sure, you want to delete this Demand Product detail?</h4>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="success" onClick={() => setModalShow(false)}>Cancel</Button>
+            <Button variant="danger" onClick={() => deleteDemandProductDetail()}>Delete</Button>
+          </Modal.Footer>
+        </Modal>
+      }
       {vendorModal && (
         <Modal
           show={vendorModal}
@@ -634,7 +691,7 @@ const AddDemandDetail = () => {
                           disabled
                         />
                       </td>
-                      <td>
+                      {/* <td>
                         <EnlargableTextbox
                           name="khasra"
                           placeholder="Khasra"
@@ -642,6 +699,23 @@ const AddDemandDetail = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={productDetail.khasra ? productDetail.khasra : ""}
                         />
+                      </td> */}
+                      <td>
+                        <Form.Select
+                          name="khasra"
+                          placeholder="Khasra"
+                          className="form-control select"
+                          onChange={e => handleFieldChange(e, index)}
+                          value={productDetail.khasra ? productDetail.khasra : ""}
+                          required
+                        >
+                          <option value="">Select </option>
+                          {demandHeaderDetails?.khasraNo?.map((option, index) => (
+                            <option key={index} value={option}>
+                              {option}
+                            </option>
+                          ))}
+                        </Form.Select>
                       </td>
                       <td>
                         <Form.Control
@@ -673,7 +747,7 @@ const AddDemandDetail = () => {
                       </td>
                       {
                         <td>
-                          <FontAwesomeIcon icon={'trash'} className="fa-2x" />
+                          <FontAwesomeIcon icon={'trash'} className="fa-2x" onClick={() => { ModalPreview(productDetail.encryptedDemandDetailId) }}/>
                         </td>
                       }
                     </tr>
