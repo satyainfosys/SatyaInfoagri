@@ -28,9 +28,32 @@ const AddDemandDetail = () => {
   const columnsArray = [
     'S.No', 'Product Category', 'Product', 'Variety', 'Brand', 'Unit',
     'Delivered Quantity', 'Quantity', 'Rate', 'Amt', 'CGST %',
-    'CGST Amount', 'SGST %', 'SGST Amount', 'Khasra', 'Sowing',
-    'Harvesting', 'Product Grand Amount', 'Delete'
+    'CGST Amount', 'SGST %', 'SGST Amount', 'Khasra', 'Sowing Month', 'Sowing Year',
+    'Harvesting Month', 'Harvesting Year', 'Product Grand Amount', 'Delete'
   ];
+
+  const months = [
+    { name: "January", value: "01" },
+    { name: "February", value: "02" },
+    { name: "March", value: "03" },
+    { name: "April", value: "04" },
+    { name: "May", value: "05" },
+    { name: "June", value: "06" },
+    { name: "July", value: "07" },
+    { name: "August", value: "08" },
+    { name: "September", value: "09" },
+    { name: "October", value: "10" },
+    { name: "November", value: "11" },
+    { name: "December", value: "12" }
+  ];
+
+  const currentYear = new Date().getFullYear();
+
+  // Calculate the range of years
+  const years = [];
+  for (let i = currentYear - 5; i >= currentYear - 10; i--) {
+    years.push(i);
+  }
 
   const demandHeaderReducer = useSelector( state => state.rootReducer.demandHeaderReducer);
   var demandHeaderDetails = demandHeaderReducer.demandHeaderDetail;
@@ -58,6 +81,20 @@ const AddDemandDetail = () => {
       setRowData([]);
       setSelectedRows([]);
     }
+
+    const totalDemandAmount = demandProductDetails.length > 1
+      ? demandProductDetails.reduce((acc, obj) => {
+        const demandAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+        return acc + (isNaN(demandAmount) ? 0 : demandAmount);
+      }, 0)
+      : demandProductDetails.length === 1
+        ? parseFloat(demandProductDetails[0].productGrandAmt)
+        : 0;
+
+    dispatch(demandHeaderAction({
+      ...demandHeaderDetails,
+      demandAmount: isNaN(totalDemandAmount) ? 0 : totalDemandAmount
+    }))
 
     if (productCategoryList.length <= 0) {
       getProductCategoryList();
@@ -261,6 +298,7 @@ const AddDemandDetail = () => {
 
   const handleFieldChange = async (e, index) => {
     const { name, value } = e.target;
+
     var demandProductDetails = [...rowData];
     demandProductDetails[index] = {
       ...demandProductDetails[index],
@@ -268,7 +306,180 @@ const AddDemandDetail = () => {
     };
     dispatch(demandProductDetailsAction(demandProductDetails));
 
-    
+    if(name === "sowingYear" || name === "harvestingYear"){
+      demandProductDetails[index] = {
+        ...demandProductDetails[index],
+        [name]: value
+      };
+    }
+
+    if (name == "demandQuantity") {
+      let calculatedDemandAmount = 0
+      if (demandProductDetails[index].demandRate) {
+        calculatedDemandAmount = parseFloat(value) * parseFloat(demandProductDetails[index].demandRate)
+        demandProductDetails[index].amount = isNaN(calculatedDemandAmount) ? 0 : calculatedDemandAmount.toString();
+        // dispatch(purchaseOrderProductDetailsAction(purchaseOrderProductDetail))
+      }
+
+      let cgstAmt = (parseFloat(calculatedDemandAmount) * (parseFloat(demandProductDetails[index].cgstPer) !== "" ? parseFloat(demandProductDetails[index].cgstPer) : 0)) / 100
+      demandProductDetails[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString();
+      let sgstAmt = (parseFloat(calculatedDemandAmount) * (parseFloat(demandProductDetails[index].sgstPer) !== "" ? parseFloat(demandProductDetails[index].sgstPer) : 0)) / 100
+      demandProductDetails[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString();
+      let productGrandAmt = (calculatedDemandAmount > 0 ? parseFloat(calculatedDemandAmount) : 0) + (cgstAmt > 0 ? cgstAmt : 0) + (sgstAmt > 0 ? sgstAmt : 0)
+      demandProductDetails[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString();
+
+      let totalCGST = 0;
+      let totalSGST = 0;
+      let totalProductGrandAmount = 0;
+      let totalDemandQty = 0;
+      for (let i = 0; i < demandProductDetails.length; i++) {
+        totalCGST += parseFloat(demandProductDetails[i].cgstAmt);
+        totalSGST += parseFloat(demandProductDetails[i].sgstAmt);
+        totalProductGrandAmount += parseFloat(demandProductDetails[i].productGrandAmt);
+        totalDemandQty += parseFloat(demandProductDetails[i].quantity);
+      }
+
+      let gstTotalAmt = totalCGST + (totalSGST ? totalSGST : 0)
+      let demandGrandAmt = (totalProductGrandAmount ? totalProductGrandAmount : 0)
+
+      dispatch(demandHeaderAction({
+        ...demandHeaderDetails,
+        gstTotalAmt: gstTotalAmt,
+        demandGrandAmt: demandGrandAmt,
+        totalDemandQty: totalDemandQty
+      }))
+
+      dispatch(demandProductDetailsAction(demandProductDetails))
+    }
+
+    if (e.target.name == "demandRate") {
+      if (demandProductDetails[index].demandQuantity) {
+        const calculatedDemandAmount = parseFloat(demandProductDetails[index].demandQuantity) * parseFloat(e.target.value)
+        demandProductDetails[index].demandAmount = isNaN(calculatedDemandAmount) ? 0 : calculatedDemandAmount.toString();
+        dispatch(demandProductDetailsAction(demandProductDetails))
+      }
+      else if (parseFloat(demandProductDetails[index].demandAmount) > 0) {
+
+        const calculatedQuantity = parseFloat(demandProductDetails[index].demandAmount) / parseFloat(e.target.value)
+        demandProductDetails[index].demandQuantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
+        dispatch(demandProductDetails(demandProductDetails))
+
+      }
+
+      let amount = e.target.value * (demandProductDetails[index].demandQuantity ? parseFloat(demandProductDetails[index].demandQuantity) : 0)
+      let cgstAmt = (parseFloat(amount) * (parseFloat(demandProductDetails[index].cgstPer) !== "" ? parseFloat(demandProductDetails[index].cgstPer) : 0)) / 100
+      demandProductDetails[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString();
+      let sgstAmt = (parseFloat(amount) * (parseFloat(demandProductDetails[index].sgstPer) !== "" ? parseFloat(demandProductDetails[index].sgstPer) : 0)) / 100
+      demandProductDetails[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString();
+      let productGrandAmt = (amount > 0 ? parseFloat(amount) : 0) + (cgstAmt > 0 ? cgstAmt : 0) + (sgstAmt > 0 ? sgstAmt : 0)
+      demandProductDetails[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString();
+
+      let totalCGST = 0;
+      let totalSGST = 0;
+      let totalProductGrandAmount = 0;
+      for (let i = 0; i < demandProductDetails.length; i++) {
+        totalCGST += parseFloat(demandProductDetails[i].cgstAmt);
+        totalSGST += parseFloat(demandProductDetails[i].sgstAmt);
+        totalProductGrandAmount += parseFloat(demandProductDetails[i].productGrandAmt);
+      }
+
+      let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      let demandGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      dispatch(demandHeaderAction({
+        ...demandHeaderDetails,
+        gstTotalAmt: gstTotalAmt,
+        demandGrandAmt: demandGrandAmt
+      }))
+
+      dispatch(demandProductDetailsAction(demandProductDetails))
+    }
+
+    if (e.target.name == "demandAmount") {
+      if (demandProductDetails[index].demandRate) {
+       
+          const calculatedQuantity = parseFloat(e.target.value) / parseFloat(demandProductDetails[index].demandRate)
+          demandProductDetails[index].demandQuantity = isNaN(calculatedQuantity) ? 0 : calculatedQuantity.toString();
+          dispatch(demandProductDetailsAction(demandProductDetails))
+        
+      }
+
+      let cgstAmt = (parseFloat(e.target.value) * (parseFloat(demandProductDetails[index].cgstPer) !== ""  ? parseFloat(demandProductDetails[index].cgstPer) : 0) )/100
+      demandProductDetails[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString(); 
+      let sgstAmt = (parseFloat(e.target.value) * (parseFloat(demandProductDetails[index].sgstPer) !== ""  ? parseFloat(demandProductDetails[index].sgstPer) : 0) )/100
+      demandProductDetails[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString(); 
+      let productGrandAmt = (e.target.value !== "" ? parseFloat(e.target.value) : 0)  +(cgstAmt > 0 ? cgstAmt : 0)  + (sgstAmt  > 0 ? sgstAmt: 0)
+      demandProductDetails[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString(); 
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < demandProductDetails.length; i++) {
+          totalCGST += parseFloat(demandProductDetails[i].cgstAmt);
+          totalSGST += parseFloat(demandProductDetails[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(demandProductDetails[i].productGrandAmt);
+        }
+      
+      let gstTotalAmt =  (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      let demandGrandAmt = (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+      dispatch(demandHeaderAction({
+        ...demandHeaderDetails,
+        gstTotalAmt: gstTotalAmt,
+        demandGrandAmt : demandGrandAmt
+      })) 
+
+      dispatch(demandProductDetailsAction(demandProductDetails))
+    }
+
+    if (e.target.name == "cgstPer") {
+      if (demandProductDetails[index].demandAmount) {
+        var cgstAmt = (parseFloat(demandProductDetails[index].demandAmount) * parseFloat(e.target.value)) / 100
+        demandProductDetails[index].cgstAmt = isNaN(cgstAmt) ? 0 : cgstAmt.toString();
+        var productGrandAmt = parseFloat(demandProductDetails[index].demandAmount) + (cgstAmt > 0 ? cgstAmt : 0) + (demandProductDetails[index].sgstAmt ? parseFloat(demandProductDetails[index].sgstAmt) : 0)
+        demandProductDetails[index].productGrandAmt = isNaN(productGrandAmt) ? 0 : productGrandAmt.toString();
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < demandProductDetails.length; i++) {
+          totalCGST += parseFloat(demandProductDetails[i].cgstAmt);
+          totalSGST += parseFloat(demandProductDetails[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(demandProductDetails[i].productGrandAmt);
+        }
+        
+        let gstTotalAmt = totalCGST + (totalSGST ? totalSGST : 0)
+        let demandGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        dispatch(demandHeaderAction({
+          ...demandHeaderDetails,
+          gstTotalAmt: gstTotalAmt,
+          demandGrandAmt: demandGrandAmt
+        }))
+        dispatch(demandProductDetailsAction(demandProductDetails))
+      }
+    }
+
+    if (e.target.name == "sgstPer") {
+      if (demandProductDetails[index].demandAmount) {
+        var sgstAmt = (parseFloat(demandProductDetails[index].demandAmount) * parseFloat(e.target.value)) / 100
+        demandProductDetails[index].sgstAmt = isNaN(sgstAmt) ? 0 : sgstAmt.toString();
+        var calculatedProductGrandAmt = parseFloat(demandProductDetails[index].demandAmount) + (sgstAmt > 0 ? sgstAmt : 0) + (demandProductDetails[index].cgstAmt ? parseFloat(demandProductDetails[index].cgstAmt) : 0)
+        demandProductDetails[index].productGrandAmt = isNaN(calculatedProductGrandAmt) ? 0 : calculatedProductGrandAmt.toString();
+        let totalCGST = 0;
+        let totalSGST = 0;
+        let totalProductGrandAmount = 0;
+        for (let i = 0; i < demandProductDetails.length; i++) {
+          totalCGST += parseFloat(demandProductDetails[i].cgstAmt);
+          totalSGST += parseFloat(demandProductDetails[i].sgstAmt);
+          totalProductGrandAmount += parseFloat(demandProductDetails[i].productGrandAmt);
+        }
+        let gstTotalAmt = (totalCGST ? totalCGST : 0) + totalSGST
+        let demandGrandAmt = gstTotalAmt + (totalProductGrandAmount > 0 ? parseFloat(totalProductGrandAmount) : 0)
+        dispatch(demandHeaderAction({
+          ...demandHeaderDetails,
+          gstTotalAmt: gstTotalAmt,
+          demandGrandAmt: demandGrandAmt
+        }))
+        dispatch(demandProductDetailsAction(demandProductDetails))
+      }
+    }
+
     if (demandProductDetails[index].encryptedDemandDetailId) {
       dispatch(formChangedAction({
         ...formChangedData,
@@ -522,9 +733,9 @@ const AddDemandDetail = () => {
           <Card.Body className="position-relative pb-0 p3px cp-table-card">
             <Form
               noValidate
-              validated={formHasError || (demandHeaderErr.demandProductDetailsErr && demandHeaderErr.demandProductDetailsErr.invalidPoProductDetail)}
+              validated={formHasError || (demandHeaderErr.demandProductDetailsErr && demandHeaderErr.demandProductDetailsErr.invalidProductDetail)}
               className="details-form"
-              id="AddPoProductDetailsForm"
+              id="AddDemandProductDetailsForm"
             >
               <Table
                 striped
@@ -537,7 +748,7 @@ const AddDemandDetail = () => {
                   {rowData && (
                     <tr>
                       {columnsArray.map((column, index) => {
-                        if (column === 'Delete') {
+                        if (column === 'Delete'&& (demandHeaderDetails.demandStatus == "Approved") ) {
                           return null;
                         }
                         return (
@@ -604,6 +815,7 @@ const AddDemandDetail = () => {
                           placeholder="Delivered Quantity"
                           maxLength={5}
                           required
+                          disabled
                           onChange={e => handleFieldChange(e, index)}
                           value={
                             productDetail.quantity ? productDetail.quantity : ''
@@ -614,36 +826,36 @@ const AddDemandDetail = () => {
 
                       <td>
                         <EnlargableTextbox
-                          name="quantity"
+                          name="demandQuantity"
                           placeholder="Quantity"
                           maxLength={5}
                           required
                           onChange={(e) => handleFieldChange(e, index)}
-                          // value={productDetail.quantity ? productDetail.quantity : ""}
+                          value={productDetail.demandQuantity ? productDetail.demandQuantity : ""}
                           onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
 
                       <td>
                         <EnlargableTextbox
-                          name="rate"
+                          name="demandRate"
                           placeholder="Rate"
                           maxLength={10}
                           required
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={productDetail.poRate ? productDetail.poRate : ""}
+                          value={productDetail.demandRate ? productDetail.demandRate : ""}
                           onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
 
                       <td>
                         <EnlargableTextbox
-                          name="amt"
+                          name="amount"
                           placeholder="Amount"
                           maxLength={13}
                           required
                           onChange={(e) => handleFieldChange(e, index)}
-                          value={productDetail.poAmt ? productDetail.poAmt : ""}
+                          value={productDetail.demandAmount ? productDetail.demandAmount : ""}
                           onKeyPress = {handleNumericInputKeyPress}
                         />
                       </td>
@@ -665,7 +877,6 @@ const AddDemandDetail = () => {
                           onChange={(e) => handleFieldChange(e, index)}
                           value={productDetail.cgstAmt ? productDetail.cgstAmt : ""}
                           onKeyPress={handleNumericInputKeyPress}
-                          required
                           disabled
                         />
                       </td>
@@ -687,7 +898,6 @@ const AddDemandDetail = () => {
                           onKeyPress={handleNumericInputKeyPress}
                           onChange={(e) => handleFieldChange(e, index)}
                           value={productDetail.sgstAmt ? productDetail.sgstAmt : ""}
-                          required
                           disabled
                         />
                       </td>
@@ -717,21 +927,45 @@ const AddDemandDetail = () => {
                           ))}
                         </Form.Select>
                       </td>
-                      <td>
-                        <Form.Control
-                          type="date"
-                          name="validFrom"
-                          placeholder="Select date"
-                          // className="form-control col-12 col-sm-6 col-md-4"
-                        />
+                      <td>                          
+                      <Form.Select className="form-control select" id="sowingMonth" placeholder="Sowing Month" name="sowingMonth" value={demandHeaderDetails.sowingMonth} onChange={e => handleFieldChange(e, index)}>
+                        <option value="">Select </option>
+        {months.map((month, index) => (
+          <option key={index} value={month.value}>{month.name}</option>
+        ))}
+                        </Form.Select>
                       </td>
                       <td>
-                        <Form.Control
-                          type="date"
-                          name="validFrom"
-                          placeholder="Select date"
-                          // className="form-control col-12 col-sm-6 col-md-4"
-                        />
+                        <Form.Select
+                          className="form-control select"
+                          name="sowingYear"
+                          placeholder="Select Sowing Year"
+                          value={demandHeaderDetails.sowingYear} onChange={e => handleFieldChange(e, index)}
+                        >
+                          <option value="">Select</option>
+                          {years.map((year, index) => (
+                            <option key={index} value={year}>{year}</option>
+                          ))}</Form.Select>
+                      </td>
+                      <td>
+                        <Form.Select id="harvestingMonth" className="form-control select" name="harvestingMonth" value={demandHeaderDetails.harvestingMonth} onChange={e => handleFieldChange(e, index)}>
+                          <option value="">Select </option>
+                          {months.map((month, index) => (
+                            <option key={index} value={month.value}>{month.name}</option>
+                          ))}
+                        </Form.Select>
+                      </td>
+                      <td>
+                      <Form.Select
+                          className="form-control select"
+                          name="harvestingYear"
+                          placeholder="Select Harvesting Year"
+                          value={demandHeaderDetails.harvestingYear} onChange={e => handleFieldChange(e, index)}
+                        >
+                          <option value="">Select</option>
+                          {years.map((year, index) => (
+                            <option key={index} value={year}>{year}</option>
+                          ))}</Form.Select>
                       </td>
                       <td>
                         <EnlargableTextbox

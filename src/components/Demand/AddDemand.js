@@ -1,11 +1,10 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect  } from 'react';
 import { Col, Form, Row, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { demandHeaderAction, formChangedAction } from 'actions';
+import { demandHeaderAction, demandHeaderDetailsErrAction, formChangedAction } from 'actions';
 import { handleNumericInputKeyPress } from './../../helpers/utils.js';
-import Flex from 'components/common/Flex';
 
 const AddDemand = () => {
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
@@ -41,6 +40,12 @@ const AddDemand = () => {
   const demandHeaderErr = useSelector((state) => state.rootReducer.demandHeaderDetailsErrorReducer.demandHeaderDetailsError);
 
   const distributionList = useSelector((state) => state.rootReducer.distributionCentreListReducer.distributionCentreList);
+
+  useEffect(() => {
+    if (demandHeaderDetails.encryptedDemandNo && demandHeaderDetails.demandStatus == "Approved") {
+      $("#btnSave").attr('disabled', true);
+    }
+  }, [])
 
   if (!demandHeaderDetails ||
     Object.keys(demandHeaderDetails).length <= 0) {
@@ -116,6 +121,7 @@ const AddDemand = () => {
   }, [getFarmerDetailsList]);
 
   const handleFieldChange = useCallback((e) => {
+    let oldPoStatus = localStorage.getItem("OldDemandStatus");
     const { name, value } = e.target;
     if (name === 'distributionCentreCode') {
       dispatch(
@@ -129,6 +135,20 @@ const AddDemand = () => {
       if (value) {
         getCollectionCentre(value);
       }
+    } else if (name == "demandAmount"){
+      let totalCGST = 0;
+      let totalSGST = 0;
+      for (let i = 0; i < demandHeaderDetails.length; i++) {
+        totalCGST += parseFloat(demandHeaderDetails[i].cgstAmt);
+        totalSGST += parseFloat(demandHeaderDetails[i].sgstAmt);
+      }
+
+      let gstTotalAmt = (totalCGST ? totalCGST : 0) + (totalSGST ? totalSGST : 0)
+      dispatch(demandHeaderAction({
+        ...demandHeaderDetails,
+        gstTotalAmt: gstTotalAmt,
+        demandAmount: e.target.value
+      }))
     } else {
       dispatch(
         demandHeaderAction({
@@ -136,6 +156,33 @@ const AddDemand = () => {
           [name]: value
         })
       );
+    }
+
+    if (demandHeaderDetails.encryptedDemandNo) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        demandHeaderDetailUpdate: true
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        demandHeaderDetailAdd: true
+      }))
+    }
+
+    if (e.target.name == "demandStatus") {
+      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus != "Approved" && e.target.value == "Approved")) {
+        $("#btnSave").attr('disabled', false);
+      }
+
+      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus == "Approved" && e.target.value != "Approved")) {
+        $("#btnSave").attr('disabled', false);
+      }
+
+      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus === "Approved" && e.target.value === "Approved")) {
+        $("#btnSave").attr('disabled', true);
+        dispatch(formChangedAction(undefined));
+      }
     }
   }, [dispatch, demandHeaderDetails]);
 
@@ -341,6 +388,9 @@ const AddDemand = () => {
                   min={today}
                   value={demandHeaderDetails.deliveryDate} onChange={handleFieldChange}
                 />
+                {/* {demandHeaderErr.deliveryDateErr && Object.keys(demandHeaderErr.deliveryDateErr).map((key) => (
+                  <span key={key} className="error-message">{demandHeaderErr.deliveryDateErr[key]}</span>
+                ))} */}
               </Col>
             </Form.Group>
 
@@ -359,6 +409,9 @@ const AddDemand = () => {
                   placeholder="Advanced Amount"
                   value={demandHeaderDetails.advancedAmount} onChange={handleFieldChange}
                 />
+                {demandHeaderErr.advancedAmountErr && Object.keys(demandHeaderErr.advancedAmountErr).map((key) => (
+                  <span key={key} className="error-message">{demandHeaderErr.advancedAmountErr[key]}</span>
+                ))}
               </Col>
             </Form.Group>
           </Col>

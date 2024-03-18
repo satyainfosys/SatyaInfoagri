@@ -6,6 +6,7 @@ import { Spinner, Modal, Button } from 'react-bootstrap';
 import $ from 'jquery';
 import { tabInfoAction, distributionCentreListAction, formChangedAction, demandHeaderAction, demandProductDetailsAction, demandHeaderDetailsErrAction, productCatalogueDetailsAction } from 'actions';
 import { toast } from 'react-toastify';
+import Moment from "moment";
 
 const tabArray = ['Demand List', 'Add Demand'];
 
@@ -32,6 +33,11 @@ const Demand = () => {
 
   useEffect(() => {
     $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', true);
+    localStorage.removeItem("EncryptedDemandNo");
+        // localStorage.removeItem("EncryptedCompanyCode");
+        if (demandHeaderDetails.encryptedDemandNo && demandHeaderDetails.demandSStatus == "Approved") {
+            $("#btnSave").attr('disabled', true);
+        }
     getCompany();
   }, []);
 
@@ -173,7 +179,7 @@ const Demand = () => {
     .off('click')
     .on('click', function () {
       let isDiscard = $('#btnDiscard').attr('isDiscard');
-      if (isDiscard != 'true') {
+      if (isDiscard != 'true' && isFormChanged) {
         setModalShow(true);
         setTimeout(function () {
           $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
@@ -186,6 +192,7 @@ const Demand = () => {
         clearDemandReducers();
         dispatch(demandHeaderAction(undefined));
         dispatch(productCatalogueDetailsAction([]));
+        localStorage.removeItem("EncryptedDemandNo");
       }
     });
 
@@ -196,6 +203,11 @@ const Demand = () => {
       $('#btnNew').hide();
       $('#btnSave').show();
       $('#btnCancel').show();
+
+    if (demandProductDetails.length <= 0 &&
+      !(localStorage.getItem("DeleteDemandProductDetailIds"))) {
+      // getDemandProductDetailsList();
+      }
     });
 
   const newDetails = () => {
@@ -214,12 +226,15 @@ const Demand = () => {
 
   const cancelClick = () => {
     $('#btnExit').attr('isExit', 'false');
-    setModalShow(true);
-    $('#btnSave').hide();
-    $('#btnCancel').hide();
-    $('#btnNew').show();
-    $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', true);
-    $('[data-rr-ui-event-key*="Demand List"]').trigger('click');
+    if (isFormChanged) {
+      setModalShow(true);
+    } else {
+      $('[data-rr-ui-event-key*="Demand List"]').trigger('click');
+    }
+    // $('#btnSave').hide();
+    // $('#btnCancel').hide();
+    // $('#btnNew').show();
+    // $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', true);
   };
 
   const exitModule = () => {
@@ -231,6 +246,10 @@ const Demand = () => {
       clearDemandReducers();
       dispatchEvent(demandHeaderAction(undefined));
       dispatch(productCatalogueDetailsAction(undefined));
+      localStorage.removeItem("EncryptedDemandNo");
+      localStorage.removeItem("DeleteDemandProductDetailIds");
+      localStorage.removeItem("EncryptedCompanyCode");
+      localStorage.removeItem("CompanyName");
     }
   };
 
@@ -258,6 +277,7 @@ const clearDemandReducers = () => {
   dispatch(demandHeaderAction([]));
   dispatch(demandProductDetailsAction([]));
   dispatch(demandHeaderDetailsErrAction(undefined));
+  localStorage.removeItem("DeleteDemandProductDetailIds");
 }
 
 const demandValidation = () => {
@@ -267,6 +287,8 @@ const demandValidation = () => {
   const distributionCentreCodeErr = {};
   const collCenterCodeErr = {};
   const productDetailsErr = {};
+  const advancedAmountErr  = {};
+  const demandAmountErr = {};
 
   let isValid = true;
 
@@ -288,6 +310,17 @@ const demandValidation = () => {
       setFormError(true);
   }
 
+  if (demandHeaderDetails.advancedAmount  > demandHeaderDetails.demandAmount) {
+    advancedAmountErr.empty = "Advanced amount can not be greater than demand amount";
+      isValid = false;
+      setFormError(true);
+  }
+
+  // if (demandHeaderDetails.demandDate  > demandHeaderDetails.deliveryDate) {
+  //   deliveryDateErr.empty = "Delivery date can not be greater than demand date";
+  //     isValid = false;
+  //     setFormError(true);
+  // }
 
   if (demandProductDetails.length < 1) {
       productDetailsErr.productDetailEmpty = "At least one product detail required";
@@ -300,20 +333,43 @@ const demandValidation = () => {
   }
   else if (demandProductDetails && demandProductDetails.length > 0) {
     demandProductDetails.forEach((row, index) => {
-          if (!row.ProductCode || !row.ProductCategoryCode) {
-              productDetailsErr.invalidProductDetail = "Fill the required fields in product detail";
+          if (!row.productCode || !row.productCategoryCode) {
+              productDetailsErr.invalidProductDetail = "Fill the required fields in demand product detail";
               isValid = false;
               setFormError(true);
           }
       })
   }
 
+  const totalProductGrandAmount = demandProductDetails.length > 1
+  ? demandProductDetails.reduce((acc, obj) => {
+    const productGrandAmount = obj.productGrandAmt !== "" ? parseFloat(obj.productGrandAmt) : 0;
+    return acc + (isNaN(productGrandAmount) ? 0 : productGrandAmount);
+  }, 0)
+  : demandProductDetails.length === 1
+    ? parseFloat(demandProductDetails[0].productGrandAmt)
+    : 0;
+   
+if (demandHeaderDetails.demandAmount != totalProductGrandAmount) {
+  demandAmountErr.empty = "Demand amount should be equal to total grand product amount";
+  setTimeout(() => {
+    toast.error(demandAmountErr.empty, {
+      theme: 'colored'
+    });
+  }, 1000);
+  isValid = false;
+}
+
+
+
   if (!isValid) {
       var errorObject = {
         farmerErr,
         distributionCentreCodeErr,
         collCenterCodeErr,
-        productDetailsErr
+        productDetailsErr,
+        advancedAmountErr,
+        demandAmountErr
       }
 
       dispatch(demandHeaderDetailsErrAction(errorObject))
@@ -324,6 +380,67 @@ const demandValidation = () => {
 
 const addDemandDetails = () => {
   if(demandValidation()) {
+    const demandProductDetailsList = demandProductDetails .map(detail => {
+      return {
+        ...detail,
+        cgstPer: detail.cgstPer ? detail.cgstPer : 0,
+        cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
+        sgstPer: detail.sgstPer ? detail.sgstPer : 0,
+        sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
+        productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
+      };
+    });
+
+  const requestData = {
+      encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+      encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+      distributionCenterCode: demandHeaderDetails.distributionCentreCode ? demandHeaderDetails.distributionCentreCode : "",
+      collectionCentreCode: demandHeaderDetails.collCenterCode ? demandHeaderDetails.collCenterCode : "",
+      farmerCode : demandHeaderDetails.farmerCode,
+      farmerCollectionCentreCode : demandHeaderDetails.farmerCollCenterCode,
+      demandDate: Moment(demandHeaderDetails.demandDateDate).format("YYYY-MM-DD"),
+      deliveryDate: Moment(demandHeaderDetails.deliveryDate).format("YYYY-MM-DD"),
+      demandAmount: demandHeaderDetails.demandAmount ? parseFloat(demandHeaderDetails.demandAmount) : 0,
+      advancedAmount: demandHeaderDetails.advancedAmount ? parseFloat(demandHeaderDetails.demandAmount) : 0,
+      demandStatus: demandHeaderDetails.demandStatus ? demandHeaderDetails.demandStatus : "Draft",
+      addUser: localStorage.getItem("LoginUserName"),
+      demandProductDetails: demandProductDetails,
+  }
+  const keys = ['addUser']
+  for (const key of Object.keys(requestData).filter((key) => keys.includes(key))) {
+      requestData[key] = requestData[key] ? requestData[key].toUpperCase() : "";
+  }
+
+  console.log(requestData);
+  setIsLoading(true);
+  axios.post(process.env.REACT_APP_API_URL + '/add-demand-header-detail', requestData, {
+      headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+  })
+      .then(res => {
+          if (res.data.status == 200) {
+              setIsLoading(false)
+              setTimeout(function () {
+                  dispatch(demandHeaderAction({
+                      ...demandHeaderDetails,
+                      encryptedDemandNo: res.data.data.encryptedDemandNo,
+                      demandNo: res.data.data.demandNo
+                  }))
+              }, 50);
+              localStorage.setItem("EncryptedDemandNo", res.data.data.encryptedDemandNo);
+              localStorage.setItem("OldDemandStatus", requestData.demandStatus);
+              toast.success(res.data.message, {
+                  theme: 'colored',
+                  autoClose: 10000
+              })
+              // updatePurchaseOrderCallback(true);
+          } else {
+              setIsLoading(false)
+              toast.error(res.data.message, {
+                  theme: 'colored',
+                  autoClose: 10000
+              });
+          }
+      })
 
   }
 }
