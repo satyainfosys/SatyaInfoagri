@@ -394,7 +394,7 @@ const addDemandDetails = () => {
   const requestData = {
       encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
       encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
-      distributionCenterCode: demandHeaderDetails.distributionCentreCode ? demandHeaderDetails.distributionCentreCode : "",
+      distributionCentreCode: demandHeaderDetails.distributionCentreCode ? demandHeaderDetails.distributionCentreCode : "",
       collectionCentreCode: demandHeaderDetails.collCenterCode ? demandHeaderDetails.collCenterCode : "",
       farmerCode : demandHeaderDetails.farmerCode,
       farmerCollectionCentreCode : demandHeaderDetails.farmerCollCenterCode,
@@ -402,7 +402,7 @@ const addDemandDetails = () => {
       deliveryDate: Moment(demandHeaderDetails.deliveryDate).format("YYYY-MM-DD"),
       demandAmount: demandHeaderDetails.demandAmount ? parseFloat(demandHeaderDetails.demandAmount) : 0,
       advancedAmount: demandHeaderDetails.advancedAmount ? parseFloat(demandHeaderDetails.demandAmount) : 0,
-      demandStatus: demandHeaderDetails.demandStatus ? demandHeaderDetails.demandStatus : "Draft",
+      demandStatus: demandHeaderDetails.demandStatus ? demandHeaderDetails.demandStatus === "Draft" ? 'D' : demandHeaderDetails.demandStatus === "Approved" ? 'A' : demandHeaderDetails.demandStatus === "Cancelled" ? 'C' : "" : "D",
       addUser: localStorage.getItem("LoginUserName"),
       demandProductDetails: demandProductDetails,
   }

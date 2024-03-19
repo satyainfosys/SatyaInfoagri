@@ -470,7 +470,6 @@ const AddDemand = () => {
                 <Form.Select id="txtStatus" name="demandStatus" value={demandHeaderDetails.demandStatus} onChange={handleFieldChange}>
                   <option value="Draft">Draft</option>
                   <option value="Approved">Approved</option>
-                  <option value="Rejected">Rejected</option>
                   <option value="Cancelled">Cancelled</option>
                 </Form.Select>
               </Col>
