@@ -479,8 +479,7 @@ const Demand = () => {
           ? requestData[key].toUpperCase()
           : '';
       }
-
-      console.log(requestData);
+      
       setIsLoading(true);
       axios
         .post(
