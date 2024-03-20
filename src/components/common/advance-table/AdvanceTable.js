@@ -361,8 +361,9 @@ const AdvanceTable = ({
                         {...cell.getCellProps(cell.column.cellProps)}
                       >
                         {
-                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' &&
-                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' && cell.column.id !== 'receiveStatus' ?
+                          cell.column.id !== "status" && cell.column.id !== "approvalStatus" && cell.column.id !== 'poPrintStatus' && cell.column.id !== 'demandPrintStatus' &&
+                            cell.column.id !== 'printStatus' && cell.column.id !== 'materialStatus' && cell.column.id !== 'poStatus' && cell.column.id !== 'invoiceStatus' && cell.column.id !== 'vendorInvoicePrintStatus' && cell.column.id !== 'receiveStatus'
+                            && cell.column.id !== 'demandStatus' ?
                             cell.render('Cell') :
                             cell.column.id == "status" && cell.row.values.status == "Active" ?
                               <Badge
@@ -531,6 +532,17 @@ const AdvanceTable = ({
                                                                       Print
                                                                     </IconButton>
                                                                     :
+                                                                    cell.column.id == "demandPrintStatus" && cell.row.values.demandStatus == "Approved" ?
+                                                                    <IconButton
+                                                                      variant="falcon-default"
+                                                                      size="sm"
+                                                                      icon="print"
+                                                                      iconClassName="me-1"
+                                                                      className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                                    >
+                                                                      Print
+                                                                    </IconButton>
+                                                                    :
                                                                     cell.column.id == "vendorInvoicePrintStatus" && cell.row.values.vendorInvoicePrintStatus == "Approved" ?
                                                                       <IconButton
                                                                         variant="falcon-default"
@@ -582,7 +594,32 @@ const AdvanceTable = ({
                                                                                 >
                                                                                   {cell.render('Cell')}
                                                                                 </Badge>
+                                                                                : 
+                                                                                cell.column.id == "demandStatus" && cell.row.values.demandStatus == "Draft" ?
+                                                                                <Badge
+                                                                                  pill
+                                                                                  bg="info"
+                                                                                >
+                                                                                  {cell.render('Cell')}
+                                                                                </Badge>
+                                                                                : 
+                                                                                cell.column.id == "demandStatus" && cell.row.values.demandStatus == "Cancelled" ?
+                                                                                <Badge
+                                                                                  pill
+                                                                                  bg="danger"
+                                                                                >
+                                                                                  {cell.render('Cell')}
+                                                                                </Badge>
+                                                                                : 
+                                                                                cell.column.id == "demandStatus" && cell.row.values.demandStatus == "Approved" ?
+                                                                                <Badge
+                                                                                  pill
+                                                                                  bg="success"
+                                                                                >
+                                                                                  {cell.render('Cell')}
+                                                                                </Badge>
                                                                                 : ''
+
                         }
                       </td>
                     </>
