@@ -22,13 +22,13 @@ const AdvanceTableComponent = ({
 }) => {
 
   return (
-    <AdvanceTableWrapper
-      columns={columns}
-      data={data}
-      sortable
-      pagination
-      perPage={10}
-    >
+      <AdvanceTableWrapper
+        columns={columns}
+        data={data.length > 0 ? data : []}
+        sortable
+        pagination
+        perPage={10}
+      >
 
       <FalconComponentCard id='TableSearchPanelCard' className="no-pad mb-1">
         <FalconComponentCard.Body>
