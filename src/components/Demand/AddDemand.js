@@ -45,6 +45,9 @@ const AddDemand = () => {
     if (demandHeaderDetails.encryptedDemandNo && demandHeaderDetails.demandStatus == "Approved") {
       $("#btnSave").attr('disabled', true);
     }
+    if(demandHeaderDetails.distributionCentreCode){
+      getCollectionCentre(demandHeaderDetails.distributionCentreCode)
+    }
   }, [])
 
   if (!demandHeaderDetails ||

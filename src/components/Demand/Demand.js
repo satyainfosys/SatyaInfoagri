@@ -243,7 +243,7 @@ const Demand = () => {
         demandProductDetails.length <= 0 &&
         !localStorage.getItem('DeleteDemandProductDetailIds')
       ) {
-        // getDemandProductDetailsList();
+        getDemandProductDetailsList();
       }
     });
 
@@ -322,6 +322,22 @@ const Demand = () => {
     localStorage.removeItem('DeleteDemandProductDetailIds');
   };
 
+  
+  const getDemandProductDetailsList = async () => {
+    const request = {
+      EncryptedDemandNo: localStorage.getItem("EncryptedDemandNo")
+    }
+
+    let response = await axios.post(process.env.REACT_APP_API_URL + '/get-demand-product-detail-list', request, {
+        headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+    })
+
+    if (response.data.status == 200) {
+        if (response.data.data && response.data.data.length > 0) {
+            dispatch(demandProductDetailsAction(response.data.data));
+        }
+    }
+}
   const demandValidation = () => {
     setModalShow(false);
 
@@ -432,7 +448,8 @@ const Demand = () => {
           cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
           sgstPer: detail.sgstPer ? detail.sgstPer : 0,
           sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
-          productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0
+          productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
+          deliveredQty : detail.quantity ? detail.quantity : 0
         };
       });
 
@@ -469,7 +486,7 @@ const Demand = () => {
             : ''
           : 'D',
         addUser: localStorage.getItem('LoginUserName'),
-        demandProductDetails: demandProductDetails
+        demandProductDetails: demandProductDetailsList
       };
       const keys = ['addUser'];
       for (const key of Object.keys(requestData).filter(key =>
