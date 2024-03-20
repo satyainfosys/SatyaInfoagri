@@ -3,7 +3,7 @@ import { Badge, Table } from 'react-bootstrap';
 import axios from 'axios';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction, vendorInvoiceEntryHeaderDetailsAction } from '../../../actions/index';
+import { companyDetailsAction, userDetailsAction, productDetailsAction, clientContactListAction, commonContactDetailsAction, distributionCentreDetailsAction, tabInfoAction, collectionCentreDetailsAction, productLineDetailsAction, productMasterDetailsAction, oemMasterDetailsAction, vendorMasterDetailsAction, purchaseOrderDetailsAction, materialReceiptHeaderDetailsAction, vendorInvoiceEntryHeaderDetailsAction, demandHeaderAction } from '../../../actions/index';
 import { transactionDetailsAction } from '../../../actions/index';
 import { clientDetailsAction } from '../../../actions/index';
 import { farmerDetailsAction } from '../../../actions/index';
@@ -52,6 +52,13 @@ const AdvanceTable = ({
       dispatch(vendorInvoiceEntryHeaderDetailsAction(rowData));
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').attr('disabled', false);
       $('[data-rr-ui-event-key*="Add Vendor Invoice Entry"]').trigger('click');
+      $('#btnSave').attr('disabled', true);
+    }
+    else if(rowData.hasOwnProperty('encryptedDemandNo')){
+      localStorage.setItem("EncryptedDemandNo",rowData.encryptedDemandNo)
+      dispatch(demandHeaderAction(rowData));
+      $('[data-rr-ui-event-key*="Add Demand"]').attr('disabled', false);
+      $('[data-rr-ui-event-key*="Add Demand"]').trigger('click');
       $('#btnSave').attr('disabled', true);
     }
     else if (rowData.hasOwnProperty('encryptedCompanyCode')) {
