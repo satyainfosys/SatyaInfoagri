@@ -32,7 +32,7 @@ const AddDemandDetail = () => {
   const [productMasterList, setProductMasterList] = useState([]);
   const [product, setProduct] = useState();
   const [rowData, setRowData] = useState([]);
-
+  
   const columnsArray = [
     'S.No',
     'Product Category',
@@ -108,7 +108,7 @@ const AddDemandDetail = () => {
   var formChangedData = formChangedReducer.formChanged;
 
   useEffect(() => {
-    if (demandProductDetailsReducer.demandProductDetails.length > 0) {
+        if (demandProductDetailsReducer.demandProductDetails.length > 0) {
       setRowData(demandProductDetails);
       setSelectedRows([]);
       if (quantityUnitList.length <= 0) {
@@ -1220,13 +1220,22 @@ const AddDemandDetail = () => {
                           required
                         >
                           <option value="">Select </option>
-                          {demandHeaderDetails?.khasraNo?.map(
+                          {demandHeaderDetails?.khasraNo ?
+                          demandHeaderDetails?.khasraNo?.map(
                             (option, index) => (
                               <option key={index} value={option}>
                                 {option}
                               </option>
                             )
-                          )}
+                          ) :
+                          productDetail?.khasraNos?.map(
+                            (option, index) => (
+                              <option key={index} value={option}>
+                                {option}
+                              </option>
+                            )
+                          )
+                          }                         
                         </Form.Select>
                       </td>
                       <td>
@@ -1235,34 +1244,15 @@ const AddDemandDetail = () => {
                           id="sowingMonth"
                           placeholder="Sowing Month"
                           name="sowingMonth"
-                          value={demandHeaderDetails.sowingMonth}
+                          value={productDetail.sowingMonth}
                           onChange={e => handleFieldChange(e, index)}
                         >
                           <option value="">Select </option>
-                          {/* {months.map((month, index) => (
+                          {months.map((month, index) => (
                             <option key={index} value={month.value}>
                               {month.name}
                             </option>
-                          ))} */}
-                          <option value="01">January</option>
-                          <option value="02">February</option>
-                          <option value="03">March</option>
-                          <option value="04">April</option>
-                          <option value="05">May</option>
-                          <option value="06">June</option>
-                          <option value="07">July</option>
-                          <option value="08">August</option>
-                          <option value="09">September</option>
-                          <option value="10">October</option>
-                          <option value="11">November</option>
-                          <option value="12">December</option>
-                          {/* <option value="OFX">Office Ext No</option>
-                          <option value="OFF">Office Fax No</option>
-                          <option value="PPP">PP No</option>
-                          <option value="PMN">Personal Mobile No</option>
-                          <option value="PRL">Personal Land Line No</option>
-                          <option value="PRS">Spouse Mob No</option>
-                          <option value="PRE">Personal Mail</option> */}
+                          ))}
                         </Form.Select>
                       </td>
                       <td>
@@ -1270,7 +1260,7 @@ const AddDemandDetail = () => {
                           className="form-control select"
                           name="sowingYear"
                           placeholder="Select Sowing Year"
-                          value={demandHeaderDetails.sowingYear}
+                          value={productDetail.sowingYear}
                           onChange={e => handleFieldChange(e, index)}
                         >
                           <option value="">Select</option>
@@ -1286,7 +1276,7 @@ const AddDemandDetail = () => {
                           id="harvestingMonth"
                           className="form-control select"
                           name="harvestingMonth"
-                          value={demandHeaderDetails.harvestingMonth}
+                          value={productDetail.harvestingMonth}
                           onChange={e => handleFieldChange(e, index)}
                         >
                           <option value="">Select </option>
@@ -1302,7 +1292,7 @@ const AddDemandDetail = () => {
                           className="form-control select"
                           name="harvestingYear"
                           placeholder="Select Harvesting Year"
-                          value={demandHeaderDetails.harvestingYear}
+                          value={productDetail.harvestingYear}
                           onChange={e => handleFieldChange(e, index)}
                         >
                           <option value="">Select</option>
