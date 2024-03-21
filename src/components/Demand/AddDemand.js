@@ -124,7 +124,6 @@ const AddDemand = () => {
   }, [getFarmerDetailsList]);
 
   const handleFieldChange = useCallback((e) => {
-    let oldPoStatus = localStorage.getItem("OldDemandStatus");
     const { name, value } = e.target;
     if (name === 'distributionCentreCode') {
       dispatch(
@@ -174,15 +173,15 @@ const AddDemand = () => {
     }
 
     if (e.target.name == "demandStatus") {
-      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus != "Approved" && e.target.value == "Approved")) {
+      if (demandHeaderDetails.encryptedDemandNo && e.target.value == "Approved") {
         $("#btnSave").attr('disabled', false);
       }
 
-      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus == "Approved" && e.target.value != "Approved")) {
+      if (demandHeaderDetails.encryptedDemandNo && e.target.value != "Approved") {
         $("#btnSave").attr('disabled', false);
       }
 
-      if (demandHeaderDetails.encryptedDemandNo && (oldDemandStatus === "Approved" && e.target.value === "Approved")) {
+      if (demandHeaderDetails.encryptedDemandNo && e.target.value === "Approved") {
         $("#btnSave").attr('disabled', true);
         dispatch(formChangedAction(undefined));
       }

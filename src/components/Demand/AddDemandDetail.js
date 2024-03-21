@@ -333,7 +333,8 @@ const AddDemandDetail = () => {
         cgstAmt: 0,
         sgstPer: 0,
         sgstAmt: 0,
-        deliveredQty: item.quantity
+        deliveredQty: item.quantity,
+        vendorProductCatalogueCode : item.vendorProductCatalogueCode
       }));
 
       dispatch(demandProductDetailsAction(updatedData));
@@ -357,7 +358,9 @@ const AddDemandDetail = () => {
         cgstPer: 0,
         cgstAmt: 0,
         sgstPer: 0,
-        sgstAmt: 0
+        sgstAmt: 0,
+        deliveredQty: item.quantity,
+        vendorProductCatalogueCode : item.vendorProductCatalogueCode
       }));
 
       const updatedData = [...rowData, ...updatedRows];

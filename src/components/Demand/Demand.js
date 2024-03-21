@@ -439,6 +439,93 @@ const Demand = () => {
     return isValid;
   };
 
+  const updatePurchaseOrderCallback = (isAddDemandDetail = false) => {
+    setModalShow(false);
+
+    if (!isAddDemandDetail) {
+        toast.success("Demand details updated successfully", {
+            time: 'colored'
+        })
+    }
+
+    $('#btnSave').attr('disabled', true)
+
+    fetchDemandHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
+
+    $('[data-rr-ui-event-key*="' + activeTabName + '"]').trigger('click');
+}
+
+  const updateDemandDetails = async () => {
+    if (demandValidation()) {
+      if (!formChangedData.demandHeaderDetailUpdate ) {
+        return;
+      }
+      
+      const updateRequestData = {
+        encryptedDemandNo: localStorage.getItem('EncryptedDemandNo'),
+        distributionCentreCode: demandHeaderDetails.distributionCentreCode
+          ? demandHeaderDetails.distributionCentreCode
+          : '',
+        collectionCentreCode: demandHeaderDetails.collCenterCode
+          ? demandHeaderDetails.collCenterCode
+          : '',
+        farmerCode: demandHeaderDetails.farmerCode,
+        farmerCollectionCentreCode: demandHeaderDetails.farmerCollCenterCode,
+        demandDate: Moment(demandHeaderDetails.demandDateDate).format(
+          'YYYY-MM-DD'
+        ),
+        deliveryDate: Moment(demandHeaderDetails.deliveryDate).format(
+          'YYYY-MM-DD'
+        ),
+        demandAmount: demandHeaderDetails.demandAmount
+          ? parseFloat(demandHeaderDetails.demandAmount)
+          : 0,
+        advancedAmount: demandHeaderDetails.advancedAmount
+          ? parseFloat(demandHeaderDetails.demandAmount)
+          : 0,
+        demandStatus: demandHeaderDetails.demandStatus
+          ? demandHeaderDetails.demandStatus === 'Draft'
+            ? 'D'
+            : demandHeaderDetails.demandStatus === 'Approved'
+            ? 'A'
+            : demandHeaderDetails.demandStatus === 'Cancelled'
+            ? 'C'
+            : ''
+          : 'D',
+        modifyUser: localStorage.getItem('LoginUserName')
+      };
+
+      const keys = ['modifyUser']
+      for (const key of Object.keys(updateRequestData).filter((key) => keys.includes(key))) {
+          updateRequestData[key] = updateRequestData[key] ? updateRequestData[key].toUpperCase() : "";
+      }
+
+      var hasError = false;
+      if (formChangedData.demandHeaderDetailUpdate) {
+        setIsLoading(true);
+        await axios.post(process.env.REACT_APP_API_URL + '/update-demand-header-detail', updateRequestData, {
+            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+        })
+            .then(res => {
+                setIsLoading(false);
+                if (res.data.status !== 200) {
+                    toast.error(res.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                    hasError = true;
+                }else{
+                    localStorage.setItem("OldDemandStatus", updateRequestData.demandStatus)
+                }
+            })
+    }
+    if (!hasError) {
+      clearDemandReducers();
+      updatePurchaseOrderCallback();
+  }
+    }
+  };
+
   const addDemandDetails = () => {
     if (demandValidation()) {
       const demandProductDetailsList = demandProductDetails.map(detail => {
@@ -464,12 +551,12 @@ const Demand = () => {
           : '',
         farmerCode: demandHeaderDetails.farmerCode,
         farmerCollectionCentreCode: demandHeaderDetails.farmerCollCenterCode,
-        demandDate: Moment(demandHeaderDetails.demandDateDate).format(
+        demandDate: demandHeaderDetails.demandDateDate ? Moment(demandHeaderDetails.demandDateDate).format(
+          'YYYY-MM-DD' 
+        ): null,
+        deliveryDate:demandHeaderDetails.deliveryDate ? Moment(demandHeaderDetails.deliveryDate).format(
           'YYYY-MM-DD'
-        ),
-        deliveryDate: Moment(demandHeaderDetails.deliveryDate).format(
-          'YYYY-MM-DD'
-        ),
+        ) : null,
         demandAmount: demandHeaderDetails.demandAmount
           ? parseFloat(demandHeaderDetails.demandAmount)
           : 0,
@@ -583,7 +670,7 @@ const Demand = () => {
         listColumnArray={listColumnArray}
         tabArray={tabArray}
         module="DemandCollection"
-        saveDetails={addDemandDetails}
+        saveDetails={demandHeaderDetails.encryptedDemandNo ? updateDemandDetails : addDemandDetails}
         newDetails={newDetails}
         cancelClick={cancelClick}
         exitModule={exitModule}
