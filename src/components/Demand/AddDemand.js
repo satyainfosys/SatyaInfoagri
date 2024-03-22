@@ -3,7 +3,7 @@ import { Col, Form, Row, Card } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { demandHeaderAction, demandHeaderDetailsErrAction, formChangedAction } from 'actions';
+import { demandHeaderAction, demandProductDetailsAction, demandHeaderDetailsErrAction, formChangedAction } from 'actions';
 import { handleNumericInputKeyPress } from './../../helpers/utils.js';
 
 const AddDemand = () => {
@@ -35,6 +35,8 @@ const AddDemand = () => {
 
   const demandHeaderDetails = useSelector((state) => state.rootReducer.demandHeaderReducer.demandHeaderDetail);
 
+  const demandProductDetails = useSelector((state) => state.rootReducer.demandProductDetailsReducer.demandProductDetails);
+
   const formChangedData = useSelector((state) => state.rootReducer.formChangedReducer.formChanged);
 
   const demandHeaderErr = useSelector((state) => state.rootReducer.demandHeaderDetailsErrorReducer.demandHeaderDetailsError);
@@ -48,7 +50,7 @@ const AddDemand = () => {
     if(demandHeaderDetails.distributionCentreCode){
       getCollectionCentre(demandHeaderDetails.distributionCentreCode)
     }
-  }, [])
+  }, [demandHeaderDetails])
 
   if (!demandHeaderDetails ||
     Object.keys(demandHeaderDetails).length <= 0) {
@@ -64,6 +66,7 @@ const AddDemand = () => {
   const resetFarmerDetail = useCallback(() => {
     dispatch(
       demandHeaderAction({
+        ...demandHeaderDetails,
         farmerCode: '',
         encryptedFarmerCode: '',
         farmerName: '',
@@ -74,7 +77,7 @@ const AddDemand = () => {
         khasraNo : null
       })
     );
-  }, [dispatch]);
+  }, [dispatch, demandHeaderDetails]);
 
   const getFarmerDetailsList = useCallback(async (searchText) => {
     const requestData = {
@@ -227,6 +230,27 @@ const AddDemand = () => {
 
     // Hide the farmer dropdown after selection
     setShowFarmerDropdown(false);
+
+    const updatedDemandProducts = demandProductDetails.map(product => ({
+      ...product,
+      khasra: "" 
+    }));
+
+    dispatch(demandProductDetailsAction(updatedDemandProducts));
+
+    if (demandHeaderDetails.encryptedDemandNo) {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        demandHeaderDetailUpdate: true,
+        demandProductDetailsUpdate: true,
+      }))
+    } else {
+      dispatch(formChangedAction({
+        ...formChangedData,
+        demandHeaderDetailAdd: true
+      }))
+    }
+
   }, [dispatch, demandHeaderDetails, farmerDetailsList]);
 
   return (

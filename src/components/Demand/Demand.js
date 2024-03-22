@@ -439,7 +439,7 @@ const Demand = () => {
     return isValid;
   };
 
-  const updatePurchaseOrderCallback = (isAddDemandDetail = false) => {
+  const updateDemandOrderCallback = (isAddDemandDetail = false) => {
     setModalShow(false);
 
     if (!isAddDemandDetail) {
@@ -457,10 +457,13 @@ const Demand = () => {
 
   const updateDemandDetails = async () => {
     if (demandValidation()) {
-      if (!formChangedData.demandHeaderDetailUpdate ) {
+      if (!formChangedData.demandHeaderDetailUpdate && 
+        !(formChangedData.demandProductDetailsUpdate || formChangedData.demandProductDetailsAdd || formChangedData.demandProductDetailsDelete)) {
         return;
       }
       
+      var deleteDemandProductDetailIds = localStorage.getItem("DeleteDemandProductDetailIds");
+
       const updateRequestData = {
         encryptedDemandNo: localStorage.getItem('EncryptedDemandNo'),
         distributionCentreCode: demandHeaderDetails.distributionCentreCode
@@ -471,12 +474,12 @@ const Demand = () => {
           : '',
         farmerCode: demandHeaderDetails.farmerCode,
         farmerCollectionCentreCode: demandHeaderDetails.farmerCollCenterCode,
-        demandDate: Moment(demandHeaderDetails.demandDateDate).format(
+        demandDate: demandHeaderDetails.demandDate ?  Moment(demandHeaderDetails.demandDate).format(
           'YYYY-MM-DD'
-        ),
-        deliveryDate: Moment(demandHeaderDetails.deliveryDate).format(
+        ) : null,
+        deliveryDate: demandHeaderDetails.deliveryDate ? Moment(demandHeaderDetails.deliveryDate).format(
           'YYYY-MM-DD'
-        ),
+        ) : null,
         demandAmount: demandHeaderDetails.demandAmount
           ? parseFloat(demandHeaderDetails.demandAmount)
           : 0,
@@ -503,26 +506,165 @@ const Demand = () => {
       var hasError = false;
       if (formChangedData.demandHeaderDetailUpdate) {
         setIsLoading(true);
-        await axios.post(process.env.REACT_APP_API_URL + '/update-demand-header-detail', updateRequestData, {
-            headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
-        })
-            .then(res => {
+        await axios
+          .post(
+            process.env.REACT_APP_API_URL + '/update-demand-header-detail',
+            updateRequestData,
+            {
+              headers: {
+                Authorization: `Bearer ${
+                  JSON.parse(localStorage.getItem('Token')).value
+                }`
+              }
+            }
+          )
+          .then(res => {
+            setIsLoading(false);
+            if (res.data.status !== 200) {
+              toast.error(res.data.message, {
+                theme: 'colored',
+                autoClose: 10000
+              });
+              hasError = true;
+            } else {
+              localStorage.setItem(
+                'OldDemandStatus',
+                updateRequestData.demandStatus
+              );
+            }
+          });
+      }
+
+      var demandProductDetailIndex = 1;
+
+      if (!hasError && (formChangedData.demandProductDetailsAdd || formChangedData.demandProductDetailsUpdate || formChangedData.demandProductDetailsDelete)) {
+        if (!hasError && formChangedData.demandProductDetailsDelete) {
+            var deleteDemandProductDetailList = deleteDemandProductDetailIds ? deleteDemandProductDetailIds.split(',') : null;
+            if (deleteDemandProductDetailList) {
+                var deleteDemandProductDetailIndex = 1;
+
+                for (let i = 0; i < deleteDemandProductDetailList.length; i++) {
+                    const deleteId = deleteDemandProductDetailList[i];
+                    const data = { encryptedDemandDetailId: deleteId }
+                    const headers = { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+
+                    const deleteResponse = await axios.delete(process.env.REACT_APP_API_URL + '/delete-demand-detail', { headers, data });
+                    if (deleteResponse.data.status != 200) {
+                        toast.error(deleteResponse.data.message, {
+                            theme: 'colored',
+                            autoClose: 10000
+                        });
+                        hasError = true;
+                        break;
+                    }
+                    deleteDemandProductDetailIndex++
+                }
+            }
+        }
+
+        for (let i = 0; i < demandProductDetails.length; i++) {
+            const demandProductDetail = demandProductDetails[i];
+
+            const keys = ["modifyUser"];
+            for (const key of Object.keys(demandProductDetail).filter((key) => keys.includes(key))) {
+              demandProductDetail[key] = demandProductDetail[key] ? demandProductDetail[key].toUpperCase() : "";
+            }
+
+            if (!hasError && formChangedData.demandProductDetailsUpdate && demandProductDetail.encryptedDemandDetailId) {
+                const requestData = {
+                    encryptedDemandDetailId: demandProductDetail.encryptedDemandDetailId,
+                    encryptedDemandNo: localStorage.getItem("EncryptedDemandNo"),
+                    vendorProductCatalogueCode: demandProductDetail.vendorProductCatalogueCode,
+                    vendorCode : demandProductDetail.vendorCode,
+                    productCategoryCode: demandProductDetail.productCategoryCode,
+                    productCode: demandProductDetail.productCode,
+                    deliveredQty: demandProductDetail.deliveredQty ? parseFloat(demandProductDetail.deliveredQty) : 0,
+                    demandQty: demandProductDetail.demandQty ? parseFloat(demandProductDetail.demandQty) : 0,
+                    unitCode: demandProductDetail.unitCode ?  parseInt(demandProductDetail.unitCode) : null,
+                    demandRate: demandProductDetail.demandRate ? parseFloat(demandProductDetail.demandRate) : 0,
+                    demandAmount: demandProductDetail.demandAmount ? parseFloat(demandProductDetail.demandAmount) : 0,
+                    cgstPer: demandProductDetail.cgstPer ? demandProductDetail.cgstPer : 0,
+                    cgstAmt: demandProductDetail.cgstAmt ? demandProductDetail.cgstAmt : 0,
+                    sgstPer: demandProductDetail.sgstPer ? demandProductDetail.sgstPer : 0,
+                    sgstAmt: demandProductDetail.sgstAmt ? demandProductDetail.sgstAmt : 0,
+                    khasra : demandProductDetail.khasra ? demandProductDetail.khasra : null,
+                    productGrandAmt: demandProductDetail.productGrandAmt ? demandProductDetail.productGrandAmt : 0,
+                    harvestingMonth : demandProductDetail.harvestingMonth ? demandProductDetail.harvestingMonth : null,
+                    harvestingYear : demandProductDetail.harvestingYear ? demandProductDetail.harvestingYear : null,
+                    sowingMonth : demandProductDetail.sowingMonth ? demandProductDetail.sowingMonth : null,
+                    sowingYear : demandHeaderDetails.SowingYear ? demandHeaderDetails.SowingYear : null,
+                    modifyUser: localStorage.getItem("LoginUserName")
+                }
+                setIsLoading(true);
+                const updateResponse = await axios.post(process.env.REACT_APP_API_URL + '/update-demand-detail', requestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                });
                 setIsLoading(false);
-                if (res.data.status !== 200) {
-                    toast.error(res.data.message, {
+                if (updateResponse.data.status != 200) {
+                    toast.error(updateResponse.data.message, {
                         theme: 'colored',
                         autoClose: 10000
                     });
                     hasError = true;
-                }else{
-                    localStorage.setItem("OldDemandStatus", updateRequestData.demandStatus)
+                    break;
                 }
-            })
+            }
+            else if (!hasError && formChangedData.demandProductDetailsAdd && !demandProductDetail.encryptedDemandDetailId) {
+                const requestData = {
+                  encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
+                  encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
+                  encryptedDemandNo: localStorage.getItem("EncryptedDemandNo"),
+                  vendorProductCatalogueCode: demandProductDetail.vendorProductCatalogueCode,
+                  vendorCode : demandProductDetail.vendorCode,
+                  productCategoryCode: demandProductDetail.productCategoryCode,
+                  productCode: demandProductDetail.productCode,
+                  deliveredQty: demandProductDetail.deliveredQty ? parseFloat(demandProductDetail.deliveredQty) : '',
+                  demandQty: demandProductDetail.demandQty ? parseFloat(demandProductDetail.demandQty) : '',
+                  unitCode: demandProductDetail.unitCode ? demandProductDetail.unitCode : null,
+                  demandRate: demandProductDetail.demandRate ? parseFloat(demandProductDetail.demandRate) : '',
+                  demandAmount: demandProductDetail.demandAmount ? parseFloat(demandProductDetail.demandAmount) : '',
+                  cgstPer: demandProductDetail.cgstPer ? demandProductDetail.cgstPer : 0,
+                  cgstAmt: demandProductDetail.cgstAmt ? demandProductDetail.cgstAmt : 0,
+                  sgstPer: demandProductDetail.sgstPer ? demandProductDetail.sgstPer : 0,
+                  sgstAmt: demandProductDetail.sgstAmt ? demandProductDetail.sgstAmt : 0,
+                  khasra : demandProductDetail.khasra ? demandProductDetail.khasra : null,
+                  productGrandAmt: demandProductDetail.productGrandAmt ? demandProductDetail.productGrandAmt : '',
+                  harvestingMonth : demandProductDetail.harvestingMonth ? demandProductDetail.harvestingMonth : null,
+                  harvestingYear : demandProductDetail.harvestingYear ? demandProductDetail.harvestingYear : null,
+                  sowingMonth : demandProductDetail.sowingMonth ? demandProductDetail.sowingMonth : null,
+                  sowingYear : demandHeaderDetails.SowingYear ? demandHeaderDetails.SowingYear : null,
+                  addUser: localStorage.getItem("LoginUserName")
+                }
+                setIsLoading(true);
+                const addResponse = await axios.post(process.env.REACT_APP_API_URL + '/add-demand-detail', requestData, {
+                    headers: { Authorization: `Bearer ${JSON.parse(localStorage.getItem('Token')).value}` }
+                });
+                setIsLoading(false);
+                if (addResponse.data.status != 200) {
+                    toast.error(addResponse.data.message, {
+                        theme: 'colored',
+                        autoClose: 10000
+                    });
+                    hasError = true;
+                    break;
+                }
+                else {
+                    const demandProductDetails = [...demandProductDetails]
+                    demandProductDetails[i] = {
+                        ...demandProductDetails[i],
+                        encryptedDemandDetailId: addResponse.data.data.encryptedDemandDetailId
+                    };
+
+                    dispatch(demandProductDetailsAction(demandProductDetails))
+                }
+            }
+            demandProductDetailIndex++
+        }
     }
-    if (!hasError) {
-      clearDemandReducers();
-      updatePurchaseOrderCallback();
-  }
+      if (!hasError) {
+        // clearDemandReducers();
+        updateDemandOrderCallback();
+      }
     }
   };
 
@@ -551,7 +693,7 @@ const Demand = () => {
           : '',
         farmerCode: demandHeaderDetails.farmerCode,
         farmerCollectionCentreCode: demandHeaderDetails.farmerCollCenterCode,
-        demandDate: demandHeaderDetails.demandDateDate ? Moment(demandHeaderDetails.demandDateDate).format(
+        demandDate: demandHeaderDetails.demandDate ? Moment(demandHeaderDetails.demandDate).format(
           'YYYY-MM-DD' 
         ): null,
         deliveryDate:demandHeaderDetails.deliveryDate ? Moment(demandHeaderDetails.deliveryDate).format(
@@ -618,7 +760,7 @@ const Demand = () => {
               theme: 'colored',
               autoClose: 10000
             });
-            // updatePurchaseOrderCallback(true);
+            updateDemandOrderCallback(true);
           } else {
             setIsLoading(false);
             toast.error(res.data.message, {
@@ -657,7 +799,7 @@ const Demand = () => {
             <h5>Do you want to save changes?</h5>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="success">Save</Button>
+            <Button variant="success" onClick={demandHeaderDetails.encryptedDemandNo ? updateDemandDetails : addDemandDetails}>Save</Button>
             <Button variant="danger" id="btnDiscard" onClick={discardChanges}>
               Discard
             </Button>

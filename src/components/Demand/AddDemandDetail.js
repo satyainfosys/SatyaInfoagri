@@ -363,7 +363,7 @@ const AddDemandDetail = () => {
         vendorProductCatalogueCode : item.vendorProductCatalogueCode
       }));
 
-      const updatedData = [...rowData, ...updatedRows];
+      const updatedData = [...updatedRows, ...demandProductDetails];
       dispatch(demandProductDetailsAction(updatedData));
     }
     dispatch(
@@ -713,7 +713,7 @@ const AddDemandDetail = () => {
     }
   };
 
-  const ModalPreview = encryptedDemandDetailId => {
+  const ModalPreview = (encryptedDemandDetailId) => {
     setModalShow(true);
     setParamsData({ encryptedDemandDetailId });
   };
@@ -733,7 +733,7 @@ const AddDemandDetail = () => {
 
     if (paramsData.encryptedDemandDetailId) {
       var deleteDemandProductDetail = deleteDemandProductDetailId
-        ? deletePoProductDetailId + ',' + paramsData.encryptedDemandDetailId
+        ? encryptedDemandDetailId + ',' + paramsData.encryptedDemandDetailId
         : paramsData.encryptedDemandDetailId;
       localStorage.setItem(
         'DeleteDemandProductDetailIds',
@@ -745,7 +745,7 @@ const AddDemandDetail = () => {
       theme: 'colored'
     });
 
-    dispatch(demandProductDetailsAction(objectIndex));
+    dispatch(demandProductDetailsAction(demandProductDetails));
 
     dispatch(
       formChangedAction({
@@ -1329,7 +1329,7 @@ const AddDemandDetail = () => {
                             className="fa-2x"
                             onClick={() => {
                               ModalPreview(
-                                productDetail.encryptedDemandDetailId
+                                productDetail.encryptedDemandProductDetailId
                               );
                             }}
                           />
