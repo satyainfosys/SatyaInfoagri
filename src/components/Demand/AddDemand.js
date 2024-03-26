@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect  } from 'react';
-import { Col, Form, Row, Card } from 'react-bootstrap';
+import { Col, Form, Row, Card, Table   } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
@@ -52,6 +52,16 @@ const AddDemand = () => {
     }
   }, [demandHeaderDetails])
 
+  useEffect(() => {
+    if(localStorage.getItem('CollectionCentreCode')) {
+      dispatch(
+        demandHeaderAction({
+          ...demandHeaderDetails,
+          collCenterCode: localStorage.getItem('CollectionCentreCode')
+        }))
+    }
+  }, [])
+
   if (!demandHeaderDetails ||
     Object.keys(demandHeaderDetails).length <= 0) {
     resetDemandHeaderDetails();
@@ -74,7 +84,10 @@ const AddDemand = () => {
         village: '',
         phoneNumber: '',
         farmerCollCenterCode: '',
-        khasraNo : null
+        farmerCollCenterName: '',
+        khasraNo : null,
+        distributionCentreCode : '',
+        collCenterCode: ''
       })
     );
   }, [dispatch, demandHeaderDetails]);
@@ -225,7 +238,10 @@ const AddDemand = () => {
       village: farmerDetail.village,
       phoneNumber: farmerDetail.farmerPhoneNumber,
       farmerCollCenterCode: farmerDetail.farmerCollCenterCode,
-      khasraNo : farmerDetail.khasraNos
+      khasraNo : farmerDetail.khasraNos,
+      distributionCentreCode : farmerDetail.distributionCentreCode,
+      collCenterCode: localStorage.getItem('CollectionCentreCode'),
+      farmerCollCenterName : farmerDetail.farmerCollCenterName
     }));
 
     // Hide the farmer dropdown after selection
@@ -263,44 +279,96 @@ const AddDemand = () => {
               className="mb-1"
               controlId="formPlaintextPassword"
             >
-              <Form.Label column sm="4">
-                Farmer Name
+              <Form.Label column sm="3">
+                Farmer Name <span className="text-danger">*</span>
               </Form.Label>
-              <Col sm="8">
+              <Col sm="9">
                 <Form.Control
                   id="txtSearchFarmer"
                   name="searchFarmer"
                   placeholder="Search Farmer"
                   maxLength={45}
-                  value={demandHeaderDetails.farmerName || showSearchFarmerValue}
+                  value={
+                    demandHeaderDetails.farmerName || showSearchFarmerValue
+                  }
                   onChange={handleFarmerOnChange}
                   onKeyDown={e => {
                     if (e.key === 'Enter') {
                       e.preventDefault();
                     }
                   }}
+                  autoComplete='off'
                 />
-                {demandHeaderErr.farmerErr && Object.keys(demandHeaderErr.farmerErr).map((key) => (
-                  <span key={key} className="error-message">{demandHeaderErr.farmerErr[key]}</span>
-                ))}
-                  {(showFarmerDropdown && farmerDetailsList.length > 0) && (
-                <Card className="mb-1 ">
-                    <Card.Body className="vebdor-card-item custom-card-scroll">
-                      {farmerDetailsList.map((farmer, index) => (
-                        <div className="flex-1" key={index}>
-                          <h6 className="mb-0">
-                            <Link to="" style={{ color: 'black' }}
-                              onClick={(e) => { e.preventDefault(); handleFarmerDetail(farmer.farmerCode, farmer.farmerName); }} 
-                              >
-                              {farmer.farmerName}
-                            </Link>
-                          </h6>
-                          <div className="border-dashed border-bottom my-1" />
-                        </div>
-                      ))}
+                {demandHeaderErr.farmerErr &&
+                  Object.keys(demandHeaderErr.farmerErr).map(key => (
+                    <span key={key} className="error-message">
+                      {demandHeaderErr.farmerErr[key]}
+                    </span>
+                  ))}
+                {showFarmerDropdown && farmerDetailsList.length > 0 && (
+                  // <Card className="mb-1 ">
+                  //     <Card.Body className="vebdor-card-item custom-card-scroll">
+                  //       {farmerDetailsList.map((farmer, index) => (
+                  //         <div className="flex-1" key={index}>
+                  //           <h6 className="mb-0">
+                  //             <Link to="" style={{ color: 'black' }}
+                  //               onClick={(e) => { e.preventDefault(); handleFarmerDetail(farmer.farmerCode, farmer.farmerName); }}
+                  //               >
+                  //               {farmer.farmerName}
+                  //             </Link>
+                  //           </h6>
+                  //           <div className="border-dashed border-bottom my-1" />
+                  //         </div>
+                  //       ))}
+                  //     </Card.Body>
+                  // </Card>
+
+                  <Card className="mb-1">
+                    <Card.Body className="farmer-card-item">
+                      <div className="table-responsive">
+                      <Table striped bordered responsive id="TableList" className="no-pb text-nowrap tab-page-table">
+                                            <thead className='custom-bg-200'>
+                          {/* <thead> */}
+                            <tr>
+                              <th>Farmer Name</th>
+                              <th>Father's Name</th>
+                              <th>District</th>
+                              <th>State</th>
+                              <th>Village</th>
+                              <th>Phone Number</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {farmerDetailsList.map((farmer, index) => (
+                              <tr key={index}>
+                                <td>
+                                  <Link
+                                    to=""
+                                    style={{ color: 'black' }}
+                                    onClick={e => {
+                                      e.preventDefault();
+                                      handleFarmerDetail(
+                                        farmer.farmerCode,
+                                        farmer.farmerName
+                                      );
+                                    }}
+                                  >
+                                    {farmer.farmerName}
+                                  </Link>
+                                </td>
+                                <td>{farmer.farmerFatherName}</td>
+                                <td>{farmer.districtName}</td>
+                                <td>{farmer.stateName}</td>
+                                <td>{farmer.village}</td>
+                                <td>{farmer.farmerPhoneNumber}</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </Table>
+                      </div>
                     </Card.Body>
-                </Card>
-                  )}
+                  </Card>
+                )}
               </Col>
             </Form.Group>
 
@@ -309,16 +377,17 @@ const AddDemand = () => {
               className="mb-1"
               controlId="formPlaintextPassword"
             >
-              <Form.Label column sm="4">
+              <Form.Label column sm="3">
                 Father Name
               </Form.Label>
-              <Col sm="8">
+              <Col sm="9">
                 <Form.Control
                   id="txtFatherName"
                   name="fatherName"
                   placeholder="FatherName"
                   value={demandHeaderDetails.fatherName}
                   disabled
+                  autoComplete="off"
                 />
               </Col>
             </Form.Group>
@@ -328,10 +397,10 @@ const AddDemand = () => {
               className="mb-1"
               controlId="formPlaintextPassword"
             >
-              <Form.Label column sm="4">
+              <Form.Label column sm="3">
                 Village
               </Form.Label>
-              <Col sm="8">
+              <Col sm="9">
                 <Form.Control
                   id="txtVillage"
                   name="poVillage"
@@ -347,10 +416,10 @@ const AddDemand = () => {
               className="mb-1"
               controlId="formPlaintextPassword"
             >
-              <Form.Label column sm="4">
+              <Form.Label column sm="3">
                 Phone Number
               </Form.Label>
-              <Col sm="8">
+              <Col sm="9">
                 <Form.Control
                   id="txtPhoneNumber"
                   name="phoneNumber"
@@ -376,8 +445,12 @@ const AddDemand = () => {
                   id="txtDemandAmount"
                   name="demandAmount"
                   placeholder="Demand Amount"
-                  onChange={(e) => handleFieldChange(e)}
-                  value={demandHeaderDetails.demandAmount ? demandHeaderDetails.demandAmount : ""}
+                  onChange={e => handleFieldChange(e)}
+                  value={
+                    demandHeaderDetails.demandAmount
+                      ? demandHeaderDetails.demandAmount
+                      : ''
+                  }
                   onKeyPress={handleNumericInputKeyPress}
                   maxLength={15}
                 />
@@ -393,8 +466,14 @@ const AddDemand = () => {
                 Date
               </Form.Label>
               <Col sm="8">
-              <Form.Control type='date' id="txtDemandDate" name="demandDate" max={today}
-                      value={demandHeaderDetails.demandDate} onChange={handleFieldChange} />
+                <Form.Control
+                  type="date"
+                  id="txtDemandDate"
+                  name="demandDate"
+                  max={today}
+                  value={demandHeaderDetails.demandDate}
+                  onChange={handleFieldChange}
+                />
               </Col>
             </Form.Group>
 
@@ -412,7 +491,8 @@ const AddDemand = () => {
                   id="txtDeliveryDate"
                   name="deliveryDate"
                   min={today}
-                  value={demandHeaderDetails.deliveryDate} onChange={handleFieldChange}
+                  value={demandHeaderDetails.deliveryDate}
+                  onChange={handleFieldChange}
                 />
                 {/* {demandHeaderErr.deliveryDateErr && Object.keys(demandHeaderErr.deliveryDateErr).map((key) => (
                   <span key={key} className="error-message">{demandHeaderErr.deliveryDateErr[key]}</span>
@@ -433,11 +513,15 @@ const AddDemand = () => {
                   id="txtAdvancedAmount"
                   name="advancedAmount"
                   placeholder="Advanced Amount"
-                  value={demandHeaderDetails.advancedAmount} onChange={handleFieldChange}
+                  value={demandHeaderDetails.advancedAmount}
+                  onChange={handleFieldChange}
                 />
-                {demandHeaderErr.advancedAmountErr && Object.keys(demandHeaderErr.advancedAmountErr).map((key) => (
-                  <span key={key} className="error-message">{demandHeaderErr.advancedAmountErr[key]}</span>
-                ))}
+                {demandHeaderErr.advancedAmountErr &&
+                  Object.keys(demandHeaderErr.advancedAmountErr).map(key => (
+                    <span key={key} className="error-message">
+                      {demandHeaderErr.advancedAmountErr[key]}
+                    </span>
+                  ))}
               </Col>
             </Form.Group>
           </Col>
@@ -449,39 +533,78 @@ const AddDemand = () => {
               controlId="formPlaintextPassword"
             >
               <Form.Label column sm="4">
-                DC Name
+                DC Name <span className="text-danger">*</span>
               </Form.Label>
               <Col sm="8">
-                  <Form.Select id="txtDistributionCentre" name="distributionCentreCode" onChange={handleFieldChange} value={demandHeaderDetails.distributionCentreCode} >
-                    <option value=''>Select Distribution</option>
-                    {distributionList &&
-                      distributionList.map((option, index) => (
-                        <option key={index} value={option.value}>{option.key}</option>
-                      ))
-                    }
-                  </Form.Select>
-                  {demandHeaderErr.distributionCentreCodeErr && Object.keys(demandHeaderErr.distributionCentreCodeErr).map((key) => (
-                  <span key={key} className="error-message">{demandHeaderErr.distributionCentreCodeErr[key]}</span>
-                ))}
-                </Col>
+                <Form.Select
+                  id="txtDistributionCentre"
+                  name="distributionCentreCode"
+                  onChange={handleFieldChange}
+                  value={demandHeaderDetails.distributionCentreCode}
+                  disabled
+                >
+                  <option value="">Select Distribution</option>
+                  {distributionList &&
+                    distributionList.map((option, index) => (
+                      <option key={index} value={option.value}>
+                        {option.key}
+                      </option>
+                    ))}
+                </Form.Select>
+                {demandHeaderErr.distributionCentreCodeErr &&
+                  Object.keys(demandHeaderErr.distributionCentreCodeErr).map(
+                    key => (
+                      <span key={key} className="error-message">
+                        {demandHeaderErr.distributionCentreCodeErr[key]}
+                      </span>
+                    )
+                  )}
+              </Col>
             </Form.Group>
             <Form.Group as={Row} className="mb-1">
               <Form.Label column sm={4}>
-                Collection Centre
+                Collection Centre <span className="text-danger">*</span>
               </Form.Label>
               <Col sm={8}>
-                  <Form.Select id="txtCollectionCentre" name="collCenterCode" onChange={handleFieldChange} value={demandHeaderDetails.collCenterCode}>
-                    <option value=''>Select Collection Centre</option>
-                    {collectionCentreList &&
-                      collectionCentreList.map((option, index) => (
-                        <option key={index} value={option.value}>{option.key}</option>
-                      ))
-                    }
-                  </Form.Select>
-                  {demandHeaderErr.collCenterCodeErr && Object.keys(demandHeaderErr.collCenterCodeErr).map((key) => (
-                  <span key={key} className="error-message">{demandHeaderErr.collCenterCodeErr[key]}</span>
-                ))}
-                </Col>
+                <Form.Select
+                  id="txtCollectionCentre"
+                  name="collCenterCode"
+                  onChange={handleFieldChange}
+                  value={demandHeaderDetails.collCenterCode}
+                  disabled
+                >
+                  <option value="">Select Collection Centre</option>
+                  {collectionCentreList &&
+                    collectionCentreList.map((option, index) => (
+                      <option key={index} value={option.value}>
+                        {option.key}
+                      </option>
+                    ))}
+                </Form.Select>
+                {demandHeaderErr.collCenterCodeErr &&
+                  Object.keys(demandHeaderErr.collCenterCodeErr).map(key => (
+                    <span key={key} className="error-message">
+                      {demandHeaderErr.collCenterCodeErr[key]}
+                    </span>
+                  ))}
+              </Col>
+            </Form.Group>
+
+            <Form.Group as={Row} className="mb-1">
+              <Form.Label column sm={4}>
+                Farmer Collection Centre <span className="text-danger">*</span>
+              </Form.Label>
+              <Col sm={8}>
+                <Form.Control
+                  id="txtCollectionCentre"
+                  name="farmerCollCenterName"
+                  onChange={handleFieldChange}
+                  placeholder='Farmer Collection Centre'
+                  value={demandHeaderDetails.farmerCollCenterName}
+                  disabled
+                >                  
+                </Form.Control>
+              </Col>
             </Form.Group>
 
             <Form.Group
@@ -493,7 +616,12 @@ const AddDemand = () => {
                 Status
               </Form.Label>
               <Col sm="8">
-                <Form.Select id="txtStatus" name="demandStatus" value={demandHeaderDetails.demandStatus} onChange={handleFieldChange}>
+                <Form.Select
+                  id="txtStatus"
+                  name="demandStatus"
+                  value={demandHeaderDetails.demandStatus}
+                  onChange={handleFieldChange}
+                >
                   <option value="Draft">Draft</option>
                   <option value="Approved">Approved</option>
                   <option value="Cancelled">Cancelled</option>

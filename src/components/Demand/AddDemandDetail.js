@@ -39,8 +39,13 @@ const AddDemandDetail = () => {
     'Product',
     'Variety',
     'Brand',
-    'Unit',
     'Delivered Quantity',
+    'Khasra',
+    'Sowing Month',
+    'Sowing Year',
+    'Harvesting Month',
+    'Harvesting Year',
+    'Unit',
     'Quantity',
     'Rate',
     'Amt',
@@ -48,11 +53,6 @@ const AddDemandDetail = () => {
     'CGST Amount',
     'SGST %',
     'SGST Amount',
-    'Khasra',
-    'Sowing Month',
-    'Sowing Year',
-    'Harvesting Month',
-    'Harvesting Year',
     'Product Grand Amount',
     'Delete'
   ];
@@ -695,11 +695,11 @@ const AddDemandDetail = () => {
       }
     }
 
-    if (demandProductDetails[index].encryptedDemandDetailId) {
+    if (demandProductDetails[index].encryptedDemandProductDetailId) {
       dispatch(
         formChangedAction({
           ...formChangedData,
-          demandHeaderProductDetailsUpdate: true,
+          demandProductDetailsUpdate: true,
           demandHeaderDetailUpdate: true
         })
       );
@@ -723,7 +723,7 @@ const AddDemandDetail = () => {
 
     var objectIndex =
       demandProductDetailsReducer.demandProductDetails.findIndex(
-        x => x.encryptedDemandDetailId == paramsData.encryptedDemandDetailId
+        x => x.encryptedDemandProductDetailId == paramsData.encryptedDemandDetailId
       );
     demandProductDetailsReducer.demandProductDetails.splice(objectIndex, 1);
 
@@ -733,7 +733,7 @@ const AddDemandDetail = () => {
 
     if (paramsData.encryptedDemandDetailId) {
       var deleteDemandProductDetail = deleteDemandProductDetailId
-        ? encryptedDemandDetailId + ',' + paramsData.encryptedDemandDetailId
+        ? deleteDemandProductDetailId + ',' + paramsData.encryptedDemandDetailId
         : paramsData.encryptedDemandDetailId;
       localStorage.setItem(
         'DeleteDemandProductDetailIds',
@@ -1074,23 +1074,6 @@ const AddDemandDetail = () => {
                         />
                       </td>
                       <td>
-                        <Form.Select
-                          type="text"
-                          name="unitCode"
-                          className="form-control select"
-                          onChange={e => handleFieldChange(e, index)}
-                          value={productDetail.unitCode}
-                          required
-                        >
-                          <option value="">Select </option>
-                          {quantityUnitList.map((option, index) => (
-                            <option key={index} value={option.value}>
-                              {option.key}
-                            </option>
-                          ))}
-                        </Form.Select>
-                      </td>
-                      <td>
                         <EnlargableTextbox
                           name="DeliveredQty"
                           placeholder="Delivered Quantity"
@@ -1102,104 +1085,6 @@ const AddDemandDetail = () => {
                             productDetail.quantity ? productDetail.quantity : ''
                           }
                           onKeyPress={handleNumericInputKeyPress}
-                        />
-                      </td>
-
-                      <td>
-                        <EnlargableTextbox
-                          name="demandQty"
-                          placeholder="Quantity"
-                          maxLength={5}
-                          required
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.demandQty
-                              ? productDetail.demandQty
-                              : ''
-                          }
-                          onKeyPress={handleNumericInputKeyPress}
-                        />
-                      </td>
-
-                      <td>
-                        <EnlargableTextbox
-                          name="demandRate"
-                          placeholder="Rate"
-                          maxLength={10}
-                          required
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.demandRate
-                              ? productDetail.demandRate
-                              : ''
-                          }
-                          onKeyPress={handleNumericInputKeyPress}
-                        />
-                      </td>
-
-                      <td>
-                        <EnlargableTextbox
-                          name="amount"
-                          placeholder="Amount"
-                          maxLength={13}
-                          required
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.demandAmount
-                              ? productDetail.demandAmount
-                              : ''
-                          }
-                          onKeyPress={handleNumericInputKeyPress}
-                        />
-                      </td>
-                      <td>
-                        <EnlargableTextbox
-                          name="cgstPer"
-                          placeholder="CGST %"
-                          maxLength={5}
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.cgstPer ? productDetail.cgstPer : ''
-                          }
-                          onKeyPress={handlePercentageKeyPress}
-                        />
-                      </td>
-                      <td>
-                        <EnlargableTextbox
-                          name="cgstAmt"
-                          placeholder="CGST Amount"
-                          maxLength={13}
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.cgstAmt ? productDetail.cgstAmt : ''
-                          }
-                          onKeyPress={handleNumericInputKeyPress}
-                          disabled
-                        />
-                      </td>
-                      <td>
-                        <EnlargableTextbox
-                          name="sgstPer"
-                          placeholder="SGST %"
-                          maxLength={5}
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.sgstPer ? productDetail.sgstPer : ''
-                          }
-                          onKeyPress={handlePercentageKeyPress}
-                        />
-                      </td>
-                      <td>
-                        <EnlargableTextbox
-                          name="sgstAmt"
-                          placeholder="SGST Amount"
-                          maxLength={13}
-                          onKeyPress={handleNumericInputKeyPress}
-                          onChange={e => handleFieldChange(e, index)}
-                          value={
-                            productDetail.sgstAmt ? productDetail.sgstAmt : ''
-                          }
-                          disabled
                         />
                       </td>
                       {/* <td>
@@ -1305,6 +1190,121 @@ const AddDemandDetail = () => {
                             </option>
                           ))}
                         </Form.Select>
+                      </td>
+                      <td>
+                        <Form.Select
+                          type="text"
+                          name="unitCode"
+                          className="form-control select"
+                          onChange={e => handleFieldChange(e, index)}
+                          value={productDetail.unitCode}
+                          required
+                        >
+                          <option value="">Select </option>
+                          {quantityUnitList.map((option, index) => (
+                            <option key={index} value={option.value}>
+                              {option.key}
+                            </option>
+                          ))}
+                        </Form.Select>
+                      </td>
+                      
+                      <td>
+                        <EnlargableTextbox
+                          name="demandQty"
+                          placeholder="Quantity"
+                          maxLength={5}
+                          required
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.demandQty
+                              ? productDetail.demandQty
+                              : ''
+                          }
+                          onKeyPress={handleNumericInputKeyPress}
+                        />
+                      </td>
+
+                      <td>
+                        <EnlargableTextbox
+                          name="demandRate"
+                          placeholder="Rate"
+                          maxLength={10}
+                          required
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.demandRate
+                              ? productDetail.demandRate
+                              : ''
+                          }
+                          onKeyPress={handleNumericInputKeyPress}
+                        />
+                      </td>
+
+                      <td>
+                        <EnlargableTextbox
+                          name="amount"
+                          placeholder="Amount"
+                          maxLength={13}
+                          required
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.demandAmount
+                              ? productDetail.demandAmount
+                              : ''
+                          }
+                          onKeyPress={handleNumericInputKeyPress}
+                        />
+                      </td>
+                      <td>
+                        <EnlargableTextbox
+                          name="cgstPer"
+                          placeholder="CGST %"
+                          maxLength={5}
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.cgstPer ? productDetail.cgstPer : ''
+                          }
+                          onKeyPress={handlePercentageKeyPress}
+                        />
+                      </td>
+                      <td>
+                        <EnlargableTextbox
+                          name="cgstAmt"
+                          placeholder="CGST Amount"
+                          maxLength={13}
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.cgstAmt ? productDetail.cgstAmt : ''
+                          }
+                          onKeyPress={handleNumericInputKeyPress}
+                          disabled
+                        />
+                      </td>
+                      <td>
+                        <EnlargableTextbox
+                          name="sgstPer"
+                          placeholder="SGST %"
+                          maxLength={5}
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.sgstPer ? productDetail.sgstPer : ''
+                          }
+                          onKeyPress={handlePercentageKeyPress}
+                        />
+                      </td>
+                      <td>
+                        <EnlargableTextbox
+                          name="sgstAmt"
+                          placeholder="SGST Amount"
+                          maxLength={13}
+                          onKeyPress={handleNumericInputKeyPress}
+                          onChange={e => handleFieldChange(e, index)}
+                          value={
+                            productDetail.sgstAmt ? productDetail.sgstAmt : ''
+                          }
+                          disabled
+                        />
                       </td>
                       <td>
                         <EnlargableTextbox

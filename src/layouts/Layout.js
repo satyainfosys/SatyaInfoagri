@@ -42,6 +42,7 @@ import VendorInvoice from 'components/VendorInvoiceEntry/VendorInvoice';
 import VendorInvoiceEntryReport from 'components/VendorInvoiceEntry/VendorInvoiceEntryReport';
 import Payment from 'components/Payment/Payment';
 import Demand from 'components/Demand/Demand';
+import DemandCollectionReport from 'components/Demand/DemandCollectionReport';
 
 const Layout = () => {
   const HTMLClassList = document.getElementsByTagName('html')[0].classList;
@@ -78,6 +79,7 @@ const Layout = () => {
         <Route path="/purchase-order-receipt/:poNo" element={<Invoice />} />
         <Route path="/crop-purchase-report" element={<CropPurchaseReport />} />
         <Route path="/vendor-invoice-entry/:invoiceHeaderCode" element={<VendorInvoiceEntryReport />} />
+        <Route path="/demand-collection/:demandNo" element={<DemandCollectionReport />} />
 
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<Dashboard />} />

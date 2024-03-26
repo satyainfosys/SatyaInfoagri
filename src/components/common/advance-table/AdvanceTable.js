@@ -307,7 +307,7 @@ const AdvanceTable = ({
     }
   }
 
-  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId, encryptedPoNo, encryptedInvoiceHeaderCode) => {
+  const generatePdf = async (farmerCode, vendorCode, encryptedMaterialReceiptId, encryptedPoNo, encryptedInvoiceHeaderCode, encryptedDemandNo) => {
     var url = "";
     if (farmerCode) {
       url = `/crop-purchase-receipt/${encryptedMaterialReceiptId}`;
@@ -320,6 +320,8 @@ const AdvanceTable = ({
     }
     else if (encryptedInvoiceHeaderCode) {
       url = `/vendor-invoice-entry/${encryptedInvoiceHeaderCode}`
+    } else if (encryptedDemandNo) {
+      url = `/demand-collection/${encryptedDemandNo}`
     }
 
     window.open(url, '_blank');
@@ -546,6 +548,7 @@ const AdvanceTable = ({
                                                                       icon="print"
                                                                       iconClassName="me-1"
                                                                       className="me-1 mb-2 mb-sm-0 hide-on-print"
+                                                                      onClick={() => generatePdf('', '', '', '', '', cell.row.original.encryptedDemandNo)}
                                                                     >
                                                                       Print
                                                                     </IconButton>

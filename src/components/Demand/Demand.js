@@ -316,7 +316,7 @@ const Demand = () => {
 
   const clearDemandReducers = () => {
     dispatch(formChangedAction(undefined));
-    dispatch(demandHeaderAction([]));
+    // dispatch(demandHeaderAction([]));
     dispatch(demandProductDetailsAction([]));
     dispatch(demandHeaderDetailsErrAction(undefined));
     localStorage.removeItem('DeleteDemandProductDetailIds');
@@ -448,7 +448,9 @@ const Demand = () => {
         })
     }
 
-    $('#btnSave').attr('disabled', true)
+    $('#btnSave').attr('disabled', true);
+
+    clearDemandReducers();
 
     fetchDemandHeaderList(1, perPage, localStorage.getItem("EncryptedCompanyCode"));
 
@@ -570,9 +572,9 @@ const Demand = () => {
               demandProductDetail[key] = demandProductDetail[key] ? demandProductDetail[key].toUpperCase() : "";
             }
 
-            if (!hasError && formChangedData.demandProductDetailsUpdate && demandProductDetail.encryptedDemandDetailId) {
+            if (!hasError && formChangedData.demandProductDetailsUpdate && demandProductDetail.encryptedDemandProductDetailId) {
                 const requestData = {
-                    encryptedDemandDetailId: demandProductDetail.encryptedDemandDetailId,
+                    encryptedDemandDetailId: demandProductDetail.encryptedDemandProductDetailId,
                     encryptedDemandNo: localStorage.getItem("EncryptedDemandNo"),
                     vendorProductCatalogueCode: demandProductDetail.vendorProductCatalogueCode,
                     vendorCode : demandProductDetail.vendorCode,
@@ -592,7 +594,7 @@ const Demand = () => {
                     harvestingMonth : demandProductDetail.harvestingMonth ? demandProductDetail.harvestingMonth : null,
                     harvestingYear : demandProductDetail.harvestingYear ? demandProductDetail.harvestingYear : null,
                     sowingMonth : demandProductDetail.sowingMonth ? demandProductDetail.sowingMonth : null,
-                    sowingYear : demandHeaderDetails.SowingYear ? demandHeaderDetails.SowingYear : null,
+                    sowingYear : demandProductDetail.sowingYear ? demandProductDetail.sowingYear : null,
                     modifyUser: localStorage.getItem("LoginUserName")
                 }
                 setIsLoading(true);
@@ -609,7 +611,7 @@ const Demand = () => {
                     break;
                 }
             }
-            else if (!hasError && formChangedData.demandProductDetailsAdd && !demandProductDetail.encryptedDemandDetailId) {
+            else if (!hasError && formChangedData.demandProductDetailsAdd && !demandProductDetail.encryptedDemandProductDetailId) {
                 const requestData = {
                   encryptedClientCode: localStorage.getItem("EncryptedClientCode"),
                   encryptedCompanyCode: localStorage.getItem("EncryptedCompanyCode"),
@@ -618,11 +620,11 @@ const Demand = () => {
                   vendorCode : demandProductDetail.vendorCode,
                   productCategoryCode: demandProductDetail.productCategoryCode,
                   productCode: demandProductDetail.productCode,
-                  deliveredQty: demandProductDetail.deliveredQty ? parseFloat(demandProductDetail.deliveredQty) : '',
-                  demandQty: demandProductDetail.demandQty ? parseFloat(demandProductDetail.demandQty) : '',
-                  unitCode: demandProductDetail.unitCode ? demandProductDetail.unitCode : null,
-                  demandRate: demandProductDetail.demandRate ? parseFloat(demandProductDetail.demandRate) : '',
-                  demandAmount: demandProductDetail.demandAmount ? parseFloat(demandProductDetail.demandAmount) : '',
+                  deliveredQty: demandProductDetail.deliveredQty ? parseFloat(demandProductDetail.deliveredQty) : null,
+                    demandQty: demandProductDetail.demandQty ? parseFloat(demandProductDetail.demandQty) : null,
+                    unitCode: demandProductDetail.unitCode ?  parseInt(demandProductDetail.unitCode) : null,
+                    demandRate: demandProductDetail.demandRate ? parseFloat(demandProductDetail.demandRate) : 0,
+                    demandAmount: demandProductDetail.demandAmount ? parseFloat(demandProductDetail.demandAmount) : 0,
                   cgstPer: demandProductDetail.cgstPer ? demandProductDetail.cgstPer : 0,
                   cgstAmt: demandProductDetail.cgstAmt ? demandProductDetail.cgstAmt : 0,
                   sgstPer: demandProductDetail.sgstPer ? demandProductDetail.sgstPer : 0,
@@ -652,7 +654,7 @@ const Demand = () => {
                     const demandProductDetails = [...demandProductDetails]
                     demandProductDetails[i] = {
                         ...demandProductDetails[i],
-                        encryptedDemandDetailId: addResponse.data.data.encryptedDemandDetailId
+                        encryptedDemandProductDetailId: addResponse.data.data.encryptedDemandDetailId
                     };
 
                     dispatch(demandProductDetailsAction(demandProductDetails))
