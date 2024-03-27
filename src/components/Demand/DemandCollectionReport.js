@@ -112,9 +112,7 @@ const DemandCollectionReport = () => {
             <Card.Body>
               <Row className="justify-content-between align-items-center">
                 <Col xs="auto">
-                  <h6 className="mb-2 mb-md-0">
-                    #{demandHeaderData.demandNo}
-                  </h6>
+                  <h6 className="mb-2 mb-md-0">#{demandHeaderData.demandNo}</h6>
                 </Col>
                 <Col xs="auto" className="text-center">
                   <Form.Label className="text-align-center">
@@ -145,10 +143,16 @@ const DemandCollectionReport = () => {
             <Card.Body>
               <Row className="align-items-center text-center mb-3">
                 <Col sm={6} className="text-sm-start">
-                  <h6 className="mb-3">From</h6>
+                  {demandHeaderData?.companyLogoURL && <img src={demandHeaderData.companyLogoURL} id='imgCompanyLogo' className='img-thumbnail shadow-sm logo-photo p3px' /> }
                   <h5>{demandHeaderData.companyName}</h5>
                   <p className="fs--1 mb-0">
                     {demandHeaderData.companyAddress}
+                  </p>
+                  {demandHeaderData.comapnyAddress2 &&
+                  <p className="fs--1 mb-0">{demandHeaderData.comapnyAddress2}</p>
+                  }
+                  <p className="fs--1 mb-0">
+                    {demandHeaderData.country} {demandHeaderData.state} - {demandHeaderData.pinCode}
                   </p>
                 </Col>
 
@@ -165,6 +169,12 @@ const DemandCollectionReport = () => {
                             <th className="text-sm-end">Demand Date:</th>
                             <td>{demandHeaderData.demandDate}</td>
                           </tr>
+                          {totalAmount > 0 && (
+                            <tr className="alert alert-success fw-bold">
+                              <th className="text-sm-end">Total Amount</th>
+                              <td>{totalAmount.toLocaleString('en-IN')} Rs.</td>
+                            </tr>
+                          )}
                         </tbody>
                       </Table>
                     </div>
@@ -179,9 +189,7 @@ const DemandCollectionReport = () => {
                   <Col>
                     <h6 className="text-">Supplier / Farmer Name </h6>
                     <h5>{demandHeaderData.farmerName}</h5>
-                    <p className="fs--1">
-                      {demandHeaderData.farmerAddress}
-                    </p>
+                    <p className="fs--1">{demandHeaderData.farmerAddress}</p>
                   </Col>
                 )}
               </Row>
@@ -218,15 +226,15 @@ const DemandCollectionReport = () => {
                           </td>
                         )}
                         <td className="align-middle text-start">
-                          {item.demandQty}
+                          {item.demandQty ? item.demandQty : '-'}
                         </td>
                         <td className="align-middle text-start">
-                          {parseFloat(item.demandRate).toLocaleString('en-IN')}
+                          {item.demandRate ? parseFloat(item.demandRate).toLocaleString('en-IN') : '-'}
                         </td>
                         <td className="align-middle text-start">
-                          {parseFloat(item.demandAmount).toLocaleString(
+                          {item.demandAmount ? parseFloat(item.demandAmount).toLocaleString(
                             'en-IN'
-                          )}
+                          ) : '-'}
                         </td>
                       </tr>
                     ))}

@@ -409,7 +409,7 @@ const Demand = () => {
             return acc + (isNaN(productGrandAmount) ? 0 : productGrandAmount);
           }, 0)
         : demandProductDetails.length === 1
-        ? parseFloat(demandProductDetails[0].productGrandAmt)
+        ? parseFloat(demandProductDetails[0].productGrandAmt !== '' ? parseFloat(demandHeaderDetails[0].productGrandAmount) : 0)
         : 0;
 
     if (demandHeaderDetails.demandAmount != totalProductGrandAmount) {
@@ -679,7 +679,7 @@ const Demand = () => {
           cgstAmt: detail.cgstAmt ? detail.cgstAmt : 0,
           sgstPer: detail.sgstPer ? detail.sgstPer : 0,
           sgstAmt: detail.sgstAmt ? detail.sgstAmt : 0,
-          productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : 0,
+          productGrandAmt: detail.productGrandAmt ? detail.productGrandAmt : null,
           deliveredQty : detail.quantity ? detail.quantity : 0
         };
       });

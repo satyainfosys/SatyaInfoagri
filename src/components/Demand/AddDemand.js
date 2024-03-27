@@ -21,6 +21,7 @@ const AddDemand = () => {
         village: '',
         phoneNumber: '',
         farmerCollCenterCode: '',
+        farmerCollCenterName: '',
         demandAmount: '',
         demandDate: '',
         deliveryDate: '',
