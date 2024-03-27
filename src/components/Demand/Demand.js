@@ -286,7 +286,7 @@ const Demand = () => {
     } else {
       window.location.href = '/dashboard';
       clearDemandReducers();
-      dispatchEvent(demandHeaderAction(undefined));
+      dispatch(demandHeaderAction(undefined));
       dispatch(productCatalogueDetailsAction(undefined));
       localStorage.removeItem('EncryptedDemandNo');
       localStorage.removeItem('DeleteDemandProductDetailIds');
